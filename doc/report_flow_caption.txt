@@ -1,0 +1,24 @@
+This figure shows the navigable flow through the browser report
+generator. 
+
+The top level presents you with a list of test runs that are
+available to browse through, and also the option to specify a given
+test run (for example, the daily_latest run). 
+
+Either path will take you to the treewalker, with which you can
+navigate through the various test subsets, both hierarchically through
+the test namespace, and by project, host, test run, and status.
+
+Once you've narrowed to a subset of interest, the "show all" link will
+take you to a summary report for this set. The summary report presents
+a table with one row per test, including contact and
+status. The summary report permits the comparison of this subset to
+the same subset in another test; displaying test attributes; and
+sorting by table column.
+
+Clicking on a test name takes you to the detailed report for a single
+test, which contains all the information about the test available in
+the database. For tests that are "OK-aware", a "FlagOK" button is
+present on this form, that can be used to mark a failed test "OK". 
+
+From the detailed report, you can return to the treewalker

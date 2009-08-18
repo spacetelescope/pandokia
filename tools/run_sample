@@ -1,0 +1,21 @@
+rm -rf /tmp/arf
+rm -rf ~/py
+rm -rf tmp
+
+python setup.py -q install --home ~/py
+
+mkdir /tmp/arf
+echo 'dbdir="/tmp/arf"' >> `pdk config`
+
+pdk initdb db
+pdk initdb qdb
+
+pdk import sample_data/*
+
+
+mkdir tmp
+cd tmp
+cp `which pdk` pdk.cgi
+
+pdk webserver
+

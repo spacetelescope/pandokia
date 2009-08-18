@@ -1,0 +1,15 @@
+[default]
+c_cdbs=/grp/hst/cdbs
+PDK_PROJECT=demo_a
+jref=$c_cdbs/jref/
+mtab=$c_cdbs/mtab/
+
+
+[host=etc-dev1]
+c_cdbs=/data1/cdbs
+
+
+[host=ekky]
+c_cdbs=$HOME/CentralStore/grp/hst/cdbs
+
+

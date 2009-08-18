@@ -1,0 +1,53 @@
+Pandokia
+
+"All your test are belong to us!"
+
+
+What is here
+--
+
+INSTALL
+	installation instructions
+
+commands
+	commands that you type to invoke pandokia
+
+doc
+	documentation here, including some example tests
+
+pandokia
+	the pandokia python module
+
+pandokia_top
+	indicator that test runner should not look above this directory
+	for environment files; This is not the root of a test tree, but
+	if we leave pandokia_top out of a subdirectory, this will limit
+	the top of the tree.
+
+sample_data
+	a set of pandokia report files that you can import into
+	your database for a simple demo
+
+setup.py
+	standard distutils-based installer
+
+stsci_regtest
+	a special test system used locally at STScI to test IRAF
+        code. There are some associated files in commands and runners 
+        as well.
+        Not for general use.
+
+stsci_regtest_tests
+        its associated tests
+
+tests
+	various tests that pandokia can run; as of version 1.0,
+	this is not a test suite of pandokia that we expect to pass
+	all tests, but it is a set of tests that help us in
+	testing/development.  ( Pandokia does not have a test suite
+	that tests the pandokia system; the irony of that is not
+	lost on us. )
+
+tools
+	various tools useful to the developers
+

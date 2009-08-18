@@ -1,0 +1,7 @@
+Basic Pandokia Data Flow
+
+Running tests produces a log file containing test result data, usually
+with many test results appended in a single file. An importer
+processes the log file and loads the data into the database. The
+accumulated results are then available to users through a CGI browser
+interface. 

@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# This shell script exists only to collect the stdout/stderr so we can insert
+# them into $PDK_LOG.  regress_helper executes a mix of python code and
+# IRAF tasks -- it is not practical to try to make it collect all of its own
+# stdout.  This script is not portable to Windows, but neither is IRAF, so it
+# doesn't matter.
+#
+
+# Right now, a big chunk of this script is debugging
+
+echo "pdk_stsci_regress" 
+echo start
+ls -ld $PDK_LOG
+
+tmpfile=pdk.runner.tmp
+
+tmpfile2=pdk.runner.2.tmp
+
+rm -f $tmpfile
+rm -f $tmpfile2
+
+env | sed 's/^/	env: /'
+
+PDK_LOG=$tmpfile2 pdk_stsci_regress_helper > $tmpfile 2>&1
+
+echo append
+ls -ld $tmpfile
+ls -ld $tmpfile2
+ls -ld $PDK_LOG
+echo record part
+cat $tmpfile2 >> $PDK_LOG
+ls -ld $PDK_LOG
+echo log part
+( echo 'log:'
+sed 's/^/./' < $tmpfile
+echo ''
+echo END
+) >> $PDK_LOG
+ls -ld $PDK_LOG
+echo done
+

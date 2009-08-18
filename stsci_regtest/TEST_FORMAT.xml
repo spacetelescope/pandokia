@@ -1,0 +1,255 @@
+<!--
+
+This documents the format of a test definition.
+
+General notes:
+
+Put this test definition file that matches *.xml in a directory in
+one of the regression test systems.  It will automatically run with
+the daily regression tests.
+
+This type of test collects some output files from a program, then
+compares them to a reference file.  The reference file was made
+previously by running the program and saving the output.
+
+It runs in a python environment that has pyraf available.  pyraf
+is already imported.  You can provide pre-exec python code that is
+run first, then optionally an IRAF task that is run, then post-exec
+python code that is run at the end.  After all that, the list of
+expected output files is compared to the references.  If you have
+only python code to execute, you can leave out the IRAF task.
+
+If any of the python code causes an uncaught exception, the test fails.
+
+The rest of this file is a sample file showing the xml object tree,
+all the possible objects, and a description of each one.  Except where
+noted, the order of objects is not significant, but the order that
+they are listed here is approximately the order that they are used
+in the test software.
+
+-->
+
+<!--
+
+Often, you will see a bunch of DOCTYPE stuff at the top of the
+file.  That makes your file bigger, but it doesn't have any
+effect on the test.  We don't use any xml tools with these
+files.
+
+-->
+
+
+<!--
+
+RegTest: required
+
+Each test file contains one <RegTest> object.  You cannot list
+multiple regtest objects to define multiple tests.
+
+( Some test files do not have a <RegTest> object wrapping the whole
+file content.  This apparently is historical usage that the regression
+test software recognizes and works around. )
+
+-->
+
+<RegTest>
+
+	<!--
+
+	level: 
+		required in old regtest software
+		optional in pandokia
+
+	When running a batch of tests, you specify a level.  If
+	this level is less than the level of this batch run, the
+	test is skipped.
+
+	That is, level 1 is a relatively unimportant test.  As of
+	this writing, the highest level defined in any test is 3.
+	There is no maximum level.
+
+	In practice, we always run tests of level 1 or greater.
+
+	Pandokia ignores the level.
+
+	-->
+
+	<level>		</level>
+
+	<!--
+
+	title: 
+		required in old regtest software
+		optional in pandokia
+
+	Title is a name that identifies the test.  You can use most
+	plain text, but DO NOT use a newline in the title.
+
+	By convention, the title is generally a directory name
+	followed by some descriptive comment about the specific
+	test in that directory.
+
+	In pandokia, the name of the test is derived from the file
+	name, not the title.  Historically, we have observed that
+	titles are not always unique.
+
+	-->
+	<title>mything/subset/cooltest: level 1</title>
+
+
+	<!-- 
+
+	pre-exec: optional
+
+	pre-exec is a set of python commands that are executed
+	before the test program is started.  It contains a list of
+	<command> objects.  The content of each <command> object
+	is handed to the python "exec" statement.
+
+	If this code raises an uncaught exception, the test fails.
+
+	Output to sys.stdout is not available for comparisons.  If
+	you want to compare output from python code, open a file
+	and write to it.
+
+	-->
+
+	<pre-exec>
+
+		<!-- you can include one command per line, like
+		this.   Note that you cannot break compound statements
+		across multiple <command> blocks.  -->
+		<command>import sys</command>
+		<command>f=open("output.txt","w")</command>
+
+		<!-- you can include a block of code.  Note that
+		you have to start it in column 0 or python will see
+		an incorrect indent level. -->
+<command>
+import time
+f=open("output.txt","w")
+f.write("%d\n",time.time())
+f.close()
+</command>
+
+		<!-- you can use a file by giving "@filename". As of
+		this writing, no test does this. -->
+		<command>@myfile.py</command>
+
+	</pre-exec>
+
+
+	<!--
+
+	taskname: optional
+	pfile: optional
+
+	If taskname is present, it contains the name of an iraf
+	task to run, and pfile contains the name of a parameter
+	file for that task.
+
+	If the taskname object is missing, it is assumed that
+	<pre-exec> or <post-exec> created any necessary output files
+	for this test.
+
+	-->
+
+	<taskname>	</taskname>
+	<pfile>		</pfile>
+
+
+	<!--
+
+	post-exec: optional
+
+	post-exec is exactly like pre-exec, except that it happens after
+	the task in <taskname> is executed.
+
+	-->
+
+	<post-exec>
+	  <command>	</command>
+	</post-exec>
+
+
+	<!--
+
+	output: required
+
+	output contains a list of one or more <val> objects.  Each
+	<val> object describes an output file, a reference file,
+	and a comparison method.  If any output file does not match,
+	the test fails.  (If you have zero <val> objects, there are
+	no comparisons done, but the test can still fail if it raises
+	an exception.)
+
+	Within the <val> object, you list various attributes of the
+	comparison:
+
+	<file> is the name of the file that is produced when you
+	run the code that is being tested.  <file>STDOUT</file>
+	means the standard output from the IRAF task.  You cannot
+	collect standard output from python code, but your python
+	code can open a file and write to it.
+
+	<reference> is a reference file that <file> is compared to.
+	We get reference files by running the test, decided that the
+	output is correct, and renaming the output file to the
+	reference file name.
+
+	<comparator> is the type of comparison to use.  Possible
+	values are:
+		ascii
+		stdout
+			Compare as plain text.  (This comparator
+			reads the entirety of both files into 
+			memory, then applies regular expressions
+			to each line.)
+
+		image
+		table
+		fits
+			Compare using fitsdiff.
+
+		binary
+			If you examine the code, you will see "binary"	
+			is recognized as an option, but it is not
+			implemented.
+
+	These optional parameters affect the operation of fitsdiff:
+		<maxdiff>
+			Selects the delta value for fitsdiff.  A
+			value matches if ???
+		<ignorekeys>
+			???
+		<ignorecomm>
+			???
+
+	Ascii compares can have regular expressions substituted to
+	the value " IGNORE " before the comparison.  This means you
+	can specify various patterns that do not apply to the
+	comparison:
+		<ignore_date></ignore_date>
+			ignores any of several known date formats
+			(note that the mere presence of this object
+			causes the effect.)
+		<ignore_wstart>XYZ</ignore_wstart>
+			space XYZ nonspaces space
+		<ignore_wend>XYZ</ignore_wend>
+			space nonspaces XYZ space
+		<ignore_regexp>ABC</ignore_regexp>
+			ABC
+
+	-->
+
+	<output>
+	  <val>
+	    <file>file.fits</file>
+	    <reference>file.ref</reference>
+	    <comparator>image</comparator>	
+		
+	  </val>
+	</output>
+
+</RegTest>
+

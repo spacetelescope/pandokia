@@ -1,0 +1,18 @@
+#!/usr/stsci/pyssgdev/Python-2.5.4/bin/python
+
+#
+# pandokia - a test reporting and execution system
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+#
+
+# This ensures that we get the pandokia package that we expect.
+# You cannot count on the _correct_ pandokia package being in the
+# system site-packages or on PYTHONPATH.
+
+PDK_DIR_HERE    # this will be edited by setup.py when you install
+import sys
+sys.path.insert(0, pdk_dir)
+
+# see the stsci_regtest package for details
+import stsci_regtest.pdkregress
+sys.exit(stsci_regtest.pdkregress.main())

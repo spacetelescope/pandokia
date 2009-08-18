@@ -1,0 +1,10 @@
+tca_jref=/grp/hst/cdbs/jref/
+tca_c=/grp/hst/cdbs
+tca_uref=/grp/hst/cdbs/uref/
+tca_nref=/grp/hst/cdbs/nref/
+tca_oref=/grp/hst/cdbs/oref/
+tca_mtab=/grp/hst/cdbs/mtab/
+tca_cracscomp=/grp/hst/cdbs/comp/acs/
+tca_ntab=/grp/hst/cdbs/ntab/
+tca_PATH=/usr/stsci/ssbdev/bin:/your/other/path
+tca_crotacomp=/grp/hst/cdbs/comp/ota/
