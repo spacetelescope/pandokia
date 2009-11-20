@@ -163,52 +163,11 @@ class Pdk(Plugin):
     def startTest(self,test):
         self.pdk_starttime = pdktimestamp(time.time())
 
-    def find_txa(self, test):
-        """Find the TDA and TRA dictionaries, which will be in different
-        places depending on what kind of a test this is.
-        """
-
-        #TODO: Refactor this so as to avoid the duplication of code.
-
-        #Find the TDAs if we have any
-        try:
-            #If this test case is a class that inherits from unittest,
-            #it's an attribute
-            tda=test.tda
-
-        except AttributeError, e:
-            #If it is a class that does not inherit from unittest, then
-            #it's wrapped in a MethodTestCase.
-            try:
-                tda = test.test.im_class.tda
-            except AttributeError, e:
-                try:
-                    #If it is a function, it's wrapped in a FunctionTestCase
-                    #and we need to check its global variables 
-                    tda=test.test.func_globals['tda']
-                except (AttributeError, KeyError):
-                    tda=None
-
-        #Now the same logic for the tras.
-        try:
-            tra=test.tra
-        except AttributeError, e:
-            try:
-                tra = test.test.im_class.tra
-            except AttributeError, e:
-                try:
-                    tra=test.test.func_globals['tra']
-                except (AttributeError, KeyError):
-                    tra=None
-
-        return tda, tra
-
     def pdklog(self,test,status,name=None,log=None):
         """Creates a log file containing the test name, status,and timestamp,
         as well as any attributes in the tda and tra dictionaries if present.
         Does not yet support fancy separating of multi-line items."""
-
-
+        
         #Catch the time.
         self.pdk_endtime=pdktimestamp(time.time())
         
@@ -248,7 +207,16 @@ class Pdk(Plugin):
         self.f_pdk.write("end_time=%s\n"%self.pdk_endtime)
 
 
-        tda, tra = self.find_txa(test)
+        #Find the TDAs if we have any
+        try:
+            #They are attributes of the test case
+            tda=test.tda
+        except AttributeError, e:
+            try:
+                #or global variables for a test function
+                tda=test.test.func_globals['tda']
+            except (AttributeError, KeyError):
+                tda=None
 
         #Write the TDAs
         try:
@@ -269,6 +237,14 @@ class Pdk(Plugin):
             else:
                 pass
 
+        #Find the TRAs if we have any
+        try:
+            tra=test.tra
+        except AttributeError:
+            try:
+                tra=test.test.func_globals['tra']
+            except (AttributeError, KeyError):
+                tra=None
 
         #Write the TRAs
         try:
