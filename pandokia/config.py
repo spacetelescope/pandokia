@@ -49,11 +49,22 @@ user_list = None
 os_info = {
     # this is sample data - you can list your own machines here
     # or you can leave this blank.
+
     "banana":   "Mac x86",
-    "justine":  "Mac X86",
-    "enchanter":"RHE 3 / 32",
+    "basil":    "Solaris 10",
+    "bond":     "Mac Leopard",
+    "cadeau":   "Mac Leopard",
+    "ekky":     "Mac x86",
+    "etc-dev1": "RHE4 / 64, ETC",
+    "gaudete":  "RHE 4 / 64",
+    "herbert":  "RHE 4 / 32",
     "macbert":  "Mac PPC",
+    "motoko":   "RHE 4",
+    "quagga":   "RHE 3",
+    "ssbwebv1": "RHE 5 / 64",
+    "thor":     "RHE 4 / 64",
     "timthe":   "Mac PPC",
+    "tufnel":   "Solaris pipeline",
 
     }
 
@@ -106,3 +117,4 @@ debug = False
 #
 # END OF CONFIGURATION
 #
+flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
