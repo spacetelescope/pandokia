@@ -521,44 +521,29 @@ def linkout( ) :
         (key_id, ) = x
         a.append(key_id)
 
-    if len(a) == 1 :
-        # There is only 1 test that matches what the user asked for; just show it
-        if not no_redirect :
-            output.write(
-                '<html><head><meta http-equiv="REFRESH" content="0;'
-                + pandokia.pcgi.cginame
-                + ( '?query=detail&key_id=%s"' % key_id )
-                + '>\n</head><body>\n' 
-                )
-        output.write( 
-            "redirecting: <a href='"
+    # Enter the test results into the qdb with the current qid, then
+    # redirect to displaying the qid.  That will get the user the list of
+    # all tests.
+
+    # (This used to link directly to the detail display if there was only one,
+    # but that makes the checkboxes unavailable in that case.)
+
+    for key_id in a :
+        qdb.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (qid, key_id ) )
+    qdb.commit()
+
+    if not no_redirect :
+        output.write(
+            '<html><head><meta http-equiv="REFRESH" content="0;'
             + pandokia.pcgi.cginame
-            + ("?query=detail&key_id=%s'>key_id = " % key_id)
-            + str(key_id) 
-            + "</a><br>\n" 
+            + ( '?query=summary&qid=%s"' % qid ) 
+            + '>\n</head><body>\n'
             )
-
-    else :
-        # There are multiple test results; enter them into the qdb with the current
-        # qid, then redirect to displaying the qid.  That will get the user the list of
-        # all tests.
-
-        for key_id in a :
-            qdb.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (qid, key_id ) )
-        qdb.commit()
-
-        if not no_redirect :
-            output.write(
-                '<html><head><meta http-equiv="REFRESH" content="0;'
-                + pandokia.pcgi.cginame
-                + ( '?query=summary&qid=%s"' % qid ) 
-                + '>\n</head><body>\n'
-                )
-        output.write( 
-            "redirecting: <a href='"
-            + pandokia.pcgi.cginame
-            + ("?query=summary&qid=%s'>qid = " % qid)
-            + str(qid) 
-            + "</a><br>\n" 
-            )
+    output.write( 
+        "redirecting: <a href='"
+        + pandokia.pcgi.cginame
+        + ("?query=summary&qid=%s'>qid = " % qid)
+        + str(qid) 
+        + "</a><br>\n" 
+        )
 

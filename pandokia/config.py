@@ -111,7 +111,7 @@ runner_glob = [
 
 ######
 
-debug = False
+debug = True
 
 #####
 #

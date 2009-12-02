@@ -152,9 +152,18 @@ def run() :
         x.run()
         sys.exit(0)
 
+    if query == 'action' :
+        import pandokia.pcgi_action as x
+        x.run()
+        sys.exit(0)
+
+
     #
     # You can't get here by following links, so you must have typed in the
     # url directly.  In that case, you are messing with us and you get no
     # friendly response.
     sys.stdout.write("content-type: text/html\n\n\n<font color=red><blink>1201</blink></font>\n")
-
+    
+    if cfg.debug :
+        for x in form:
+            print x, form[x].value,"<br>"

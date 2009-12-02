@@ -111,6 +111,7 @@ Compare to:
 </form>
 """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
 
+    output.write('<h3>QID = %d</h3>'%int(qid))
 
     #if cmp_run != '' :
     #    output.write("<h3>Compare to: "+cgi.escape(cmp_run)+"</h3>")
@@ -131,6 +132,8 @@ Compare to:
     qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (time.time(), qid) )
     c = qdb.execute("SELECT key_id FROM query WHERE qid = ?", (qid,) )
 
+    result_table.define_column("checkbox",  showname='&nbsp;')
+    result_table.define_column("attn",      link=sort_link+"+attn")
     result_table.define_column("test_run",  link=sort_link+"+test_run")
     result_table.define_column("project",   link=sort_link+"+project")
     result_table.define_column("host",      link=sort_link+"+host")
@@ -156,7 +159,7 @@ Compare to:
         # find the result of this test
         #
 
-        c1 = db.execute("SELECT test_run, project, host, test_name, status FROM result_scalar WHERE key_id = ? ", (key_id,) )
+        c1 = db.execute("SELECT test_run, project, host, test_name, status, attn FROM result_scalar WHERE key_id = ? ", (key_id,) )
 
         y = c1.fetchone()   # unique index
 
@@ -164,7 +167,7 @@ Compare to:
             # this can only happen if somebody deletes tests from the database after we populate the qid
             continue
 
-        (test_run, project, host, test_name, status) = y
+        (test_run, project, host, test_name, status, attn) = y
 
         # if we are comparing to another run, find the other one; 
         # suppress lines that are different - should be optional
@@ -201,6 +204,8 @@ Compare to:
             detail_query = { "test_run" : test_run, "project" : project, "host" : host, "test_name" : test_name }
         else :
             detail_query = { "key_id" : key_id }
+        result_table.set_value(rowcount,"checkbox",'',html='<input type=checkbox name=%s>'%key_id)
+        result_table.set_value(rowcount,"attn",attn)
         result_table.set_value(rowcount,"test_run",test_run)
         result_table.set_value(rowcount,"project",project)
         result_table.set_value(rowcount,"host",host)
@@ -284,7 +289,47 @@ Compare to:
 
     result_table.sort([ sort_order[1:] ], reverse=reverse_val)
     
+
+    output.write('''
+<script language=javascript>
+    function set_all(value)
+        {
+        len = document.testform.elements.length;
+        ele = document.testform.elements;
+        for (n=0; n<len; n++)
+            ele[n].checked=value;
+        }
+    function toggle(value)
+        {
+        len = document.testform.elements.length;
+        ele = document.testform.elements;
+        for (n=0; n<len; n++)
+            ele[n].checked= ! ele[n].checked;
+        }
+</script>
+''')
+
+    output.write('''
+    <form action=%s method=post name=testform>
+    <input type=hidden name=query value='action'>
+    <input type=hidden name=qid value=%d>
+    ''' % ( pandokia.pcgi.cginame, qid) )
+    
     output.write(result_table.get_html(color_rows=5))
+
+    output.write('Actions:<br>')
+    output.write('<input type=button name="setall"   value="Set All"   onclick="set_all(true)">')
+    output.write('<input type=button name="clearall" value="Clear All" onclick="set_all(false)">')
+    output.write('<input type=button name="clearall" value="Toggle"    onclick="toggle()">')
+    output.write('<br>')
+    output.write('<input type=submit name="action_remove" value="Remove">')
+    output.write('<input type=submit name="action_keep"   value="Keep">')
+    output.write('<br>')
+    output.write('<input type=submit name="action_flagok" value="Flag OK">')
+    output.write('<input type=submit name="action_flagok_rem" value="Flag OK + Remove">')
+    output.write('<input type=submit name="action_cattn" value="Clear Attn">')
+    output.write('<input type=submit name="action_sattn" value="Set Attn">')
+    output.write('</form>')
 
     output.write( "<br>rows: %d <br>"%rowcount )
     if cmp_run != "" :
