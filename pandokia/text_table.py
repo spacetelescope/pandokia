@@ -207,7 +207,7 @@ class text_table :
 
     ##
 
-    def define_column(self, name, num = -1, link=None, html=None ):
+    def define_column(self, name, num = -1, link=None, html=None, showname=None ):
         if num < 0 :
             # we are defining a new column without specifying a column number
             # The name matches an existing column, or we add a new one.
@@ -225,7 +225,10 @@ class text_table :
         pad_list(self.title_html,  num, None )
 
         # fill in the values
-        self.titles[num]      = name
+        if showname is not None :
+            self.titles[num]      = showname
+        else :
+            self.titles[num]      = name
         self.title_links[num] = link
         self.title_html[num]  = html
 
