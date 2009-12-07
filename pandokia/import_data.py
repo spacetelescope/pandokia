@@ -316,6 +316,7 @@ def run(args) :
             if not 'test_name' in x :
                 # should not happen, but don't want to let it kill the import
                 print "warning: no test name on line: %4d"%line_count
+                print "   ",[zz for zz in x ]
                 continue
 
             if x["test_name"].endswith(".xml") or x["test_name"].endswith(".log") :
