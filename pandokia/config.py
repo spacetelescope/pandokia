@@ -50,10 +50,12 @@ os_info = {
     # this is sample data - you can list your own machines here
     # or you can leave this blank.
 
+    "arzach":   "RHE 5 / 64",
     "banana":   "Mac x86",
     "basil":    "Solaris 10",
     "bond":     "Mac Leopard",
     "cadeau":   "Mac Leopard",
+    "dukat":    "Windows/XP",
     "ekky":     "Mac x86",
     "etc-dev1": "RHE4 / 64, ETC",
     "gaudete":  "RHE 4 / 64",
