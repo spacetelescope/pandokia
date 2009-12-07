@@ -65,11 +65,7 @@ def run( ) :
     qid = int(form['qid'].value)
     print "b"
     if 'action_remove' in form :
-        for key_id in form :
-            try :
-                key_id = int(key_id)
-            except ValueError :
-                continue
+        for key_id in valid_key_ids(form) :
             qdb.execute('DELETE FROM query WHERE qid = ? AND key_id = ?', (qid, key_id))
         qdb.commit()
 
@@ -78,11 +74,7 @@ def run( ) :
             value='N'
         else :
             value='Y'
-        for key_id in form :
-            try :
-                key_id = int(key_id)
-            except ValueError :
-                continue
+        for key_id in valid_key_ids(form) :
             db.execute("UPDATE result_scalar SET attn = ? WHERE key_id = ?", (value,key_id))
         db.commit()
 
@@ -104,12 +96,7 @@ def run( ) :
             user = str(os.getuid())
         print "c2"
 
-        for key_id in form :
-            print "c3",key_id
-            try :
-                key_id = int(key_id)
-            except ValueError :
-                continue
+        for key_id in valid_key_ids(form) :
             print "c4",db,client,key_id, user
             pandokia.flagok.flagok(db, client, key_id, user)
             print "c5"
@@ -117,6 +104,14 @@ def run( ) :
         print "c6"
         pandokia.flagok.commit(db)
         print "c7"
+
+    elif 'not_expected' in form :
+        print "c1"
+        for key_id in valid_key_ids(form) :
+            c = db.execute("SELECT project, host, test_name FROM result_scalar WHERE key_id = ?", (key_id,) )
+            for project, host, test_name in c :
+                db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ?",(project,host,test_name))
+        db.commit()
 
     print "e"
 
@@ -138,3 +133,13 @@ def run( ) :
             )
 
     print "g"
+
+def valid_key_ids(form) :
+    l = [ ]
+    for key_id in form :
+        try :
+            key_id = int(key_id)
+        except ValueError :
+            continue
+        l.append(key_id)
+    return l
