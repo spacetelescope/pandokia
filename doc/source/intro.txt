@@ -1,10 +1,7 @@
 ========
-PANDOKIA 
+Overview
 ========
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*'All your test are belong to us'*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Philosophy
@@ -130,17 +127,45 @@ Browsable reports
 The browsable report generator allows the user to navigate through the
 database of test results in tabular or tree form, gradually narrowing
 the test set of interest down to the level of a single test report, if
-desired. The figure (report_flow.png, report_flow_caption.txt)
-illustrates the navigation paths supported by the interface.
+desired. The figure illustrates the navigation paths supported by 
+the interface.
+
+.. figure:: report_flow.png
+
+  This figure shows the navigable flow through the browser report
+  generator. 
+
+
+The top level presents you with a list of test runs that are
+available to browse through, and also the option to specify a given
+test run (for example, the daily_latest run). 
+
+Either path will take you to the treewalker, with which you can
+navigate through the various test subsets, both hierarchically through
+the test namespace, and by project, host, test run, and status.
+
+Once you've narrowed to a subset of interest, the "show all" link will
+take you to a summary report for this set. The summary report presents
+a table with one row per test, including contact and
+status. The summary report permits the comparison of this subset to
+the same subset in another test; displaying test attributes; and
+sorting by table column.
+
+Clicking on a test name takes you to the detailed report for a single
+test, which contains all the information about the test available in
+the database. For tests that are "OK-aware", a "FlagOK" button is
+present on this form, that can be used to mark a failed test "OK". 
+
+From the detailed report, you can return to the treewalker
 
 
 The following screen shots illustrate several commonly-used reports in
 the system:
 
- - screen1.html: Shows a daily report in tabular form
- - screen2.html: Shows an intermediate report from a tree-navigation
- - screen3.html: Shows a single test result
- - screen4.html: Shows a set of failing tests that have attributes in common
+ - A :download:`daily report <../screen1.html>` in tabular form
+ - An :download:`intermediate report <../screen2.html>` from a tree-navigation
+ - A :download:`single test result <../screen3.html>`
+ - A set of failing tests that have :download:`attributes in common<../screen4.html`
 
 
 
@@ -148,15 +173,39 @@ Internal workflow
 -----------------
 
 A high-level view of the system is quite simple, as illustrated in
-figure simple_dfd.png: running tests produces a log file containing
+figure: running tests produces a log file containing
 test result data, usually with many test results appended in a
 single file. An importer processes the log file and loads the data
 into the database. The accumulated results are then available to
 users through a CGI browser interface.
 
+.. figure:: simple_dfd.png
+
+   High-level view of system dataflow.
+
 This section discusses the internal workings of the system, as
-illustrated in the more complex diagram complex_dfd.png
-(complex_dfd_caption.txt).
+illustrated in the more complex diagram below.
+
+.. figure:: complex_dfd.png
+
+   This figure shows the elements of Pandokia in more detail. The dashed
+   line marks the boundary of the machine on which the database
+   resides. All tasks that interact directly with the database are
+   run on this machine.
+
+
+
+In addition to the standard test-import-browse data flow, some
+additional flows provide enhanced bookkeeping. 
+
+  - Multiple contacts can be associated with sets of tests; this information may change, and changes must be imported.
+
+  - A notifier sends a customized email with reports of any anomalous (fail, error, or missing) test results.
+
+  -  Missing tests are detected by checking against a list of expected tests, which is automatically updated when new tests are added. 
+
+  - Test reports can be exported from the database, and a small set of database maintenance utilities are provided.
+
 
 
 Test discovery is performed hierarchically in a directory tree.

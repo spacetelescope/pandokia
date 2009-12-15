@@ -2,26 +2,26 @@ What are the contents of a test result?
 ---------------------------------------
 
 There is one test_result each time we run a specific test.
-The fields can be categorized as follows:
+The fields can be categorized as follows::
 
-	Type: This set of fields identifies a type of test:
+	Type: This set of fields identifies a type of test::
 		project
 		test_runner
 		test_name
 
-	Identity: this set of fields identifies a single test_result record:
+	Identity: this set of fields identifies a single test_result record::
 		test_run
 		host
 		project
 		test_name
 
-	Required: This set of fields is required:
+	Required: This set of fields is required::
 		test_run
 		project
 		test_name
 		status
 
-        Optional: All other recognized fields:
+        Optional: All other recognized fields::
 	       location     (of the test file)
 	       test_runner  (used to run the test)
 	       log          (stdout/stderr logs)
@@ -109,7 +109,7 @@ There are various optional fields:
   The cumulative run time of some of our test suites is many hours.
   It helps to know what time a particular test ran.
 
-  Two formats are supported for these timestamps:
+  Two formats are supported for these timestamps::
 
 	- time_t (seconds since 1970)
 	  may be floating point for fractions of a second

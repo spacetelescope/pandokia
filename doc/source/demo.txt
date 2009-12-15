@@ -1,5 +1,5 @@
-Importing Demo Data
--------------------
+Appendix: Importing Demo Data
+==============================
 
 After you have installed Pandokia on your system, you can follow this
 procedure to import the provided demo data into your database.
@@ -35,12 +35,12 @@ suffix. We designated this the "sample" project for convenience.
 Importing the demo data
 -----------------------
 
-All the data can be imported with one command:
+All the data can be imported with one command::
 
      cd sample_data
      pdk import *
 
-or you can import them one test run at a time:
+or you can import them one test run at a time::
 
      pdk import demo_1.*
      pdk import demo_2.*
@@ -66,19 +66,19 @@ In this case, we'll start by clicking in the "Lists of Test Runs" on
   - if you click on the name of the test run, you get a tabular view
 
     Here the tests are grouped by host and status. Clicking on any
-  of the links will take you to a page showing only those tests that
-  satisfy the relevant conditions.
+    of the links will take you to a page showing only those tests that
+    satisfy the relevant conditions.
 
   - clicking on "T" gives you the treewalker view
     
     Here the tests are grouped by status and the first element of the
-  hierarchical test name. One can click on any of the links in the
-  table which will again take you to a page showing only those tests
-  that satisfy the relevant conditions, or use one of the "narrow to"
-  choices to further narrow by host or project.
+    hierarchical test name. One can click on any of the links in the
+    table which will again take you to a page showing only those tests
+    that satisfy the relevant conditions, or use one of the "narrow to"
+    choices to further narrow by host or project.
 
   - clicking on "P" gives you a summary of only the problem cases
-  (status = error or fail)
+    (status = error or fail)
  
     This is a summary view, pre-selected to show only
     the tests with an error or failing status. From here you can

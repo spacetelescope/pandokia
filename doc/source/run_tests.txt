@@ -203,44 +203,46 @@ they fail.
 unittest/testcase style
 .......................
 
-# This example shows how to add attributes to a unittest-style test.
+# This example shows how to add attributes to a unittest-style test.::
 
-class BasicTest(unittest.TestCase):
-    def setUp(self):
-        self.tda={}
-        self.tra={}
-        self.tda['foo']='bar'
+   class BasicTest(unittest.TestCase):
+       def setUp(self):
+           self.tda={}
+           self.tra={}
+           self.tda['foo']='bar'
 
-    def test1(self):
-        self.tda['func']='add'
-        self.tra['sum']=4+2
+       def test1(self):
+           self.tda['func']='add'
+           self.tra['sum']=4+2
 
-        # If the assertion fails, the test fails.
-        self.assert_(4+2==6)
+           # If the assertion fails, the test fails.
+           self.assert_(4+2==6)
 
 
 Any old function
 ................
 
-#TDAs and TRAs are supported via global variables. The
-#plugin takes care of clearing them so there is no crosstalk
-#between tests.
+Test functions can be written as follows::
 
-tda = dict()
-tra = dict()
+   #TDAs and TRAs are supported via global variables. The
+   #plugin takes care of clearing them so there is no crosstalk
+   #between tests.
 
-def testxyz() :
+   tda = dict()
+   tra = dict()
+
+   def testxyz() :
         tda['cat']='tortoiseshell'
         # If the assertion fails, the test fails
         assert True
 
-def testabc():
+   def testabc():
         tda['func']='add'
         sum=4+2
         tra['sum']=sum
         assert sum == 6
 
-def testglobal():
+   def testglobal():
         global tda
         tda = {'cat':'lion'}
         #The global statement is necessary in order to avoid rebinding
@@ -266,7 +268,7 @@ doctest
 Using file comparators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD, but see example_filetest.py in this directory.
+TBD, but see :download:`example_filetest.py <../example_filetest.py>`.
 
 
 

@@ -1,3 +1,6 @@
+Appendix: Glossary
+------------------
+
 Meta-Runner: the program invoked when the "pdk run" command is
 given. The meta-runner discovers tests, sets up the test environment,
 and invokes the appropriate test runner(s) to run tests.
