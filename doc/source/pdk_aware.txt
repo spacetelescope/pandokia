@@ -193,7 +193,7 @@ discrepancies. They are typically populated by values that are
 computed during the execution of the test.
 
 Making use of test attributes requires modifying your tests. For
-tests that inherit from unittest.TestCase, you can add:
+tests that inherit from unittest.TestCase, you can add::
 
    self.tda=dict()
    self.tra=dict()
@@ -203,7 +203,7 @@ dictionaries as desired.
 
 For test functions, declare the dictionaries as global variables
 in your function, then populate them (but do not redefine them) in
-your tests:
+your tests::
 
    tda=dict()
    tra=dict()
@@ -248,7 +248,7 @@ Adding TDAs and TRAs to test functions can be done by implementing the
 dictionaries as global variables. (See example_testfunction.py for an example)
 
 Alternatively, a developer can inherit from the FunctionHolder, and write methods
-for it as if they were functions. This clsas pre-defines the tda and tra
+for it as if they were functions. This class pre-defines the tda and tra
 dictionaries in its setUp.
 
 

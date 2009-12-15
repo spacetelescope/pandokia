@@ -126,7 +126,8 @@ You should APPEND data in pandokia log format (see doc/file_format.txt and
 doc/report_fields.txt) to the file named in $PDK_LOG.
 
 Before starting your program, pdkrun wrote some default values to
-the log file.  These are:
+the log file.  These are::
+
 	test_run
 	project
 	host
@@ -134,7 +135,8 @@ the log file.  These are:
 	test_runner
 	context
 
-At a minimum, you must add
+At a minimum, you must add::
+
 	test_name
 	status
 	END

@@ -186,7 +186,7 @@ pdk_contacts
   not read this file; see database.txt, "Importing Contacts" for more
   detail. 
 
-*.snout
+\*.snout
   This file may be used to specify a list of installed packages or
   modules for which tests can be run in the installed directory. In
   general we expect these to be doctests, but this is not a
@@ -268,7 +268,7 @@ doctest
 Using file comparators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD, but see :download:`example_filetest.py <../example_filetest.py>`.
+TBD, but see :download:`example_filetest.py <example_filetest.py>`.
 
 
 
