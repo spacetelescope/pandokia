@@ -6,6 +6,7 @@
 import time
 import sys
 import sqlite3
+import os
 import pandokia.common
 
 
@@ -113,6 +114,10 @@ def delete_run(args) :
 
     if ( len(args) > 0 ) and ( args[0] == "--wild" ) :
         args = args[1:]
+        if args[0] == '--mine' :
+            user_name = get_user_name()
+            args = [ 'user_' + user_name + '_' + x for x in args[1:] ]
+        print 'args', args
         for x in args :
             if x == "*" :
                 print "* is too dangerous - nothing done"
@@ -137,3 +142,7 @@ def delete_run(args) :
 
     print "don't forget to 'pdk clean' "
 
+
+def get_user_name() :
+    # may need to do something more for ms windows
+    return os.getlogin()
