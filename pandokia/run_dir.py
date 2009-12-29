@@ -4,6 +4,7 @@ import os.path
 import pandokia.run_file
 import time
 import sys
+import traceback
 
 def run( dirname, envgetter ) :
     # Run all the tests to be found in directory dirname.
