@@ -104,6 +104,7 @@ exclude_dirs = [
 # that requires different code to test it.
 runner_glob = [
 #   ( 'not_a_test*.py',     None        ),      # file name that is recognizably not a test
+    ( 'pycode*.py',         'pycode'    ),      # special runner that just executes python code
     ( '*.py',               'nose'      ),      # nose on a file here
     ( '*.snout',            'snout'   ),        # nose on an installed file
     ( 'test*.sh',           'shell_runner' ),   # example of writing a test runner
