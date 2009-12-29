@@ -120,12 +120,12 @@ class reporter(object) :
 
         self.report_file.write('END\n')
 
-    def start( self, test_name, tda=None ) :
+    def start( self, test_name, tda={ } ) :
         self.test_name = test_name
         self.tda = tda
         self.start_time = datetime.datetime.now()
 
-    def finish( self, status, tra=None, log=None ) :
+    def finish( self, status, tra={ }, log=None ) :
         self.report( test_name=self.test_name, status=status, start_time=self.start_time, end_time=datetime.datetime.now(), tda=self.tda, tra=tra, log=log)
 
     def write_field(self, name, value) :
