@@ -150,6 +150,8 @@ def run(args) :
                 
                 basename = os.path.basename(x)
                 dirname  = os.path.dirname(x)
+                if dirname == '' :
+                    dirname = '.'
                 runner = pandokia.run_file.select_runner(dirname,basename)
                 if runner is not None :
                     pandokia.run_file.run(dirname, basename, envgetter, runner )
