@@ -6,12 +6,11 @@ class reporter(object) :
 
     def __init__( self, source_file, setdefault=False, filename=None, test_run=None, project=None, host=None, context=None, location=None, test_runner=None, test_prefix=None ) :
 
-        # in all cases, we need to open the output file and add a START line
+        # in all cases, we need to open the output file
         if filename is None :
             filename = os.environ['PDK_LOG']
         self.filename = filename
         self.report_file=open(filename,"a")
-        self.report_file.write("\n\nSTART\n")
 
         # select the prefix to insert in front of test names.
         if test_prefix is None :
@@ -38,6 +37,10 @@ class reporter(object) :
             #
             # This option exists so that you can use this module outside
             # the context of pdkrun.
+
+            # if we have setdefault set, we are overriding any defaults
+            # that may already be in the file.
+            self.report_file.write("\n\nSTART\n")
 
             # test_run - required
             #   what the user provided, else PDK_TESTRUN, else 'default'
