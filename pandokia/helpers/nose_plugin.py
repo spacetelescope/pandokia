@@ -7,11 +7,12 @@ Exception and stdout handling for inclusion in log file were copied
 from the pinocchio output_save plugin by Titus Brown."""
 
 import os, time, datetime, sys, re
-from nose.plugins.base import Plugin
-from StringIO import StringIO as p_StringO
+from nose.plugins.base import Plugin #for the plugin interface
+from nose.case import FunctionTestCase, MethodTestCase #for tda/tra stuff
+import unittest #for tda/tra stuff
+from StringIO import StringIO as p_StringO    #for stdout capturing
 from cStringIO import OutputType as c_StringO
 import traceback
-import inspect
 import platform
 
 def get_stdout():
@@ -163,11 +164,68 @@ class Pdk(Plugin):
     def startTest(self,test):
         self.pdk_starttime = pdktimestamp(time.time())
 
+    def find_txa(self, test):
+        """Find the TDA and TRA dictionaries, which will be in different
+        places depending on what kind of a test this is.
+        """
+
+############
+# Debugging print statements
+#        print "~~~~ Entering find_txa"
+#        print "test is ", type(test)
+#        try:
+#            print "test.test is ", type(test.test)
+#            print "test addr is ",test.address()
+#        except AttributeError:
+#            print "This is a UnitTest case, it has no .test attr"
+############
+
+        if isinstance(test, MethodTestCase):
+            try:
+                tda = test.test.im_self.tda
+            except AttributeError:
+                tda = dict()
+
+            try:
+                tra = test.test.im_self.tra
+            except AttributeError:
+                tra = dict()
+                
+        elif isinstance(test, FunctionTestCase):
+            try:
+                tda = test.test.func_globals['tda']
+            except KeyError:
+                tda = dict()
+            try:
+                tra = test.test.func_globals['tra']
+            except KeyError:
+                tra = dict()
+                
+        elif isinstance(test, unittest.TestCase):
+            try:
+                tda = test.tda
+            except AttributeError:
+                tda = dict()
+            try:
+                tra = test.tra
+            except AttributeError:
+                tra = dict()
+                
+        else:
+            tda = dict()
+            tra = {'warning':'Unknown test type: tda/tra not found'}
+            raise TypeError("Unknown test type, %s"%type(test.test))
+            
+#        print "~~~~~~~"
+        return tda, tra            
+   
+
     def pdklog(self,test,status,name=None,log=None):
         """Creates a log file containing the test name, status,and timestamp,
         as well as any attributes in the tda and tra dictionaries if present.
         Does not yet support fancy separating of multi-line items."""
-        
+
+
         #Catch the time.
         self.pdk_endtime=pdktimestamp(time.time())
         
@@ -199,7 +257,8 @@ class Pdk(Plugin):
                 else :
                     name="%s%s" %(self.pdktestprefix,name)
 
-                
+        print "~~~~~ test name is ",name
+        
         #Write the standard info
         self.f_pdk.write("test_name=%s\n"%name)
         self.f_pdk.write("status=%s\n"%status)
@@ -207,17 +266,8 @@ class Pdk(Plugin):
         self.f_pdk.write("end_time=%s\n"%self.pdk_endtime)
 
 
-        #Find the TDAs if we have any
-        try:
-            #They are attributes of the test case
-            tda=test.tda
-        except AttributeError, e:
-            try:
-                #or global variables for a test function
-                tda=test.test.func_globals['tda']
-            except (AttributeError, KeyError):
-                tda=None
-
+        tda, tra = self.find_txa(test)
+        
         #Write the TDAs
         try:
             for k in tda:
@@ -237,14 +287,6 @@ class Pdk(Plugin):
             else:
                 pass
 
-        #Find the TRAs if we have any
-        try:
-            tra=test.tra
-        except AttributeError:
-            try:
-                tra=test.test.func_globals['tra']
-            except (AttributeError, KeyError):
-                tra=None
 
         #Write the TRAs
         try:
@@ -268,10 +310,4 @@ class Pdk(Plugin):
         #Mark the end of the record
         self.f_pdk.write("END\n")
 
-        #Clear the tda and tra to avoid cross-contamination
-        for t in (tda, tra):
-            try:
-                t.clear()
-            except TypeError:
-                pass
 
