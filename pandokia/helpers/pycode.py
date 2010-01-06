@@ -144,3 +144,36 @@ class reporter(object) :
         self.report_file.close()
         self.report_file = None
 
+#
+# capture stdout/stderr for later
+#
+
+import StringIO
+import sys
+
+save_stdout=None
+save_stderr=None
+
+def snarf_stdout() :
+    global save_stdout, save_stderr
+    save_stdout = sys.stdout
+    save_stderr = sys.stderr
+    sys.stdout = sys.stderr = StringIO.StringIO()
+
+def end_snarf_stdout() :
+    global save_stdout, save_stderr
+    if save_stdout is None :
+        assert 0
+    s = sys.stdout.getvalue()
+
+    sys.stdout.close()
+    sys.stderr.close()
+
+    sys.stdout = save_stdout
+    sys.stderr = save_stderr
+
+    save_stdout = None
+    save_stderr = None
+    return s
+
+
