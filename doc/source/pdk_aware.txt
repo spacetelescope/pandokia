@@ -10,7 +10,7 @@ run by nose, then you can take advantage of Pandokia's reporting
 features as soon as you have installed and configured it.
 
 Place a file named pandokia_top at the top of your test tree, and then
-issue the command
+issue the command::
 
    pdk run -r <dirname>
 
@@ -18,7 +18,7 @@ This will recursively search through the directory, discovering tests
 and running them with nose, and using the included nose plugin to
 write the test results to a log file. Default values for the project
 (taken from the current directory) and log file (taken from the
-user and timestamp) will be used, and printed to stdout. Then:
+user and timestamp) will be used, and printed to stdout. Then::
 
    pdk import <logfilename>
 
@@ -46,7 +46,7 @@ the values in the default section.
 
 For example, suppose Arthur has a set of tests that require a resource
 that is located in different places on different machines. Then his
-pdk_environment file would look something like this:
+pdk_environment file would look something like this::
 
    [default]
    PDK_PROJECT = odyssey
@@ -61,7 +61,7 @@ pdk_environment file would look something like this:
 
 
 Now the tests that run on *hal* will run in an environment that
-includes the variables:
+includes the variables::
 
   PDK_PROJECT = odyssey
   monolith = black
@@ -69,7 +69,7 @@ includes the variables:
   doors = /data/discovery/podbay/doors/open.com
 
 while the tests that run on *mycroft* will run in an environment that
-includes the variables:
+includes the variables::
 
   PDK_PROJECT = odyssey
   monolith = black
@@ -142,7 +142,7 @@ mail only about the jupiter subproject of odyssey.
 
 Unlike the previous two features, you will have to issue a couple of
 commands in order to update the contact fields in the database.  On
-the test machine, run:
+the test machine, run::
 
   pdk_gen_contact projectname /directory/name > contact_list.txt
 
@@ -161,10 +161,12 @@ gen_contact" in a future release.)
 
 On the server machine,
 
+::
+
   pdk import_contact < contact_list.txt
 
 will update the database with that information, so it will be
-available when you run:
+available when you run::
 
   pdk notify
 
