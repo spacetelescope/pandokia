@@ -63,7 +63,10 @@ def run() :
     # first, we have a special heuristic to discover if we are running
     # as a CGI.  If we are, jump in to the cgi entry point.
 
-    if 'QUERY_STRING' in os.environ :
+    # With most web servers, QUERY_STRING is sufficient to recognize
+    # you are in a CGI.  With the python CGIHTTPServer object,
+    # you may not get a QUERY_STRING if you are running on MS WINDOWS.
+    if 'QUERY_STRING' in os.environ or 'GATEWAY_INTERFACE' in os.environ :
         import pandokia.pcgi
         pandokia.pcgi.run()
         return

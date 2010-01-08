@@ -18,7 +18,7 @@ class my_handler( CGIHTTPServer.CGIHTTPRequestHandler ) :
     def is_cgi(self) :
 
         l = self.path.split("?",1)
-        if l[0].endswith(".cgi") :
+        if l[0].endswith(".cgi") or l[0].endswith(".bat") :
             # it is a cgi if the file name ends ".cgi"
             # l[0] is the name of the cgi
             # l[1] is the query string
