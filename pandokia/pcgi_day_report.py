@@ -34,8 +34,10 @@ def rpt1(  ) :
     form = pandokia.pcgi.form
 
     if form.has_key("test_run") :
-        d = form["test_run"].value
-        c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( d,))
+        test_run = form["test_run"].value
+        if test_run == '-me' :
+            test_run = 'user_' + common.current_user() + '_*'
+        c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
     else :
         # GLOB '*' is not nearly as fast as leaving out the GLOB.
         c = db.execute("SELECT DISTINCT test_run FROM result_scalar ORDER BY test_run DESC ")
@@ -57,12 +59,13 @@ def rpt1(  ) :
         tquery["test_run"] = x
 
         table.set_value(row, 0, text=x, link=common.selflink(dquery,"day_report.2") )
-        table.set_value(row, 2, text='T', link=common.selflink(tquery,"treewalk") )
-        table.set_value(row, 3, text='P', link=common.selflink(lquery,"treewalk.linkout") )
+        table.set_value(row, 2, text='(tree display)', link=common.selflink(tquery,"treewalk") )
+        table.set_value(row, 3, text='(problem tests)', link=common.selflink(lquery,"treewalk.linkout") )
         row = row + 1
 
     if pandokia.pcgi.output_format == 'html' :
         sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write('<h2>%s</h2>'%cgi.escape(test_run))
         sys.stdout.write(table.get_html(headings=1))
     elif pandokia.pcgi.output_format == 'csv' :
         sys.stdout.write(common.cgi_header_csv)
