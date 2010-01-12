@@ -270,7 +270,10 @@ def run(args) :
     db = pandokia.common.open_db()
     for filename in args :
         if filename.startswith("-") :
-            prefix,value=filename.split('=',1)
+            if '=' in filename :
+                prefix,value=filename.split('=',1)
+            else :
+                prefix, value= ( filename, '' )
             if filename.startswith("-host=") :
                 default_host = value
                 continue
@@ -283,7 +286,10 @@ def run(args) :
             if filename.startswith("-test_run=") :
                 default_test_run = value
                 continue
-        f = open(filename,"r")
+        if filename == '-' :
+            f = sys.stdin
+        else :
+            f = open(filename,"r")
 
         insert_count = 0
         line_count = 0
@@ -331,7 +337,8 @@ def run(args) :
 
             db.commit()
 
-        f.close()
+        if f != sys.stdin :
+            f.close()
 
         print "%d records\n\n"%insert_count
 
