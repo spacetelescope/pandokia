@@ -168,7 +168,7 @@ def default_test_run() :
     import datetime
     d = datetime.datetime.now()
     if 'USER' in os.environ :
-        fmt = 'user_' + os.environ['USER'] + '_%Y-%m-%d-%H-%M'
+        fmt = 'user_' + os.environ['USER'] + '_%Y-%m-%d-%H-%M-%S'
     else :
         fmt = 'user_%Y-%m-%d-%H-%M'
     d = d.strftime( fmt )
