@@ -433,3 +433,16 @@ cgi_header_csv = "content-type: text/csv\n\n"
 
 cgi_header_html = "content-type: text/html\n\n"
 
+
+######
+#--#--# CGI
+#
+# what user are we logged in as
+#
+
+current_user_name = None
+
+def current_user() :
+    if 'REMOTE_USER' in os.environ :
+        return os.environ["REMOTE_USER"]
+    return None

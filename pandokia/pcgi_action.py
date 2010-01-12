@@ -90,10 +90,9 @@ def run( ) :
         # we don't need to validate client because it was done already in the main program
         print "c1"
         client = os.environ["REMOTE_ADDR"]
-        if "REMOTE_USER" in os.environ :
-            user = os.environ["REMOTE_USER"] 
-        else :
-            user = str(os.getuid())
+        user = common.current_user()
+        if user is None :
+            user = 'None'
         print "c2"
 
         for key_id in valid_key_ids(form) :
