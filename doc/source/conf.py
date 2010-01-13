@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pandokia'
-copyright = u'2009, Mark Sienkiewicz and Victoria Laidler'
+copyright = u'2009-2010, Association of Universities for Research in Astronomy'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -192,3 +192,6 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
+
+# 'dot -Tpdf' doesn't work for us, so use an alternative form
+graphviz_pdf_mode = 'ps2:pdf'
