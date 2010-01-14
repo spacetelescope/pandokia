@@ -6,6 +6,7 @@
 import re
 import sqlite3 as database
 import sys
+import pandokia.common as common
 
 exit_status = 0
 
@@ -144,8 +145,6 @@ insert_count = 0
 
 class test_result():
 
-    time_int_pattern = re.compile("^[0-9][0-9]*$|^[0-9][0-9]*\.[0-9]*")
-    
     def _lookup(self,name,default=None) :
         if self.dict.has_key(name) :
             return self.dict[name]
@@ -153,18 +152,6 @@ class test_result():
             return default
         self.missing.append(name)
 
-    def _convert_time(self, t) :
-        # sql time:
-        #   2008-06-04 13:28:00.00
-        # time_t
-        #   %d
-        # ctime
-        #   Wed Jun  4 10:15:04 EDT 2008
-        # not using ISO 8601 because it is so hard to parse
-        if self.time_int_pattern.match(t):
-            t = float(t)
-
-        
     def __init__(self, dict) :
         self.dict = dict
         self.missing = [ ]
@@ -183,8 +170,17 @@ class test_result():
         self.start_time = self._lookup("start_time","0")
         self.end_time   = self._lookup("end_time","0")
 
-        self.start_time = self._convert_time(self.start_time)
-        self.end_time   = self._convert_time(self.end_time)
+        try :
+            self.start_time = common.parse_time(self.start_time)
+        except ValueError :    
+            print ""
+            print "INVALID START TIME, line",line_count
+
+        try :
+            self.end_time = common.parse_time(self.end_time)
+        except ValueError :    
+            print ""
+            print "INVALID END TIME, line",line_count
 
         self.tda = { }
         self.tra = { }

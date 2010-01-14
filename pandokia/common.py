@@ -387,21 +387,6 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
     return result.getvalue()
 
 
-
-#
-# convert time_t to standard date/time text
-#
-# It is relatively hard (wrt time_t) to use time zones with the 
-# python datetime object, 
-#
-def time_t_to_date(f) :
-    # you might think that you could use .%f in strftime, but you would be wrong
-    # the documentation describes it, but it isn't implemented
-    d = datetime.datetime.fromtimestamp(float(f))
-    s = d.strftime("%Y-%m-%d %H:%M:%S")+"."+"%03d"%(st.microsecond/1000)
-    return s
-
-
 ######
 #--#--# CGI
 #
@@ -446,3 +431,97 @@ def current_user() :
     if 'REMOTE_USER' in os.environ :
         return os.environ["REMOTE_USER"]
     return None
+
+######
+#--#--# GENERAL
+#
+# convert to/from a datetime
+#
+
+def parse_time( arg ) :
+    '''
+    parse one of several time formats into a datetime 
+
+    It tries these formats in this order:
+
+    time_t
+        1263488141
+        1263488141.25
+
+    sql (like TIMESTAMP in sql-92, without time zones)
+        2010-01-14 11:55:41
+        2010-01-14 11:55:41.25
+
+    ctime()
+        Thu Jan 14 11:55:41 2010
+
+    We don't even try to parse ISO 8601 because it is so freaking
+    complicated.  If your system can generate 2008-06-04T13:28:00.00
+    (one of the many 8601 formats), you can replace the 'T' with a
+    space yourself, and the 'sql' format will read it.
+
+    All times are local time, except date(1) which has a time zone.
+
+    The returned value has a precision of microseconds; this is a
+    limitation of the python datetime object.  date and ctime formats
+    do not include fractional seconds, so we do not parse them.
+
+    If you need to convert the returned value into a string, use:
+
+    >>> d=parse_time('2010-01-14 11:55:41.251234')
+    >>> sql_time(d)
+    '2010-01-14 11:55:41.251234'
+
+    You can then use that value in string comparisons in your SQL statements.
+
+    '''
+
+    # time_t
+    #   1263488141
+    #   1263488141.25
+    try :
+        x = float(arg)
+        d = datetime.datetime.fromtimestamp(x)
+        return d
+    except ValueError:
+        pass
+
+    # sql time:
+    #   2008-06-04 13:28:00.00
+    try :
+        if '.' in arg :
+            x = arg.split('.')
+            d = datetime.datetime.strptime(x[0],'%Y-%m-%d %H:%M:%S')
+            d = d.replace(microsecond=int((x[1]+'000000')[0:6]))
+        else :
+            d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
+        return d
+    except ValueError :
+        pass
+
+    # ctime
+    #   Thu Jan 14 11:37:39 2010
+    # (no usec)
+    try :
+        d = datetime.datetime.strptime(arg,'%a %b %d %H:%M:%S %Y')
+        return d
+    except ValueError:
+        pass
+
+    # didn't match anything?  ok, well the last exception is
+    # as good as anything else we might raise
+    raise
+
+
+def sql_time(d) :
+    '''
+    turn a datetime into a string that looks like TIMESTAMP in SQL-92
+
+    >>> sql_time(datetime.datetime(2010, 1, 14, 11, 55, 41)) 
+    '2010-01-14 11:55:41.000000'
+
+    '''
+    # do not use ".%f" - it doesn't work
+    return d.strftime('%Y-%m-%d %H:%M:%S') + ( '.%06d' % d.microsecond )
+
+
