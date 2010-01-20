@@ -107,9 +107,9 @@ def run( ) :
     elif 'not_expected' in form :
         print "c1"
         for key_id in valid_key_ids(form) :
-            c = db.execute("SELECT project, host, test_name FROM result_scalar WHERE key_id = ?", (key_id,) )
-            for project, host, test_name in c :
-                db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ?",(project,host,test_name))
+            c = db.execute("SELECT project, host, test_name, context FROM result_scalar WHERE key_id = ?", (key_id,) )
+            for project, host, test_name, context in c :
+                db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ? AND context = ?",(project,host,test_name,context))
         db.commit()
 
     print "e"

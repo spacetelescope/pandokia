@@ -39,7 +39,12 @@ def run ( ) :
         test_name = form["test_name"].value
     else :
         test_name = ""
-        
+
+    if form.has_key("context") :
+        context = form["context"].value
+    else :
+        context = "*"
+
     if form.has_key("host") :
         host = form["host"].value
     else :
@@ -105,7 +110,7 @@ def run ( ) :
         for key_id in l :
             do_result(key_id )
     else :
-        c1 = db.execute("SELECT key_id FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? ", ( test_run, project, host, test_name ) )
+        c1 = db.execute("SELECT key_id FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? AND context = ?", ( test_run, project, host, test_name, context ) )
         for x in c1 :
             (key_id, ) = x
             do_result( key_id )
@@ -113,12 +118,12 @@ def run ( ) :
 
 def do_result( key_id ) :
 
-    c = common.db.execute("SELECT key_id, test_run, project, host, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = ? ", ( key_id, ) )
+    c = common.db.execute("SELECT key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = ? ", ( key_id, ) )
     for x in c :
-        ( key_id, test_run, project, host, test_name, status, attn, start_time, end_time, location, test_runner ) = (x)
+        ( key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner ) = (x)
 
-        linkback_dict = { 'project' : project, 'host' : host, 'test_run' : test_run, 'test_name' : test_name }
-        prevday_dict =  { 'project' : project, 'host' : host, 'test_run' : test_run, 'test_name' : test_name }
+        linkback_dict = { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
+        prevday_dict =  { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
 
         row = 0
         tb = text_table.text_table()
@@ -139,6 +144,10 @@ def do_result( key_id ) :
 
         tb.set_value(row, 0, "host")
         tb.set_value(row, 1, host)
+        row += 1
+
+        tb.set_value(row, 0, "context")
+        tb.set_value(row, 1, context)
         row += 1
 
         tb.set_value(row, 0, "test_name")
@@ -230,13 +239,6 @@ def do_result( key_id ) :
 
         sys.stdout.write("<a href=%s>back to treewalk</a><br>\n"%common.selflink(linkback_dict, linkmode = 'treewalk'))
 
-        # if ( test_runner in cfg.flagok_test_runners ) and ( status in cfg.flagok_test_runners[test_runner] ) :
-        #     flagok_dict = { 'host':host, 'ok': location, 'key_id': key_id }
-        #     flagok_link = "<a href=%s>flagok</a><br>\n" % common.selflink(flagok_dict, linkmode = "flagok")
-        #     sys.stdout.write(flagok_link)
-        # else :
-        flagok_link = ''
-
         c1 = common.db.execute("SELECT log FROM result_log WHERE key_id = ?", (key_id, ) )
         for y in c1 :
             (y, ) = y
@@ -246,7 +248,5 @@ def do_result( key_id ) :
                 sys.stdout.write("</pre>\n")
 
         sys.stdout.write("<br>\n")
-
-        sys.stdout.write(flagok_link)
 
         sys.stdout.write("<br><hr>\n")

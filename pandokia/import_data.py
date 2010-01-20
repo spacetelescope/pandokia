@@ -208,8 +208,7 @@ class test_result():
             print "NOT INSERTING ",self.test_name," (not an error)"
             return
 
-        if self.test_name.find("//") :
-            self.test_name.replace("//","/")
+        self.test_name.replace("//","/")
 
         # compute attention automatically
         if self.status == 'P' :
@@ -229,10 +228,10 @@ class test_result():
         except database.IntegrityError, e:
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
-            c = db.execute("select status from result_scalar where test_run = ? and host = ? and project = ? and test_name = ? and status = 'M'",(self.test_run, self.host, self.project, self.test_name ) )
+            c = db.execute("select status from result_scalar where test_run = ? and host = ? and context = ? and project = ? and test_name = ? and status = 'M'",(self.test_run, self.host, self.context, self.project, self.test_name ) )
             x = c.fetchone()
             if x is not None :
-                db.execute("delete from result_scalar where  test_run = ? and host = ? and project = ? and test_name = ? and status = 'M' ",(self.test_run, self.host, self.project, self.test_name ) )
+                db.execute("delete from result_scalar where  test_run = ? and host = ? and context = ? and project = ? and test_name = ? and status = 'M' ",(self.test_run, self.host, self.context, self.project, self.test_name ) )
                 res = db.execute("INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" ,
                     ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
                       self.start_time, self.end_time, self.location, attn, self.test_runner ) )
@@ -273,6 +272,9 @@ def run(args) :
             if filename.startswith("-host=") :
                 default_host = value
                 continue
+            if filename.startswith("-context=") :
+                default_context = value
+                continue
             if filename.startswith("-project=") :
                 default_project = value
                 continue
@@ -299,6 +301,8 @@ def run(args) :
             try :
                 if not "test_run" in x :
                     x["test_run"] = default_test_run
+                if not "context" in x :
+                    x["context"] = default_context
                 if not "host" in x :
                     x["host"] = default_host
                 if not "project" in x :
@@ -329,7 +333,7 @@ def run(args) :
             try :
                 rx.insert(db)
             except database.IntegrityError:
-                print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x["test_name"]
+                print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
 
             db.commit()
 

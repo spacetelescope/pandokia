@@ -390,27 +390,6 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
 ######
 #--#--# CGI
 #
-# create the html link for a flagok operation
-#
-
-def flagok_link( test_runner, status, host, location, key_id ) :
-
-    return None
-    # This feature is not finished
-
-    # We can only have this link if the test_runner is one of those known to accept flagok.
-    # We can only have this link if the status has a meaningful purpose for flagok.
-    if ( test_runner in cfg.flagok_test_runners ) and ( status in cfg.flagok_test_runners[test_runner] ) :
-        flagok_dict = { 'host':host, 'ok': location, 'key_id': key_id }
-        link = "<a href=%s>flagok</a><br>\n" % selflink(flagok_dict, linkmode = "flagok")
-    else :
-        link = None
-
-    return link
-
-######
-#--#--# CGI
-#
 # HTTP headers
 #
 

@@ -8,7 +8,7 @@ import pandokia
 # subprocess is the interface du jour for starting a new process
 import subprocess
 
-from pandokia.lib import gethostname
+from pandokia.common import gethostname
 
 #
 # find the file name patterns that associate a file name with a test runner

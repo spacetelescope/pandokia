@@ -64,7 +64,7 @@ def run(args) :
     project     = os.environ.get("PDK_PROJECT",     None)
     test_run    = os.environ.get("PDK_TESTRUN",     None)
     test_prefix = os.environ.get("PDK_TESTPREFIX",  None)
-    context     = os.environ.get("PDK_CONTEXT",     'default_context')
+    context     = os.environ.get("PDK_CONTEXT",     'default')
     parallel    = os.environ.get("PDK_PARALLEL",    None)
     tmpdir      = os.environ.get("PDK_TMP",         None)
     verbose = 0 # not implemented
@@ -75,7 +75,7 @@ def run(args) :
     opts,args = getopt.gnu_getopt(args,"rvp",
             ["recursive", "environment_already_set", "dir", "log=",
              "project=", "test_run=", "test_prefix=",
-             "show-command", "verbose","parallel=","help",
+             "show-command", "verbose","parallel=","help", "context=",
              ])
     for (opt, optarg) in opts :
         if opt == '-r' or  opt == '--recursive' :
@@ -97,6 +97,8 @@ def run(args) :
             test_prefix = optarg
         elif opt == '--project' :
             project = optarg
+        elif opt == '--context' :
+            context = optarg
         elif opt == '--verbose' :
             verbose = 1
         elif opt == '--dry-run' :

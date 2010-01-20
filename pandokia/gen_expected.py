@@ -35,9 +35,9 @@ def run(args) :
 
     print "test_run_pattern = ",test_run_pattern
 
-    c = db.execute("select distinct project, host, test_name from result_scalar where test_run = ?", ( test_run_pattern, ) )
+    c = db.execute("select distinct project, host, context, test_name from result_scalar where test_run = ?", ( test_run_pattern, ) )
 
-    for ( project, host, test_name ) in c :
+    for ( project, host, context, test_name ) in c :
         if test_name.endswith("nose.failure.Failure.runTest") :
             # Sometimes nose generates this test name.  I don't want it in the database at all, because 
             # the name is not unique, and the record does not contain any useful information about the problem.
@@ -45,10 +45,10 @@ def run(args) :
             continue
 
         if debug :
-            print "expect ",test_run_type, project, host, test_name
+            print "expect ",test_run_type, project, host, context, test_name
         # insert to the expected table; if the record is already there, it's ok.
         try : 
-            db.execute('insert into expected values ( ?, ?, ?, ? )', ( test_run_type, project, host, test_name ))
+            db.execute('insert into expected values ( ?, ?, ?, ?, ? )', ( test_run_type, project, host, context, test_name ))
         except db.IntegrityError, e:
             if debug :
                 print "exception", e

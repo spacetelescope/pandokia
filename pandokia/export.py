@@ -33,13 +33,13 @@ def do_export( output, where ) :
     db.row_factory = sqlite3.Row
 
     # list of fields to export
-    fields =[ 'test_run', 'project', 'host', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
+    fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
 
     # tell the reader to forget any defaults
     output.write( "RESET\n" )
 
     # 
-    c = db.execute("SELECT key_id, test_run, project, host, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where)
+    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where)
     for record in c :
 
         # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them

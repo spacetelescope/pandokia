@@ -103,12 +103,16 @@ def rpt2( ) :
 
     # create list of projects
     projects = [  ]
-    c = db.execute("SELECT DISTINCT project FROM result_scalar WHERE test_run = ? ORDER BY project ", (test_run, ) )
-    for x in c :
-        (x,) = x
-        if x is None :
-            continue
-        projects.append(x)
+
+    if form.has_key("project") :
+        projects = form.getlist("project")
+    else :
+        c = db.execute("SELECT DISTINCT project FROM result_scalar WHERE test_run = ? ORDER BY project ", (test_run, ) )
+        for x in c :
+            (x,) = x
+            if x is None :
+                continue
+            projects.append(x)
 
     # this is the skeleton of the cgi queries for various links
     query = { "test_run" : test_run }
@@ -125,6 +129,7 @@ def rpt2( ) :
 
     row = 0
     table.define_column("host")
+    table.define_column("context")
     table.define_column("os")
     table.define_column("total")
     table.define_column("pass")
@@ -160,18 +165,20 @@ def rpt2( ) :
         row += 1
 
         # loop across hosts
-        c = db.execute("SELECT DISTINCT host FROM result_scalar WHERE test_run = ? AND project = ?", (test_run, p))
-        for host in c :
-            (host,) = host
+        c = db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = ? AND project = ?", (test_run, p))
+        for host, context in c :
             query["host"] = host
+            query["context"] = context
             link = common.selflink(query_dict = query, linkmode="treewalk" )
             table.set_value(row,0,    text=host,        link=link)
-            table.set_value(row,1,    text=pandokia.cfg.os_info.get(host,'?') )
-            col = 3  # the first column of the pass/fail/error numbers
+            table.set_value(row,1,    text=context,        link=link)
+            table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
+            # column 3 is the total - value not available yet
+            col = 4  # the first column of the pass/fail/error numbers
             total_results = 0
             for status in [ 'P', 'F', 'E', 'D', 'M' ] :
-                c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ?",
-                    ( test_run, p, host, status ) )
+                c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
+                    ( test_run, p, host, status, context ) )
                 (x,) = c1.fetchone()
                 total_results = total_results + x
                 table.set_value(row, col, text=str(x), link = link + "&rstatus="+status )

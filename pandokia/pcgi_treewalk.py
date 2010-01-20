@@ -43,6 +43,11 @@ def treewalk ( ) :
     else :
         test_name = "*"
         
+    if form.has_key("context") :
+        context = form["context"].value
+    else :
+        context = "*"
+
     if form.has_key("host") :
         host = form["host"].value
     else :
@@ -89,7 +94,7 @@ def treewalk ( ) :
     # query values we will always pass back to the next instantion of ourself
     #
 
-    query = { "test_name" : test_name , "test_run" : test_run, "project" : project, "host": host, "status": status, "attn": attn }
+    query = { "test_name" : test_name , "test_run" : test_run, "project" : project, "host": host, "status": status, "attn": attn, "context":context }
 
     if contact is not None :
         query['contact'] = contact
@@ -99,6 +104,26 @@ def treewalk ( ) :
     #
 
     output.write("<h1>Test tree browser</h1>")
+
+    #
+    # if a context is selected, show the context here
+    # include a link to clear the context selection
+    #
+
+    s_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
+
+
+    #
+    # if a context is selected, show the context here
+    # include a link to clear the context selection
+    #
+
+    if context != "*" :
+        lquery = copy.copy(query)
+        lquery["context"] = "*"
+        line = s_line % ( "context", cgi.escape(context), common.self_href(lquery,"treewalk","<-")  )
+        output.write(line)
+
 
     #
     # if a host is selected, show the host here
@@ -114,7 +139,7 @@ def treewalk ( ) :
         output.write(line)
 
     #
-    # if a test_run is selected, show the host here
+    # if a test_run is selected, show the test_run here
     # include a link to clear the test_run selection
     #
 
@@ -133,7 +158,7 @@ def treewalk ( ) :
         output.write(line)
 
     #
-    # if a project is selected, show the host here
+    # if a project is selected, show the project here
     # include a link to clear the project selection
     #
 
@@ -223,6 +248,7 @@ def treewalk ( ) :
         ('test_run', test_run), 
         ('project', project),
         ('host', host),
+        ('context', context),
         ('status', status),
         ('attn', attn),
         ])
@@ -287,6 +313,7 @@ def treewalk ( ) :
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
+            ('context', context),
             ('attn',attn),
             ])
 
@@ -305,6 +332,7 @@ def treewalk ( ) :
         count_fail = 0
         count_error = 0
         count_disable = 0
+        count_missing = 0
 
         if ( status == '*') or ( 'P' in status ) :
             c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'P' ORDER BY test_name" % where_clause)
@@ -359,10 +387,11 @@ def treewalk ( ) :
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
+            ('context', context),
             ('status', status),
             ('attn',attn),
             ])
-        c = db.execute("SELECT DISTINCT test_run FROM result_scalar %s ORDER BY host" % where_clause)
+        c = db.execute("SELECT DISTINCT test_run FROM result_scalar %s ORDER BY test_run" % where_clause)
         for x in c :
             (x,) = x
             if x is None :
@@ -386,10 +415,11 @@ def treewalk ( ) :
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
+            ('context', context),
             ('status', status),
             ('attn', attn),
             ])
-        c = db.execute("SELECT DISTINCT project FROM result_scalar %s ORDER BY host" % where_clause )
+        c = db.execute("SELECT DISTINCT project FROM result_scalar %s ORDER BY project" % where_clause )
         for x in c :
             (x,) = x
             if x is None :
@@ -413,6 +443,7 @@ def treewalk ( ) :
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
+            ('context', context),
             ('status', status),
             ('attn', attn),
             ])
@@ -425,6 +456,34 @@ def treewalk ( ) :
             lquery["host"] = x
             output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
         host = "*"
+
+    #
+    # if no context specified, give an option to choose one (but only from contexts
+    # that are in the tests specified)
+    #
+
+    if context == "*" :
+        lquery = { }
+        for x in query :
+            lquery[x] = query[x]
+        where_clause = common.where_str([ 
+            ('test_name', test_name+"*"),
+            ('test_run', test_run), 
+            ('project', project),
+            ('host', host),
+            ('context', context),
+            ('status', status),
+            ('attn', attn),
+            ])
+        output.write("<h3>Narrow to context</h3>")
+        c = db.execute("SELECT DISTINCT context FROM result_scalar %s ORDER BY context" % where_clause)
+        for x in c :
+            (x,) = x
+            if x is None :
+                continue
+            lquery["context"] = x
+            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
+        context = "*"
 
     output.write("")
 
@@ -465,6 +524,11 @@ def linkout( ) :
         test_name = form["test_name"].value
     else :
         test_name = "*"
+        
+    if form.has_key("context") :
+        context = form["context"].value
+    else :
+        context = "*"
         
     if form.has_key("host") :
         host = form["host"].value
@@ -510,11 +574,12 @@ def linkout( ) :
         ('test_run', test_run), 
         ('project', project),
         ('host', host),
+        ('context', context),
         ('status', status),
         ('attn', attn),
         ])
 
-    c1 = db.execute("SELECT key_id FROM result_scalar %s ORDER BY host" % where_clause )
+    c1 = db.execute("SELECT key_id FROM result_scalar %s" % where_clause )
 
     a = [ ]
     for x in c1 :

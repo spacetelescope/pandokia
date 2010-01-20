@@ -137,6 +137,7 @@ Compare to:
     result_table.define_column("test_run",  link=sort_link+"+test_run")
     result_table.define_column("project",   link=sort_link+"+project")
     result_table.define_column("host",      link=sort_link+"+host")
+    result_table.define_column("context",      link=sort_link+"+context")
     result_table.define_column("test_name", link=sort_link+"+test_name")
     result_table.define_column("contact",   link=sort_link+"+contact")
     if cmp_run != "" :
@@ -149,6 +150,7 @@ Compare to:
     all_test_run = { }
     all_project = { }
     all_host = { }
+    all_context = { }
 
     different = 0
     rowcount = 0
@@ -159,7 +161,7 @@ Compare to:
         # find the result of this test
         #
 
-        c1 = db.execute("SELECT test_run, project, host, test_name, status, attn FROM result_scalar WHERE key_id = ? ", (key_id,) )
+        c1 = db.execute("SELECT test_run, project, host, context, test_name, status, attn FROM result_scalar WHERE key_id = ? ", (key_id,) )
 
         y = c1.fetchone()   # unique index
 
@@ -167,13 +169,13 @@ Compare to:
             # this can only happen if somebody deletes tests from the database after we populate the qid
             continue
 
-        (test_run, project, host, test_name, status, attn) = y
+        (test_run, project, host, context, test_name, status, attn) = y
 
         # if we are comparing to another run, find the other one; 
         # suppress lines that are different - should be optional
         if cmp_run != "" :
-            c2 = db.execute("SELECT status, key_id FROM result_scalar WHERE test_run = ? AND project = ? and host = ? and test_name = ?",
-                ( cmp_run, project, host, test_name ) )
+            c2 = db.execute("SELECT status, key_id FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? AND context = ?",
+                ( cmp_run, project, host, test_name, context ) )
             other_status = c2.fetchone()   # unique index
             if other_status is None :
                 pass
@@ -199,16 +201,15 @@ Compare to:
         all_test_run[test_run] = 1
         all_project[project] = 1
         all_host[host] = 1
+        all_context[context] = 1
 
-        if 0 :
-            detail_query = { "test_run" : test_run, "project" : project, "host" : host, "test_name" : test_name }
-        else :
-            detail_query = { "key_id" : key_id }
+        detail_query = { "key_id" : key_id }
         result_table.set_value(rowcount,"checkbox",'',html='<input type=checkbox name=%s>'%key_id)
         result_table.set_value(rowcount,"attn",attn)
         result_table.set_value(rowcount,"test_run",test_run)
         result_table.set_value(rowcount,"project",project)
         result_table.set_value(rowcount,"host",host)
+        result_table.set_value(rowcount,"context",context)
         this_link = common.selflink(detail_query, linkmode="detail")
         result_table.set_value(rowcount,"test_name",text=test_name, link=this_link )
 
@@ -246,6 +247,9 @@ Compare to:
     if len(all_host) == 1 :
         result_table.suppress("host")
         output.write("<h3>host: "+cgi.escape([tmp for tmp in all_host][0])+"</h3>")
+    if len(all_context) == 1 :
+        result_table.suppress("context")
+        output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
 
 
     # try to suppress attribute columns where all the data values are the same

@@ -45,7 +45,7 @@ CREATE TABLE result_scalar (
 	);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 
-	ON result_scalar ( test_run, project, host, test_name );
+	ON result_scalar ( test_run, project, host, test_name, context );
 
 CREATE INDEX result_scalar_test_run_only 
 	ON result_scalar ( test_run ) ;
@@ -136,8 +136,9 @@ CREATE TABLE expected (
 		-- comes from outside the database.
 	project VARCHAR,
 	host VARCHAR,
-	test_name VARCHAR
-		-- project, host, test_name as in result_scalar
+	test_name VARCHAR,
+	context VARCHAR
+		-- project, host, test_name, context as in result_scalar
 	);
 
 CREATE UNIQUE INDEX expected_unique 

@@ -108,9 +108,9 @@ def delete_run(args) :
     #
     # We do this by always inserting a record that we are not going to delete.  We only
     # need one, though, at the end of the table.
-    db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND test_name IS NULL ")
+    db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
 
-    db.execute("INSERT INTO result_scalar ( test_run, project, host, test_name ) VALUES (NULL,NULL,NULL,NULL)")
+    db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
 
     if ( len(args) > 0 ) and ( args[0] == "--wild" ) :
         args = args[1:]

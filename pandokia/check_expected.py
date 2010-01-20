@@ -37,19 +37,19 @@ def run(args) :
         print "TYPE ",test_run_type
         print "test_run",test_run
 
-    c = db.execute( "SELECT project, host, test_name FROM expected WHERE test_run_type = ?", ( test_run_type, ) )
+    c = db.execute( "SELECT project, host, test_name, context FROM expected WHERE test_run_type = ?", ( test_run_type, ) )
 
     if verbose :
         print "query done"
 
-    for ( project, host, test_name ) in c :
+    for ( project, host, test_name, context ) in c :
         if verbose :
             print "CHECK",project, host, test_name
-        c1 = db.execute("SELECT status FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? ", ( test_run, project, host, test_name ) )
+        c1 = db.execute("SELECT status FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? AND context = ?", ( test_run, project, host, test_name, context ) )
         if c1.fetchone() is None :
             if verbose :
                 print "        MISSING:", project, host, test_name
-            db.execute('INSERT INTO result_scalar ( test_run, project, host, test_name, status, attn ) '+ 
-                'VALUES ( ?, ?, ?, ?, ?, ? )', ( test_run, project, host, test_name, 'M', 'Y' ) )
+            db.execute('INSERT INTO result_scalar ( test_run, project, host, context, test_name, status, attn ) '+ 
+                'VALUES ( ?, ?, ?, ?, ?, ?, ? )', ( test_run, project, host, context, test_name, 'M', 'Y' ) )
 
     db.commit()
