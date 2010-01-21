@@ -145,12 +145,7 @@ def done( pid, status ) :
     for n, proc_struct in enumerate(process_slot) :
         if not ( proc_struct is None ) and ( proc_struct.pid == pid ) :
             process_slot[n] = None
-            sys.stdout.write('\n')
-            sys.stdout.write('X-'*30+'X\n')
-            sys.stdout.write('X-'*30+'X\n')
-            sys.stdout.write('X-'*30+'X\n')
-            sys.stdout.write('\n')
-            sys.stdout.write('Output from process %d in slot %d\n'%(pid, n))
+            sys.stdout.write('#### Output from process %d in slot %d\n'%(pid, n))
             f = open( proc_struct.stdout_filename, "r" )
             while True :
                 x=f.read(32768)
@@ -158,13 +153,7 @@ def done( pid, status ) :
                     break
                 sys.stdout.write(x)
             f.close()
-            sys.stdout.write('End of output from process %d in slot %d, status=%d\n'%(pid, n, status))
-            sys.stdout.write('%d\n'%time.time())
-            sys.stdout.write('\n')
-            sys.stdout.write('X-'*30+'X\n')
-            sys.stdout.write('-X'*30+'-\n')
-            sys.stdout.write('X-'*30+'X\n')
-            sys.stdout.write('\n')
+            sys.stdout.write('End of output from process %d in slot %d, status=%d\n\n\n'%(pid, n, status))
             sys.stdout.flush()
             os.unlink(proc_struct.stdout_filename)
             return
@@ -229,14 +218,14 @@ def _run_proc( args, env, slot ) :
     except :
         pass
     f_out = open(output,"w")
-    f_out.write("%d\n"%time.time())
-    for x in args :
-        f_out.write('%s '%x)
-    f_out.write('\n')
+    if 0 :
+        f_out.write('run_proc: ')
+        for x in args :
+            f_out.write('%s '%x)
+        f_out.write('\n')
 
     f_out.flush()
 
-    print "EXEC",args
     x= subprocess.Popen( args=args, stdout=f_out, stderr=subprocess.STDOUT, bufsize=0, env=env )
 
     f_out.close()

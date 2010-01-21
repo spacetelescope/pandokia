@@ -9,10 +9,6 @@
 
 # Right now, a big chunk of this script is debugging
 
-echo "pdk_stsci_regress" 
-echo start
-ls -ld $PDK_LOG
-
 tmpfile=pdk.runner.tmp
 
 tmpfile2=pdk.runner.2.tmp
@@ -20,23 +16,14 @@ tmpfile2=pdk.runner.2.tmp
 rm -f $tmpfile
 rm -f $tmpfile2
 
-env | sed 's/^/	env: /'
-
 PDK_LOG=$tmpfile2 pdk_stsci_regress_helper > $tmpfile 2>&1
 
-echo append
-ls -ld $tmpfile
-ls -ld $tmpfile2
-ls -ld $PDK_LOG
-echo record part
 cat $tmpfile2 >> $PDK_LOG
-ls -ld $PDK_LOG
-echo log part
 ( echo 'log:'
 sed 's/^/./' < $tmpfile
 echo ''
 echo END
 ) >> $PDK_LOG
-ls -ld $PDK_LOG
-echo done
 
+rm -f $tmpfile
+rm -f $tmpfile2

@@ -1,0 +1,16 @@
+Upgrading Pandokia 1.0 to 1.1
+--
+
+Database changes:
+
+	-- these database changes implement the "context" field
+
+	alter table expected add column context varchar;
+
+	drop index result_scalar_test_identity ;
+
+	CREATE UNIQUE INDEX result_scalar_test_identity 
+		ON result_scalar ( test_run, project, host, test_name, context );
+
+
+

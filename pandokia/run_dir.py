@@ -10,8 +10,7 @@ def run( dirname, envgetter ) :
     # Run all the tests to be found in directory dirname.
     # This is not recursive into other directories.
     #
-    print ""
-    print "########## RUN_DIR",dirname
+    print "run directory ",dirname
     dirname = os.path.abspath(dirname)
 
     dir_list = os.listdir( dirname )
@@ -40,9 +39,7 @@ def run( dirname, envgetter ) :
 
         # If the file is disabled, skip it
         if file_disabled(dirname, basename, runner) :
-            print ""
             print "##### DISABLED : %s/%s"%(dirname,basename)
-            print "Looking for names of disabled tests"
             m = pandokia.run_file.get_runner_mod( runner )
 
             env = { }

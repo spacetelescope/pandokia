@@ -174,7 +174,7 @@ def default_test_run() :
     else :
         fmt = 'user_%Y-%m-%d-%H-%M'
     d = d.strftime( fmt )
-    print "DEFAULT TEST RUN",d
+    print "DEFAULT TEST RUN",d,"\n"
     return d
 
 def export_environment(args) :

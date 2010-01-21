@@ -59,10 +59,6 @@ class Regress:
         # Create log file for output messages
         self.log = sys.stdout
 
-        msg = "Regression system starting with IRAF environment %s on %s" % (os.environ['iraf'], platform.node())
-        self.writelog (".", msg, "")
-
-
     #------------------------------------------------------------------
     # RUN -- Run the regression testing framework
     #
@@ -137,28 +133,15 @@ class Regress:
             self.writelog ("?", "Couldn't read configuration file", file)
             return
 
-        print ""
-        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-        print "File:   ",os.getcwd()+"/"+file
-
-
         if config.has_key("attributes") :
             for x in config["attributes"] :
                 pdkr.set_tda(x,value)
 
         try :
             if 'title' in config :
-                print "Title:  ",config["title"]
                 pdkr.set_tda('title',config["title"])
                 msg = "Test title: %s" % (config["title"])
                 self.writelog (".", msg, "")
-            msg = "Regression test started: %s" % (time.ctime(time.time()))
-            self.writelog (".", msg, "")
-            msg = "In directory: %s" % os.getcwd()
-            self.writelog (".", msg, "")
-            self.writelog (".","File:   %s"%(os.getcwd()+"/"+file),"")
 
             # purge all the output files before starting the test
             # (otherwise, a test that fails to create the output file at all might appear
@@ -329,6 +312,9 @@ class Regress:
                             output[k] = output.get(k).split(',')
                         else:
                             output[k] = []
+
+                    if not "reference" in output :
+                        output["reference"] = "ref/" + output["fname"]
 
                     # Check for existence of comparison files
                     if not os.path.exists(output["reference"]):

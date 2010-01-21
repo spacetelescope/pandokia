@@ -168,9 +168,6 @@ def pdk_log_name( env ) :
 #
 def run( dirname, basename, envgetter, runner ) :
 
-    print ""
-    print "##### RUN_FILE ",dirname+"/"+basename
-
     dirname = os.path.abspath(dirname)
 
     save_dir = os.getcwd()
@@ -196,12 +193,13 @@ def run( dirname, basename, envgetter, runner ) :
         # A test runner that only works within pandokia can assume
         # that we made all of these log entries for it.
 
+        full_filename = dirname+"/"+env['PDK_FILE']
         f = open(env['PDK_LOG'],"a")
         f.write("\n\nSTART\n")
         f.write('test_run=%s\n'     % env['PDK_TESTRUN'])
         f.write('project=%s\n'      % env['PDK_PROJECT'])
         f.write('host=%s\n'         % gethostname() )
-        f.write('location=%s\n'     % (dirname+"/"+env['PDK_FILE']))
+        f.write('location=%s\n'     % full_filename )
         f.write('test_runner=%s\n'  % runner)
         f.write('context=%s\n'      %env['PDK_CONTEXT'])
         f.write("SETDEFAULT\n")
@@ -216,7 +214,7 @@ def run( dirname, basename, envgetter, runner ) :
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
-                print 'COMMAND :', thiscmd
+                print 'COMMAND :', thiscmd, '(for file %s)'% full_filename
                 sys.stdout.flush()
                 sys.stderr.flush()
                 p = subprocess.Popen(thiscmd, shell=True, env = env )
@@ -229,20 +227,19 @@ def run( dirname, basename, envgetter, runner ) :
                         status="signal %d, core dumped" % ( status & 0x7f )
                     else :
                         status="signal %d" % ( status & 0x7f )
-                print "COMMAND EXIT STATUS:",status
-                print "DONE"
+                print "COMMAND EXIT:",status,"\n"
         else :
             # There is no command, so we run it by calling a function.
             # This runs the test in the same python interpreter that 
             # this file is executing in, which is normally not
             # preferred because a problem in the test runner, or even
             # in the test, could potentially kill the pandokia meta-runner.
-            print "RUNNING INTERNALLY"
+            print "RUNNING INTERNALLY (for file %s)"%full_filename
             runner_mod.run_internally(env)
-            print "DONE RUNNING INTERNALLY"
+            print "DONE RUNNING INTERNALLY\n"
 
     else :
-        print "NO RUNNER FOR",dirname +"/"+basename
+        print "NO RUNNER FOR",dirname +"/"+basename,"\n"
 
     os.chdir(save_dir)
 

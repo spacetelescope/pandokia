@@ -74,7 +74,6 @@ def run( dirs, envgetter, max_procs=None ) :
         except ValueError :
             print "cannot convert ",n," to integer - running one process at a time"
             n = 1
-        print "MAX PROC = ",n
         pandokia.multirun.set_max_procs(n)
 
         # x is a directory; y is a loop over all nested subdirectories
