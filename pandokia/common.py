@@ -528,3 +528,4 @@ def gethostname( ) :
     return hostname
     # bug: decided when to use fqdn or not; override hostname in config; etc
 
+
