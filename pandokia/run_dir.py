@@ -10,10 +10,23 @@ def run( dirname, envgetter ) :
     # Run all the tests to be found in directory dirname.
     # This is not recursive into other directories.
     #
-    print "run directory ",dirname
+    # return 1 if there was an error, 0 otherwise; try to
+    # do as much as possible, though.
+    #
+    printed_dirname = 0
+
+    was_error = 0
+
     dirname = os.path.abspath(dirname)
 
-    dir_list = os.listdir( dirname )
+    try :
+        dir_list = os.listdir( dirname )
+    except Exception, e:
+        print "Cannot search for tests in ",dirname
+        print e
+        print ""
+        return 1
+
     dir_list.sort()
 
     for basename in dir_list :
@@ -22,7 +35,10 @@ def run( dirname, envgetter ) :
         try :
             file_stat = os.stat(full_name)
         except Exception, e :
-            print full_name, e
+            print "Cannot stat file ",full_name
+            print e
+            print ""
+            was_error = 1
             continue
         if not stat.S_ISREG(file_stat.st_mode) :
             # we skip any thing that is not a file
@@ -37,9 +53,16 @@ def run( dirname, envgetter ) :
         if runner is None :
             continue
 
+        # Don't print the directory name until it looks like we are
+        # actually going to do anything here.  This suppresses all
+        # output completely for directories that do not have any tests.
+        if not printed_dirname :
+            print "directory",dirname
+            printed_dirname=1
+
         # If the file is disabled, skip it
-        if file_disabled(dirname, basename, runner) :
-            print "##### DISABLED : %s/%s"%(dirname,basename)
+        if file_disabled(dirname, basename) :
+            print "Disabled : %s/%s"%(dirname,basename)
             m = pandokia.run_file.get_runner_mod( runner )
 
             env = { }
@@ -79,10 +102,16 @@ def run( dirname, envgetter ) :
             xstr=traceback.format_exc()
             print "Exception running file %s/%s: %s"%(dirname, basename, e)
             print xstr
+            print ''
+            was_error = 1
 
-            
+    return was_error
 
-def file_disabled(dirname, basename, runner ) :
+
+#
+# check for a disable file, indicating that we should not run tests in a file
+#
+def file_disabled(dirname, basename) :
     n=basename.rfind(".")
     if n >= 0 :
         disable_name = basename[:n]
@@ -94,6 +123,10 @@ def file_disabled(dirname, basename, runner ) :
         return True
     except OSError :
         return False
+
+#
+# write a test report for a list of disabled tests.
+#
 
 def write_disabled_list( env, name_list, dirname, basename, runner ) :
     nowstr=time.time()

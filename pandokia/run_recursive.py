@@ -35,10 +35,12 @@ def generate_directories( dir ) :
         # Find out if it is a directory.  If not, skip it.
         full_name = os.path.join(dir,short_name)
         try :
+            # lstat - not recursing into symlinks
             file_stat = os.lstat(full_name)
         except OSError, e:
             if e.errno != errno.ENOENT :
-                print full_name, e
+                print "cannot lstat",full_name
+                print e
         if not stat.S_ISDIR(file_stat.st_mode) :
             continue
 

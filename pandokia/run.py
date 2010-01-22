@@ -135,8 +135,9 @@ def run(args) :
 
     if recursive :
         import pandokia.run_recursive
-        pandokia.run_recursive.run(args, envgetter )
+        was_error = pandokia.run_recursive.run(args, envgetter )
     else :
+        was_error = 0
         for x in args :
             try :
                 file_stat = os.stat(x)
@@ -146,7 +147,7 @@ def run(args) :
 
             if stat.S_ISDIR(file_stat.st_mode) :
                 import pandokia.run_dir
-                pandokia.run_dir.run(x, envgetter )
+                was_error |= pandokia.run_dir.run(x, envgetter )
             elif stat.S_ISREG(file_stat.st_mode) :
                 import pandokia.run_file
                 
@@ -156,12 +157,12 @@ def run(args) :
                     dirname = '.'
                 runner = pandokia.run_file.select_runner(dirname,basename)
                 if runner is not None :
-                    pandokia.run_file.run(dirname, basename, envgetter, runner )
+                    was_error |= pandokia.run_file.run(dirname, basename, envgetter, runner )
                 else :
                     print "no runner for ",x
+                    was_error = 1
 
-            else :
-                print "skipped",x
+    return was_error
 
 def default_project() :
     return "default"
@@ -174,7 +175,7 @@ def default_test_run() :
     else :
         fmt = 'user_%Y-%m-%d-%H-%M'
     d = d.strftime( fmt )
-    print "DEFAULT TEST RUN",d,"\n"
+    print "DEFAULT TEST RUN",d
     return d
 
 def export_environment(args) :

@@ -145,16 +145,19 @@ def done( pid, status ) :
     for n, proc_struct in enumerate(process_slot) :
         if not ( proc_struct is None ) and ( proc_struct.pid == pid ) :
             process_slot[n] = None
-            sys.stdout.write('#### Output from process %d in slot %d\n'%(pid, n))
             f = open( proc_struct.stdout_filename, "r" )
-            while True :
-                x=f.read(32768)
-                if x == '' :
-                    break
+            x=f.read(32768)
+            if len(x) != 0 :
+                sys.stdout.write('\n#### Output from process %d in slot %d\n'%(pid, n))
                 sys.stdout.write(x)
+                while True :
+                    x=f.read(32768)
+                    if x == '' :
+                        break
+                    sys.stdout.write(x)
+                sys.stdout.write('End of output from process %d in slot %d, status=%d\n'%(pid, n, status))
+                sys.stdout.flush()
             f.close()
-            sys.stdout.write('End of output from process %d in slot %d, status=%d\n\n\n'%(pid, n, status))
-            sys.stdout.flush()
             os.unlink(proc_struct.stdout_filename)
             return
     assert False

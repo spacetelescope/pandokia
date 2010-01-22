@@ -29,10 +29,12 @@ def read_runner_glob ( dirname ) :
         return runner_glob_cache[dirname]
 
     # try to read it from a file in the directory with the test
-    # ( maybe this should walk back up to pandokia_top ? )
     try :
         f=open(dirname+"/pdk_runners","r")
     except :
+        # bug: no error handling - should distinguish file not found
+        # (IOError) from permission denied (IOError) or not-a-file
+        # (IOError)
         return pandokia.cfg.runner_glob
 
     # read pairs from file
