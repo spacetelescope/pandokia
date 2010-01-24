@@ -7,7 +7,7 @@ from pandokia.helpers import filecomp
 
 #for file cleanup
 import os
-
+import glob
 
 import pyraf
 from pyraf import iraf
@@ -102,10 +102,12 @@ class PyrafTest(object):
     @classmethod
     def preclean(cls):        
         for fname in cls.cmplist + cls.cleanuplist:
-            try:
-                os.remove(fname)
-            except OSError:
-                pass #Probably isn't there. This could be smarter.
+            if '*' in fname:
+                for k in glob.glob(fname):
+                    safedel(k)
+            else:
+                safedel(fname)
+
 
 
     @classmethod
@@ -120,4 +122,9 @@ class PyrafTest(object):
             except OSError:
                 pass
 
-        
+def safedel(fname):
+    try:
+        os.remove(fname)
+    except OSError:
+        pass #Probably isn't there. This could be smarter.
+    
