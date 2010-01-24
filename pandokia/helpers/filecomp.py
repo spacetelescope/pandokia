@@ -191,6 +191,7 @@ def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
 ###
 
 
+
 file_comparators = {
     'binary':       cmp_binary,
     'fits':         cmp_fits,
@@ -198,18 +199,36 @@ file_comparators = {
 }
 
 
-def check_file( name, cmp, msg=None, quiet=False, exc=True, **kwargs ) :
+def check_file( name, cmp, msg=None, quiet=False, exc=True,
+                cleanup=False, okfh=None, **kwargs ) :
     """
-status = check_file( name, cmp, msg=None, quiet=False, exc=True, *args, **kwargs )
+    status = check_file( name, cmp, msg=None, quiet=False, exc=True,
+                         cleanup=False, okfh=None, **kwargs )
+    name = file to compare
+    cmp = comparator to use
+    exc=True: raise AssertionError if comparison fails
+    cleanup=True: delete file "name" if comparison passes
+    if okfh present: write (name, refname) to the provided file handle.
 
-true = same
-false = different
+    msg, quiet, **kwargs: passed to individual comparators
 
-"""
+
+    Returns: 
+       true if same
+       false if different
+
+    """
     if not cmp in file_comparators :
         raise ValueError("cmp=%s"%str(cmp))
     r = file_comparators[cmp](name, "ref/"+name, msg, quiet, **kwargs )
-    if not r :
+    if r and cleanup:
+        try:
+            os.unlink(name)
+        except Exception:
+            pass
+    else:
+        if okfh:
+            okfh.write("%s ref/%s\n"%(name, name))
         if exc :
             raise(AssertionError("files are different: %s, ref/%s\n"%(name,name)))
     return r
