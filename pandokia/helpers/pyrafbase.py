@@ -75,29 +75,38 @@ class PyrafTest(object):
 
 
         
-    def checkfile(self, fname, comparator):
-       #Add ignorekeys if any
-        try:
-            self.tda['ignorekeys']=self.ignorekeys
-            ignorelist=','.join(self.ignorekeys)
-        except AttributeError:
-            ignorelist=[]
+    def checkfile(self, fname, comparator, **kwds):
+
+        #Save what and how we're comparing
+        self.tda['testfile']=fname
+        self.tda['comparator']=comparator
+
+        #Save what, if anything, we're ignoring
+        for k in kwds:
+            if k.startswith('ignore'):
+                self.tda[k]=kwds[k]
+
+        #Syntactic sugar for FITS keyword ignore
+        if 'ignore_keys' in kwds:
+            kwds['value_excl_list']=','.join(kwds.pop('ignore_keys'))
+            
+
         #Then do the comparison
         filecomp.check_file(fname, comparator,
-                            'msg', True,       #Raise AssertionError if different
-                            okfh=self.okfh,    #Update okfile for failed tests
-                            cleanup=True,      #Clean up output file for passed tests
-                            value_excl_list=ignorelist)
+                            exc=True,       #Raise AssertionError if different
+                            okfh=self.okfh, #Update okfile for failed tests
+                            cleanup=True,   #Clean up output file for passed tests
+                            **kwds)         #Keyword args understood by comparators
 
         
     @classmethod
-    def preclean(cls):
-        for fname in cls.cmplist:
+    def preclean(cls):        
+        for fname in cls.cmplist + cls.cleanuplist:
             try:
                 os.remove(fname)
             except OSError:
                 pass #Probably isn't there. This could be smarter.
-        #Should we also do the cleanuplist in case they were leftover?
+
 
     @classmethod
     def tearDownClass(cls):
