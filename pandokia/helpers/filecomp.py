@@ -2,6 +2,7 @@
 __all__ = [ 'command', 'check_file', ]
 
 import os
+import re
 import sys
 import subprocess
 
@@ -218,17 +219,33 @@ def check_file( name, cmp, msg=None, quiet=False, exc=True,
        false if different
 
     """
+    #Make sure we have a comparator
     if not cmp in file_comparators :
         raise ValueError("cmp=%s"%str(cmp))
-    r = file_comparators[cmp](name, "ref/"+name, msg, quiet, **kwargs )
+
+    #Do the comparison
+    try:
+        r = file_comparators[cmp](name, "ref/"+name, msg, quiet, **kwargs )
+    #Catch exceptions so we can update the okfile
+    except Exception:
+        if okfh:
+            okfh.write("%s ref/%s\n"%(name, name))
+        raise
+
+    #Clean up file that passed if we've been asked to
     if r and cleanup:
         try:
             os.unlink(name)
         except Exception:
             pass
+
+    #Update the okfile if the test failed
     else:
         if okfh:
             okfh.write("%s ref/%s\n"%(name, name))
+
+        #Last of all, raise the AssertionError that defines a failed test
         if exc :
             raise(AssertionError("files are different: %s, ref/%s\n"%(name,name)))
+    #and return the True/False (Pass/Fail) status
     return r
