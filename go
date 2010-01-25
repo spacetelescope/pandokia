@@ -7,7 +7,8 @@ case "$1"
 in
 pyssg)
 	python setup.py -q install 
-	echo 'dbdir="/ssbwebv1/data1/pandokia/database"' >> /usr/stsci/pyssgdev/Python-2.5.4/lib/python2.5/site-packages/pandokia/config.py
+	cp stsci/config.py /usr/stsci/pyssgdev/Python-2.5.4/lib/python2.5/site-packages/pandokia/config.py
+	# no top_level.html needed
 	exit 0
 	;;
 ssbdev)
@@ -20,7 +21,7 @@ ssbdev)
 	;;
 esac
 
+cp stsci/config.py $there/lib/python/pandokia/config.py
 
-echo 'dbdir="/ssbwebv1/data1/pandokia/database"' >>  $there/lib/python/pandokia/config.py
-cp  /ssbwebv1/data1/pandokia/c12/lib/python/pandokia/top_level.html   $there/lib/python/pandokia/
+cp  stsci/top_level.html   $there/lib/python/pandokia/
 
