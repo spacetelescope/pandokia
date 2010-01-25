@@ -1,4 +1,3 @@
-
 __all__ = [ 'command', 'check_file', ]
 
 import os
@@ -199,14 +198,20 @@ file_comparators = {
     'text':         cmp_text,
 }
 
-
-def check_file( name, cmp, msg=None, quiet=False, exc=True,
+def update_okfile(okfh, name, ref):
+    
+    okfh.write("%s %s\n"%(os.path.abspath(name),
+                          os.path.abspath(ref)))
+    
+def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
                 cleanup=False, okfh=None, **kwargs ) :
     """
     status = check_file( name, cmp, msg=None, quiet=False, exc=True,
                          cleanup=False, okfh=None, **kwargs )
     name = file to compare
     cmp = comparator to use
+    ref = file to compare against. If none, it lives in a ref/ dir
+           under the dir containing the file to compare
     exc=True: raise AssertionError if comparison fails
     cleanup=True: delete file "name" if comparison passes
     if okfh present: write (name, refname) to the provided file handle.
@@ -223,13 +228,18 @@ def check_file( name, cmp, msg=None, quiet=False, exc=True,
     if not cmp in file_comparators :
         raise ValueError("cmp=%s"%str(cmp))
 
+    #Construct the reference file if necessary
+    if ref is None:
+        ref = os.path.join(os.path.dirname(name),
+                           'ref',
+                           os.path.basename(name))
     #Do the comparison
     try:
-        r = file_comparators[cmp](name, "ref/"+name, msg, quiet, **kwargs )
+        r = file_comparators[cmp](name, ref, msg, quiet, **kwargs )
     #Catch exceptions so we can update the okfile
     except Exception:
         if okfh:
-            okfh.write("%s ref/%s\n"%(name, name))
+            update_okfile(okfh, name, ref)
         raise
 
     #Clean up file that passed if we've been asked to
@@ -242,7 +252,7 @@ def check_file( name, cmp, msg=None, quiet=False, exc=True,
     #Update the okfile if the test failed
     else:
         if okfh:
-            okfh.write("%s ref/%s\n"%(name, name))
+            update_okfile(okfh, name, ref)
 
         #Last of all, raise the AssertionError that defines a failed test
         if exc :
