@@ -58,12 +58,12 @@ def run(args) :
 
             prob = prob | doit(src,dest)
 
-            try :
-                if try_to_delete :
-                    os.unlink(okfile)
-            except IOError, e:
-                print "cannot remove ",okfile
-                print e
+        try :
+            if try_to_delete :
+                os.unlink(okfile)
+        except IOError, e:
+            print "cannot remove ",okfile
+            print e
 
         return prob
 
