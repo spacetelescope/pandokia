@@ -170,6 +170,8 @@ def pdk_log_name( env ) :
 #
 def run( dirname, basename, envgetter, runner ) :
 
+    return_status = 0
+
     dirname = os.path.abspath(dirname)
 
     save_dir = os.getcwd()
@@ -224,12 +226,16 @@ def run( dirname, basename, envgetter, runner ) :
                 # python doesn't just give you the unix status
                 if status & 0xff == 0 :
                     status="exit %d"%(status >> 8)
+                    if status != 0 :
+                        return_status = 1
                 else :
+                    return_status = 1
                     if status & 0x80 :
                         status="signal %d, core dumped" % ( status & 0x7f )
                     else :
                         status="signal %d" % ( status & 0x7f )
                 print "COMMAND EXIT:",status,"\n"
+
         else :
             # There is no command, so we run it by calling a function.
             # This runs the test in the same python interpreter that 
@@ -244,5 +250,7 @@ def run( dirname, basename, envgetter, runner ) :
         print "NO RUNNER FOR",dirname +"/"+basename,"\n"
 
     os.chdir(save_dir)
+
+    return return_status
 
 

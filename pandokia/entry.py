@@ -47,6 +47,11 @@ pdk initdb [ qdb | db ]
 pdk notify
     send notification emails about failed tests
 
+pdk ok [ okfiles ]
+    Tests that use reference files can leave behind 'okfiles' when
+    they run.  The okfile contains the information necessary to copy the
+    output files to the reference files.  This command performs that copy.
+
 pdk run
     run tests; use 'pdk run --help' for more detail
 
@@ -144,6 +149,10 @@ def run() :
     if cmd == 'notify':
         import pandokia.contact_notify
         return pandokia.contact_notify.run(args)
+
+    if cmd == 'ok' or cmd == 'okify' :
+        import pandokia.ok
+        return pandokia.ok.run(args)
 
     if cmd == 'run' :
         import pandokia.run as x

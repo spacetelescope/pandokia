@@ -288,6 +288,7 @@ class Regress:
 
                 # Assume everything is ok unless one of the comparisons says otherwise.
                 ok = 1
+                error = 0
 
                 # Keep a list of all the comparison objects.  We delete the test output
                 # files at the end.
@@ -316,22 +317,6 @@ class Regress:
                     if not "reference" in output :
                         output["reference"] = "ref/" + output["fname"]
 
-                    # Check for existence of comparison files
-                    if not os.path.exists(output["reference"]):
-                        self.writelog ("?", "Reference comparison file not found",
-                                             output["reference"])
-                        self.writelog ("!", "Regression test failed",
-                                             config["title"])
-                        return
-
-                    if not os.path.exists(output["fname"]):
-                        self.writelog ("?", "Test comparison file not found",
-                                             output["fname"])
-                        self.writelog ("!", "Regression test failed",
-                                             config["title"])
-                        return
-
-
                     # Create the comparison for this set of outputs
                     pair=Comparison(output["comparator"],
                                               output["fname"],
@@ -351,34 +336,37 @@ class Regress:
                         xstr=traceback.format_exc()
                         self.writelog ("?", "Error running comparison",
                                        output["comparator"])
-                        self.writelog ("?", xstr)
-                        self.writelog ("?", "Regression test failed",
-                                       config["title"])
-                        return
-
-                    #Handle the results
-                    if pair.failed:
-                        pair.writeheader(self.log)
-                        pair.writeresults(self.log)
-                    pair.writestatus(self.log)
-
-                    # do not delete the output files here - I want to keep all of
-                    # them around if a test fails
-                    all_pairs.append(pair)
-
-                    #Update overall status of test
-                    if pair.failed:
                         ok=0
+                        error=1
+                    else :
+                        #Handle the results
+                        if pair.failed:
+                            pair.writeheader(self.log)
+                            pair.writeresults(self.log)
+                        pair.writestatus(self.log)
+
+                        # do not delete the output files here - I want to keep all of
+                        # them around if a test fails
+                        all_pairs.append(pair)
+
+                        #Update overall status of test
+                        if pair.failed:
+                            ok=0
 
                 # Write final message on success of entire test
-                if ok:
-                    pdkr.set("status","P")
-                    self.writelog (".", "Regression test completed successfully",
-                                   config["title"])
-                else:
-                    pdkr.set("status","F")
-                    self.writelog ("!", "Regression test completed with mismatches",
-                                   config["title"])
+                if not error :
+                    if ok:
+                        pdkr.set("status","P")
+                        self.writelog (".", "Regression test completed successfully",
+                                       config["title"])
+                    else:
+                        pdkr.set("status","F")
+                        self.writelog ("!", "Regression test failed",
+                                       config["title"])
+                else :
+                        pdkr.set("status","E")
+                        self.writelog ("!", "Regression test ERROR",
+                                       config["title"])
 
                 if ok :
                     # delete temp files used by comparison; if pair.failed is set,
@@ -386,6 +374,26 @@ class Regress:
                     # it deletes temp files and output files.
                     for pair in all_pairs :
                         pair.cleanup()
+
+                if not ok :
+                    okfile = file
+                    if okfile.endswith(".xml") :
+                        okfile = okfile[:-4]
+                    okfile = okfile + ".okfile"
+                    okfile = os.path.join(os.getcwd(),okfile)
+
+                    pdkr.set_tda("_okfile", okfile)
+
+                    try :
+                        os.unlink(okfile)
+                    except :
+                        pass
+
+                    f=open(okfile,"w")
+                    f.write('# %s\n'%file)
+                    for output in config["output"]:
+                        f.write("%s %s\n"%(output['fname'],output['reference'] ))
+                    f.close()
 
         except Exception, e :
             # there should be no exception to catch.  If we get one, we want to

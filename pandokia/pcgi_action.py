@@ -27,6 +27,8 @@ def run( ) :
 
     output = sys.stdout
 
+    text_present = 0
+
     output.write(common.cgi_header_html)
 
     # don't issue the redirect for internet explorer
@@ -38,16 +40,8 @@ def run( ) :
 
     #
 
-    print "A"
     qdb = common.open_qdb()
-    print "A1"
     db = common.open_db()
-    print "A2"
-
-    try :
-        print "A2A",dir(pandokia.pcgi),"A2A"
-    except Exception, e :
-        print e
 
     #
     # gather up all the expected parameters
@@ -55,15 +49,7 @@ def run( ) :
 
     form = pandokia.pcgi.form
 
-    print "A3"
-    for x in form :
-        print "A4"
-        print x
-        print "A5"
-    print "A6"
-
     qid = int(form['qid'].value)
-    print "b"
     if 'action_remove' in form :
         for key_id in valid_key_ids(form) :
             qdb.execute('DELETE FROM query WHERE qid = ? AND key_id = ?', (qid, key_id))
@@ -88,34 +74,34 @@ def run( ) :
     elif 'action_flagok' in form :
         # pick out client IP for logging
         # we don't need to validate client because it was done already in the main program
-        print "c1"
+        output.write("<h3>flagging tests as ok</h3>\n")
         client = os.environ["REMOTE_ADDR"]
         user = common.current_user()
         if user is None :
             user = 'None'
-        print "c2"
 
         for key_id in valid_key_ids(form) :
-            print "c4",db,client,key_id, user
-            pandokia.flagok.flagok(db, client, key_id, user)
-            print "c5"
+            text_present |= pandokia.flagok.flagok(db, client, key_id, user)
 
-        print "c6"
         pandokia.flagok.commit(db)
-        print "c7"
 
     elif 'not_expected' in form :
-        print "c1"
         for key_id in valid_key_ids(form) :
             c = db.execute("SELECT project, host, test_name, context FROM result_scalar WHERE key_id = ?", (key_id,) )
             for project, host, test_name, context in c :
                 db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ? AND context = ?",(project,host,test_name,context))
         db.commit()
 
-    print "e"
 
-    if 1 :
-        print "f"
+    if text_present :
+        output.write(
+            "<a href='"
+            + pandokia.pcgi.cginame
+            + ("?query=summary&qid=%s'>back to qid = " % qid)
+            + str(qid)
+            + "</a><br>\n"
+            )
+    else :
         if not no_redirect :
             output.write(
                 '<html><head><meta http-equiv="REFRESH" content="0;'
@@ -131,7 +117,6 @@ def run( ) :
             + "</a><br>\n"
             )
 
-    print "g"
 
 def valid_key_ids(form) :
     l = [ ]
