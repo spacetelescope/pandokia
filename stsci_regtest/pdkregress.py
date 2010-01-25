@@ -375,7 +375,7 @@ class Regress:
                     for pair in all_pairs :
                         pair.cleanup()
 
-                if not ok :
+                if 1 :
                     okfile = file
                     if okfile.endswith(".xml") :
                         okfile = okfile[:-4]
