@@ -257,7 +257,7 @@ class Pdk(Plugin):
                 else :
                     name="%s%s" %(self.pdktestprefix,name)
 
-        print "~~~~~ test name is ",name
+        
         
         #Write the standard info
         self.f_pdk.write("test_name=%s\n"%name)

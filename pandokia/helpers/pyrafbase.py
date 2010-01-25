@@ -37,7 +37,8 @@ class PyrafTest(object):
         cls.init_tdas(parfile=cls.parfile)
 
         #Support okifying
-        cls.tda['_okfile']=cls.parfile.replace('.par','.okify')
+        cls.tda['_okfile']=os.path.abspath(cls.parfile).replace('.par',
+                                                                '.okify')
         cls.okfh = open(cls.tda['_okfile'], 'w')
         
         #Provide a hook for any other setup
