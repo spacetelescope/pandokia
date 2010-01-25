@@ -1,6 +1,7 @@
 
 import cgi
 import pandokia.config
+import os.path
 
 fdarray = { }
 
@@ -17,12 +18,12 @@ def flagok(db, client, key_id, user) :
 
     (host, location, test_name) = x
 
-    c = db.execute('SELECT value FROM result_tda WHERE key_id = ? AND name = ?',(key_id, 'tda__okfile'))
+    c = db.execute('SELECT value FROM result_tda WHERE key_id = ? AND name = ?', (key_id,'_okfile'))
     x = c.fetchone()
     if x is None :
         flagok_file = None
     else :
-        (flagok_file, ) = c.fetchone()
+        (flagok_file, ) = x
 
     if flagok_file is None or flagok_file == '' :
         noflag(test_name, 'no _okfile tda')
