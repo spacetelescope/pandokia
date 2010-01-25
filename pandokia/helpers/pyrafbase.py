@@ -49,6 +49,10 @@ class PyrafTest(object):
               Stdout=cls.parfile.replace('.par','.stdout'))
 
     @classmethod
+    def setdefs(cls):
+        raise NotImplementedError('Tests must override this method')
+    
+    @classmethod
     def pre_exec(cls):
         #Hook for tests to override if desired
         pass
@@ -75,8 +79,15 @@ class PyrafTest(object):
 
 
         
-    def checkfile(self, fname, comparator, **kwds):
+    def checkfile(self, fname, comparator=None, **kwds):
 
+        #If no comparator specified, infer it from file extension
+        if comparator is None:
+            if fname.endswith('.fits') or fname.endswith('.fit'):
+                comparator='fits'
+            else:
+                comparator='text'
+                
         #Save what and how we're comparing
         self.tda['testfile']=fname
         self.tda['comparator']=comparator
