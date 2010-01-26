@@ -10,26 +10,23 @@ class FileTestCase(unittest.TestCase):
         - setUp() defines self.tda and self.tra dictionaries
         - command() executes a shell command
         - check_file() compares a file to a reference file
-        - tearDown() cleans up any compared files for tests that passed.
 
     Both the .command() and .check_file() methods automatically populate the
-    tda and tra dictionaries with useful values."""
+    tda and tra dictionaries with useful values.
+
+    Test cases may support "okifying" if the subclass:
+      - saves self.tda['_okfile']=some absolute file name
+      - opens that file name, and passes the handle to the check_file method
+
+    This will write the names of files that did not pass the comparison to
+    the okfile, which Pandokia then knows how to use to "okify".
+    """
 
     def setUp(self):
         #Define the tda and tra dictionaries for use by the tests
         self.tda=dict()
         self.tra=dict()
-        #Define some internal bookkeeping things with which to
-        #manage housekeeping
-        self._flist=[]
-        self._ok_to_clean=False
-        
-    def tearDown(self):
-        #Clean up any files we compared, but only if all comparisons
-        #in the test have passed.
-        if self._ok_to_clean:
-            for fname in self._flist:
-                os.unlink(fname)
+
             
     def command(self,cmdstring,suffix=''):
         """execute the specified command string, saving it as a
@@ -41,7 +38,8 @@ class FileTestCase(unittest.TestCase):
         self.tda['cmd%s'%str(suffix)]=cmdstring
         self.tra['cmd%s_retstat'%str(suffix)]=filecomp.command(cmdstring)
 
-    def check_file(self, name, cmp, msg=None, suffix='', **kwargs):
+
+    def check_file(self, name, cmp, okfh=None, msg=None, suffix='', **kwargs):
         """Save the filename as a tda, and do the requested file
         comparison. Optional suffixes are provided in case the same
         test wants to compare multiple files.
@@ -53,18 +51,13 @@ class FileTestCase(unittest.TestCase):
         method to clean up the compared files only if all files in the
         test have passed."""
 
-        #Save the name
+        #Save what we're comparing
         self.tda['fname%s'%str(suffix)]=name
-        #Mark state
-        self._ok_to_clean=False
         #Do the comparison
-        filecomp.check_file(name, cmp, msg, exc=True, **kwargs)
+        filecomp.check_file(name, cmp=cmp, msg=msg, exc=True,
+                            cleanup=True, okfh=okfh,
+                            **kwargs)
 
-        #check_file will raise an exception if the test fails, so
-        #it is safe to change state and add the file to the cleanup list
-        #at this point
-        self._flist.append(name)
-        self._ok_to_clean=True
 
 
 class FunctionHolder(unittest.TestCase):
@@ -75,7 +68,7 @@ class FunctionHolder(unittest.TestCase):
 
     Instead, a developer can inherit from this test class, and write methods
     for it as if they were functions. This class pre-defines the tda and tra
-    dictionaries in its setUp.
+    dictionaries in its setUp, which will be run before each test function.
 
     """
 
