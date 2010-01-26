@@ -48,7 +48,7 @@ def run(args) :
             print "expect ",test_run_type, project, host, context, test_name
         # insert to the expected table; if the record is already there, it's ok.
         try : 
-            db.execute('insert into expected values ( ?, ?, ?, ?, ? )', ( test_run_type, project, host, context, test_name ))
+            db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( ?, ?, ?, ?, ? )', ( test_run_type, project, host, context, test_name ))
         except db.IntegrityError, e:
             if debug :
                 print "exception", e
