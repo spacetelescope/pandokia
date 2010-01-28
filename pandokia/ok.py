@@ -65,7 +65,7 @@ def run(args) :
             print "cannot remove ",okfile
             print e
 
-        return prob
+    return prob
 
 
 # actually do the rename/copy with any directory create needed
