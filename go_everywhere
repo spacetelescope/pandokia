@@ -1,0 +1,19 @@
+wdir=/eng/ssb/pandokia_dev/pandokia
+
+
+if [ `pwd` != $wdir ]
+then
+	echo wrong directory
+	exit 1
+fi
+echo ok
+
+for x in arzach cadeau grail herbert thor 
+do
+	echo XXXXX
+	echo $x
+	ssh $x "cd $wdir && rm -rf build && sh go pyssg && sh go ssbdev"
+	exit 0
+done
+
+ssh tufnel 'cd pandokia_dev/pandokia && svn update && rm -rf build && sh go pyssg && sh go ssbdev'
