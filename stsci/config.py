@@ -29,7 +29,7 @@ os_info = {
 
     }
 
-pdk_url = "https://svn.stsci.edu/pandokia/pdk.cgi"
+pdk_url = "https://ssb.stsci.edu/pandokia/pdk.cgi"
 
 
 exclude_dirs = [
