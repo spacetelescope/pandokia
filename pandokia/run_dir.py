@@ -34,12 +34,22 @@ def run( dirname, envgetter ) :
         full_name = os.path.join(dirname,basename)
         try :
             file_stat = os.stat(full_name)
+        except OSError, e :
+            if e.errno == errno.ENOENT :
+                # not an error for somebody to delete a file between when
+                # we start the test and end the test.  most commonly,
+                # this is a temp file or something, not a test.
+                continue
+            print "Cannot stat file ",full_name
+            print e
+            was_error = 1
+            continue
         except Exception, e :
             print "Cannot stat file ",full_name
             print e
-            print ""
             was_error = 1
             continue
+
         if not stat.S_ISREG(file_stat.st_mode) :
             # we skip any thing that is not a file
             continue
