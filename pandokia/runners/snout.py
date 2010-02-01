@@ -86,7 +86,7 @@ def command( env ) :
     # looking at.
     basename = filename
     if basename.endswith(".snout") :
-        basename = basename[:-8]
+        basename = basename[:-len(".snout")]
     # the prefix already ends with a /
     prefix = env['PDK_TESTPREFIX'] + basename
     for location in l :
