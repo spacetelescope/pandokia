@@ -168,7 +168,6 @@ def rpt2( ) :
         c = db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = ? AND project = ?", (test_run, p))
         for host, context in c :
             query["host"] = host
-            query["context"] = context
             link = common.selflink(query_dict = query, linkmode="treewalk" )
             table.set_value(row,0,    text=host,        link=link)
             table.set_value(row,1,    text=context,        link=link)
