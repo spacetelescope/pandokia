@@ -41,6 +41,8 @@ def generate_directories( dir ) :
             if e.errno != errno.ENOENT :
                 print "cannot lstat",full_name
                 print e
+            continue
+
         if not stat.S_ISDIR(file_stat.st_mode) :
             continue
 
