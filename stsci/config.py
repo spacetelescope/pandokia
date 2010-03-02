@@ -47,6 +47,7 @@ runner_glob = [
     ( '*.xml',              'regtest'   ),      # legacy system used at STScI
 ]
 
+server_maintenance = False
 
 debug = True
 

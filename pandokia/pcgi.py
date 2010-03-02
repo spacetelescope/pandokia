@@ -28,6 +28,12 @@ def run() :
     if cfg.debug :
         cgitb.enable()
 
+    if cfg.server_maintenance:
+        sys.stdout.write("content-type: text/html\n\n\nWeb page unavailable because of pandokia server maintenance<p>\n\n")
+        if isinstance(cfg.server_maintenance,basestring) :
+            sys.stdout.write("%s\n"%cfg.server_maintenance)
+        sys.exit(0)
+
     ######
     #
     # check authentication

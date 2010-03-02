@@ -116,6 +116,12 @@ runner_glob = [
 
 debug = True
 
+#
+# Set this to 'True' to cause the cgi to issue a "server maintenance" page.
+# This gives you a chance to do database maintenance without hurting
+# anybody.
+server_maintenance = False
+
 #####
 #
 # END OF CONFIGURATION
