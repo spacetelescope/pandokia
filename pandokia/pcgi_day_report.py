@@ -132,11 +132,11 @@ def rpt2( ) :
     table.define_column("context")
     table.define_column("os")
     table.define_column("total")
-    table.define_column("pass")
-    table.define_column("fail")
-    table.define_column("error")
-    table.define_column("disabled")
-    table.define_column("missing")
+    table.define_column("P")
+    table.define_column("F")
+    table.define_column("E")
+    table.define_column("D")
+    table.define_column("M")
     table.define_column("note")
 
 #   #   #   #   #   #   #   #   #   #
@@ -156,12 +156,23 @@ def rpt2( ) :
 
         # the column headings for this project's part of the table
         table.set_value(row, "total", text="total", link=link )
-        table.set_value(row, "pass", text="pass", link=link+"&status=P")
-        table.set_value(row, "fail", text="fail", link=link+"&status=F")
-        table.set_value(row, "error", text="error", link=link+"&status=E")
-        table.set_value(row, "disabled", text="disabled", link=link+"&status=D")
-        table.set_value(row, "missing", text="missing", link=link+"&status=M")
+        table.set_value(row, "P", text="pass", link=link+"&status=P")
+        table.set_value(row, "F", text="fail", link=link+"&status=F")
+        table.set_value(row, "E", text="error", link=link+"&status=E")
+        table.set_value(row, "D", text="disabled", link=link+"&status=D")
+        table.set_value(row, "M", text="missing", link=link+"&status=M")
         table.set_value(row, "note", text="" )  # no heading for this one
+        row += 1
+
+        # This will be the sum of all the tests in a particular project.
+        # It comes just under the headers for the project, but we don't
+        # know the values until the end.
+        status_types = [ 'P', 'F', 'E', 'D', 'M' ]
+        project_sum = { 'total' : 0 }
+        for status in status_types :
+            project_sum[status] = 0
+
+        project_sum_row = row
         row += 1
 
         # loop across hosts
@@ -172,29 +183,33 @@ def rpt2( ) :
             table.set_value(row,0,    text=host,        link=link)
             table.set_value(row,1,    text=context,        link=link)
             table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
-            # column 3 is the total - value not available yet
-            col = 4  # the first column of the pass/fail/error numbers
             total_results = 0
-            for status in [ 'P', 'F', 'E', 'D', 'M' ] :
+            for status in status_types :
                 c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
                     ( test_run, p, host, status, context ) )
                 (x,) = c1.fetchone()
-                total_results = total_results + x
-                table.set_value(row, col, text=str(x), link = link + "&rstatus="+status )
-                col = col + 1
+                total_results += x
+                project_sum[status] += x
+                table.set_value(row, status, text=str(x), link = link + "&rstatus="+status )
 
+            project_sum['total'] += total_results
+
+            # x is the value from the _last_ column we processed, which is 'missing'
             if x == total_results :
-                # x is the value from the _last_ column, which is 'missing'
                 # if it equals the total, then everything is missing; we make a note of that
                 table.set_value(row, 'note', 'all')
             elif x != 0 :
-                # x is the value from the _last_ column, which is 'missing'
                 # if it is not 0, then we have a problem
                 table.set_value(row, 'note', 'some')
 
             table.set_value(row, 'total', text=str(total_results), link=link )
 
             row = row + 1
+
+        for status in status_types :
+            table.set_value(project_sum_row, status, project_sum[status] )
+
+        table.set_value(project_sum_row, 'total', project_sum['total'] )
 
         # insert this blank line between projects - keeps the headings away from the previous row
         table.set_value(row,0,"")
