@@ -3,7 +3,7 @@
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
 
-dbdir="/ssbwebv1/data1/pandokia/database"
+dbdir="/ssbwebv1/data2/pandokia/database"
 
 user_list = None
 
