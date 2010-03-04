@@ -23,8 +23,14 @@ def generate_directories( dir ) :
     # The first directory we can yield is the one we are starting in.
     yield dir
 
-    # Now we look at all the subdirectories.
-    dir_list = os.listdir( dir )
+    try :
+        # Now we look at all the subdirectories.
+        dir_list = os.listdir( dir )
+    except ( OSError, IOError ) , e:
+        # various errors listing the directory mean we skip it
+        print e
+        return
+
     dir_list.sort()
 
     for short_name in dir_list :
