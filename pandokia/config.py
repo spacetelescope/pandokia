@@ -122,6 +122,15 @@ debug = True
 # anybody.
 server_maintenance = False
 
+#
+# name of cgi for use in generated html.
+# We actually use the cgi name as reported to us by the web server if it
+# is available, but if we are not running in the context of a web server,
+# we use this value.
+#
+cginame = "https://ssb.stsci.edu/pandokia/pdk.cgi"
+
+
 #####
 #
 # END OF CONFIGURATION

@@ -68,8 +68,27 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    import pandokia.pcgi
-    return pandokia.pcgi.cginame+"?query="+urllib.quote_plus(linkmode)+"&"+urllib.urlencode(query_dict)
+    t = "?query="+urllib.quote_plus(linkmode)+"&"+urllib.urlencode(query_dict)
+    return get_cgi_name() + t 
+
+cached_cgi_name = None
+
+def get_cgi_name() :
+
+    global cached_cgi_name
+
+    if cached_cgi_name is None :
+        import pandokia.pcgi
+
+        # we prefer to use the cgi name from pcgi, because that is what the
+        # web server told us the cgi name really is.  But, we might not be in
+        # a cgi; in that case, we use whatever is in the config file.
+        try :
+            cached_cgi_name = pandokia.pcgi.cginame
+        except AttributeError :
+            cached_cgi_name = cfg.cginame
+
+    return cached_cgi_name
 
 
 #
