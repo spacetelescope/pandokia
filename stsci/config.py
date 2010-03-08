@@ -51,4 +51,6 @@ server_maintenance = False
 
 debug = True
 
+cginame = 'https://ssb.stsci.edu/pandokia/pdk.cgi'
+
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
