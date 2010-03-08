@@ -86,8 +86,6 @@ def rpt1(  ) :
 
 def rpt2( ) :
 
-    db = common.open_db()
-
     form = pandokia.pcgi.form
 
     if form.has_key("test_run") :
@@ -98,15 +96,76 @@ def rpt2( ) :
         rpt1()
         return
 
-    # convert special names, e.g. daily_latest to the name of the latest daily_*
+    #
     test_run = common.find_test_run(test_run)
 
     # create list of projects
-    projects = [  ]
+    projects = None
 
     if form.has_key("project") :
         projects = form.getlist("project")
-    else :
+
+    # create the actual table
+    [ table, projects ] = gen_daily_table( test_run, projects )
+
+# # # # # # # # # # 
+    if pandokia.pcgi.output_format == 'html' :
+        header = "<h1>"+cgi.escape(test_run)+"</h1>\n"
+
+        if test_run.startswith('daily_') :
+            # 
+            # If we have a daily run, create a special header.
+
+            # show the day of the week, if we can
+            try :
+                import datetime
+                t = test_run[len('daily_'):]
+                t = t.split('-')
+                t = datetime.date(int(t[0]),int(t[1]),int(t[2]))
+                t = t.strftime("%A")
+                header = header+ "<h2>"+str(t)+"</h2>"
+            except :
+                pass
+
+            # Include links to the previous / next day's daily run.
+            # It is not worth the cost of looking in the database to make sure the day that
+            # we link to really exists.  It almost always does, and if it doesn't, the user
+            # will find out soon enough.
+            # 
+
+            prev = common.previous_daily( test_run )
+            back = common.self_href( query_dict = {  'test_run' : prev } , linkmode='day_report.2', text=prev )
+            header = header + '( prev ' + back
+
+            latest = common.find_test_run('daily_latest') 
+            if test_run != latest :
+                next = common.next_daily( test_run )
+                header = header + " / next " + common.self_href( query_dict={  'test_run' : next } , linkmode='day_report.2', text=next )
+                if next != latest :
+                    header = header + " / latest " + common.self_href( query_dict={  'test_run' : latest } , linkmode='day_report.2', text=latest )
+
+            header = header + ' )<p>\n'
+
+        sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write(header)
+        sys.stdout.write(table.get_html(headings=0))
+    elif pandokia.pcgi.output_format == 'csv' :
+        sys.stdout.write(common.cgi_header_csv)
+        sys.stdout.write(table.get_csv())
+
+
+#   #   #   #   #   #   #   #   #   #
+
+
+def gen_daily_table( test_run, projects ) :
+
+    db = common.open_db()
+
+    # convert special names, e.g. daily_latest to the name of the latest daily_*
+    test_run = common.find_test_run(test_run)
+
+    if projects is None :
+        projects = [ ]
         c = db.execute("SELECT DISTINCT project FROM result_scalar WHERE test_run = ? ORDER BY project ", (test_run, ) )
         for x in c :
             (x,) = x
@@ -215,50 +274,4 @@ def rpt2( ) :
         table.set_value(row,0,"")
         row = row + 1
 
-# # # # # # # # # # 
-    if pandokia.pcgi.output_format == 'html' :
-        header = "<h1>"+cgi.escape(test_run)+"</h1>\n"
-
-        if test_run.startswith('daily_') :
-            # 
-            # If we have a daily run, create a special header.
-
-            # show the day of the week, if we can
-            try :
-                import datetime
-                t = test_run[len('daily_'):]
-                t = t.split('-')
-                t = datetime.date(int(t[0]),int(t[1]),int(t[2]))
-                t = t.strftime("%A")
-                header = header+ "<h2>"+str(t)+"</h2>"
-            except :
-                pass
-
-            # Include links to the previous / next day's daily run.
-            # It is not worth the cost of looking in the database to make sure the day that
-            # we link to really exists.  It almost always does, and if it doesn't, the user
-            # will find out soon enough.
-            # 
-
-            prev = common.previous_daily( test_run )
-            back = common.self_href( query_dict = {  'test_run' : prev } , linkmode='day_report.2', text=prev )
-            header = header + '( prev ' + back
-
-            latest = common.find_test_run('daily_latest') 
-            if test_run != latest :
-                next = common.next_daily( test_run )
-                header = header + " / next " + common.self_href( query_dict={  'test_run' : next } , linkmode='day_report.2', text=next )
-                if next != latest :
-                    header = header + " / latest " + common.self_href( query_dict={  'test_run' : latest } , linkmode='day_report.2', text=latest )
-
-            header = header + ' )<p>\n'
-
-        sys.stdout.write(common.cgi_header_html)
-        sys.stdout.write(header)
-        sys.stdout.write(table.get_html(headings=0))
-    elif pandokia.pcgi.output_format == 'csv' :
-        sys.stdout.write(common.cgi_header_csv)
-        sys.stdout.write(table.get_csv())
-
-
-#   #   #   #   #   #   #   #   #   #
+    return [ table, projects ]
