@@ -118,6 +118,10 @@ def run() :
         import pandokia.cleaner
         return pandokia.cleaner.delete_run(args)
 
+    if cmd == 'email' :
+        import pandokia.email
+        return pandokia.email.run(args)
+
     if cmd == 'export' :
         import pandokia.export
         return pandokia.export.run(args)
