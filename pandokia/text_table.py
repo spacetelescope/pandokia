@@ -596,7 +596,7 @@ class text_table :
             s.write("  ")
         s.write("\n")
 
-    def get_rst(self) :
+    def get_rst(self, include_border=True ) :
         """
         string = o.get_rst()
 
@@ -616,7 +616,8 @@ class text_table :
                     if col_widths[x] < l :
                         col_widths[x] = l
 
-        self._rst_border(s,col_widths)
+        if include_border :
+            self._rst_border(s,col_widths)
 
         for r in self.rows :
             if r and r.list :
@@ -626,11 +627,24 @@ class text_table :
                     s.write("%-*s"%(col_widths[col],str(r.list[col].text).strip()))
                     s.write("  ")
             s.write("\n")
-        self._rst_border(s,col_widths)
+
+        if include_border :
+            self._rst_border(s,col_widths)
 
         rval = s.getvalue()
         s.close()
         return rval
+
+#-----------------------------------80 cols-------------------------------------##################### 132 cols #####################
+
+    def get_text(self) :
+        """
+        string = o.get_text()
+
+        generate table output suitable for use in plain text
+        """
+        # yes, there is a stunning resemblance between plain text and rst.
+        return self.get_rst(include_border=False)
 
 #-----------------------------------80 cols-------------------------------------##################### 132 cols #####################
     ##
