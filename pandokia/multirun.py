@@ -34,6 +34,10 @@ process_slot = [ ]
 proc_count = 0
 
 
+#
+#
+quiet = 0
+
 # This is just a struct to store all the information about a process
 
 class process:
@@ -148,15 +152,18 @@ def done( pid, status ) :
             f = open( proc_struct.stdout_filename, "r" )
             x=f.read(32768)
             if len(x) != 0 :
-                sys.stdout.write('\n#### Output from process %d in slot %d\n'%(pid, n))
-                sys.stdout.write(x)
+                if not quiet :
+                    sys.stdout.write('\n#### Output from process %d in slot %d\n'%(pid, n))
+                    sys.stdout.write(x)
                 while True :
                     x=f.read(32768)
                     if x == '' :
                         break
-                    sys.stdout.write(x)
-                sys.stdout.write('End of output from process %d in slot %d, status=%d\n'%(pid, n, status))
-                sys.stdout.flush()
+                    if not quiet :
+                        sys.stdout.write(x)
+                if not quiet :
+                    sys.stdout.write('End of output from process %d in slot %d, status=%d\n'%(pid, n, status))
+                    sys.stdout.flush()
             f.close()
             os.unlink(proc_struct.stdout_filename)
             return
