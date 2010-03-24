@@ -154,7 +154,7 @@ def run() :
         sys.exit(0)
 
     if query == 'settings' :
-        import pandokia.pcgi_settings as x
+        import pandokia.pcgi_user as x
         x.run()
         sys.exit(0)
 
