@@ -29,17 +29,51 @@ def clean_queries() :
 
 
 def clean_key_id(which) :
+    # which is the name of a table that we want to clean.  We will call
+    # this function once for each of the tables result_log, result_tda,
+    # result_tra, and result_tca (when we get that table)
+    #
+    # The point of this loop is to avoid locking the database for more
+    # than a few seconds.  sqlite locks the entire database when it
+    # does something, so if I try to process millions of records
+    # in a single transaction, other users may get a database timeout.
+    #
+    # Instead, we flip through the key_id in the table, finding records
+    # to delete.  By limiting each search to a range, we keep the
+    # select from holding a read lock for too long.  By collecting
+    # fairly small piles of records to delete, we keep it from holding
+    # a write lock for too long.
+    #
+    # Empirically, the database cleaning takes longer, but other
+    # users are able to get in between transactions.
+
     print "start clean key_id", which, time.time()
 
-    min = 0
+    c = db.execute("SELECT MIN(key_id) FROM "+which)
+    (min_key_id,) = c.fetchone()
+
+    c = db.execute("SELECT MAX(key_id) FROM "+which)
+    (max_key_id,) = c.fetchone()
+
+    print "max record number",max_key_id
+
+    inc = 100000
+    max_kills = 200
 
     kill  = [ 1 ] 
-    while len(kill) > 0 :
+    while min_key_id < max_key_id :
+        print "search",min_key_id
         kill = [ ]
-        print "search"
+
         # sql is safe - 'which' is a parameter I passed in as one of a few constants
-        c = db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= ?", (min,))
+        c = db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= ? and key_id <= ?", (min_key_id,min_key_id+inc))
+
+        # set the min key number to the next value to use, in case we don't find anything
+        # in this query
+        min_key_id = min_key_id + inc
+
         tyme = time.time()
+
         # This is a loop over the key_id's that are greater than the minimum key_id
         # that we are looking at.  The key_id's are chosen from the attribute table
         # that we are cleaning.
@@ -51,26 +85,26 @@ def clean_key_id(which) :
             if count == 0 :
                 # don't just delete it now - save up a batch to do all at once
                 kill.append(key_id)
-                if len(kill) >= 100 :
+                if len(kill) >= max_kills :
                     # when the batch is long enough, leave the loop and do some deleteing
                     break
-            min=key_id
-        print "        ",time.time()-tyme
+                min_key_id=key_id
 
         c1 = None
         c = None
 
         # Delete all the key_id's that are in the kill list.
-        print "kill"
-        tyme = time.time()
-        for key_id in kill :
-                # sql is safe - which is a parameter I passed in as one of a few constants
-                db.execute("DELETE FROM "+which+" WHERE key_id = ?",(key_id,))
+        if len(kill) > 0 :
+            print "kill"
+            for key_id in kill :
+                    # sql is safe - which is a parameter I passed in as one of a few constants
+                    db.execute("DELETE FROM "+which+" WHERE key_id = ?",(key_id,))
 
-        # Commit!  The whole point of deleting in chunks is so that a specific transaction
-        # does not grow too large.  Also, we don't keep the database locked for so long.    
-        # (sqlite only locks the entire database, not tables or rows.)
-        db.commit()
+            # Commit!  The whole point of deleting in chunks is so that a specific transaction
+            # does not grow too large.  Also, we don't keep the database locked for so long.    
+            # (sqlite only locks the entire database, not tables or rows.)
+            db.commit()
+
         print "        ",time.time()-tyme
 
     print "done"
@@ -113,32 +147,23 @@ def delete_run(args) :
 
     #
 
-    if ( len(args) > 0 ) and ( args[0] == "--wild" ) :
-        args = args[1:]
-        if args[0] == '--mine' :
-            user_name = get_user_name()
-            args = [ 'user_' + user_name + '_' + x for x in args[1:] ]
-        print 'args', args
-        for x in args :
-            if x == "*" :
-                print "* is too dangerous - nothing done"
-                db.close()
-                return 1
-        for x in args :
-            c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?",(x,))
-            for (y,) in c :
-                print "DELETE ",y
-                db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (y,) )
-                db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(y,) )
-                db.commit()
-                print "DONE ",y
-    else :
-        for x in args :
-            print "DELETE ",x
-            db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (x,) )
-            print "DONE ",x
+    if args[0] == '--mine' :
+        user_name = get_user_name()
+        args = [ 'user_' + user_name + '_' + x for x in args[1:] ]
+    print 'args', args
+    for x in args :
+        if x == "*" :
+            print "* is too dangerous - nothing done"
+            db.close()
+            return 1
+    for x in args :
+        c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?",(x,))
+        for (y,) in c :
+            print "DELETE ",y
+            db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (y,) )
+            db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(y,) )
             db.commit()
-            print "DONE COMMIT"
+            print "DONE ",y
 
     db.close()
 
