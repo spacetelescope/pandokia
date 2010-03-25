@@ -61,7 +61,7 @@ def clean_key_id(which) :
         c = None
 
         # Delete all the key_id's that are in the kill list.
-        print "kill",kill
+        print "kill"
         tyme = time.time()
         for key_id in kill :
                 # sql is safe - which is a parameter I passed in as one of a few constants
@@ -109,8 +109,9 @@ def delete_run(args) :
     # We do this by always inserting a record that we are not going to delete.  We only
     # need one, though, at the end of the table.
     db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
-
     db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
+
+    #
 
     if ( len(args) > 0 ) and ( args[0] == "--wild" ) :
         args = args[1:]
@@ -124,12 +125,13 @@ def delete_run(args) :
                 db.close()
                 return 1
         for x in args :
-            print "DELETE ",x
-            db.execute("DELETE FROM result_scalar WHERE test_run GLOB ? ", (x,) )
-            print "DONE ",x
-            db.commit()
-            print "DONE COMMIT"
-        pass
+            c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?",(x,))
+            for (y,) in c :
+                print "DELETE ",y
+                db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (y,) )
+                db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(y,) )
+                db.commit()
+                print "DONE ",y
     else :
         for x in args :
             print "DELETE ",x
