@@ -163,6 +163,16 @@ def run() :
         x.run()
         sys.exit(0)
 
+    if query == 'killproc' :
+        print "content-type: text/html"
+        print ""
+        pid = form['pid'].value
+        sig = form['sig'].value
+        if common.current_user() == 'sienkiew' :
+            os.kill(int(pid),int(sig))
+        print "done"
+        sys.exit(0)
+
 
     #
     # You can't get here by following links, so you must have typed in the
