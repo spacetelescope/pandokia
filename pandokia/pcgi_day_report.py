@@ -35,12 +35,14 @@ def rpt1(  ) :
 
     if form.has_key("test_run") :
         test_run = form["test_run"].value
-        if test_run == '-me' :
-            test_run = 'user_' + common.current_user() + '_*'
-        c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
     else :
-        # GLOB '*' is not nearly as fast as leaving out the GLOB.
-        c = db.execute("SELECT DISTINCT test_run FROM result_scalar ORDER BY test_run DESC ")
+        test_run = '*'
+
+    if test_run == '-me' :
+        test_run = 'user_' + common.current_user() + '_*'
+
+    # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
+    c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?  ORDER BY name DESC ",( test_run,))
 
     table = text_table.text_table()
 
