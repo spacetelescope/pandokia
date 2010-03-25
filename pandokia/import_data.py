@@ -138,10 +138,16 @@ def read_record(f) :
         exit_status = 1
 
 
+insert_count = 0
+
+
+# This dictionary contains an entry for every test run we have seen.
+# For now, we are only using it to detect whether we know this name or not.
+all_test_runs = { } 
+
+
 # this is a hideous hack from the earliest days of pandokia.  this class shouldn't
 # even be here -- just a function that inserts a dict into the database
-
-insert_count = 0
 
 class test_result():
 
@@ -239,6 +245,15 @@ class test_result():
             else :
                 raise e
 
+        if not self.test_run in all_test_runs :
+            # if we don't know about this test run, 
+            try :
+                # add it to the list of known test runs
+                db.execute("INSERT INTO distinct_test_run ( name ) VALUES ( ? )",(self.test_run,))
+            except database.IntegrityError :
+                pass
+            # remember that we saw it so we don't have to touch the database again
+            all_test_runs[self.test_run] = 1
 
         for x in self.tda :
             db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( ?, ?, ? )" ,

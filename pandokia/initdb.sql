@@ -144,3 +144,14 @@ CREATE TABLE expected (
 CREATE UNIQUE INDEX expected_unique 
 	ON expected ( test_run_type, project, host, test_name );
 		-- we only need one entry
+
+-- projects:
+-- 	It is getting too slow to find all the projects by "select
+-- 	distinct test_run from result_scalar".  So, I'm going to
+--	make a table that just contains the distinct values.
+
+CREATE TABLE distinct_test_run (
+	name VARCHAR UNIQUE
+	);
+
+
