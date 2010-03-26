@@ -55,6 +55,7 @@ os_info = {
     "basil":    "Solaris 10",
     "bond":     "Mac Leopard",
     "cadeau":   "Mac Leopard",
+    "doof":     "Centos 5.3",
     "dukat":    "Windows/XP",
     "ekky":     "Mac x86",
     "etc-dev1": "RHE4 / 64, ETC",
