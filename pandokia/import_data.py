@@ -7,7 +7,7 @@ import re
 import sys
 import pandokia.common as common
 
-sqlite3 = common.get_db_module()
+database = common.get_db_module()
 
 exit_status = 0
 
