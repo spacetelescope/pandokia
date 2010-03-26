@@ -9,6 +9,7 @@
 
 import cStringIO
 import datetime
+import time
 import os
 import os.path
 import re
@@ -133,11 +134,23 @@ def self_href( query_dict, linkmode, text ) :
 #   it's all 8 bit ASCII.  Or 8859-1 if you prefer...
 #
 
+def get_db_module() :
+    try :
+	# if you have python 2.5, this is part of python (if you
+	# have the sqlite libraries)
+        import sqlite3
+    except ImportError, e :
+	# if you have python 2.4, you have to install pysqlite2,
+	# which is about the same as sqlite3, but with the library
+	# in a different name.
+	import pysqlite2.dbapi2 as sqlite3
+    return sqlite3
+
 # db is the main database
 # qdb is the query-related database
 #
 def open_db ( ):
-    import sqlite3
+    sqlite3 = get_db_module()
     global db
     dbname = cfg.dbdir+"/pdk.db"
     if not os.path.exists(dbname) :
@@ -150,7 +163,7 @@ def open_db ( ):
     return db
 
 def open_qdb ( ) :
-    import sqlite3
+    sqlite3 = get_db_module()
     global qdb
 
     # timeout = 45 seconds. we may have to wait as long as it takes
@@ -492,7 +505,11 @@ def parse_time( arg ) :
             d = datetime.datetime.strptime(x[0],'%Y-%m-%d %H:%M:%S')
             d = d.replace(microsecond=int((x[1]+'000000')[0:6]))
         else :
-            d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
+            x = time.strptime(arg,'%Y-%m-%d %H:%M:%S')
+            d = datetime.datetime(year=x[0], month=x[1], day=x[2],
+		hour=x[3], minute=x[4], second=x[5] )
+	    # not in 2.4:
+            # d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
         return d
     except ValueError :
         pass

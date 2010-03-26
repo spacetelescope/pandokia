@@ -29,7 +29,7 @@ def emit_field( output, name, value ) :
 def do_export( output, where ) :
     db = common.open_db()
 
-    import sqlite3
+    sqlite3 = common.get_db_module()
     db.row_factory = sqlite3.Row
 
     # list of fields to export

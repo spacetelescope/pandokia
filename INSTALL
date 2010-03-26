@@ -67,6 +67,9 @@ sqlite3
 	  and then re-build only the sqlite3 python module, but I
 	  never tried this.
 
+	- You can use the "pysqlite2" package available from 
+	  pypi.python.org
+
 a web server
 	[SERVER machine]
 
@@ -238,4 +241,5 @@ Pandokia is now installed on your system. Next, read
 - doc/demo.txt to see how to import some demo data into the database.
 
 - doc/pdk_aware.txt to see how to run your own tests
+
 

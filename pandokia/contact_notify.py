@@ -10,12 +10,9 @@ send the email.
 
 TEST = True
 
-try:
-    import sqlite3
-except ImportError,e:
-    print "sqlite3 unavailable: no DB access will be supported"
-    
 import pandokia.common #should do try/except too
+
+sqlite3 = pandokia.common.get_db_module()
 
 import subprocess
 from collections import defaultdict

@@ -7,7 +7,8 @@ import sys
 import pandokia.common
 import pandokia
 import os.path
-import sqlite3
+
+sqlite3 = pandokia.common.get_db_module()
 
 # find a data file that is in the same directory as where
 # our code is.

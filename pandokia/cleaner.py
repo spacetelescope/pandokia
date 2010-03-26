@@ -5,7 +5,6 @@
 
 import time
 import sys
-import sqlite3
 import os
 import pandokia.common
 
