@@ -4,12 +4,6 @@ import pandokia.common as c
 import sys
 sys.stdout=open("/dev/tty","w")
 
-print os.environ['PYTHONPATH']
-
-print c.__file__
-
-print dir(c)
-
 parse_time = c.parse_time
 sql_time = c.sql_time
 
