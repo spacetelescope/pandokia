@@ -243,11 +243,12 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
         raise
 
     #Clean up file that passed if we've been asked to
-    if r and cleanup:
-        try:
-            os.unlink(name)
-        except Exception:
-            pass
+    if r :
+        if cleanup:
+            try:
+                os.unlink(name)
+            except Exception:
+                pass
 
     #Update the okfile if the test failed
     else:
@@ -259,3 +260,4 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
             raise(AssertionError("files are different: %s, ref/%s\n"%(name,name)))
     #and return the True/False (Pass/Fail) status
     return r
+
