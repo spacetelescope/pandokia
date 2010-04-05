@@ -150,7 +150,7 @@ all_test_runs = { }
 # this is a hideous hack from the earliest days of pandokia.  this class shouldn't
 # even be here -- just a function that inserts a dict into the database
 
-class test_result():
+class test_result(object):
 
     def _lookup(self,name,default=None) :
         if self.dict.has_key(name) :
