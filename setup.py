@@ -31,6 +31,7 @@ command_list = [
     'pdk_stsci_regress_helper',
     'pdk_stsci_regress_refs',
     'pdk_gen_contact',
+    'pdk_python_runner',
 ]
 
 
