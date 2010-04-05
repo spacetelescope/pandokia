@@ -29,7 +29,7 @@ class reporter(object) :
                 source_file = source_file[:-3]
             elif source_file.endswith(".pyc") or source_file.endswith(".pyo") :
                 source_file = source_file[:-4]
-            self.test_prefix = self.test_prefix + source_file + '.'
+            self.test_prefix = self.test_prefix + source_file
 
         if setdefault :
             # If you are running in the context of pdkrun, all of these
@@ -99,7 +99,12 @@ class reporter(object) :
 
     def report( self, test_name, status, start_time=None, end_time=None, tra={ }, tda={ }, log=None ) :
 
-        self.write_field('test_name',   self.test_prefix+test_name)
+	if test_name is None :
+		test_name = self.test_prefix
+	else :
+		test_name = self.test_prefix + '.' + test_name
+
+        self.write_field('test_name',   test_name)
 
         self.write_field('status',      status)
 
@@ -151,29 +156,24 @@ class reporter(object) :
 import StringIO
 import sys
 
-save_stdout=None
-save_stderr=None
+save_stdout= [ ] 
+save_stderr= [ ]
 
 def snarf_stdout() :
     global save_stdout, save_stderr
-    save_stdout = sys.stdout
-    save_stderr = sys.stderr
+    save_stdout.append( sys.stdout )
+    save_stderr.append( sys.stderr )
     sys.stdout = sys.stderr = StringIO.StringIO()
 
 def end_snarf_stdout() :
-    global save_stdout, save_stderr
-    if save_stdout is None :
-        assert 0
     s = sys.stdout.getvalue()
 
     sys.stdout.close()
     sys.stderr.close()
 
-    sys.stdout = save_stdout
-    sys.stderr = save_stderr
+    sys.stdout = save_stdout.pop()
+    sys.stderr = save_stderr.pop()
 
-    save_stdout = None
-    save_stderr = None
     return s
 
 
