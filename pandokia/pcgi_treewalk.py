@@ -383,11 +383,16 @@ def treewalk ( ) :
         rownum = rownum + 1
     
     table.set_value(total_row,"count",     text=total_count )
-    table.set_value(total_row,"pass",      text=total_count_pass )
-    table.set_value(total_row,"fail",      text=total_count_fail )
-    table.set_value(total_row,"error",      text=total_count_error )
-    table.set_value(total_row,"missing",      text=total_count_missing )
-    table.set_value(total_row,"disable",      text=total_count_disable )
+    if ( status == '*' )  or ( 'P' in status ) :
+        table.set_value(total_row,"pass",      text=total_count_pass )
+    if ( status == '*' )  or ( 'F' in status ) :
+        table.set_value(total_row,"fail",      text=total_count_fail )
+    if ( status == '*' )  or ( 'E' in status ) :
+        table.set_value(total_row,"error",      text=total_count_error )
+    if ( status == '*' )  or ( 'M' in status ) :
+        table.set_value(total_row,"missing",      text=total_count_missing )
+    if ( status == '*' )  or ( 'D' in status ) :
+        table.set_value(total_row,"disable",      text=total_count_disable )
 
     output.write(table.get_html())
 
