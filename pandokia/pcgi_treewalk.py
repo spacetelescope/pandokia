@@ -307,6 +307,16 @@ def treewalk ( ) :
     if ( status == '*' )  or ( 'D' in status ) :
         table.define_column("disable",link=link+"&status=D")
 
+    total_count = 0
+    total_count_pass = 0
+    total_count_fail = 0
+    total_count_error = 0
+    total_count_disable = 0
+    total_count_missing = 0
+
+    total_row = rownum
+    rownum = rownum + 1
+
     for this_test_name in prefixes :
         where_clause = common.where_str([ 
             ('test_name', this_test_name),
@@ -359,10 +369,26 @@ def treewalk ( ) :
             (count_disable,) = c.fetchone()
             table.set_value(rownum,"disable",   text=count_disable, link=link+"&rstatus=D" )
 
-        table.set_value(rownum,"count",     text=count_pass+count_fail+count_error+count_disable)
+        count = count_pass+count_fail+count_error+count_missing+count_disable
+
+        table.set_value(rownum,"count",     text=count )
+
+        total_count += count 
+        total_count_pass += count_pass 
+        total_count_fail += count_fail 
+        total_count_error += count_error 
+        total_count_disable += count_disable 
+        total_count_missing += count_missing 
 
         rownum = rownum + 1
     
+    table.set_value(total_row,"count",     text=total_count )
+    table.set_value(total_row,"pass",      text=total_count_pass )
+    table.set_value(total_row,"fail",      text=total_count_fail )
+    table.set_value(total_row,"error",      text=total_count_error )
+    table.set_value(total_row,"missing",      text=total_count_missing )
+    table.set_value(total_row,"disable",      text=total_count_disable )
+
     output.write(table.get_html())
 
     output.write("<br>")
