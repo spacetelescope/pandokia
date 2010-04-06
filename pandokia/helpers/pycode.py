@@ -2,9 +2,62 @@ import os
 import pandokia.lib
 import datetime
 
+#
+# reporter object
+#
+# create one of these objects to append to a PDK_LOG file, then use it to
+# append properly formatted log records.
+#
+# x = reporter( __file__ )
+#
+# x.start( test_name, tda_dict )
+# ...run test...
+# x.finish( status, tra_dict, log_string )
+#
+# x.report( ...everything about the test... )
+#
+#
+
 class reporter(object) :
 
     def __init__( self, source_file, setdefault=False, filename=None, test_run=None, project=None, host=None, context=None, location=None, test_runner=None, test_prefix=None ) :
+
+        '''pandokia log file object
+
+        source_file 
+            The base name of the source file is added to the test prefix.
+            May be None if you don't want that.
+
+        setdefault = False
+            If true, write a SETDEFAULT block; if pdkrun called you,
+            you don't need this.  The default values come from the
+            environment or gethostname().
+
+        filename = None
+            Name of the file to write the records to; if None, use
+            PDK_LOG environment variable.
+
+        test_run = None
+        project = None
+        host = None
+        context = None
+            Characteristics of this test run; if None, use related
+            pandokia environment variable; if no environment variable,
+            use "default"
+
+        location = None
+            Characteristics of this test run; if None, figure out
+            the location of the tests from the current directory
+            and PDK_FILE.  If you can't, don't report a location.
+
+        test_runner = None
+            if not None, report this string as the test runner used.
+
+        test_prefix = None
+            put this prefix on each test name; if None, use PDK_TESTPREFIX
+            environment.  If not in environment, there is no prefix.
+
+'''
 
         # in all cases, we need to open the output file
         if filename is None :
@@ -99,10 +152,11 @@ class reporter(object) :
 
     def report( self, test_name, status, start_time=None, end_time=None, tra={ }, tda={ }, log=None ) :
 
-	if test_name is None :
-		test_name = self.test_prefix
-	else :
-		test_name = self.test_prefix + '.' + test_name
+        if test_name is None :
+            test_name = self.test_prefix
+        else :
+            if test_prefix != '' :
+                test_name = self.test_prefix + '.' + test_name
 
         self.write_field('test_name',   test_name)
 
