@@ -155,7 +155,7 @@ class reporter(object) :
         if test_name is None :
             test_name = self.test_prefix
         else :
-            if test_prefix != '' :
+            if self.test_prefix != '' :
                 test_name = self.test_prefix + '.' + test_name
 
         self.write_field('test_name',   test_name)
