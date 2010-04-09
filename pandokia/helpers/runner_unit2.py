@@ -124,8 +124,9 @@ class pdk_test_result(object):
         self.print_status( err )
 
     def addSkip(self, test, reason):
-        # skip - bug: pandokia doesn't know this one yet
-        self.pdk_status = 'S'   
+        # skip - i.e. we told this test not to run.
+        # in pandokia, we call these "disabled".
+        self.pdk_status = 'D'
         self.print_status( err )
 
     def addExpectedFailure(self, test, err):
