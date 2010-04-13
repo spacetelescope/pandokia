@@ -212,14 +212,17 @@ import sys
 
 save_stdout= [ ] 
 save_stderr= [ ]
+save_tagname = [ ]
 
-def snarf_stdout() :
+def snarf_stdout( tagname=None ) :
     global save_stdout, save_stderr
     save_stdout.append( sys.stdout )
     save_stderr.append( sys.stderr )
+    save_tagname.append( tagname )
+
     sys.stdout = sys.stderr = StringIO.StringIO()
 
-def end_snarf_stdout() :
+def end_snarf_stdout( tagname=None ) :
     s = sys.stdout.getvalue()
 
     sys.stdout.close()
@@ -227,6 +230,12 @@ def end_snarf_stdout() :
 
     sys.stdout = save_stdout.pop()
     sys.stderr = save_stderr.pop()
+    old_tagname = save_tagname.pop()
+    if old_tagname != tagname :
+        f=open("/dev/tty","w")
+        f.write("Mismatched snarf_stdout/end_snarf_stdout - expected %s got %s"%(tagname,old_tagname))
+        f.close()
+        raise ValueError("Mismatched snarf_stdout/end_snarf_stdout")
 
     return s
 
