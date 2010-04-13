@@ -188,12 +188,14 @@ def gen_daily_table( test_run, projects ) :
 
     table.set_html_table_attributes("cellpadding=2")
 
+    status_types = common.cfg.statuses
+
     row = 0
     table.define_column("host")
     table.define_column("context")
     table.define_column("os")
     table.define_column("total")
-    for x in common.cfg.statuses :
+    for x in status_types :
         table.define_column(x)
     table.define_column("note")
 
@@ -223,7 +225,6 @@ def gen_daily_table( test_run, projects ) :
         # This will be the sum of all the tests in a particular project.
         # It comes just under the headers for the project, but we don't
         # know the values until the end.
-        status_types = common.cfg.statuses
         project_sum = { 'total' : 0 }
         for status in status_types :
             project_sum[status] = 0
@@ -240,6 +241,7 @@ def gen_daily_table( test_run, projects ) :
             table.set_value(row,1,    text=context,        link=link)
             table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
             total_results = 0
+            missing_count = 0
             for status in status_types :
                 c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
                     ( test_run, p, host, status, context ) )
@@ -247,16 +249,18 @@ def gen_daily_table( test_run, projects ) :
                 total_results += x
                 project_sum[status] += x
                 table.set_value(row, status, text=str(x), link = link + "&rstatus="+status )
+                if x == 'M' :
+                    missing_count = x
 
             project_sum['total'] += total_results
 
-            # x is the value from the _last_ column we processed, which is 'missing'
-            if x == total_results :
-                # if it equals the total, then everything is missing; we make a note of that
-                table.set_value(row, 'note', 'all')
-            elif x != 0 :
-                # if it is not 0, then we have a problem
-                table.set_value(row, 'note', 'some')
+            if 'M' in status_types :
+                if missing_count == total_results :
+                    # if it equals the total, then everything is missing; we make a note of that
+                    table.set_value(row, 'note', 'all')
+                elif missing_count != 0 :
+                    # if it is not 0, then we have a problem
+                    table.set_value(row, 'note', 'some')
 
             table.set_value(row, 'total', text=str(total_results), link=link )
 
