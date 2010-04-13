@@ -296,23 +296,15 @@ def treewalk ( ) :
     table.set_html_table_attributes("border=1")
     table.define_column("test_name")
     table.define_column("count")
-    if ( status == '*' )  or ( 'P' in status ) :
-        table.define_column("pass",link=link+"&status=P")
-    if ( status == '*' )  or ( 'F' in status ) :
-        table.define_column("fail",link=link+"&status=F")
-    if ( status == '*' )  or ( 'E' in status ) :
-        table.define_column("error",link=link+"&status=E")
-    if ( status == '*' )  or ( 'M' in status ) :
-        table.define_column("missing",link=link+"&status=M")
-    if ( status == '*' )  or ( 'D' in status ) :
-        table.define_column("disable",link=link+"&status=D")
+    total_col = { }
+    count_col = { }
+    for x in common.cfg.statuses :
+        if ( status == '*' )  or ( x in status ) :
+            table.define_column(x,showname=common.cfg.status_names[x],link=link+"&status="+x)
+        total_col[x] = 0
+        count_col[x] = 0
 
     total_count = 0
-    total_count_pass = 0
-    total_count_fail = 0
-    total_count_error = 0
-    total_count_disable = 0
-    total_count_missing = 0
 
     total_row = rownum
     rownum = rownum + 1
@@ -338,62 +330,26 @@ def treewalk ( ) :
         table.set_value(rownum,"test_name",text=this_test_name, link=link)
 
         count = 0
-        count_pass = 0
-        count_fail = 0
-        count_error = 0
-        count_disable = 0
-        count_missing = 0
 
-        if ( status == '*') or ( 'P' in status ) :
-            c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'P' ORDER BY test_name" % where_clause)
-            (count_pass,) = c.fetchone()
-            table.set_value(rownum,"pass",      text=count_pass,    link=link+"&rstatus=P" )
-
-        if ( status == '*') or ( 'F' in status ) :
-            c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'F' ORDER BY test_name" % where_clause)
-            (count_fail,) = c.fetchone()
-            table.set_value(rownum,"fail",      text=count_fail,    link=link+"&rstatus=F" )
-
-        if ( status == '*') or ( 'E' in status ) :
-            c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'E' ORDER BY test_name" % where_clause)
-            (count_error,) = c.fetchone()
-            table.set_value(rownum,"error",     text=count_error,   link=link+"&rstatus=E" )
-
-        if ( status == '*') or ( 'M' in status ) :
-            c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'M' ORDER BY test_name" % where_clause)
-            (count_missing,) = c.fetchone()
-            table.set_value(rownum,"missing",     text=count_missing,   link=link+"&rstatus=M" )
-
-        if ( status == '*') or ( 'D' in status ) :
-            c = db.execute("SELECT count(*) FROM result_scalar %s AND status = 'D' ORDER BY test_name" % where_clause)
-            (count_disable,) = c.fetchone()
-            table.set_value(rownum,"disable",   text=count_disable, link=link+"&rstatus=D" )
-
-        count = count_pass+count_fail+count_error+count_missing+count_disable
+        for x in common.cfg.statuses :
+            if ( status == '*') or ( x in status ) :
+                c = db.execute("SELECT count(*) FROM result_scalar %s AND status = '%s' ORDER BY test_name" % ( where_clause, x) )
+                (count_col[x],) = c.fetchone()
+                table.set_value(rownum,x,      text=count_col[x],    link=link+"&rstatus="+x )
+                count = count + count_col[x]
+                total_count = total_count + count_col[x]
 
         table.set_value(rownum,"count",     text=count )
 
-        total_count += count 
-        total_count_pass += count_pass 
-        total_count_fail += count_fail 
-        total_count_error += count_error 
-        total_count_disable += count_disable 
-        total_count_missing += count_missing 
+        for x in total_col :
+            total_col[x] += count_col[x]
 
         rownum = rownum + 1
     
     table.set_value(total_row,"count",     text=total_count )
-    if ( status == '*' )  or ( 'P' in status ) :
-        table.set_value(total_row,"pass",      text=total_count_pass )
-    if ( status == '*' )  or ( 'F' in status ) :
-        table.set_value(total_row,"fail",      text=total_count_fail )
-    if ( status == '*' )  or ( 'E' in status ) :
-        table.set_value(total_row,"error",      text=total_count_error )
-    if ( status == '*' )  or ( 'M' in status ) :
-        table.set_value(total_row,"missing",      text=total_count_missing )
-    if ( status == '*' )  or ( 'D' in status ) :
-        table.set_value(total_row,"disable",      text=total_count_disable )
-
+    for x in common.cfg.statuses :
+        if ( status == '*') or ( x in status ) :
+            table.set_value(total_row,x,      text=total_col[x] )
     output.write(table.get_html())
 
     output.write("<br>")

@@ -54,3 +54,14 @@ debug = True
 cginame = 'https://ssb.stsci.edu/pandokia/pdk.cgi'
 
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
+
+statuses = [ 'P', 'F', 'E', 'D', 'M' ]
+
+status_names = {
+    'P' : 'pass',
+    'F' : 'fail',
+    'E' : 'error',
+    'D' : 'disable',
+    'M' : 'missing',
+    }
+

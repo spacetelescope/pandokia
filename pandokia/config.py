@@ -131,6 +131,19 @@ server_maintenance = False
 #
 cginame = "https://ssb.stsci.edu/pandokia/pdk.cgi"
 
+#
+# list of known status values, in order they appear on reports
+#
+statuses = [ 'P', 'F', 'E', 'D', 'M' ]
+
+# names of statuses
+status_names = { 
+    'P' : 'pass',
+    'F' : 'fail',
+    'E' : 'error',
+    'D' : 'disable',
+    'M' : 'missing',
+    }
 
 #####
 #

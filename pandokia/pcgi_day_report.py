@@ -193,11 +193,8 @@ def gen_daily_table( test_run, projects ) :
     table.define_column("context")
     table.define_column("os")
     table.define_column("total")
-    table.define_column("P")
-    table.define_column("F")
-    table.define_column("E")
-    table.define_column("D")
-    table.define_column("M")
+    for x in common.cfg.statuses :
+        table.define_column(x)
     table.define_column("note")
 
 #   #   #   #   #   #   #   #   #   #
@@ -217,18 +214,16 @@ def gen_daily_table( test_run, projects ) :
 
         # the column headings for this project's part of the table
         table.set_value(row, "total", text="total", link=link )
-        table.set_value(row, "P", text="pass", link=link+"&status=P")
-        table.set_value(row, "F", text="fail", link=link+"&status=F")
-        table.set_value(row, "E", text="error", link=link+"&status=E")
-        table.set_value(row, "D", text="disabled", link=link+"&status=D")
-        table.set_value(row, "M", text="missing", link=link+"&status=M")
+        for x in common.cfg.statuses :
+            xn = common.cfg.status_names[x]
+            table.set_value(row, x, text=xn, link = link + '&status='+x )
         table.set_value(row, "note", text="" )  # no heading for this one
         row += 1
 
         # This will be the sum of all the tests in a particular project.
         # It comes just under the headers for the project, but we don't
         # know the values until the end.
-        status_types = [ 'P', 'F', 'E', 'D', 'M' ]
+        status_types = common.cfg.statuses
         project_sum = { 'total' : 0 }
         for status in status_types :
             project_sum[status] = 0
