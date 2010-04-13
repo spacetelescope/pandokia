@@ -249,6 +249,10 @@ class text_table :
         o.set_value(text, link, html, sort_key)
 
     ##
+    def get_cell(self, row, col) :
+        return self.rows[row].list[col]
+
+    ##
 
     def set_html_table_attributes(self, attr) :
         self.html_table_attributes = attr

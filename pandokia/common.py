@@ -69,8 +69,13 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    t = "?query="+urllib.quote_plus(linkmode)+"&"+urllib.urlencode(query_dict)
-    return get_cgi_name() + t 
+    l = [ 'query=' + urllib.quote_plus(linkmode) ]
+    for i in query_dict :
+        v = query_dict[i]
+        if v is None :
+            continue
+        l.append( i + '=' + urllib.quote_plus(str(v)) )
+    return get_cgi_name() + "?" + ( '&'.join(l) )
 
 cached_cgi_name = None
 
