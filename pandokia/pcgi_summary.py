@@ -132,6 +132,7 @@ Compare to:
     qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (time.time(), qid) )
     c = qdb.execute("SELECT key_id FROM query WHERE qid = ?", (qid,) )
 
+    result_table.define_column("runner")
     result_table.define_column("checkbox",  showname='&nbsp;')
     result_table.define_column("attn",      link=sort_link+"+attn")
     result_table.define_column("test_run",  link=sort_link+"+test_run")
@@ -161,7 +162,7 @@ Compare to:
         # find the result of this test
         #
 
-        c1 = db.execute("SELECT test_run, project, host, context, test_name, status, attn FROM result_scalar WHERE key_id = ? ", (key_id,) )
+        c1 = db.execute("SELECT test_run, project, host, context, test_name, status, attn, test_runner FROM result_scalar WHERE key_id = ? ", (key_id,) )
 
         y = c1.fetchone()   # unique index
 
@@ -169,7 +170,7 @@ Compare to:
             # this can only happen if somebody deletes tests from the database after we populate the qid
             continue
 
-        (test_run, project, host, context, test_name, status, attn) = y
+        (test_run, project, host, context, test_name, status, attn, runner) = y
 
         # if we are comparing to another run, find the other one; 
         # suppress lines that are different - should be optional
@@ -204,6 +205,7 @@ Compare to:
         all_context[context] = 1
 
         detail_query = { "key_id" : key_id }
+        result_table.set_value(rowcount,"runner",runner)
         result_table.set_value(rowcount,"checkbox",'',html='<input type=checkbox name=%s>'%key_id)
         result_table.set_value(rowcount,"attn",attn)
         result_table.set_value(rowcount,"test_run",test_run)
