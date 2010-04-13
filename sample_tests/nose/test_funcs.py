@@ -10,3 +10,8 @@ def testpass():
     tda['a']=11
     tra['b']=12
     assert True
+
+def testerror():
+    tda['a']=99
+    tra['b']=99
+    raise ValueError('this test has an error')
