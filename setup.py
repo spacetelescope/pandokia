@@ -40,6 +40,8 @@ command_list = [
 # python we happen to be using.
 use_usr_bin_env = [
     'pdknose',
+    'pdk_stsci_regress_helper',
+    'pdk_python_runner',
 ]
 
 args = {

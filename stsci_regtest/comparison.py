@@ -19,6 +19,7 @@ import re, os
 import datespec  # for ascii comparisons
 import tempfile  #}
 import pytools.fitsdiff  as fitsdiff #} for fits comparisons
+import sys
 
 from pyraf import iraf      #}
 from iraf import images     #} for the iraf.imdelete task
@@ -239,8 +240,19 @@ class AsciiComparison(ComparisonClass):
 
     def compare(self):
         """Be smarter, use regexp to ignore keys"""
-        th=open(self.testfile)
-        rh=open(self.reffile)
+        try :
+            th=open(self.testfile)
+        except :
+            print "ERROR: cannot open test file ",self.testfile
+            print sys.exc_info[1]
+            raise
+
+        try :
+            rh=open(self.reffile)
+        except :
+            print "ERROR: cannot open ref file ",self.reffile
+            print sys.exc_info[1]
+            raise
 
         test=th.readlines()
         ref=rh.readlines()
