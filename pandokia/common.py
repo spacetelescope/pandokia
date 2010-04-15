@@ -77,6 +77,18 @@ def selflink( query_dict, linkmode ) :
         l.append( i + '=' + urllib.quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
+#
+# convert a dictionary into a set of <input type=hidden> html
+#
+
+def query_dict_to_hidden( query_dict ) :
+    l = [ ]
+    for x in query_dict :
+        v = query_dict[x]
+        if v is not None :
+            l.append( '<input type=hidden name=%s value=%s>'%(x,v) )
+    return '\n'.join(l)
+
 cached_cgi_name = None
 
 def get_cgi_name() :
