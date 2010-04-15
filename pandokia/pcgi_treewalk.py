@@ -64,14 +64,38 @@ def treewalk ( ) :
     contact = get_form(form,'contact',  None)
     attn    = get_form(form,'attn',     '*')
 
+
     debug_cmp = get_form(form,'debug_cmp', 0)
 
-    cmp_test_run = get_form(form,'cmp_test_run', test_run)
-    cmp_context  = get_form(form,'cmp_context',  context)
-    cmp_host     = get_form(form,'cmp_host',     host)
+    # look for input from the compare form
+    cmp_test_run = get_form(form,'cmp_test_run', '')
+    cmp_context  = get_form(form,'cmp_context',  '')
+    cmp_host     = get_form(form,'cmp_host',     '')
 
-    if cmp_test_run != test_run or cmp_context != context or cmp_host != host :
+    test_run     = common.find_test_run(test_run)
+    cmp_test_run = common.find_test_run(cmp_test_run)
+
+    # the compare form values might be blank because they were not
+    # specified, or because the user typed something in there.  In
+    # either case, we want to show to be "None"
+    if cmp_test_run == '' :
+        cmp_test_run = None
+    if cmp_context == '' :
+        cmp_context = None
+    if cmp_host == '' :
+        cmp_host = None
+
+    # if any of them are set, we are doing a comparison
+    if cmp_test_run is not None or cmp_context is not None or cmp_host is not None :
         comparing = 1
+        print "COMPARING"
+        # blank values cannot be allowed; default is the same as what we are looking at
+        if cmp_test_run is None :
+            cmp_test_run = test_run
+        if cmp_host is None :
+            cmp_host = host
+        if cmp_context is None :
+            cmp_context = context
     else :
         comparing = 0
 
@@ -84,8 +108,6 @@ def treewalk ( ) :
         # status still comes in as "*" or whatever, but we ignore it.
         status = form["rstatus"].value
 
-    # handle special names of test runs
-    test_run = common.find_test_run(test_run)
 
     #
     # query values we will always pass back to the next instantion of ourself
@@ -111,18 +133,28 @@ def treewalk ( ) :
 
     output.write("<h1>Test tree browser</h1>")
 
+    lquery = query.copy()
+    del lquery['cmp_test_run']
+    del lquery['cmp_context']
+    del lquery['cmp_host']
+
+    print "<form action=%s method=GET>"%common.get_cgi_name()
+    print "<input type=hidden name='query' value=%s>" % urllib.quote_plus('treewalk')
+    print common.query_dict_to_hidden( lquery )
+    for x in ( 'cmp_test_run', 'cmp_context', 'cmp_host' ) :
+        v = query[x]
+        if v is None :
+            v = ''
+        print "%s <input type=text name=%s value='%s'>"%(x,x,v)
+    print "<input type=submit name='compare'>"
+    print "</form>"
+
+
     #
-    # if a context is selected, show the context here
-    # include a link to clear the context selection
+    # show the narrowing parameters
     #
 
     s_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
-
-
-    #
-    # if a context is selected, show the context here
-    # include a link to clear the context selection
-    #
 
     for var, label in [
         ( 'project', 'project' ),
@@ -206,16 +238,15 @@ def treewalk ( ) :
     
     if comparing:
         
+        # here is the "remove comparison" query
         lquery = query.copy()
 
         lquery['cmp_test_run'] = None
         lquery['cmp_context'] = None
         lquery['cmp_host'] = None
 
-	    # Include a link to switch to looking at the other test
-	    # run, comparing to this test run.
-        # Include a link to stop comparing and just show this one.
 
+        # here is the "switch to other test run" query
         swap_query = query.copy()
 
         for x in ( 'test_run', 'context', 'host' ) :
@@ -248,6 +279,8 @@ def treewalk ( ) :
     if comparing :
         query_2 = query.copy()
         query_2['test_run'] = cmp_test_run
+        query_2['host'] = cmp_host
+        query_2['context'] = cmp_context
         t2 = collect_table( prefixes, query_2 )
     
         # This part is very delicate.  We know that both tables
@@ -543,7 +576,8 @@ def query_to_where_str( query, fields ) :
     l = [ ]
     for x in fields :
         if x in query :
-            l.append( ( x, query[x] ) )
+            v = query[x]
+            l.append( ( x, v ) )
 
     where_clause = common.where_str(l)
 
@@ -606,8 +640,6 @@ def collect_table( prefixes, query ) :
     rownum = 0
 
     table = text_table.text_table()
-
-    del lquery["status"]
 
     link=common.selflink(lquery, 'treewalk' )
 
