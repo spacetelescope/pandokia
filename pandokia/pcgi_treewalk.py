@@ -315,10 +315,10 @@ def treewalk ( ) :
                 if debug_cmp :
                     c1.text="%d - %d = %+d"%(c1v,c2v,diff)
                 else :
-                    diff = "%+d"%diff
-                    if diff == '+0' :
-                        diff = '0'
-                    c1.text=diff
+                    if diff == 0 :
+                        c1.text='0'
+                    else :
+                        c1.text = "%+d"%diff
 
     ###
 
@@ -672,6 +672,8 @@ def collect_table( prefixes, query ) :
 
         table.set_value(rownum,"test_name",text=this_test_name, link=link)
 
+        table.set_html_cell_attributes(rownum, 'test_name', 'align="left"' )
+
         count = 0
 
         for x in common.cfg.statuses :
@@ -679,10 +681,12 @@ def collect_table( prefixes, query ) :
                 c = db.execute("SELECT count(*) FROM result_scalar %s AND status = '%s' ORDER BY test_name" % ( where_clause, x) )
                 (count_col[x],) = c.fetchone()
                 table.set_value(rownum,x,      text=count_col[x],    link=link+"&rstatus="+x )
+                table.set_html_cell_attributes(rownum, x, 'align="right"' )
                 count = count + count_col[x]
                 total_count = total_count + count_col[x]
 
         table.set_value(rownum,"count",     text=count )
+        table.set_html_cell_attributes(rownum, "count", 'align="right"' )
 
         for x in total_col :
             total_col[x] += count_col[x]
@@ -690,8 +694,10 @@ def collect_table( prefixes, query ) :
         rownum = rownum + 1
     
     table.set_value(total_row,"count",     text=total_count )
+    table.set_html_cell_attributes(total_row, 'count', 'align="right"' )
     for x in common.cfg.statuses :
         if ( status == '*') or ( x in status ) :
             table.set_value(total_row,x,      text=total_col[x] )
+            table.set_html_cell_attributes(total_row, x, 'align="right"' )
 
     return table
