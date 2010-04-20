@@ -67,6 +67,7 @@ def rpt1(  ) :
 
     if pandokia.pcgi.output_format == 'html' :
         sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write(common.page_header())
         sys.stdout.write('<h2>%s</h2>'%cgi.escape(test_run))
         sys.stdout.write(table.get_html(headings=1))
     elif pandokia.pcgi.output_format == 'csv' :
@@ -103,15 +104,24 @@ def rpt2( ) :
 
     # create list of projects
     projects = None
+    host = None
+    context = None
 
     if form.has_key("project") :
         projects = form.getlist("project")
 
+    if form.has_key("host") :
+       host = form.getlist("host")
+
+    if form.has_key("context") :
+       context = form.getlist("context")
+
     # create the actual table
-    [ table, projects ] = gen_daily_table( test_run, projects )
+    [ table, projects ] = gen_daily_table( test_run, projects, context, host )
 
 # # # # # # # # # # 
     if pandokia.pcgi.output_format == 'html' :
+        
         header = "<h1>"+cgi.escape(test_run)+"</h1>\n"
 
         if test_run.startswith('daily_') :
@@ -149,6 +159,7 @@ def rpt2( ) :
             header = header + ' )<p>\n'
 
         sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write(common.page_header())
         sys.stdout.write(header)
         sys.stdout.write(table.get_html(headings=0))
     elif pandokia.pcgi.output_format == 'csv' :
@@ -159,21 +170,12 @@ def rpt2( ) :
 #   #   #   #   #   #   #   #   #   #
 
 
-def gen_daily_table( test_run, projects ) :
+def gen_daily_table( test_run, projects, query_context, query_host ) :
 
     db = common.open_db()
 
     # convert special names, e.g. daily_latest to the name of the latest daily_*
     test_run = common.find_test_run(test_run)
-
-    if projects is None :
-        projects = [ ]
-        c = db.execute("SELECT DISTINCT project FROM result_scalar WHERE test_run = ? ORDER BY project ", (test_run, ) )
-        for x in c :
-            (x,) = x
-            if x is None :
-                continue
-            projects.append(x)
 
     # this is the skeleton of the cgi queries for various links
     query = { "test_run" : test_run }
@@ -186,11 +188,11 @@ def gen_daily_table( test_run, projects ) :
     # The texttable object doesn't understand colspans, but we hack a
     # colspan into it anyway.  Thee result is ugly if you have borders.
 
-    table.set_html_table_attributes("cellpadding=2")
+    table.set_html_table_attributes("cellpadding=2 ")
 
     status_types = common.cfg.statuses
 
-    row = 0
+    row = 0 
     table.define_column("host")
     table.define_column("context")
     table.define_column("os")
@@ -200,79 +202,106 @@ def gen_daily_table( test_run, projects ) :
     table.define_column("note")
 
 #   #   #   #   #   #   #   #   #   #
-    for p in projects :
+    # loop across hosts
+    prev_project = None
 
-        # values common to all the links we will write in this pass through the loop
-        query["project"] = p
-        query["host"] = "*"
+    hc_where, hc_where_dict = common.where_tuple( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
+    c = db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
+    for project, host, context in c :
 
-        # this link text is common to all the links for this project
+        if project != prev_project :
+
+            table.set_value(row,0,"")
+            row = row + 1
+
+            prev_project = project
+
+            # values common to all the links we will write in this pass through the loop
+            query["project"] = project
+            query["host"] = "*"
+
+            # this link text is common to all the links for this project
+            link = common.selflink(query_dict = query, linkmode="treewalk" )
+
+            # the heading for a project subsection of the table
+            table.set_value(row, 0, text=project, html="<hr><big><strong><b>"+project+"</b></strong></big>", link=link)
+            n_cols = 3 + len(status_types) + 1
+            table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
+            row += 1
+
+            # the column headings for this project's part of the table
+            table.set_value(row, "total", text="total", link=link )
+            table.set_html_cell_attributes(row, 'total', 'align="right"' )
+            for x in common.cfg.statuses :
+                xn = common.cfg.status_names[x]
+                table.set_value(row, x, text=xn, link = link + '&status='+x )
+                table.set_html_cell_attributes(row, x, 'align="right"' )
+            table.set_value(row, "note", text="" )  # no heading for this one
+            row += 1
+
+            # This will be the sum of all the tests in a particular project.
+            # It comes just under the headers for the project, but we don't
+            # know the values until the end.
+            project_sum = { 'total' : 0 }
+            for status in status_types :
+                project_sum[status] = 0
+
+            project_sum_row = row
+            row += 1
+
+            prev_host = None
+
+        query["host"] = host
+
         link = common.selflink(query_dict = query, linkmode="treewalk" )
 
-        # the heading for a project subsection of the table
-        table.set_value(row, 0, text=p, html="<big><strong><b>"+p+"</b></strong></big>", link=link)
-        table.set_html_cell_attributes(row,0,"colspan=8")
-        row += 1
-
-        # the column headings for this project's part of the table
-        table.set_value(row, "total", text="total", link=link )
-        for x in common.cfg.statuses :
-            xn = common.cfg.status_names[x]
-            table.set_value(row, x, text=xn, link = link + '&status='+x )
-        table.set_value(row, "note", text="" )  # no heading for this one
-        row += 1
-
-        # This will be the sum of all the tests in a particular project.
-        # It comes just under the headers for the project, but we don't
-        # know the values until the end.
-        project_sum = { 'total' : 0 }
-        for status in status_types :
-            project_sum[status] = 0
-
-        project_sum_row = row
-        row += 1
-
-        # loop across hosts
-        c = db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = ? AND project = ?", (test_run, p))
-        for host, context in c :
-            query["host"] = host
-            link = common.selflink(query_dict = query, linkmode="treewalk" )
+        if host != prev_host :
             table.set_value(row,0,    text=host,        link=link)
-            table.set_value(row,1,    text=context,        link=link)
-            table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
-            total_results = 0
-            missing_count = 0
-            for status in status_types :
-                c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
-                    ( test_run, p, host, status, context ) )
-                (x,) = c1.fetchone()
-                total_results += x
-                project_sum[status] += x
-                table.set_value(row, status, text=str(x), link = link + "&rstatus="+status )
-                if x == 'M' :
-                    missing_count = x
+            prev_host = host
 
-            project_sum['total'] += total_results
+        query['context'] = context
+        link=common.selflink(query_dict = query, linkmode="treewalk" )
+        del query['context']
 
-            if 'M' in status_types :
-                if missing_count == total_results :
-                    # if it equals the total, then everything is missing; we make a note of that
-                    table.set_value(row, 'note', 'all')
-                elif missing_count != 0 :
-                    # if it is not 0, then we have a problem
-                    table.set_value(row, 'note', 'some')
+        table.set_value(row,1,    text=context,        link = link)
+        table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
+        total_results = 0
+        missing_count = 0
+        for status in status_types :
+            c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
+                ( test_run, project, host, status, context ) )
+            (x,) = c1.fetchone()
+            total_results += x
+            project_sum[status] += x
+            table.set_value(row, status, text=str(x), link = link + "&rstatus="+status )
+            table.set_html_cell_attributes(row, status, 'align="right"' )
 
-            table.set_value(row, 'total', text=str(total_results), link=link )
+            if x == 'M' :
+                missing_count = x
 
-            row = row + 1
+        project_sum['total'] += total_results
+
+        if 'M' in status_types :
+            if missing_count == total_results :
+                # if it equals the total, then everything is missing; we make a note of that
+                table.set_value(row, 'note', 'all')
+            elif missing_count != 0 :
+                # if it is not 0, then we have a problem
+                table.set_value(row, 'note', 'some')
+
+        table.set_value(row, 'total', text=str(total_results), link=link )
+        table.set_html_cell_attributes(row, 'total', 'align="right"' )
+
+        row = row + 1
 
         for status in status_types :
             table.set_value(project_sum_row, status, project_sum[status] )
+            table.set_html_cell_attributes(project_sum_row, status, 'align="right"' )
 
         table.set_value(project_sum_row, 'total', project_sum['total'] )
+        table.set_html_cell_attributes(project_sum_row, 'total', 'align="right"' )
 
         # insert this blank line between projects - keeps the headings away from the previous row
         table.set_value(row,0,"")
-        row = row + 1
 
     return [ table, projects ]

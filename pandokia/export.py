@@ -26,7 +26,7 @@ def emit_field( output, name, value ) :
 #   output is a file to write to
 #   where is an SQL where clause, beginning with the word "WHERE "
 #
-def do_export( output, where ) :
+def do_export( output, where_text, where_dict ) :
     db = common.open_db()
 
     sqlite3 = common.get_db_module()
@@ -39,7 +39,7 @@ def do_export( output, where ) :
     output.write( "RESET\n" )
 
     # 
-    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where)
+    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where_text, where_dict)
     for record in c :
 
         # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
@@ -92,6 +92,6 @@ def run(args) :
             elif x == '-p' :
                 query_dict['project'] = y
 
-    where = common.where_str([ (x,query_dict[x]) for x in query_dict ] )
+    where_text, where_dict = common.where_tuple([ (x,query_dict[x]) for x in query_dict ] )
 
-    do_export(output, where)
+    do_export(output, where_text, where_dict)

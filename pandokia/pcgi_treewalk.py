@@ -42,6 +42,8 @@ def treewalk ( ) :
 
     output.write(common.cgi_header_html)
 
+    output.write(common.page_header())
+
     global db
     db = common.open_db()
 
@@ -101,13 +103,6 @@ def treewalk ( ) :
 
     # not implemented yet
     contact = None
-
-    if form.has_key("rstatus") :
-        # rstatus is us overriding our own parameter; instead of changing the cgi parameter
-        # string for each field, we just append "rstatus=value" to the link text.
-        # status still comes in as "*" or whatever, but we ignore it.
-        status = form["rstatus"].value
-
 
     #
     # query values we will always pass back to the next instantion of ourself
@@ -335,13 +330,16 @@ def treewalk ( ) :
     # test_runs that are in the tests specified)
     #
 
-    if "*" in test_run :
+    for field in ( 'test_run', 'project', 'context', 'host' ) :
+        if not '*' in query[field] :
+            continue
         lquery = { }
         for x in query :
-            lquery[x] = query[x]
-        output.write("<h3>Narrow to test_run</h3>")
+            if query[x] is not None :
+                lquery[x] = query[x]
+        output.write("<h3>Narrow to %s</h3>" % field)
 
-        where_clause = common.where_str([ 
+        where_text, where_dict = common.where_tuple([ 
             ('test_name', test_name+"*"),
             ('test_run', test_run), 
             ('project', project),
@@ -350,99 +348,13 @@ def treewalk ( ) :
             ('status', status),
             ('attn',attn),
             ])
-        c = db.execute("SELECT DISTINCT test_run FROM result_scalar %s ORDER BY test_run" % where_clause)
-        for x in c :
-            (x,) = x
+        c = db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+        for x, in c :
             if x is None :
                 continue
-            lquery["test_run"] = x
+            lquery[field] = x
             output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
 
-
-    #
-    # if no project specified, give an option to choose one (but only from projects
-    # that are in the tests specified)
-    #
-
-    if "*" in project :
-        lquery = { }
-        for x in query :
-            lquery[x] = query[x]
-        output.write("<h3>Narrow to project</h3>")
-        where_clause = common.where_str([ 
-            ('test_name', test_name+"*"),
-            ('test_run', test_run), 
-            ('project', project),
-            ('host', host),
-            ('context', context),
-            ('status', status),
-            ('attn', attn),
-            ])
-        c = db.execute("SELECT DISTINCT project FROM result_scalar %s ORDER BY project" % where_clause )
-        for x in c :
-            (x,) = x
-            if x is None :
-                continue
-            lquery["project"] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
-        project = "*"
-
-
-    #
-    # if no host specified, give an option to choose one (but only from hosts
-    # that are in the tests specified)
-    #
-
-    if host == "*" :
-        lquery = { }
-        for x in query :
-            lquery[x] = query[x]
-        where_clause = common.where_str([ 
-            ('test_name', test_name+"*"),
-            ('test_run', test_run), 
-            ('project', project),
-            ('host', host),
-            ('context', context),
-            ('status', status),
-            ('attn', attn),
-            ])
-        output.write("<h3>Narrow to host</h3>")
-        c = db.execute("SELECT DISTINCT host FROM result_scalar %s ORDER BY host" % where_clause)
-        for x in c :
-            (x,) = x
-            if x is None :
-                continue
-            lquery["host"] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
-        host = "*"
-
-    #
-    # if no context specified, give an option to choose one (but only from contexts
-    # that are in the tests specified)
-    #
-
-    if context == "*" :
-        lquery = { }
-        for x in query :
-            lquery[x] = query[x]
-        where_clause = common.where_str([ 
-            ('test_name', test_name+"*"),
-            ('test_run', test_run), 
-            ('project', project),
-            ('host', host),
-            ('context', context),
-            ('status', status),
-            ('attn', attn),
-            ])
-        output.write("<h3>Narrow to context</h3>")
-        c = db.execute("SELECT DISTINCT context FROM result_scalar %s ORDER BY context" % where_clause)
-        for x in c :
-            (x,) = x
-            if x is None :
-                continue
-            lquery["context"] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
-        context = "*"
 
     output.write("")
 
@@ -454,12 +366,12 @@ def linkout( ) :
     # database that contains a list of test results, then redirects to the
     # cgi that displays that.
     #
-    # This function is sql safe because it uses where_str() to make the query
     # It is html safe because it only outputs values that are created here.
 
     output = sys.stdout
 
     output.write(common.cgi_header_html)
+    output.write(common.page_header())
 
     # don't issue the redirect for internet explorer
     if 'MSIE' in os.environ['HTTP_USER_AGENT'] :
@@ -511,9 +423,6 @@ def linkout( ) :
     else :
         status = "*"
 
-    if form.has_key("rstatus") :
-        status = form["rstatus"].value
-
     if form.has_key("attn") :
         attn = form["attn"].value
     else :
@@ -528,7 +437,7 @@ def linkout( ) :
     qdb.commit()
 
     # find a list of the tests
-    where_clause = common.where_str([ 
+    where_text, where_dict = common.where_tuple ([ 
         ('test_name', test_name),
         ('test_run', test_run), 
         ('project', project),
@@ -538,7 +447,7 @@ def linkout( ) :
         ('attn', attn),
         ])
 
-    c1 = db.execute("SELECT key_id FROM result_scalar %s" % where_clause )
+    c1 = db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
 
     a = [ ]
     for x in c1 :
@@ -572,17 +481,14 @@ def linkout( ) :
         )
 
 
-def query_to_where_str( query, fields ) :
+def query_to_where_tuple( query, fields ) :
     l = [ ]
     for x in fields :
         if x in query :
             v = query[x]
             l.append( ( x, v ) )
 
-    where_clause = common.where_str(l)
-
-    return where_clause
-    
+    return common.where_tuple(l)
 
 def collect_prefixes( query ) :
     #
@@ -593,12 +499,12 @@ def collect_prefixes( query ) :
     #
     test_name = query['test_name']
 
-    where_clause = query_to_where_str( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
+    where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
 
     # if contact is not None :
     #    c = db.execute("SELECT DISTINCT test_name FROM result_scalar, contact %s ORDER BY test_name" % ( where_clause ) )
     #else :
-    c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_clause )
+    c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
 
     l = len(test_name)
     prev_one = None
@@ -633,7 +539,6 @@ def collect_table( prefixes, query ) :
     #
     # make the actual table to display
     #
-    lquery = copy.copy(query)
 
     status = query['status']
 
@@ -641,16 +546,16 @@ def collect_table( prefixes, query ) :
 
     table = text_table.text_table()
 
-    link=common.selflink(lquery, 'treewalk' )
-
     table.set_html_table_attributes("border=1")
     table.define_column("test_name")
     table.define_column("count")
     total_col = { }
     count_col = { }
+    lquery = copy.copy(query)
     for x in common.cfg.statuses :
         if ( status == '*' )  or ( x in status ) :
-            table.define_column(x,showname=common.cfg.status_names[x],link=link+"&status="+x)
+            lquery['status'] = x
+            table.define_column(x,showname=common.cfg.status_names[x],link=common.selflink(lquery, 'treewalk' ))
         total_col[x] = 0
         count_col[x] = 0
 
@@ -661,16 +566,15 @@ def collect_table( prefixes, query ) :
 
     for this_test_name in prefixes :
         lquery['test_name'] = this_test_name
-        where_clause = query_to_where_str( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
 
         if "*" in this_test_name :
             linkmode = 'treewalk'
         else :
             linkmode = 'treewalk.linkout'
-        lquery['status'] = status;
-        link=common.selflink(lquery, linkmode)
 
-        table.set_value(rownum,"test_name",text=this_test_name, link=link)
+        lquery['status'] = status;
+
+        table.set_value(rownum,"test_name",text=this_test_name, link=common.selflink(lquery, linkmode))
 
         table.set_html_cell_attributes(rownum, 'test_name', 'align="left"' )
 
@@ -678,9 +582,12 @@ def collect_table( prefixes, query ) :
 
         for x in common.cfg.statuses :
             if ( status == '*') or ( x in status ) :
-                c = db.execute("SELECT count(*) FROM result_scalar %s AND status = '%s' ORDER BY test_name" % ( where_clause, x) )
+                lquery['status'] = x
+                where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
+                c = db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
                 (count_col[x],) = c.fetchone()
-                table.set_value(rownum,x,      text=count_col[x],    link=link+"&rstatus="+x )
+                lquery['status'] = x
+                table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
                 table.set_html_cell_attributes(rownum, x, 'align="right"' )
                 count = count + count_col[x]
                 total_count = total_count + count_col[x]

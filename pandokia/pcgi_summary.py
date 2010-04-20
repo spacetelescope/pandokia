@@ -23,6 +23,8 @@ def run ( ) :
 
     print "content-type: text/html\n\n"
 
+    print common.page_header()
+
     form = pandokia.pcgi.form
     output = sys.stdout
 

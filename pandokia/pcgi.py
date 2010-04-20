@@ -96,9 +96,11 @@ def run() :
         import re
         sys.stdout.write("Content-type: text/html\n\n")
         f = os.path.dirname(os.path.abspath(__file__)) + '/top_level.html'
+        header = common.page_header()
         f=open(f,"r")
         for x in f :
             x = re.sub("CGINAME",cginame, x)
+            x = re.sub("PAGEHEADER",header, x)
             sys.stdout.write(x)
         f.close()
         sys.exit(0)

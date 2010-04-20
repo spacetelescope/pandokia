@@ -18,7 +18,7 @@
 import pandokia.common as common
 import sys
 
-debug = 1
+debug = 0
 
 def run () :
     db = common.open_db()

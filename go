@@ -16,7 +16,7 @@ ssbdev)
 	python setup.py -q install --home $there
 	;;
 '')
-	there=/ssbwebv1/data2/pandokia/c15
+	there=/ssbwebv1/data2/pandokia/c19
 	python setup.py -q install --home $there
 	;;
 esac

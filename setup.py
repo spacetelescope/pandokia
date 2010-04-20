@@ -3,9 +3,10 @@ import distutils.core
 # import platform
 # print platform.python_version()
 
-# bug: take this out (?)
 import os
-os.system("rm -rf build")
+
+# bug: take this out (?)
+# os.system("rm -rf build")
 
 package_list = [
     'pandokia',             # core of pandokia system
@@ -55,9 +56,42 @@ args = {
     'platforms':        ['Posix', 'MacOS X'],
     'scripts' :         [ "commands/"+x for x in command_list ],
     'packages':         package_list,
-    'package_data':     { 'pandokia' : [ '*.sql', '*.html' ] },
+    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg' ] },
 }
 
+#
+#
+def hack_sources() :
+    import base64
+    f = open( os.path.dirname(__file__) + "pandokia/head.png", "rb" )
+    header = f.read()
+    f.close()
+    header = base64.b64encode(header)
+
+    # f = open( os.path.dirname(__file__) + "pandokia/favicon.ico", "rb" )
+    # favico = f.read()
+    # f.close()
+    # favico = base64.b64encode(favico)
+    favico = 'None'
+
+    f = open( os.path.dirname(__file__) + "pandokia/common.py", "r" )
+    l = f.readlines()
+    f.close()
+
+    f = open( os.path.dirname(__file__) + "pandokia/common.py", "w" )
+    for x in l :
+        if not x.startswith("B64IMG_") :
+            f.write(x)
+    f.write("B64IMG_FAVICO = '%s'\n"%favico)
+    f.write("B64IMG_HEADER = '%s'\n"%header)
+    f.close()
+
+hack_sources()
+    
+
+#
+# Actually do the install
+#
 d = distutils.core.setup(
     **args
 )
@@ -72,7 +106,7 @@ def fix_script(name) :
     f=open(fname,"r")
     l = f.readlines()
     if name in use_usr_bin_env :
-        l[0] = '#!/usr/bin/env python'
+        l[0] = '#!/usr/bin/env python\n'
     for count, line in enumerate(l) :
         if line.startswith("PDK_DIR_HERE") :
             l[count] = dir_set % lib_dir

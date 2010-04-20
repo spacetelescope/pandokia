@@ -30,6 +30,7 @@ cfg = pandokia.cfg
 def run ( ) :
 
     sys.stdout.write(common.cgi_header_html)
+    sys.stdout.write(common.page_header())
 
     form = pandokia.pcgi.form
 
