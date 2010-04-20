@@ -1,4 +1,4 @@
-#! python
+#!/usr/bin/env python
 #
 # This is a general purpose entry point for pandokia to run a python
 # module that implements a test runner.  This doesn't necessarily imply
