@@ -7,8 +7,6 @@
 # doesn't matter.
 #
 
-# Right now, a big chunk of this script is debugging
-
 tmpfile=pdk.runner.tmp
 
 tmpfile2=pdk.runner.2.tmp
