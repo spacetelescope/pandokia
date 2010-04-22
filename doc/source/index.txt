@@ -23,6 +23,7 @@ Contents:
    database.txt
    vocabulary.txt
    demo.txt
+   faq.txt
 
 Indices and tables
 ==================
