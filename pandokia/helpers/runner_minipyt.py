@@ -1,12 +1,14 @@
 #! python
 #
 
+import sys
 import inspect
 import traceback
 import imp
 import os.path
 import time
 import gc
+import copy
 
 # the pycode helper contains an object that writes pandokia report files
 import pandokia.helpers.pycode as pycode
@@ -246,7 +248,12 @@ def process_file( filename ) :
     file_start_time = time.time()
     file_status = 'P'
 
+    # make sure we can import from the directory where the file is
+    sys_path_save = copy.copy(sys.path)
+    sys.path.insert(0,os.path.dirname(filename))
+
     try :
+
 
         # import the module
         module = imp.load_source( module_name, filename )
@@ -266,6 +273,7 @@ def process_file( filename ) :
                 # about whether it is a test or not.
                 n = getattr(ob,'__test__')
                 if n :
+                    print "is test",name
                     l.append( (name, ob) )
                 continue
             except AttributeError :
@@ -287,11 +295,15 @@ def process_file( filename ) :
 
         for x in l :
             name, ob = x
+
+            # use nose-compatible name, if present
+            rname = getattr(ob,'compat_func_name', name)
+
             if type(ob) == function :
-                print 'function', name
-                run_test_function( rpt, module, name, ob )
+                print 'function', name, 'as', rname
+                run_test_function( rpt, module, rname, ob )
             else :
-                print 'class', name
+                print 'class', name, 'as', rname
                 run_test_class( rpt, module, name, ob )
 
         print 'tests completed'
@@ -302,6 +314,9 @@ def process_file( filename ) :
     except :
         file_status = 'E'
         traceback.print_exc()
+
+    # restore sys.path
+    sys.path = sys_path_save
 
     log = pycode.end_snarf_stdout()
     file_end_time = time.time()
@@ -328,6 +343,5 @@ def main(argv) :
 ####
 
 if __name__ == '__main__' :
-    import sys
     main(sys.argv[1:])
 
