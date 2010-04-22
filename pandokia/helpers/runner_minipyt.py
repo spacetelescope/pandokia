@@ -273,7 +273,6 @@ def process_file( filename ) :
                 # about whether it is a test or not.
                 n = getattr(ob,'__test__')
                 if n :
-                    print "is test",name
                     l.append( (name, ob) )
                 continue
             except AttributeError :
