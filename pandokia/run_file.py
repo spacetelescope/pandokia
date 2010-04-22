@@ -56,59 +56,11 @@ def read_runner_glob ( dirname ) :
     runner_glob_cache[dirname] = l
     return l
 
-# pdk_testfiles is a list of all the file name patterns 
-# in this directory that are tests.  Return value is
-# a list of ( patterns, runner ).
-
-pdk_testfiles_cache = { }
-
-def read_pdk_testfiles(dirname) :
-
-    if dirname in pdk_testfiles_cache :
-        return pdk_testfiles_cache[dirname]
-
-    try :
-        f = open(dirname+"/pdk_testfiles")
-    except EnvironmentError :
-        # bug: nothing to distinguish between "file not found" (IOError)
-        # and disk I/O error (IOError)
-        l = [ ]
-        pdk_testfiles_cache[dirname] = l
-        return l
-
-    l = [ ]
-    for line in f :
-        line = line.strip()
-        if line == "" or line.startswith('#') :
-            continue
-        line = line.split()
-        if len(line) == 1 :
-            l.append(  (line[0], None) )
-        else :
-            l.append(  (line[0], line[1]) )
-
-    # explicit close
-    f.close()
-
-    pdk_testfiles_cache[dirname] = l
-    return l
 
 #
 # Choose the actual runner to use for a specific file.
 #
 def select_runner(dirname, basename) :
-
-    testfiles_glob = read_pdk_testfiles( dirname )
-
-    found = 0
-    for pat, runner in testfiles_glob :
-        if fnmatch.fnmatch(basename,pat) :
-            if runner == None :
-                found=1
-                break
-            if runner == 'none' :
-                return None
-            return runner
 
     runner_glob = read_runner_glob( dirname )
 
@@ -117,8 +69,7 @@ def select_runner(dirname, basename) :
             if runner == 'none' :
                 return None
             return runner
-    if found :
-        print "##### WARNING: FILE %s/%s MATCHES IN pdk_testfiles BUT HAS NO IDENTIFIED TEST RUNNER" % (dirname, basename)
+
     return None
 
 
