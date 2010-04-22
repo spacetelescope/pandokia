@@ -66,40 +66,39 @@ def treewalk ( ) :
     contact = get_form(form,'contact',  None)
     attn    = get_form(form,'attn',     '*')
 
-
     debug_cmp = get_form(form,'debug_cmp', 0)
 
     # look for input from the compare form
-    cmp_test_run = get_form(form,'cmp_test_run', '')
-    cmp_context  = get_form(form,'cmp_context',  '')
-    cmp_host     = get_form(form,'cmp_host',     '')
+    cmp_test_run = get_form(form,'cmp_test_run', test_run)
+    cmp_context  = get_form(form,'cmp_context',  context)
+    cmp_host     = get_form(form,'cmp_host',     host)
 
     test_run     = common.find_test_run(test_run)
     cmp_test_run = common.find_test_run(cmp_test_run)
 
-    # the compare form values might be blank because they were not
-    # specified, or because the user typed something in there.  In
-    # either case, we want to show to be "None"
-    if cmp_test_run == '' :
-        cmp_test_run = None
-    if cmp_context == '' :
-        cmp_context = None
-    if cmp_host == '' :
-        cmp_host = None
-
-    # if any of them are set, we are doing a comparison
-    if cmp_test_run is not None or cmp_context is not None or cmp_host is not None :
+    # look for whether the query asks for a comparison; we assume not
+    comparing = 0
+    if 'compare' in form :
+        # ok, it explicitly says one of the 3 comparison values
         comparing = 1
-        print "COMPARING"
-        # blank values cannot be allowed; default is the same as what we are looking at
-        if cmp_test_run is None :
+        x = get_form(form,'compare','Turn Off')
+        # If the command is "reverse comparison", swap the 3 relevant fields
+        if x.startswith('Reverse') :
+            t = cmp_test_run
             cmp_test_run = test_run
-        if cmp_host is None :
+            test_run = t
+
+            t = cmp_host
             cmp_host = host
-        if cmp_context is None :
+            host = t
+
+            t = cmp_context
             cmp_context = context
-    else :
-        comparing = 0
+            context = t
+
+        # if it is the one value that ends the compare, 
+        if x.startswith('Turn Off') :
+            comparing = 0
 
     # not implemented yet
     contact = None
@@ -122,27 +121,12 @@ def treewalk ( ) :
         'contact' : contact,
     }
 
+
     #
     # main heading
     #
 
     output.write("<h1>Test tree browser</h1>")
-
-    lquery = query.copy()
-    del lquery['cmp_test_run']
-    del lquery['cmp_context']
-    del lquery['cmp_host']
-
-    print "<form action=%s method=GET>"%common.get_cgi_name()
-    print "<input type=hidden name='query' value=%s>" % urllib.quote_plus('treewalk')
-    print common.query_dict_to_hidden( lquery )
-    for x in ( 'cmp_test_run', 'cmp_context', 'cmp_host' ) :
-        v = query[x]
-        if v is None :
-            v = ''
-        print "%s <input type=text name=%s value='%s'>"%(x,x,v)
-    print "<input type=submit name='compare'>"
-    print "</form>"
 
 
     #
@@ -229,38 +213,22 @@ def treewalk ( ) :
 
     ### end of "Test Prefix: line"
 
-    ### If we are comparing to another test run, show which it is.
-    
-    if comparing:
-        
-        # here is the "remove comparison" query
-        lquery = query.copy()
-
-        lquery['cmp_test_run'] = None
-        lquery['cmp_context'] = None
-        lquery['cmp_host'] = None
-
-
-        # here is the "switch to other test run" query
-        swap_query = query.copy()
-
-        for x in ( 'test_run', 'context', 'host' ) :
-            swap_query[x] = query['cmp_'+x]
-            swap_query['cmp_'+x] = query[x]
-
-        output.write("<h2>comparing: this - %s %s</h2>\n"% (
-            common.self_href(swap_query, "treewalk", cmp_test_run),
-            common.self_href(lquery,"treewalk",remove_arrow),
-            ) )
+    ### offer the form to compare with other runs
+    print cmp_form(query, comparing)
+    print "<p>"
 
     ### show the table
 
     # "show all" line before the table
 
     lquery = copy.copy(query)
-    show_all_line = common.self_href(lquery, 'treewalk.linkout', "show all")
+    if comparing :
+        t = 'show all (not just different)'
+    else :
+        t = 'show all'
+    show_all_line = common.self_href(lquery, 'treewalk.linkout', t)
     output.write(show_all_line)
-    output.write("<br><br>")
+    output.write("<br>")
 
     ### begin table of test results
 
@@ -316,6 +284,14 @@ def treewalk ( ) :
                         c1.text = "%+d"%diff
 
     ###
+
+    ### If we are comparing to another test run, show which it is.
+    
+    if comparing:
+        
+
+        output.write("<p>Net difference in counts, this - other</p>")
+
 
     output.write(table.get_html())
 
@@ -608,3 +584,66 @@ def collect_table( prefixes, query ) :
             table.set_html_cell_attributes(total_row, x, 'align="right"' )
 
     return table
+
+
+def cmp_form( query, comparing ) :
+    lquery = query.copy()
+ 
+    if lquery['cmp_test_run'] is None :
+        lquery['cmp_test_run'] = common.previous_daily(lquery['test_run'] )
+    if lquery['cmp_host'] is None :
+        lquery['cmp_host'] = lquery['host']
+    if lquery['cmp_context'] is None :
+        lquery['cmp_context'] = lquery['context']
+
+    l = [ 
+        """<a href='javascript:toggle("cmpform",1)'>[<span id='cmpform_plus'></span> Compare]</a>
+        <div id='cmpform'>
+        <ul>
+        """,
+        "<form action=%s method=GET>"%common.get_cgi_name(),
+        "<table>"
+        "<input type=hidden name='query' value=%s>" % urllib.quote_plus('treewalk'),
+        ]
+    for x in ( 'cmp_test_run', 'cmp_context', 'cmp_host' ) :
+        l.append( "<tr><td>%s</td><td> <input type=text name=%s value='%s'></td></tr>"%(x,x,lquery[x]) )
+        del lquery[x]
+
+    l.append( common.query_dict_to_hidden( lquery ) )
+
+    l.append(
+    """
+        <table>
+        <input type=submit name='compare' value='Compare'>
+""" )
+
+    if comparing :
+        l.append(""" <input type=submit name='compare' value='Turn Off Compare'> """ )
+        l.append(""" <input type=submit name='compare' value='Reverse Comparison'> """ )
+
+    l.append(
+        """
+        </form>
+        </ul>
+        </div>
+        <script>
+        vis = new Array();
+        """ )
+
+    if comparing :
+        l.append(""" vis['cmpform']=1; """)
+
+    l.append( """
+        function toggle(f) {
+            vis[f] = ! vis[f];
+            if (vis[f]) v="none"; else v="block";
+            if (vis[f]) plus='+'; else plus='-';
+            document.getElementById(f).style.display=v;
+            document.getElementById(f+'_plus').innerHTML=plus;
+        }
+        toggle("cmpform")
+        </script>
+        """ )
+
+    return '\n'.join(l)
+

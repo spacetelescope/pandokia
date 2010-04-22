@@ -16,8 +16,16 @@ ssbdev)
 	python setup.py -q install --home $there
 	;;
 '')
-	there=/ssbwebv1/data2/pandokia/c19
+	n=21
+	there=/ssbwebv1/data2/pandokia/c$n
 	python setup.py -q install --home $there
+	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi
+	if [ ! -L /eng/ssb/websites/ssb/pandokia/c$n.cgi ]
+	then
+		echo make link
+		ln -s $there/bin/pdk /eng/ssb/websites/ssb/pandokia/c$n.cgi
+	fi
+
 	;;
 esac
 

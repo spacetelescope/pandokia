@@ -71,11 +71,14 @@ def selflink( query_dict, linkmode ) :
     linkmode is the name of the query field to include
     """
     l = [ 'query=' + urllib.quote_plus(linkmode) ]
-    for i in query_dict :
+    for i in sorted(query_dict.keys()) :
         v = query_dict[i]
         if v is None :
             continue
-        l.append( i + '=' + urllib.quote_plus(str(v)) )
+        if not isinstance(v,list) :
+            v = [ v ]
+        for v in v :
+            l.append( i + '=' + urllib.quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
 #
@@ -322,6 +325,8 @@ def find_test_run( run) :
 #
 # not fully developed - used so the day_report can go back to the day before
 #
+
+# bug: look for ending with a thing that looks like a date instead of starting with "daily_"
 
 def previous_daily( test_run ) :
     if not test_run.startswith("daily_") :

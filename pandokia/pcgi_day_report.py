@@ -205,6 +205,10 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     # loop across hosts
     prev_project = None
 
+    all_sum = { 'total' : 0 }
+    for status in status_types :
+        all_sum[status] = 0
+
     hc_where, hc_where_dict = common.where_tuple( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
     c = db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
     for project, host, context in c :
@@ -230,13 +234,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
             row += 1
 
             # the column headings for this project's part of the table
-            table.set_value(row, "total", text="total", link=link )
-            table.set_html_cell_attributes(row, 'total', 'align="right"' )
-            for x in common.cfg.statuses :
-                xn = common.cfg.status_names[x]
-                table.set_value(row, x, text=xn, link = link + '&status='+x )
-                table.set_html_cell_attributes(row, x, 'align="right"' )
-            table.set_value(row, "note", text="" )  # no heading for this one
+            insert_col_headings( table, row, link )
             row += 1
 
             # This will be the sum of all the tests in a particular project.
@@ -273,13 +271,15 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
             (x,) = c1.fetchone()
             total_results += x
             project_sum[status] += x
-            table.set_value(row, status, text=str(x), link = link + "&rstatus="+status )
+            all_sum[status] += x
+            table.set_value(row, status, text=str(x), link = link + "&status="+status )
             table.set_html_cell_attributes(row, status, 'align="right"' )
 
             if x == 'M' :
                 missing_count = x
 
         project_sum['total'] += total_results
+        all_sum['total'] += total_results
 
         if 'M' in status_types :
             if missing_count == total_results :
@@ -304,4 +304,49 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
         # insert this blank line between projects - keeps the headings away from the previous row
         table.set_value(row,0,"")
 
+    # insert a total for everything
+    row += 1
+    table.set_value(row, 0, html='<hr>')
+    table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
+
+    row = row + 1
+    insert_col_headings( table, row, None )
+
+    row = row + 1
+    total_row = row
+
+    query['host']  = '*'
+    query['project'] = projects
+    query['host'] = query_host
+    query['context'] = query_context
+
+    table.set_value(total_row, 'total', text=str(all_sum['total']), 
+        link = common.selflink(query_dict = query, linkmode="treewalk" )
+        )
+    table.set_html_cell_attributes(row, 'total', 'align="right"' )
+    
+    for status in status_types :
+        query['status'] = status
+        table.set_value(total_row, status, all_sum[status] ,
+            link = common.selflink(query_dict = query, linkmode="treewalk" )
+            )
+        table.set_html_cell_attributes(total_row, status, 'align="right"' )
+
     return [ table, projects ]
+
+
+#
+# 
+#
+def insert_col_headings( table, row, link ) :
+    table.set_value(row, "total", text="total", link=link )
+    table.set_html_cell_attributes(row, 'total', 'align="right"' )
+    xl = None
+    for x in common.cfg.statuses :
+        xn = common.cfg.status_names[x]
+        if link :
+            xl = link + '&status='+x 
+        table.set_value(row, x, text=xn, link = xl )
+        table.set_html_cell_attributes(row, x, 'align="right"' )
+    table.set_value(row, "note", text="" )  # no heading for this one
+
