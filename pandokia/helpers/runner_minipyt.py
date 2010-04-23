@@ -10,6 +10,16 @@ import time
 import gc
 import copy
 
+# set to true if you want dots
+dots = False
+
+if 'PDK_DOTS' in os.environ :
+    if os.environ['PDK_DOTS'] != 'N' :
+        dots = True
+
+# remember where to send dots (sys.stdout will be captured into the log file)
+dot_file = sys.stdout
+
 # the pycode helper contains an object that writes pandokia report files
 import pandokia.helpers.pycode as pycode
 
@@ -40,6 +50,17 @@ def _sort_fn(a) :
 
 def sort_test_list(l) :
     l.sort(key=_sort_fn)
+
+
+def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
+    rpt.report( name, status, start_time, end_time, tra, tda, log )
+    if dots :
+        if status == 'P' :
+            dot_file.write('.')
+        else :
+            if name is None :
+                name = rpt.test_prefix
+            dot_file.write(' %s: %s\n'%(name,status) )
 
 ####
 #### actually run a test function
@@ -72,7 +93,8 @@ def run_test_function(rpt, mod, name, ob) :
     log = pycode.end_snarf_stdout()
 
     # write a report the the pandokia log file
-    rpt.report( name, status, start_time, end_time, mod.tra, mod.tda, log )
+    gen_report( rpt, name, status, start_time, end_time, mod.tra, mod.tda, log )
+    
 
 ####
 #### actually run a test class
@@ -207,7 +229,7 @@ def run_test_class( rpt, mod, name, ob ) :
 
             fn_log = pycode.end_snarf_stdout()
 
-            rpt.report( name + '.' + f_name, fn_status, fn_start_time, fn_end_time, save_tda, save_tra, fn_log )
+            gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, save_tda, save_tra, fn_log )
 
     except AssertionError :
         class_status = 'F'
@@ -220,7 +242,7 @@ def run_test_class( rpt, mod, name, ob ) :
     class_end_time = time.time()
     class_log = pycode.end_snarf_stdout() 
 
-    rpt.report( name, class_status, class_start_time, class_end_time, { }, { }, class_log )
+    gen_report( rpt, name, class_status, class_start_time, class_end_time, { }, { }, class_log )
     
 
 ####
@@ -323,7 +345,7 @@ def process_file( filename ) :
     # the name for the report on the file as a whole is derived from
     # the file name. the report object is already set up to do this,
     # so we do not need to provide any more parts of the test name.
-    rpt.report( None, file_status, file_start_time, file_end_time, { }, { }, log )
+    gen_report( rpt, None, file_status, file_start_time, file_end_time, { }, { }, log )
 
     rpt.close()
 
@@ -334,7 +356,11 @@ def process_file( filename ) :
 
 def main(argv) :
     for x in argv :
+        if dots :
+            dot_file.write('File: %s\n'%x)
         process_file( x )
+        if dots :
+            dot_file.write('\n')
 
 
 ####
