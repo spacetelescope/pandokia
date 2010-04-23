@@ -7,6 +7,8 @@ import sys
 import traceback
 import errno
 
+import pandokia.common as common
+
 def run( dirname, envgetter ) :
     # Run all the tests to be found in directory dirname.
     # This is not recursive into other directories.
@@ -26,9 +28,13 @@ def run( dirname, envgetter ) :
         print "Cannot search for tests in ",dirname
         print e
         print ""
-        return 1
+        return 1, {}
 
     dir_list.sort()
+
+    # As we run each file, we will get a count of status values of each type.
+    # t_stat keeps a running sum for the current directory.
+    t_stat = { }
 
     for basename in dir_list :
 
@@ -108,7 +114,10 @@ def run( dirname, envgetter ) :
 
         # not disabled - run it
         try :
-            pandokia.run_file.run(dirname, basename, envgetter, runner )
+            ( err, lstat ) = pandokia.run_file.run(dirname, basename, envgetter, runner )
+            was_error |= err
+            for x in lstat :
+                t_stat[x] = t_stat.get(x,0) + lstat[x]
         except Exception, e:
             xstr=traceback.format_exc()
             print "Exception running file %s/%s: %s"%(dirname, basename, e)
@@ -116,7 +125,12 @@ def run( dirname, envgetter ) :
             print ''
             was_error = 1
 
-    return was_error
+    # print the status summary for the directory.
+    print ""
+    print "%s:"%dirname
+    common.print_stat_dict(t_stat)
+
+    return ( was_error, t_stat )
 
 
 #

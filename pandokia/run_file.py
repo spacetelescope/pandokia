@@ -8,7 +8,7 @@ import pandokia
 # subprocess is the interface du jour for starting a new process
 import subprocess
 
-from pandokia.common import gethostname
+import pandokia.common as common
 
 #
 # find the file name patterns that associate a file name with a test runner
@@ -142,6 +142,19 @@ def run( dirname, basename, envgetter, runner ) :
 
         env['PDK_LOG'] = pdk_log_name(env) 
 
+        # We will write a count of statuses to a summary file.  But where?
+        # If no PDK_PROCESS_SLOT, we do not need a summary -- we just return
+        # it to our caller.  Otherwise, we use a file based on the log file name.
+        if 'PDK_PROCESS_SLOT' in env :
+            summary_file = env['PDK_LOG'] + '.summary'
+        else :
+            summary_file = None
+
+        f=open(env['PDK_LOG'],'a+')
+        f.seek(0,os.SEEK_END)
+        end_of_log = f.tell()
+        f.close()
+
         env['PDK_DIRECTORY'] = dirname
 
         #
@@ -153,7 +166,7 @@ def run( dirname, basename, envgetter, runner ) :
         f.write("\n\nSTART\n")
         f.write('test_run=%s\n'     % env['PDK_TESTRUN'])
         f.write('project=%s\n'      % env['PDK_PROJECT'])
-        f.write('host=%s\n'         % gethostname() )
+        f.write('host=%s\n'         % common.gethostname() )
         f.write('location=%s\n'     % full_filename )
         f.write('test_runner=%s\n'  % runner)
         f.write('context=%s\n'      %env['PDK_CONTEXT'])
@@ -185,7 +198,9 @@ def run( dirname, basename, envgetter, runner ) :
                         status="signal %d, core dumped" % ( status & 0x7f )
                     else :
                         status="signal %d" % ( status & 0x7f )
-                print "COMMAND EXIT:",status,"\n"
+                print "COMMAND EXIT:",status
+
+                
 
         else :
             # There is no command, so we run it by calling a function.
@@ -195,13 +210,49 @@ def run( dirname, basename, envgetter, runner ) :
             # in the test, could potentially kill the pandokia meta-runner.
             print "RUNNING INTERNALLY (for file %s)"%full_filename
             runner_mod.run_internally(env)
-            print "DONE RUNNING INTERNALLY\n"
+            print "DONE RUNNING INTERNALLY"
+
+        stat_summary = { }
+        for x in pandokia.cfg.statuses :
+            stat_summary[x] = 0
+
+        if 1 :
+            # if the runner did not provide a status summary, collect it from
+            # the log file.
+            # [ This is "if 1" because no runners currently know how to do it.
+            #   Later, some of them will leave behind a status summary file; we 
+            #   will read that instead.   ]
+            f=open(env['PDK_LOG'],'r')
+            f.seek(end_of_log,os.SEEK_SET)
+            while 1 :
+                l = f.readline()
+                if l == '' :
+                    break
+                l = l.strip()
+                if l.startswith('status=') :
+                    l=l[7:].strip()
+                    stat_summary[l] = stat_summary.get(l,0) + 1
+            f.close()
+
+        common.print_stat_dict( stat_summary )
+        print ""
+        if summary_file : 
+            # The summary file has a similar format to the log, but there is
+            # a "START" line after each record.   If somebody accidentally 
+            # tries to import it, the importer can never find any data.
+            f = open(summary_file,'a')
+            for x in stat_summary :
+                f.write("%s=%s\n"%(x,stat_summary[x]))
+            # ".file" can never look like a valid status
+            f.write(".file=%s\n"%full_filename)
+            f.write("START\n\n")
+            f.close()
 
     else :
         print "NO RUNNER FOR",dirname +"/"+basename,"\n"
 
     os.chdir(save_dir)
 
-    return return_status
+    return ( return_status, stat_summary )
 
 

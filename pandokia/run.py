@@ -5,6 +5,7 @@ import os
 import os.path
 import stat
 import errno
+import pandokia.common as common
 
 helpstr = '''
 pdk run [ options ] [ files/directories ]
@@ -133,11 +134,17 @@ def run(args) :
     envgetter = pandokia.envgetter.EnvGetter(context=context )
     # environment_already_set=environment_already_set )     bug: we need to get this optimization in some how
 
+
     if recursive :
         import pandokia.run_recursive
-        was_error = pandokia.run_recursive.run(args, envgetter )
+        ( was_error, t_stat ) = pandokia.run_recursive.run(args, envgetter )
     else :
+        # t_stat is a count of status values of each type.  The counts were printed at the end
+        # of each file/dir that we ran, but if there are more than one file/dir, we will print
+        # the total in t_stat.
+        t_stat = { }
         was_error = 0
+        n_things_run = 0
         for x in args :
             try :
                 file_stat = os.stat(x)
@@ -145,11 +152,14 @@ def run(args) :
                 print x, e
                 continue
 
+            lstat = { }
             if stat.S_ISDIR(file_stat.st_mode) :
                 import pandokia.run_dir
-                was_error |= pandokia.run_dir.run(x, envgetter )
+                n_things_run += 1
+                ( err, lstat ) = pandokia.run_dir.run(x, envgetter )
             elif stat.S_ISREG(file_stat.st_mode) :
                 import pandokia.run_file
+                n_things_run += 1
                 
                 basename = os.path.basename(x)
                 dirname  = os.path.dirname(x)
@@ -157,12 +167,23 @@ def run(args) :
                     dirname = '.'
                 runner = pandokia.run_file.select_runner(dirname,basename)
                 if runner is not None :
-                    was_error |= pandokia.run_file.run(dirname, basename, envgetter, runner )
+                    ( err, lstat ) = pandokia.run_file.run(dirname, basename, envgetter, runner )
                 else :
                     print "no runner for ",x
-                    was_error = 1
+                    err = 1
+            else :
+                lstat = { }
+                err = 0
+            was_error |= err
+            for y in lstat :
+                t_stat[y] = t_stat.get(y,0) + lstat[y]
 
-    return was_error
+        if n_things_run > 1 :
+            print ""
+            print "Summary:"
+            common.print_stat_dict(t_stat)
+
+    return ( was_error, t_stat )
 
 def default_project() :
     return "default"

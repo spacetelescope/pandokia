@@ -160,7 +160,12 @@ def run() :
 
     if cmd == 'run' :
         import pandokia.run as x
-        return x.run(args)
+        (err, lstat) =  x.run(args)
+        #import pandokia.common as common
+        # print ""
+        # print "Summary of entire run:"
+        # common.print_stat_dict(lstat)
+        return err
 
     if cmd == 'version' or cmd == '--version' or cmd == '-v' or cmd == '-V' :
         import pandokia
