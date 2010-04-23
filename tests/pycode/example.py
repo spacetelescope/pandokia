@@ -40,7 +40,7 @@ def pycode(mode) :
     # a full report, all at once
     rpt.report(
             test_name='narf', 
-            status='N', 
+            status='P', 
             start_time=datetime.datetime.now(),
             end_time = datetime.datetime.now(),
             tda= { 'foo': 1, 'bar': 0 },
