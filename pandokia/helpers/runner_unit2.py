@@ -3,9 +3,20 @@ import time
 import traceback
 import imp
 import os.path
-import unittest2
 
-from unittest2.main import TestProgram
+no_unittest2 = False
+
+try :
+    import unittest2
+    from unittest2.main import TestProgram
+except ImportError, e :
+    no_unittest2 = e
+
+
+# These are the versions of unittest2 that I expect this code to work
+# with.  It might work in other versions, but who knows?
+unittest2_versions = ( '0.3.0', '0.4.0' )
+
 
 from pandokia.helpers import pycode
 
@@ -168,15 +179,6 @@ def main(args) :
     # status is pass unless something else happens
     file_status = 'P'
 
-    # unittest2 is in very early stages of development.  Cry if we
-    # don't see the version we expect, because there may be incompatible
-    # changes in the future.
-    if unittest2.__version__ != '0.3.0' :
-        print 'THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR'
-        print 'HAVE  ', unittest2.__version__ 
-        print 'EXPECT','0.3.0'
-        file_status = 'E'   # to draw attention
-
     # No arg processing because pandokia left everything we need
     # in the environment.
     filename = os.environ['PDK_FILE'] 
@@ -188,43 +190,59 @@ def main(args) :
 
     file_start_time = time.time()
 
-    try :
 
-        module = imp.load_source( module_name, filename )
-
-    	# This is a trick to pass a value to the initializer
-	    # pdk_test_result.  It would be hard to go through channels
-	    # because unittest2 does not have a concept for this particular
-        # data.  I happen to know that it only makes a single TestRunner
-        # object, so this is ok to do.
-        pdk_runner.fixed_filename = module_name
-
-        TestProgram( 
-            # module must be a loaded module to run tests from
-            module=module, 
-
-	        # argv must be a list with at least one element because
-	        # the TestProgram arg processing will try to read through
-	        # it whether we need it to or not.
-            argv=[ 'nop' ],
-
-            # provide it with our test runner, so it writes pandokia
-            # logs instead of the default stuff to stdout
-            testRunner = pdk_runner,
-
-            # prevent it trying to exit when it is done
-            exit=False,
-            )
-
-    # Yes, the whole file can fail or error.  This happens either
-    # on import or when instantiating TestCase objects.
-    except AssertionError :
-        file_status = 'F'
-        traceback.print_exc()
-
-    except :
+    if no_unittest2 :
+        print "Cannot import unittest2"
+        print e
         file_status = 'E'
-        traceback.print_exc()
+
+    else :
+        # unittest2 is in very early stages of development.  Cry if we
+        # don't see the version we expect, because there may be incompatible
+        # changes in the future.
+        if not unittest2.__version__ in unittest2_versions :
+            print 'THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR'
+            print 'HAVE  ', unittest2.__version__ 
+            print 'EXPECT ONE OF ', unittest2_versions
+            file_status = 'E'   # to draw attention
+
+        try :
+
+            module = imp.load_source( module_name, filename )
+
+            # This is a trick to pass a value to the initializer
+            # pdk_test_result.  It would be hard to go through channels
+            # because unittest2 does not have a concept for this particular
+            # data.  I happen to know that it only makes a single TestRunner
+            # object, so this is ok to do.
+            pdk_runner.fixed_filename = module_name
+
+            TestProgram( 
+                # module must be a loaded module to run tests from
+                module=module, 
+
+                # argv must be a list with at least one element because
+                # the TestProgram arg processing will try to read through
+                # it whether we need it to or not.
+                argv=[ 'nop' ],
+
+                # provide it with our test runner, so it writes pandokia
+                # logs instead of the default stuff to stdout
+                testRunner = pdk_runner,
+
+                # prevent it trying to exit when it is done
+                exit=False,
+                )
+
+        # Yes, the whole file can fail or error.  This happens either
+        # on import or when instantiating TestCase objects.
+        except AssertionError :
+            file_status = 'F'
+            traceback.print_exc()
+
+        except :
+            file_status = 'E'
+            traceback.print_exc()
 
     file_end_time = time.time()
 
