@@ -63,26 +63,30 @@ def treewalk ( ) :
     test_run= get_form(form,'test_run', '*')
     project = get_form(form,'project',  '*')
     status  = get_form(form,'status',   '*')
-    contact = get_form(form,'contact',  None)
     attn    = get_form(form,'attn',     '*')
 
     debug_cmp = get_form(form,'debug_cmp', 0)
 
     # look for input from the compare form
-    cmp_test_run = get_form(form,'cmp_test_run', test_run)
-    cmp_context  = get_form(form,'cmp_context',  context)
-    cmp_host     = get_form(form,'cmp_host',     host)
+    cmp_test_run = get_form(form,'cmp_test_run', None )
+    cmp_context  = get_form(form,'cmp_context',  None )
+    cmp_host     = get_form(form,'cmp_host',     None )
 
     test_run     = common.find_test_run(test_run)
-    cmp_test_run = common.find_test_run(cmp_test_run)
+    if cmp_test_run :
+        cmp_test_run = common.find_test_run(cmp_test_run)
 
     # look for whether the query asks for a comparison; we assume not
     comparing = 0
     if 'compare' in form :
         # ok, it explicitly says one of the 3 comparison values
         comparing = 1
-        x = get_form(form,'compare','Turn Off')
-        # If the command is "reverse comparison", swap the 3 relevant fields
+        x = get_form(form,'compare','0')
+
+        if x == '' or x == '0' or x.startswith('Turn Off') :
+            # if it is a special value that ends the compare, 
+            comparing = 0
+
         if x.startswith('Reverse') :
             t = cmp_test_run
             cmp_test_run = test_run
@@ -96,12 +100,8 @@ def treewalk ( ) :
             cmp_context = context
             context = t
 
-        # if it is the one value that ends the compare, 
-        if x.startswith('Turn Off') :
-            comparing = 0
+            comparing = 1
 
-    # not implemented yet
-    contact = None
 
     #
     # query values we will always pass back to the next instantion of ourself
@@ -115,11 +115,17 @@ def treewalk ( ) :
         'status': status,
         'attn': attn,
         'context':context,
-        'cmp_test_run' : cmp_test_run,
-        'cmp_context' : cmp_context,
-        'cmp_host' : cmp_host,
-        'contact' : contact,
+        'compare' : comparing,
     }
+
+    if cmp_test_run is not None :
+        query['cmp_test_run'] =  cmp_test_run
+
+    if cmp_context is not None :
+        query['cmp_context'] = cmp_context
+
+    if cmp_host is not None :
+        query['cmp_host'] = cmp_host
 
 
     #
@@ -477,9 +483,6 @@ def collect_prefixes( query ) :
 
     where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
 
-    # if contact is not None :
-    #    c = db.execute("SELECT DISTINCT test_name FROM result_scalar, contact %s ORDER BY test_name" % ( where_clause ) )
-    #else :
     c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
 
     l = len(test_name)
@@ -588,13 +591,15 @@ def collect_table( prefixes, query ) :
 
 def cmp_form( query, comparing ) :
     lquery = query.copy()
+
+    del lquery['compare']
  
-    if lquery['cmp_test_run'] is None :
-        lquery['cmp_test_run'] = common.previous_daily(lquery['test_run'] )
-    if lquery['cmp_host'] is None :
-        lquery['cmp_host'] = lquery['host']
-    if lquery['cmp_context'] is None :
-        lquery['cmp_context'] = lquery['context']
+    # look for input from the compare form
+    lquery['cmp_test_run'] = lquery.get('cmp_test_run', common.previous_daily(lquery['test_run'])  )
+    lquery['cmp_context'] = lquery.get('cmp_context', lquery['context'])
+    lquery['cmp_host'] = lquery.get('cmp_host', lquery['host'])
+
+    lquery['query'] = 'treewalk'
 
     l = [ 
         """<a href='javascript:toggle("cmpform",1)'>[<span id='cmpform_plus'></span> Compare]</a>
@@ -603,27 +608,25 @@ def cmp_form( query, comparing ) :
         """,
         "<form action=%s method=GET>"%common.get_cgi_name(),
         "<table>"
-        "<input type=hidden name='query' value=%s>" % urllib.quote_plus('treewalk'),
         ]
     for x in ( 'cmp_test_run', 'cmp_context', 'cmp_host' ) :
         l.append( "<tr><td>%s</td><td> <input type=text name=%s value='%s'></td></tr>"%(x,x,lquery[x]) )
         del lquery[x]
+    l.append("</table>")
+
 
     l.append( common.query_dict_to_hidden( lquery ) )
 
-    l.append(
-    """
-        <table>
-        <input type=submit name='compare' value='Compare'>
-""" )
+    l.append(" <input type=submit name='compare' value='Compare'> ")
+    l.append(" <input type=submit name='compare' value='Turn Off Compare'> ")
+    l.append(" <input type=submit name='compare' value='Reverse Comparison'>" )
 
-    if comparing :
-        l.append(""" <input type=submit name='compare' value='Turn Off Compare'> """ )
-        l.append(""" <input type=submit name='compare' value='Reverse Comparison'> """ )
+    l.append("</form>")
+
+    ##
 
     l.append(
         """
-        </form>
         </ul>
         </div>
         <script>

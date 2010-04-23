@@ -87,7 +87,7 @@ def selflink( query_dict, linkmode ) :
 
 def query_dict_to_hidden( query_dict ) :
     l = [ ]
-    for x in query_dict :
+    for x in sorted(query_dict.keys()) :
         v = query_dict[x]
         if v is not None :
             l.append( '<input type=hidden name=%s value=%s>'%(x,v) )
