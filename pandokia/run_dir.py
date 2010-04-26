@@ -165,7 +165,7 @@ def write_disabled_list( env, name_list, dirname, basename, runner ) :
     f.write('project=%s\n'      %env['PDK_PROJECT'])
     f.write('test_runner=%s\n'  %runner)
     f.write('location=%s/%s\n'     %(dirname,basename))
-    f.write('host=%s\n'         %pandokia.run_file.gethostname() )
+    f.write('host=%s\n'         %pandokia.common.gethostname() )
     f.write('status=D\n')
     f.write('start_time=%s\n'   %nowstr)
     f.write('end_time=%s\n'     %nowstr)
