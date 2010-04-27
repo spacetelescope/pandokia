@@ -156,7 +156,10 @@ class reporter(object) :
             test_name = self.test_prefix
         else :
             if self.test_prefix != '' :
-                test_name = self.test_prefix + '.' + test_name
+                if self.test_prefix.endswith('.') or self.test_prefix.endswith('/') :
+                    test_name = self.test_prefix + test_name
+                else :
+                    test_name = self.test_prefix + '.' + test_name
 
         self.write_field('test_name',   test_name)
 
