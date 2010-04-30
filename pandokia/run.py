@@ -89,7 +89,7 @@ def run(args) :
             pass
         elif opt == '--help':
             print helpstr
-            return
+            return ( 0, { } )
         elif opt == '--log' :
             log = optarg
         elif opt == '--test_run' :
