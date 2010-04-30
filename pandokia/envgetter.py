@@ -241,15 +241,15 @@ class DirLevel(object):
         # output csh format commands
         if format == 'csh' :
             for x in klist :
-                fh.write('setenv %s %s\n'% ( x, common.csh_quote(self.final[x]) ) )
+                fh.write('setenv %s %s ;\n'% ( x, common.csh_quote(self.final[x]) ) )
             return
 
         # output sh format commands
         elif format == 'sh' :
             for x in klist :
-                fh.write('%s=%s\n'% ( x, common.sh_quote(self.final[x]) ) )
+                fh.write('%s=%s ; \n'% ( x, common.sh_quote(self.final[x]) ) )
             for x in klist :
-                fh.write('export %s\n'%x)
+                fh.write('export %s ;\n'%x)
             return
 
         # not quite sure what the rest of this is about
