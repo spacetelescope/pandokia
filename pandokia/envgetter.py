@@ -33,6 +33,8 @@ import os, sys, re
 import ConfigParser
 from pandokia.env_platforms import PlatformType
 
+import pandokia.common as common
+
 #Common variables used by both classes:
 
 #Name of default environment files
@@ -199,27 +201,58 @@ class DirLevel(object):
 
 
     def export(self, format=None, fh=None, full=False):
-        """Export the environment for the stated level, either
-        as tcas in report style (default), or as a flat pdk_environment
-        file. Write to stdout by default.
-           If full=True, then the complete environment (including defdict,
-        normally os.environ) will be exported. By default, only the locally-
-        specified environment is exported.
-           If the format is tca, and the tca keyword was specified in
+        """Export the environment for this directory.
+
+        x.export(format, file, full)
+
+        format is one of
+            'sh', 'csh'
+                environment setting commands for that shell
+            'env'
+                as a standard pdk_environment file
+            'tca'
+                ???
+
+        file is the file to write to, or sys.stdout if None
+
+        If full, then the complete environment (including defdict,
+        normally os.environ) will be exported. By default, only the
+        locally- specified environment is exported.
+
+        If the format is tca, and the tca keyword was specified in
         the environment, then its values will be used as keys into the
         defdict, and those values will be exported.
         """
+        # choose defaults
         if format is None:
             format='tca'
+
         if fh is None:
             fh=sys.stdout
 
+        # pick out the list of interesting names that should be exported
         if not full:
             klist = [k for k in self.final if k not in self.container.defdict]
         else:
             klist = self.final.keys()
 
+        klist.sort()
 
+        # output csh format commands
+        if format == 'csh' :
+            for x in klist :
+                fh.write('setenv %s %s\n'% ( x, common.csh_quote(self.final[x]) ) )
+            return
+
+        # output sh format commands
+        elif format == 'sh' :
+            for x in klist :
+                fh.write('%s=%s\n'% ( x, common.sh_quote(self.final[x]) ) )
+            for x in klist :
+                fh.write('export %s\n'%x)
+            return
+
+        # not quite sure what the rest of this is about
         rec=dict(tca="tca_%s=%s\n",
                  env="%s = %s\n")
 
@@ -238,7 +271,6 @@ class DirLevel(object):
                 except KeyError:
                     fh.write(rec[format]%(key,"TCA requested but not found"))
 
-            
 
 class EnvGetter(object):
     """Container class and user interface."""

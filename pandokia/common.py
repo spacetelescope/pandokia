@@ -580,6 +580,73 @@ def sql_time(d) :
     return d.strftime('%Y-%m-%d %H:%M:%S') + ( '.%06d' % d.microsecond )
 
 
+######
+#--#--# GENERAL
+#
+# quote a string so we can use it in a shell command.
+#
+
+def csh_quote(s) :
+    """
+    Quote a string so we can use it in a csh command without getting hurt.
+
+    x = csh_quote( s )
+
+    Remember that the csh parser is pretty stinky.  If you use a special
+    character and this doesn't work, don't be too shocked.
+
+    """
+
+    # result string is quoted with single quotes.  Here is the start.
+    l = [ "'" ]
+
+    for x in s :
+        if x == '\n' :
+            l.append('\\\n')
+        elif x == '!' :
+            l.append('\\!')
+        elif x == '\\' : 
+            l.append('\\\\')
+        elif x == "'" :
+            # end single quote for preceeding string
+            l.append("'")
+            # put a single quote that is quoted by double quotes
+            l.append('"')
+            l.append("'")
+            l.append('"')
+            # start single quote for next part of string
+            l.append("'")
+        else :
+            l.append(x)
+
+    # result string is quoted with single quotes.  Here is the end.
+    l.append( "'" )
+
+    return ''.join(l)
+
+
+def sh_quote(s) :
+    """
+    Quote a string so we can use it in a sh command without getting hurt.
+
+    x = sh_quote( s )
+
+    """
+
+    # this string is hard to write in any readable way, so I construct it
+    # in a (slightly) more readable way:
+
+    qt = [ "'",             # close quote
+            '"', "'", '"',  # "'"
+           "'",             # open quote
+        ]
+    qt = ''.join(qt)
+
+    # put ' around the string and replace any internal single quotes
+    # with another string that has quoted single quotes
+    s = s.split("'")
+    return "'" + qt.join(s) + "'"
+
 
 ######
 #--#--# GENERAL

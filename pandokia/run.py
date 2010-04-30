@@ -205,7 +205,9 @@ def export_environment(args) :
     context=None
     env = { } 
 
-    opts,args = getopt.getopt(args,"o:c:f",["output=", "context=", "full"])
+    format = 'env'
+
+    opts,args = getopt.getopt(args,"o:c:f",["output=", "context=", "full","csh","sh"])
     for (opt, optarg) in opts :
         if opt == '-o' or opt == '-optput' :
             out = open(optarg,"w")
@@ -213,13 +215,15 @@ def export_environment(args) :
             context = optarg
         elif opt == '-f' or opt == '--full' :
             env = os.environ
+        elif opt == '--csh' or opt == '--sh' :
+            format = opt[2:]
 
     if len(args) == 0 :
         args = [ '.' ]
     for x in args :
         envgetter = pandokia.envgetter.EnvGetter(context=context, defdict=env )
         envgetter.populate(x)
-        envgetter.export(x,format='env',fh=out)
+        envgetter.export(x,format=format,fh=out)
 
     out.flush()
 
