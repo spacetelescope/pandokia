@@ -278,6 +278,7 @@ def run(args) :
     print "importing into ",pandokia.common.cfg.dbdir
 
     default_test_runner = ''
+    default_context = 'unk'
     db = pandokia.common.open_db()
     for filename in args :
         if filename.startswith("-") :
