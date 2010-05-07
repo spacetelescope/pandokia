@@ -209,6 +209,8 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     for status in status_types :
         all_sum[status] = 0
 
+    n_cols = 3
+
     hc_where, hc_where_dict = common.where_tuple( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
     c = db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
     for project, host, context in c :
