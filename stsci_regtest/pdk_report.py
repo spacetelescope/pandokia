@@ -7,7 +7,7 @@ import time
 import socket
 import re
 
-class report() :
+class report(object) :
 
     def __init__(this, dict = None ) :
         if dict is None :
