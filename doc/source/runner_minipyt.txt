@@ -1,0 +1,191 @@
+===============================================================================
+minipyt - a simple but reliable test runner
+===============================================================================
+
+:abstract:
+
+	minipyt (mini python test) runs tests written in python.
+	The tests can be either test functions or test classes.  For test
+	classes, you can have one instance for each test method or you
+	can have a single instance shared by all test methods.
+
+	A major advantage of minipyt is that any test file __always__
+	report a test result of some kind, no matter what kinds of
+	errors occur in that file.  Even a python file that fails to
+	import because of syntax errors will report at least one record.
+	This differs from nose and py.test because the plugin
+	architecture of those systems is not able to report certain
+	kinds of errors.
+
+
+.. contents::
+
+Importing the Test File
+-------------------------------------------------------------------------------
+
+minipyt runs tests by importing a python file, searching for tests,
+then running those tests.
+
+There is a test record for the act of importing the file.  For example,
+xyz.py will have a test name of "xyz".  The status value reported is:
+
+	- Pass means that minipyt was able to import the file and
+	  examine it for tests.  If the file executed any code during
+	  the import, it succeeded
+
+	- Error means that an exception was raised while importing
+	  the file or examining it for tests.
+
+	- Fail means that AssertionError was raised during the import.
+
+This behaviour is intended primarily to detect and report errors in
+test files.  Because of the plugin architecture of nose and py.test,
+there are certain kinds of problems that the pandokia plugins cannot
+detect/report.
+
+For pure python, minipyt will always report at least one test record
+for each file, no matter how badly the import goes.  ( If the test uses
+a C extension that core dumps the python interpreter, there is still a
+possibility to lose the test report. )
+
+As a side effect of this architecture, it is possible to consider a python
+file to be a single test.  The simplest minipyt test that passes is:
+
+	{{{
+	assert True
+	}}}
+
+and the simplest test that fails is:
+
+	{{{
+	assert False
+	}}}
+
+In these examples, the name of the test matches the name of the file.
+
+Recognizing Tests
+-------------------------------------------------------------------------------
+
+In the namespace of the imported module, these things are recognized
+as tests:
+
+	- functions that have names beginning or ending with "test",
+	  that are not decorated with pandokia.helpers.minipyt.nottest
+	  or nose.tools.nottest
+
+	- classes that have names beginning or ending with "test"
+	  that are not decorated with pandokia.helpers.minipyt.nottest
+	  or nose.tools.nottest
+
+	- functions decorated with pandokia.helpers.minipyt.test
+	  or nose.tools.istest
+
+	- classes decorated with pandokia.helpers.minipyt.test
+	  or nose.tools.istest
+
+By default, tests are executed in alphabetical order by name.  If you
+want to order the tests by line number, use
+
+	{{{
+	minipyt_test_order = 'line'
+	}}}
+
+in your test module.  This is unreliable for decorated functions because
+the line number used for the sort may be the line number of some part
+of the decorator, not the line number of your code.
+
+Executing Test Functions 
+-------------------------------------------------------------------------------
+
+Test functions are executed by calling the function with no parameters.
+The test passes if it returns, fails if it raises AssertionError,
+and errors if it raises any other exception.
+
+If the function is decorated with a setup function, the setup is called
+before the test function.  Any exception from the setup is handled the
+same as if it were raised by the function itself.
+
+If the function is decorated with a teardown function, the teardown is
+called after the function.  This happens even if the test function
+terminated with an exception.  Any exception in the teardown function
+will cause the test to report the status Error.
+
+
+Executing Test Classes
+-------------------------------------------------------------------------------
+
+A Test Class defines an object with tests defined as class methods.
+A method is a test if the name starts or ends with "test" and has
+not been decorated with nottest, or if it has been decorated with
+pandokia.helpers.minipyt.test or nose.tools.istest.
+
+If the class has the attribute minipyt_shared=True, only one instance is
+created; all the tests run in that same instance.  This can be helpful
+if the class initialization performs some shareable operation, such as
+connecting to a database.
+
+If the class has the attribute minipyt_shared=False or if the attribute
+is not set, a new instance is created for each test.  This is compatible
+with other test frameworks such as nose, py.test, and unittest.
+
+minipyt will call each method to execute the test.  If the class has
+a method named "setUp", it will be called before each test method.
+Any exceptions or assertions in the setUp method will have the same
+effect as if they happened in the test function.
+
+If the class has a method named "tearDown", it will be called after the
+test method.  This happens even if the test method terminated with
+an exception.  Any exception in the teardown method will cause the
+test to report the status Error.
+
+The names setUp and tearDown are compatible with nose.  The
+nose.tools.with_setup decorator has no effect on class methods.
+
+
+Decorators
+-------------------------------------------------------------------------------
+
+minipyt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These decorators are available in pandokia.helpers.minipyt:
+
+	- test
+
+		marks a function or class as a test, even if the name
+		does not otherwise look like a test
+
+	- nottest
+
+		marks a function or class as not a test, even if the
+		name looks like it should be a test
+
+All work on both functions, classes, and methods.
+
+nose
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many nose decorators work in minipyt tests.
+
+	{{{
+	import nose.tools
+
+	@nose.tools.raises(IOError)
+	def test_mine() :
+		...
+	}}}
+
+These decorators are known to work:
+
+	- nose.tools.raises
+
+	- nose.tools.timed
+
+	- nose.tools.with_setup
+
+		on test functions only, not class methods
+
+	- nose.tools.nottest
+
+	- nose.tools.istest
+

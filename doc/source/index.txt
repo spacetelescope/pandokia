@@ -19,6 +19,7 @@ Contents:
    run_tests.txt
    file_format.txt
    report_fields.txt
+   runners.txt
    adding_runners.txt
    database.txt
    vocabulary.txt

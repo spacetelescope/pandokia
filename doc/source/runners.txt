@@ -1,0 +1,13 @@
+================================================================================
+Adding Test Runners to Pandokia
+================================================================================
+
+:abstract:
+
+	This is a summary of the test runners included with pandokia.
+
+.. contents::
+
+	runner_pycode.txt
+	runner_minipyt.txt
+	runner_nose.txt
