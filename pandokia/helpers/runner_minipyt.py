@@ -34,13 +34,17 @@ function = type(function)
 ####
 
 #
-# sort the list of tests into the order that they are defined in the file,
-# at least for things that are statically defined.
+# Her is a sort function to sort the list of tests into the order that
+# they are defined in the file, at least for things that are statically
+# defined.
 # 
 # the list is [ (name, ob), ... ]
 #
 # I got the method for doing this from
 # http://lists.idyll.org/pipermail/testing-in-python/2010-January/002596.html
+#
+# b.t.w.  This is a FAIL if you use certain decorators on the function.  It
+# use the line number of the decorator, instead of the line number of your function.
 
 def _sort_fn(a) :
     (name,ob) = a
@@ -48,9 +52,14 @@ def _sort_fn(a) :
     line = getattr( code, 'co_firstlineno', 0 )
     return line
 
-def sort_test_list(l) :
-    l.sort(key=_sort_fn)
-
+# sort the tests into the order we want to do them
+def sort_test_list(l, test_order) :
+    if test_order == 'alpha' :
+        l.sort()
+    elif test_order == 'line' :
+        l.sort(key=_sort_fn)
+    else :
+        l.sort()
 
 def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
     rpt.report( name, status, start_time, end_time, tra, tda, log )
@@ -79,6 +88,9 @@ def run_test_function(rpt, mod, name, ob) :
     # run the test
     start_time = time.time()
     try :
+        setup = getattr(ob, 'setup', None)
+        if setup is not None :
+            setup()
         ob()
         status = 'P'
     except AssertionError :
@@ -87,6 +99,15 @@ def run_test_function(rpt, mod, name, ob) :
     except :
         status = 'E'
         traceback.print_exc()
+
+    teardown = getattr(ob, 'teardown', None)
+    if teardown is not None :
+        try :
+            teardown()
+        except :
+            print "Exception in teardown()"
+            status = 'E'
+            traceback.print_exc()
     end_time = time.time()
 
     # collect the gathered stdout/stderr
@@ -104,7 +125,7 @@ def run_test_function(rpt, mod, name, ob) :
 # result and/or error that comes from the class, but not from an individual
 # test method.
 
-def run_test_class( rpt, mod, name, ob ) :
+def run_test_class( rpt, mod, name, ob, test_order ) :
 
     pycode.snarf_stdout()
     class_start_time = time.time()
@@ -140,19 +161,12 @@ def run_test_class( rpt, mod, name, ob ) :
             except AttributeError :
                 pass
 
-            # if it does not have __test__, we consider
-            # other criteria that may make it count as a test.
-
-            # '_*' is not a hest
-            if f_name.startswith('_') :
-                continue
-
             # if the method name looks like a test, it is a test
             if f_name.startswith('test') or f_name.endswith('test') :
                 l.append( (f_name, f_ob) )
 
         # have a deterministic order
-        sort_test_list(l)
+        sort_test_list(l, test_order)
 
         # do we need to make a new instance of the object for every test?
         new_object_every_time = not getattr(ob,'minipyt_shared',0)
@@ -286,10 +300,6 @@ def process_file( filename ) :
         l = [ ]
         for name, ob in inspect.getmembers(module, inspect.isfunction) + inspect.getmembers(module, inspect.isclass) :
 
-            # "_*" is never a test, no matter what it looks like
-            if name.startswith('_') :
-                continue
-
             try :
                 # if it has minipyt_test, that value is a flag
                 # about whether it is a test or not.
@@ -312,7 +322,12 @@ def process_file( filename ) :
         # defined in the file, instead of alpha.  Just need to
         # figure out how.
 
-        sort_test_list(l)
+        try :
+            test_order = module.minipyt_test_order
+        except :
+            test_order = 'alpha'
+
+        sort_test_list(l, test_order)
 
         for x in l :
             name, ob = x
@@ -325,7 +340,7 @@ def process_file( filename ) :
                 run_test_function( rpt, module, rname, ob )
             else :
                 print 'class', name, 'as', rname
-                run_test_class( rpt, module, name, ob )
+                run_test_class( rpt, module, name, ob, test_order )
 
         print 'tests completed'
 
