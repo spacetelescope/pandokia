@@ -159,7 +159,8 @@ def run( dirname, basename, envgetter, runner ) :
             summary_file = None
 
         f=open(env['PDK_LOG'],'a+')
-        f.seek(0,os.SEEK_END)
+	# 2 == os.SEEK_END, but not in python 2.4
+        f.seek(0,2)
         end_of_log = f.tell()
         f.close()
 
@@ -231,7 +232,8 @@ def run( dirname, basename, envgetter, runner ) :
             #   Later, some of them will leave behind a status summary file; we 
             #   will read that instead.   ]
             f=open(env['PDK_LOG'],'r')
-            f.seek(end_of_log,os.SEEK_SET)
+	    # 0 == os.SEEK_SET, but not in python 2.4
+            f.seek(end_of_log,0)
             while 1 :
                 l = f.readline()
                 if l == '' :
