@@ -7,20 +7,26 @@ Exception and stdout handling for inclusion in log file were copied
 from the pinocchio output_save plugin by Titus Brown."""
 
 import os, time, datetime, sys, re
-from nose.plugins.base import Plugin #for the plugin interface
-from nose.case import FunctionTestCase, MethodTestCase #for tda/tra stuff
+
+import nose.plugins.base # for the plugin interface
+import nose.case
+
 import unittest #for tda/tra stuff
 from StringIO import StringIO as p_StringO    #for stdout capturing
 from cStringIO import OutputType as c_StringO
 import traceback
 import platform
 
+# pycode contains an object that writes properly formatted pdk log records
+import pandokia.helpers.pycode
+
+
 def get_stdout():
     if isinstance(sys.stdout, c_StringO) or \
            isinstance(sys.stdout, p_StringO):
         return sys.stdout.getvalue()
     return None
-                
+
 
 def pdktimestamp(tt):
     """Formats the time in the format PDK wants.
@@ -38,8 +44,11 @@ def cleanname(name):
     return newname
 
 
+#
+# This is the object that implements the plugin
+#
 
-class Pdk(Plugin):
+class Pdk(nose.plugins.base.Plugin):
     """
     Provides --pdk option that causes each test to generate a PDK-
     compatible log file.
@@ -48,7 +57,9 @@ class Pdk(Plugin):
     pdkroot=None
     score = 500 # check this
     name = 'pdk'
-    
+
+    # nose calls options() very early, so we can add our own command line options
+    # before the command line is parsed
     def options(self, parser, env=os.environ):
         parser.add_option(
             "--pdk", action="store_true", dest="pdk_enabled",
@@ -60,7 +71,7 @@ class Pdk(Plugin):
             help="Path for PDK-compatible log file [PDK_LOG]")
         parser.add_option(
             "--pdkproject",action="store",dest="pdkproject",
-            default=env.get("PDK_PROJECT","Unspecified"),
+            default=env.get("PDK_PROJECT","default"),
             help="Project name to write to PDK-compatible log file [PDK_PROJECT]")
         parser.add_option(
             "--pdktestrun",action="store",dest="pdktestrun",
@@ -70,11 +81,16 @@ class Pdk(Plugin):
             "--pdktestprefix",action="store",dest="pdktestprefix",
             default=env.get("PDK_TESTPREFIX",''),
             help="Prefix to attach to test names in PDK-compatible log file [PDK_TESTPREFIX]")
-        
+        parser.add_option(
+            "--pdkcontext",action="store",dest="pdkcontext",
+            default=env.get("PDK_CONTEXT","default"),
+            help="Context name to write to PDK-compatible log file [PDK_CONTEXT]")
+
+    # nose calls configure() after it has parsed all the command line options
     def configure(self, options, conf):
         self.conf = conf
         self.enabled = options.pdk_enabled
-        
+
         if (options.pdklog is not None):
             self.pdklogfile=options.pdklog
         else:
@@ -84,86 +100,83 @@ class Pdk(Plugin):
         self.pdkproject=options.pdkproject.replace(' ','-')
         self.pdktestrun=options.pdktestrun.replace(' ','-')
         self.pdktestprefix=options.pdktestprefix
+        self.pdkcontext=options.pdkcontext.replace(' ','-')
 
-        
+    # nose calls begin() after it called configure() but before it starts to run any tests
     def begin(self):
         """Figure out the name of the logfile, open it, &
         initialize it for this test run."""
-        
+
         fname=self.pdklogfile
         hostname,junk=platform.node().split('.',1)
-        
-        try:
-            self.f_pdk=open(self.pdklogfile,'a')
 
-            # If PDK_FILE is in the environment, assume that we are
-            # being run by the pandokia meta-runner.  The meta-runner
-            # will have entered much of the information into the log
-            # file for us.
-            #
-            # Otherwise, assume we are stand-alone, so we need to write 
-            # the complete pdk record for the tests. 
-            if not 'PDK_FILE' in os.environ: 
-                # \n\nSTART\n because this will cause the file format to
-                # be readable even if the last guy crashed while writing
-                # a record.
-                self.f_pdk.write("\n\nSTART\n")
-                self.f_pdk.write("test_run=%s\n"%self.pdktestrun)
-                self.f_pdk.write("host=%s\n"%hostname)
-                self.f_pdk.write("project=%s\n"%self.pdkproject)
-                # bug: location should be file, not directory
-                self.f_pdk.write("location=%s\n"%os.path.abspath(os.path.curdir))
-                self.f_pdk.write("test_runner=nose\n")
-                self.f_pdk.write("SETDEFAULT\n")
+        try:
+            # determine whether we need to write the defaults
+            sd = not 'PDK_FILE' in os.environ
+            self.rpt = pandokia.helpers.pycode.reporter(
+                source_file = None,
+                setdefault = sd,
+                filename = self.pdklogfile,
+                test_run = self.pdktestrun,
+                project = self.pdkproject,
+                host = hostname,
+                context = self.pdkcontext,
+
+                # this is wrong for location, but it is less wrong than nothing at all
+                location = os.path.abspath(os.path.curdir),
+                test_runner = 'nose',
+                test_prefix = '',
+                )
 
         except IOError, e:
             sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
-        
-    def finalize(self,result):
-        self.f_pdk.close()
-        
-    def addError(self, test, err):
-        exception_text = traceback.format_exception(*err)
-        exception_text = "".join(exception_text)
-        
-        capt = get_stdout()
-        if capt is None:
-            capt = exception_text
-        else:
-            capt += exception_text
 
-        try:
-            self.pdklog(test.test,'E',log=capt)
-        except AttributeError:
-            pass #Object is a ContextSuite or something else that has no test
+    # nose calls startTest() just before it starts each test.
+    def startTest(self,test):
+        self.pdk_starttime = time.time()
+
+    # nose calls stopTest() just after it finishes each test -- except when it doesn't !
+    # DON'T USE THIS!
+    def stopTest(self,test): 
+        pass
+
+    # nose calls addError(), addFailure(), or addSuccess() to report the status of a test
+    def addError(self, test, err):
+        self.write_report( test, 'E', trace= ''.join( traceback.format_exception(*err) ) )
 
     def addFailure(self, test, err):
-        exception_text = traceback.format_exception(*err)
-        exception_text = "".join(exception_text)
-        
-        capt = get_stdout()
-        if capt is None:
-            capt = exception_text
-        else:
-            capt += exception_text
-
-        try:
-            self.pdklog(test.test,'F',log=capt)
-        except AttributeError:
-            pass #Object is a context suite or something else that has no test
+        self.write_report( test, 'F', trace= ''.join( traceback.format_exception(*err) ) )
 
     def addSuccess(self,test):
-        capt=get_stdout()
-        try:
-            self.pdklog(test.test,'P',log=capt)
-        except AttributeError:
-            pass #Object is a context suite or something else that has no test
+        self.write_report( test, 'P' )
 
-    def startTest(self,test):
-        self.pdk_starttime = pdktimestamp(time.time())
+    # our function to implement the features common to 
+    def write_report(self, test, status, trace = '' ) :
 
+        # record the end time here, because nose does not always call stopTest()
+        self.pdk_endtime = time.time()
+
+        # collect the saved stdout
+        capt = get_stdout()
+        if capt is None:
+            capt = trace
+        else:
+            capt = capt + trace
+
+        # For error status, remember the exception - we have to get it now before it
+        # is lost due to another exception happening somewhere
+        if status == 'E' :
+            exc = repr(test._exc_info()[1])
+        else :
+            exc = None
+
+        self.pdklog(test.test,status,log=capt, exc=exc)
+
+
+    # our function to pick out the TDA and TRA dictionaries.  Depending what kind
+    # of test is is, there are many places we may need to look.
     def find_txa(self, test):
         """Find the TDA and TRA dictionaries, which will be in different
         places depending on what kind of a test this is.
@@ -180,7 +193,7 @@ class Pdk(Plugin):
 #            print "This is a UnitTest case, it has no .test attr"
 ############
 
-        if isinstance(test, MethodTestCase):
+        if isinstance(test, nose.case.MethodTestCase):
             try:
                 tda = test.test.im_self.tda
             except AttributeError:
@@ -190,8 +203,8 @@ class Pdk(Plugin):
                 tra = test.test.im_self.tra
             except AttributeError:
                 tra = dict()
-                
-        elif isinstance(test, FunctionTestCase):
+
+        elif isinstance(test, nose.case.FunctionTestCase):
             try:
                 tda = test.test.func_globals['tda']
             except KeyError:
@@ -200,7 +213,7 @@ class Pdk(Plugin):
                 tra = test.test.func_globals['tra']
             except KeyError:
                 tra = dict()
-                
+
         elif isinstance(test, unittest.TestCase):
             try:
                 tda = test.tda
@@ -210,32 +223,24 @@ class Pdk(Plugin):
                 tra = test.tra
             except AttributeError:
                 tra = dict()
-                
+
         else:
             tda = dict()
             tra = {'warning':'Unknown test type: tda/tra not found'}
             raise TypeError("Unknown test type, %s"%type(test.test))
-            
+
 #        print "~~~~~~~"
         return tda, tra            
-   
 
-    def pdklog(self,test,status,name=None,log=None):
+
+    def pdklog(self,test,status,log=None, exc=None):
         """Creates a log file containing the test name, status,and timestamp,
         as well as any attributes in the tda and tra dictionaries if present.
         Does not yet support fancy separating of multi-line items."""
 
 
-        #Catch the time.
-        self.pdk_endtime=pdktimestamp(time.time())
-        
-        if status == 'E':
-            #Stash the test error info here before any more errors
-            #can be generated.
-            testerr=test._exc_info()
-            errval=repr(testerr[1])
-
         #Fix up the name
+        name = None
         if name is None:
             #Most tests have a .name attribute
             try:
@@ -257,57 +262,39 @@ class Pdk(Plugin):
                 else :
                     name="%s%s" %(self.pdktestprefix,name)
 
-        
-        
-        #Write the standard info
-        self.f_pdk.write("test_name=%s\n"%name)
-        self.f_pdk.write("status=%s\n"%status)
-        self.f_pdk.write("start_time=%s\n"%self.pdk_starttime)
-        self.f_pdk.write("end_time=%s\n"%self.pdk_endtime)
-
-
         tda, tra = self.find_txa(test)
-        
-        #Write the TDAs
-        try:
-            for k in tda:
-                self.f_pdk.write("tda_%s=%s\n"%(str(k),str(tda[k])))
-        #if we don't have any, be creative:
-        #Use the test type & arguments if any
-        except TypeError:
-            self.f_pdk.write("tda_testtype=%s\n"%str(type(test)))
+
+        if not isinstance( tda, dict ) :
+            #if we don't have any, be creative:
+            #Use the test type & arguments if any
+            # (I'm not sure this is possible - Mark)
+            tda = { }
+            tda['testtype'] = str(type(test))
             if hasattr(test,'arg'):
                 count=0
                 for k in test.arg:
                     count+=1
                     try:
-                        self.f_pdk.write("tda_arg%d=%s\n"%(count,str(k)))
+                        tda["tda_arg%ds"%count] = str(k)
                     except:
                         pass
-            else:
-                pass
+
+        if exc is not None :
+            tra['Exception'] = exc
+
+        # write the log record
+        self.rpt.report(
+            test_name = name,
+            status = status,
+            start_time = pdktimestamp(self.pdk_starttime),
+            end_time   = pdktimestamp(self.pdk_endtime),
+            tda = tda,
+            tra = tra,
+            log = log,
+            )
 
 
-        #Write the TRAs
-        try:
-            for k in tra:
-                self.f_pdk.write("tra_%s=%s\n"%(str(k),str(tra[k])))
-        except (AttributeError, TypeError):
-            pass
-
-        #If this is an error, write the exception
-        if status == 'E':
-            self.f_pdk.write("tra_Exception=%s\n"%(errval))
-
-        #Write the log (typically captured stdout/stderr) if present
-        if log is not None and (log.strip() != ''):
-            self.f_pdk.write("log:\n")
-            loglines=log.split('\n')
-            for line in loglines:
-                self.f_pdk.write(".%s\n"%line)
-            self.f_pdk.write("\n")
-
-        #Mark the end of the record
-        self.f_pdk.write("END\n")
-
+    # nose calls finalize() after everything is finished
+    def finalize(self,result):
+        self.rpt.close()
 
