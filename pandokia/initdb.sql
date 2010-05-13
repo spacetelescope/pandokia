@@ -163,13 +163,17 @@ CREATE TABLE user_prefs (
 	-- add whatever else we need here
 	);
 
+CREATE UNIQUE INDEX user_prefs_username_index 
+	ON user_prefs ( username );
+
 CREATE TABLE user_email_pref (
 	username VARCHAR,
 	project VARCHAR,
-	format VARCHAR
+	format VARCHAR,
 		-- format is one of:
 		-- 'n' = none; send no email about this project
 		-- 's' = send only a summary of what happened in this project
 		-- 'f' = send full list of non-passing tests
-		-- integer = send a full list, but at most N tests
+	maxlines INTEGER
+		-- if full list, show at most N tests
 	);
