@@ -155,3 +155,21 @@ CREATE TABLE distinct_test_run (
 	);
 
 
+-- user preferences:
+
+CREATE TABLE user_prefs (
+	username VARCHAR,	-- user name as authenticated by web server
+	email VARCHAR	-- email address where notices should be sent
+	-- add whatever else we need here
+	);
+
+CREATE TABLE user_email_pref (
+	username VARCHAR,
+	project VARCHAR,
+	format VARCHAR,
+		-- format is one of:
+		-- 'n' = none; send no email about this project
+		-- 's' = send only a summary of what happened in this project
+		-- 'f' = send full list of non-passing tests
+		-- integer = send a full list, but at most N tests
+	);
