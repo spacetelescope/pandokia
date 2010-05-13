@@ -166,7 +166,7 @@ CREATE TABLE user_prefs (
 CREATE TABLE user_email_pref (
 	username VARCHAR,
 	project VARCHAR,
-	format VARCHAR,
+	format VARCHAR
 		-- format is one of:
 		-- 'n' = none; send no email about this project
 		-- 's' = send only a summary of what happened in this project
