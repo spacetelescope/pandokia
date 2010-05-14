@@ -17,3 +17,7 @@ Database changes:
 File format changes:
 
 	The format of the flagok files was changed. 
+
+Test changes:
+
+	pdk_testfiles is no more; use pdk_runners
