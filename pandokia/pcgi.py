@@ -165,6 +165,11 @@ def run() :
         x.run()
         sys.exit(0)
 
+    if query == 'prefs' :
+        import pandokia.pcgi_preferences as x
+        x.run()
+        sys.exit(0)
+
     if query == 'killproc' :
         print "content-type: text/html"
         print ""
