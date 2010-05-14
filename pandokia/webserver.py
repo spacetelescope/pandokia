@@ -3,6 +3,7 @@
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
 
+import os
 import CGIHTTPServer
 import BaseHTTPServer
 
@@ -67,6 +68,20 @@ def run( args = [ ] ) :
     # install a full featured web server just to try things out.
     ip = '127.0.0.1'
     port = 7070
+
+    # make sure pdk.cgi is here somewhere - if not, make a symlink
+    # this is just to save a little typing
+    try :
+        f = open('cgi-bin/pdk.cgi','r')
+    except IOError :
+        try :
+            f=open('pdk.cgi','r')
+        except IOError :
+            os.system('ln -s `which pdk` pdk.cgi')
+        else :
+            f.close()
+    else :
+        f.close()
 
     httpd = BaseHTTPServer.HTTPServer( (ip, port) , my_handler)
 
