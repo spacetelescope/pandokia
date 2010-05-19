@@ -198,6 +198,17 @@ def sendmail(addy, subject, fname):
         return stat
 
 
+def run(args):
+	if args:
+		users = args
+	else:
+		query = """SELECT username FROM user_prefs"""
+		user_res = db.execute(query)
+		users = [user for user, in user_res]
+	test_run = pandokia.common.find_test_run("daily_latest")
+	for user in users:
+		print create_email(user, test_run)
+
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
 #add_user_pref('user1','proj3','n')
