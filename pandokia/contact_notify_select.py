@@ -174,19 +174,24 @@ def build_report_table(test_run,project,maxlines):
                 all_hosts.set_value(0,1,'No results')
                 some_hosts.set_value(0,1,'No results')
                 return (all_hosts, some_hosts)
+        # This isn't quite right.
+        # There are two different tables, so we need to be tracking
+        # two different row numbers.
+        row = 0
         for i, host in enumerate(test_run.keys()):
                 if host == 'All':
                         table = all_hosts
                 else:
                         table = some_hosts
                 for j, val in enumerate(test_run[host]):
-                        if i*j+j == maxlines and maxlines > 0:
+                        if row >= maxlines and maxlines > 0:
                                 return (all_hosts, some_hosts)
-                        table.set_value(i*j+j,0,host)
+                        table.set_value(row,0,host)
                         test_name, context, status = val
-                        table.set_value(i*j+j,1,test_name)
-                        table.set_value(i*j+j,2,context)
-                        table.set_value(i*j+j,3,status)
+                        table.set_value(row,1,test_name)
+                        table.set_value(row,2,context)
+                        table.set_value(row,3,status)
+                        row = row + 1
                 
         return (all_hosts, some_hosts)
                 
@@ -207,8 +212,10 @@ def sendmail(addy, subject, fname):
 
 def run(args):
         test_run = pandokia.common.find_test_run("daily_latest")
+        test_run = 'daily_2010-05-19'
         if DEBUG == True:
-                print create_email('nobody','run1')
+                print create_email('sienkiew',test_run)
+                # print create_email('nobody','run1')
                 return 0
         if args:
                 users = args
