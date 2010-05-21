@@ -75,10 +75,10 @@ def project_test_run(test_run, project):
             for i in range(0,len(test['h'])):
                 #print test['h'][i], hosts
                 res_ary[test['h'][i]] =  res_ary.get(test['h'][i],[])
-                res_ary[test['h'][i]].append((test_name,test['c'][i],test['s'][i]))
+                res_ary[test['h'][i]].append((test['c'][i],test_name,test['s'][i]))
         elif len(test['h']) == hosts and len(set(test['c'])) == contexts:
             res_ary['All'] =  res_ary.get('All',[])
-            res_ary['All'].append((test_name,test['c'][0],test['s'][0]))
+            res_ary['All'].append((test['c'][0],test_name,test['s'][0]))
     #Build up array of tuples 
     test_runs[(test_run,project)] = res_ary
     return res_ary
@@ -91,40 +91,61 @@ def get_test_summary(test_run,project):
     all_hosts = {}
     if (test_run, project) in test_summary:
         return test_summary[(test_run,project)]
-    query = """SELECT status, host FROM result_scalar WHERE test_run = ? AND project = ? """
+    query = """SELECT status,context, host FROM result_scalar WHERE test_run = ? AND project = ? """
     res = db.execute(query,(test_run,project))
     
-    for status, host in res:
+    for status, context, host in res:
         sum_dict[host] = sum_dict.get(host,{})
-        sum_dict[host][status] = sum_dict[host].get(status,0) + 1
+        sum_dict[host][context] = sum_dict[host].get(context,{})
+        sum_dict[host][context][status] = sum_dict[host][context].get(status,0) + 1
 
     for host in sum_dict.keys():
-        for status in sum_dict[host].keys():
-            all_hosts[status] = all_hosts.get(status,0) + sum_dict[host][status]
-    sum_dict['all'] = all_hosts     
+        for context in sum_dict[host].keys():
+            for status in sum_dict[host][context].keys():
+                all_hosts[status] = all_hosts.get(status,0) + sum_dict[host][context][status]
+    sum_dict['All'] = all_hosts
     
     for host in sum_dict.keys():
-        sum_dict[host]['T'] = sum(sum_dict[host].values())
+        if host == 'All':
+            sum_dict[host]['T'] = sum(sum_dict[host].values())
+        else:
+            for context in sum_dict[host].keys():
+                sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())
         
     test_summary[(test_run,project)] = sum_dict
+    #print sum_dict
     return sum_dict
 
 # turn the summary into table content
 def create_summary(test_run,project):
     sum_str = "Project summary for " + project + " and test_run " + test_run + "\n\n"
-    cols = ['Host','Total', 'Pass', 'Fail', 'Error', 'Disabled', 'Missing']
+    cols = ['Host','Context','Total', 'Pass', 'Fail', 'Error', 'Disabled', 'Missing']
     stat_keys_sorted = ['T','P','F','E','D','M']
-    stats = get_test_summary(test_run,project)
-    
     sum_table = text_table.text_table()
     for col_name in cols:
         sum_table.define_column(col_name)
-
     test_summary = get_test_summary(test_run, project)
-    for i, host in enumerate(test_summary.keys()):
-        sum_table.set_value(i, 0, host)
-        for j, status in enumerate(stat_keys_sorted):
-            sum_table.set_value(i,j+1, stats[host].get(status,0))
+    hosts = test_summary.keys()
+    hosts.sort()
+    #for i, host in enumerate(hosts):
+    #if host == 'All':
+    sum_table.set_value(0, 0, 'All')
+    sum_table.set_value(0, 1, 'All')
+    for i, status in enumerate(stat_keys_sorted):
+        sum_table.set_value(0,i+2, test_summary['All'].get(status,0))
+    for i, host in enumerate(hosts):
+        if host != 'All':
+            contexts = test_summary[host].keys()
+            contexts.sort()
+            sum_table.set_value(i,0,host)
+            for j, context in enumerate(contexts):
+                sum_table.set_value(i+j,1,context)
+                for k, status in enumerate(stat_keys_sorted):
+                    sum_table.set_value(i+j,2+k,test_summary[host][context].get(status,0))
+                
+    #contexts  = test_summary[host].keys()
+    #for context in context.sort():
+    #print context
     #make up tables for this email.
 
     return sum_table
@@ -133,11 +154,11 @@ def create_summary(test_run,project):
 #THIS IS UGLY
 def create_email(username, test_run) :
     user_email_q = """SELECT email FROM user_prefs WHERE username = ?"""
-    print username
     user_email_res = db.execute(user_email_q,(username,))
     user_email = [email for email, in user_email_res]
-    print user_email
     email = "TEST REPORT EMAILS\n\n"
+    email += "This report is for the test run:\n" + test_run + "\n\n"
+    email += "Below is the are the reports for each individual project:\n\n"
     email_str = "%s, %s, %s, %s\n"
     projects = get_user_projects(username)
 
@@ -182,7 +203,10 @@ def build_report_table(test_run,project,maxlines):
     # two different row numbers.
     row_a = 0
     row_s = 0
-    for i, host in enumerate(test_run.keys()):
+    hosts = test_run.keys()
+    hosts.sort()
+    for i, host in enumerate(hosts):
+        test_run[host].sort()
         if host == 'All':
             table = all_hosts
             row = row_a
@@ -224,7 +248,7 @@ def run(args):
     test_run = pandokia.common.find_test_run("daily_latest")
     if DEBUG == True:
         print create_email('laidler',test_run)
-        # print create_email('nobody','run1')
+        #print create_email('nobody','run1')
         return 0
     if args:
         users = args
