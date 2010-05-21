@@ -152,14 +152,19 @@ def create_email(username, test_run) :
         elif format.capitalize() == 'F':
             email += project + "\n"
             email += summary.get_rst()
-            email += "These tests failed on all hosts and on all contexts\n\n"
-            email += all_hosts.get_rst()
-            email += "These tests failed on some hosts\n\n"
-            email += some_hosts.get_rst()
+            email += "\n"
+            if all_hosts is not None :
+                email += "These tests failed on all hosts and on all contexts\n"
+                email += all_hosts.get_rst()
+                email += "\n"
+            if some_hosts is not None :
+                email += "These tests failed on some hosts\n"
+                email += some_hosts.get_rst()
+                email += "\n"
         elif format.capitalize() == 'S':
             email += project + "\n"
             email += summary.get_rst()
-        email += '\n'
+            email += '\n'
     return email
 
 def build_report_table(test_run,project,maxlines):
@@ -171,9 +176,7 @@ def build_report_table(test_run,project,maxlines):
         all_hosts.define_column(col_name)
         some_hosts.define_column(col_name)
     if len(test_run.keys()) == 0:
-        all_hosts.set_value(0,1,'No results')
-        some_hosts.set_value(0,1,'No results')
-        return (all_hosts, some_hosts)
+        return ( None, None )
     # This isn't quite right.
     # There are two different tables, so we need to be tracking
     # two different row numbers.
@@ -195,7 +198,11 @@ def build_report_table(test_run,project,maxlines):
             table.set_value(row,2,context)
             table.set_value(row,3,status)
             row = row + 1
-        
+        if host != 'All':
+            # only need to save row_s because there is only one instance
+            # of "All" n the list.
+            row_s = row
+
     return (all_hosts, some_hosts)
         
 #actually send the email
@@ -215,10 +222,9 @@ def sendmail(addy, subject, fname):
 
 def run(args):
     test_run = pandokia.common.find_test_run("daily_latest")
-    test_run = 'daily_2010-05-19'
     if DEBUG == True:
-        #print create_email('sienkiew',test_run)
-        print create_email('nobody','run1')
+        print create_email('laidler',test_run)
+        # print create_email('nobody','run1')
         return 0
     if args:
         users = args
