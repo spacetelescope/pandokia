@@ -247,8 +247,8 @@ def sendmail(addy, subject, fname):
 def run(args):
     test_run = pandokia.common.find_test_run("daily_latest")
     if TEST:
-        print create_email('laidler',test_run)
-        #print create_email('nobody','run1')
+        #print create_email('laidler',test_run)
+        print create_email('nobody','run1')
         return 0
     if args:
         users = args
