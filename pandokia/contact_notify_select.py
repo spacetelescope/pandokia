@@ -2,7 +2,7 @@
 users will be able to select which reports they like and the level of verbosity 
 associated with said reports.
 """
-DEBUG = True
+TEST = True
 import pandokia.common
 import text_table
 from collections import defaultdict
@@ -246,7 +246,7 @@ def sendmail(addy, subject, fname):
 
 def run(args):
     test_run = pandokia.common.find_test_run("daily_latest")
-    if DEBUG == True:
+    if TEST:
         print create_email('laidler',test_run)
         #print create_email('nobody','run1')
         return 0
