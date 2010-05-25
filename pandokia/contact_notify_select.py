@@ -110,8 +110,7 @@ def get_test_summary(test_run,project):
             sum_dict[host]['T'] = sum(sum_dict[host].values())
         else:
             for context in sum_dict[host].keys():
-                sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())
-        
+                sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())    
     test_summary[(test_run,project)] = sum_dict
     #print sum_dict
     return sum_dict
@@ -161,18 +160,23 @@ def create_email(username, test_run) :
     email += "Below is the are the reports for each individual project:\n\n"
     email_str = "%s, %s, %s, %s\n"
     projects = get_user_projects(username)
-
+    num_proj = len(projects)
+    num_pass = 0
     for project in projects:
         project_email = "TestName, Host, Context, Status\n"
         project, format, maxlines = project
         project_run = project_test_run(test_run,project)
+        email += project + "\n"
+        if not len(project_run):
+            num_pass += 1
+            email += "All tests in this project passed\n"
+            break
         summary = create_summary(test_run,project)
         all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
         if format.capitalize() == 'N':
             continue
         elif format.capitalize() == 'F':
-            email += project + "\n"
-            email += summary.get_rst()
+            #email += summary.get_rst()
             email += "\n"
             if all_hosts is not None :
                 email += "These tests failed on all hosts and on all contexts\n"
@@ -186,6 +190,8 @@ def create_email(username, test_run) :
             email += project + "\n"
             email += summary.get_rst()
             email += '\n'
+    if num_proj == num_pass:
+        email = 'All is well'
     return email
 
 def build_report_table(test_run,project,maxlines):
@@ -203,6 +209,7 @@ def build_report_table(test_run,project,maxlines):
     # two different row numbers.
     row_a = 0
     row_s = 0
+    trip = 0
     hosts = test_run.keys()
     hosts.sort()
     for i, host in enumerate(hosts):
@@ -215,7 +222,8 @@ def build_report_table(test_run,project,maxlines):
             row = row_s
         for j, val in enumerate(test_run[host]):
             if row >= maxlines and maxlines > 0:
-                return (all_hosts, some_hosts)
+                table.set_value(row,0,'The remainder of the output is suppressed')
+                break
             table.set_value(row,0,host)
             test_name, context, status = val
             table.set_value(row,1,test_name)
