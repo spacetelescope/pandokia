@@ -201,7 +201,7 @@ def some_host_sort(a,b) :
         return cmp(a_test,b_test)
     return cmp(a_host,b_host)
     
-def formatlist(inlist,failcount,hostcount,hostfail):
+def formatlist(inlist,failcount,hostcount,hostfail,limit_to_project=None):
     """Reformat a list of failed tests into a semi-smart report
     that groups out special cases
 
@@ -233,6 +233,8 @@ def formatlist(inlist,failcount,hostcount,hostfail):
     myprojects=set()
     
     for h,p,t,s in inlist:
+        if limit_to_project and ( not p == limit_to_project ) :
+            continue
         if failcount[(p,t)] == hostcount[(p,t)]:
             everywhere.append((p,t,s))  #test failed everywhere it was run
         elif h not in hostfail:
@@ -355,3 +357,35 @@ if __name__ == '__main__':
     from pandokia.default_config import *
     retstat = run(sys.argv[1:])
 
+
+#
+# get_contact_report() is used in contact_notify_select.py to send the
+# type of email where the user wants to be notified only of those tests
+# that they are a contact for.  The basic features in the original
+# contact_notify _almost_ do what we need, but not quite.
+#
+# For efficiency reasons, we want to compute the list of anomalous tests
+# for all the contacts at the same time.  So, get_contact_report() computes
+# that and forms a cache.
+# 
+# bug:  This whole file needs to know about the "context" field.
+
+class struct(object):
+    pass
+
+gcr_cache = { }
+
+def get_contact_report(username, project,test_run) :
+
+    index = ( project, test_run )
+    if not index in gcr_cache :
+        gcr_cache[index] = struct()
+        gcr_cache[index].hostfail,  gcr_cache[index].hostcount = extract_stats(testrun=test_run)
+        gcr_cache[index].cdict,     gcr_cache[index].failcount = extract_info(testrun=test_run)
+
+    tests = gcr_cache[index].cdict[username]
+    report=formatlist(tests,gcr_cache[index].failcount,gcr_cache[index].hostcount,gcr_cache[index].hostfail,limit_to_project=project)
+    if len(report) == 0 :
+        return None
+
+    return '\n'.join(report)

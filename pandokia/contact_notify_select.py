@@ -4,6 +4,7 @@ associated with said reports.
 """
 TEST = True
 import pandokia.common
+import pandokia.contact_notify
 import text_table
 from collections import defaultdict
 
@@ -36,9 +37,10 @@ def add_user_pref(username,project,format,maxlines=0):
 
 #Grabs the test runs that users are associated with.
 def get_user_projects(username):
-    query = """SELECT project, format, maxlines FROM user_email_pref WHERE username=? AND format <> 'N'"""
+    query = """SELECT project, format, maxlines FROM user_email_pref WHERE username=? AND format <> 'N' ORDER BY project"""
     res = db.execute(query,(username,))
-    return [ (project, format, maxlines) for project, format, maxlines in res ]
+    res = [ (project, format, maxlines) for project, format, maxlines in res ]
+    return res
 
 #Let us get feed back on this
 def project_test_run(test_run, project):
@@ -155,30 +157,38 @@ def create_email(username, test_run) :
     user_email_q = """SELECT email FROM user_prefs WHERE username = ?"""
     user_email_res = db.execute(user_email_q,(username,))
     user_email = [email for email, in user_email_res]
-    email = "TEST REPORT EMAILS\n\n"
-    email += "This report is for the test run:\n" + test_run + "\n\n"
-    email += "Below is the are the reports for each individual project:\n\n"
-    email_str = "%s, %s, %s, %s\n"
+    email = "Test report for %s:\n\n" % test_run
     projects = get_user_projects(username)
     num_proj = len(projects)
-    num_pass = 0
     send_notice = False
+
     for project in projects:
         project, format, maxlines = project
-        project_run = project_test_run(test_run,project)
+
+        # no need to compute anything if the user does not want to look at it
+        if format == 'n' :
+            continue
+
+        # Do not print the project header yet.  format 'c' does not say anything at all
+        # if there is nothing to report.
+
+        if format == 'c' :
+            # show only the test that the user is listed as a contact for.
+            # (this needs work; see get_contact_report() for details)
+            #
+            r = pandokia.contact_notify.get_contact_report(username, project, test_run)
+            if r is not None :
+                email += "Project: "+ project + "\n\n"
+                email += pandokia.contact_notify.get_contact_report(username, project, test_run)
+                email += '\n'
+                send_notice = True
+            continue
+
+        # The remaining options always show something, so we always need the project section header.
         email += "Project: "+ project + "\n\n"
-        if not len(project_run):
-            num_pass += 1
-            email += "All tests in this project passed\n"
-            break
-        summary = create_summary(test_run,project)
-        all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
-        if format.capitalize() == 'N':
-            pass
-        elif format == 'c' :
-            email += 'Contact could be here for project %s' % project
-            send_notice = True
-        elif format.capitalize() == 'F':
+
+        if format.capitalize() == 'F':
+            all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
             if all_hosts is not None :
                 email += "These tests failed on all hosts and on all contexts\n"
                 email += all_hosts.get_rst()
@@ -189,14 +199,19 @@ def create_email(username, test_run) :
                 email += some_hosts.get_rst()
                 email += "\n"
                 send_notice = True
-        elif format.capitalize() == 'S':
+            if all_hosts is None and some_hosts is None :
+                email += "No anomalies to report\n\n"
+            continue
+
+        if format.capitalize() == 'S':
+            summary = create_summary(test_run,project)
             email += summary.get_rst()
             email += '\n'
             send_notice = True
+            continue
+
     if not send_notice :
         return None
-    if num_proj == num_pass:
-        email += 'All is well'
     return email
 
 def build_report_table(test_run,project,maxlines):
@@ -279,14 +294,14 @@ def run(args):
         user_res = db.execute(query)
         users = [user for user, in user_res]
     for user in users:
-        print "=========="
-        print "USER: ",user
         msg = create_email(user, test_run)
         if msg is not None :
+            print "=========="
+            print "USER: ",user
             print "MSG:"
             print msg
         else :
-            print "No email"
+            print "No email for ",user
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
