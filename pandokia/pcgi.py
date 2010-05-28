@@ -99,6 +99,10 @@ def run() :
         header = common.page_header()
         f=open(f,"r")
         for x in f :
+            if common.current_user() in common.cfg.admin_user_list :
+                x = re.sub("ADMINLINK", common.cfg.adminlink, x)
+            else :
+                x = re.sub("ADMINLINK",'', x)
             x = re.sub("CGINAME",cginame, x)
             x = re.sub("PAGEHEADER",header, x)
             sys.stdout.write(x)
@@ -175,7 +179,7 @@ def run() :
         print ""
         pid = form['pid'].value
         sig = form['sig'].value
-        if common.current_user() == 'sienkiew' :
+        if common.current_user() in common.cfg.adminuser :
             os.kill(int(pid),int(sig))
         print "done"
         sys.exit(0)

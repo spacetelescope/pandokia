@@ -36,6 +36,12 @@ dbdir = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
 # This feature is not well-tested.
 user_list = None
 
+# which users can see/operate the admin interfaces 
+admin_user_list = ( 'sienkiew' )
+
+adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
+
+
 ######
 #
 # os type for each host
