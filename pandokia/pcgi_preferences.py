@@ -52,7 +52,11 @@ def run( ) :
     elif x == 'add_project' :
         add_project(user)
     elif x == 'list' :
-        list_users()
+        if user in common.cfg.admin_user_list :
+            list_users()
+
+    if user in common.cfg.admin_user_list :
+        output.write('<p><a href=%s?query=prefs&subtype=list>list all</a></p>'%common.get_cgi_name())
 
 # show the user preferences as an input form
 def show(user) :
@@ -86,6 +90,7 @@ def show(user) :
     tb = text_table.text_table()
     tb.define_column("project",showname='Project')
     tb.define_column("none",showname='None')
+    tb.define_column("contact",showname='Contact')
     tb.define_column("summ",showname='Summary')
     tb.define_column("full",showname='Full')
     tb.define_column("line",showname='Max')
@@ -112,6 +117,7 @@ def show(user) :
 
         # radio.%s will be the radio button for that project name 
         tb.set_value(row, 'none', html='<input type=radio name="radio.%s" value="n" %s>'%(project, ckif('n')))
+        tb.set_value(row, 'contact', html='<input type=radio name="radio.%s" value="n" %s>'%(project, ckif('c')))
         tb.set_value(row, 'summ', html='<input type=radio name="radio.%s" value="s" %s>'%(project, ckif('s')))
         tb.set_value(row, 'full', html='<input type=radio name="radio.%s" value="f" %s>'%(project, ckif('f')))
 
@@ -128,6 +134,7 @@ def show(user) :
 
     # some explanatory text
     output.write('''<p>None=no email about that project<br>
+     Contact=email only tests you are a contact for<br>
      Summary=email contains only a count<br>
      Full=show all tests with problems<br>
      Max=list at most max tests in the email</p>''')
