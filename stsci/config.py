@@ -7,6 +7,10 @@ dbdir="/ssbwebv1/data2/pandokia/database"
 
 user_list = None
 
+admin_user_list = ( 'sienkiew' )
+adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
+
+
 os_info = {
 
     "arzach":   "RHE 5 / 64",
