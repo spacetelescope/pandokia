@@ -162,11 +162,11 @@ def create_email(username, test_run) :
     projects = get_user_projects(username)
     num_proj = len(projects)
     num_pass = 0
+    send_notice = False
     for project in projects:
-        project_email = "TestName, Host, Context, Status\n"
         project, format, maxlines = project
         project_run = project_test_run(test_run,project)
-        email += project + "\n"
+        email += "Project: "+ project + "\n\n"
         if not len(project_run):
             num_pass += 1
             email += "All tests in this project passed\n"
@@ -174,24 +174,29 @@ def create_email(username, test_run) :
         summary = create_summary(test_run,project)
         all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
         if format.capitalize() == 'N':
-            continue
+            pass
+        elif format == 'c' :
+            email += 'Contact could be here for project %s' % project
+            send_notice = True
         elif format.capitalize() == 'F':
-            #email += summary.get_rst()
-            email += "\n"
             if all_hosts is not None :
                 email += "These tests failed on all hosts and on all contexts\n"
                 email += all_hosts.get_rst()
                 email += "\n"
+                send_notice = True
             if some_hosts is not None :
                 email += "These tests failed on some hosts\n"
                 email += some_hosts.get_rst()
                 email += "\n"
+                send_notice = True
         elif format.capitalize() == 'S':
-            email += project + "\n"
             email += summary.get_rst()
             email += '\n'
+            send_notice = True
+    if not send_notice :
+        return None
     if num_proj == num_pass:
-        email = 'All is well'
+        email += 'All is well'
     return email
 
 def build_report_table(test_run,project,maxlines):
@@ -212,6 +217,9 @@ def build_report_table(test_run,project,maxlines):
     trip = 0
     hosts = test_run.keys()
     hosts.sort()
+    any_all_hosts = False
+    any_some_hosts = False
+
     for i, host in enumerate(hosts):
         test_run[host].sort()
         if host == 'All':
@@ -224,6 +232,10 @@ def build_report_table(test_run,project,maxlines):
             if row >= maxlines and maxlines > 0:
                 table.set_value(row,0,'The remainder of the output is suppressed')
                 break
+            if host == 'All' :
+                any_all_hosts = True
+            else :
+                any_some_hosts = True
             table.set_value(row,0,host)
             test_name, context, status = val
             table.set_value(row,1,test_name)
@@ -234,6 +246,11 @@ def build_report_table(test_run,project,maxlines):
             # only need to save row_s because there is only one instance
             # of "All" n the list.
             row_s = row
+
+    if not any_all_hosts :
+        all_hosts = None
+    if not any_some_hosts :
+        some_hosts = None
 
     return (all_hosts, some_hosts)
         
@@ -253,11 +270,8 @@ def sendmail(addy, subject, fname):
 
 
 def run(args):
+    user = 'nobody'
     test_run = pandokia.common.find_test_run("daily_latest")
-    if TEST:
-        #print create_email('laidler',test_run)
-        print create_email('nobody','run1')
-        return 0
     if args:
         users = args
     else:
@@ -265,7 +279,14 @@ def run(args):
         user_res = db.execute(query)
         users = [user for user, in user_res]
     for user in users:
-        print create_email(user, test_run)
+        print "=========="
+        print "USER: ",user
+        msg = create_email(user, test_run)
+        if msg is not None :
+            print "MSG:"
+            print msg
+        else :
+            print "No email"
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
