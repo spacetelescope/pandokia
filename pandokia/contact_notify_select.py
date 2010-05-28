@@ -288,16 +288,28 @@ def run(args):
     user = 'nobody'
     test_run = pandokia.common.find_test_run("daily_latest")
     if args:
-        users = args
+        # for each user name, look it up the email address in the table
+        users = [ ]
+        for user in args :
+            found = 0
+            c = db.execute("SELECT email FROM user_prefs WHERE username = ?", (user,))
+            for email, in c :
+                users.append( (user, email) )
+                found=1
+            if not found :
+                print "No email address known for user",user
     else:
-        query = """SELECT username FROM user_prefs"""
+        # get a list of all the (user, email) from the user prefs
+        query = """SELECT username, email FROM user_prefs"""
         user_res = db.execute(query)
-        users = [user for user, in user_res]
-    for user in users:
+        users = [(user,email) for user,email in user_res]
+
+    # compute the email to send to each user; send it.
+    for user, email in users:
         msg = create_email(user, test_run)
         if msg is not None :
             print "=========="
-            print "USER: ",user
+            print "USER: ",user,"EMAIL:",email
             print "MSG:"
             print msg
         else :
