@@ -117,7 +117,7 @@ def show(user) :
 
         # radio.%s will be the radio button for that project name 
         tb.set_value(row, 'none', html='<input type=radio name="radio.%s" value="n" %s>'%(project, ckif('n')))
-        tb.set_value(row, 'contact', html='<input type=radio name="radio.%s" value="n" %s>'%(project, ckif('c')))
+        tb.set_value(row, 'contact', html='<input type=radio name="radio.%s" value="c" %s>'%(project, ckif('c')))
         tb.set_value(row, 'summ', html='<input type=radio name="radio.%s" value="s" %s>'%(project, ckif('s')))
         tb.set_value(row, 'full', html='<input type=radio name="radio.%s" value="f" %s>'%(project, ckif('f')))
 
@@ -189,7 +189,7 @@ def save(user) :
             value = 'n'
 
         # ignore it if they are messing with us
-        if not value in [ 'n', 'f', 's' ] :
+        if not value in [ 'c', 'n', 'f', 's' ] :
             value = 'n'
 
         db.execute('UPDATE user_email_pref SET format = ? WHERE username = ? AND project = ?',
