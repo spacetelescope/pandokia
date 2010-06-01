@@ -7,6 +7,7 @@ import pandokia.common
 import pandokia.contact_notify
 import text_table
 from collections import defaultdict
+import subprocess
 
 db = pandokia.common.open_db()
 
@@ -184,11 +185,14 @@ def create_email(username, test_run) :
                 send_notice = True
             continue
 
-        # The remaining options always show something, so we always need the project section header.
-        email += "Project: "+ project + "\n\n"
+
+        # format 'f' skips the report if there is nothing to say.
 
         if format.capitalize() == 'F':
             all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
+            if all_hosts is None and some_hosts is None :
+                continue
+            email += "Project: "+ project + "\n\n"
             if all_hosts is not None :
                 email += "These tests failed on all hosts and on all contexts\n"
                 email += all_hosts.get_rst()
@@ -199,11 +203,12 @@ def create_email(username, test_run) :
                 email += some_hosts.get_rst()
                 email += "\n"
                 send_notice = True
-            if all_hosts is None and some_hosts is None :
-                email += "No anomalies to report\n\n"
             continue
 
+        # format 's' always displays a result
+
         if format.capitalize() == 'S':
+            email += "Project: "+ project + "\n\n"
             summary = create_summary(test_run,project)
             email += summary.get_rst()
             email += '\n'
@@ -245,7 +250,7 @@ def build_report_table(test_run,project,maxlines):
             row = row_s
         for j, val in enumerate(test_run[host]):
             if row >= maxlines and maxlines > 0:
-                table.set_value(row,0,'The remainder of the output is suppressed')
+                table.set_value(row,0,'%d more'%(len(test_run[host])-row))
                 break
             if host == 'All' :
                 any_all_hosts = True
@@ -270,18 +275,20 @@ def build_report_table(test_run,project,maxlines):
     return (all_hosts, some_hosts)
         
 #actually send the email
-def sendmail(addy, subject, fname):
+def sendmail(addy, subject, text):
     """Interface to the mail system is sequestered here. Presently just
     uses the shell mail command."""
     if TEST:
+        import getpass
+        addy = getpass.getuser()
         #then don't irritate people by sending test emails; send them
         #all to the user running the test instead
-        args=(fname, subject+addy, getpass.getuser())
-    else:
-        args=(fname, subject, addy)
-    mail_cmd = "cat %s | mail -s '%s' %s"%args
-    stat=subprocess.call(mail_cmd, shell=True)
-    return stat
+    sub = subprocess.Popen( [ 'mail', '-s', subject, addy ], shell=False, stdin=subprocess.PIPE)
+    sub.stdin.write(text)
+    sub.stdin.close()
+
+    sub.wait()
+    return sub.returncode
 
 
 def run(args):
@@ -304,16 +311,13 @@ def run(args):
         user_res = db.execute(query)
         users = [(user,email) for user,email in user_res]
 
+    subject = 'Test Results: %s' % test_run
+
     # compute the email to send to each user; send it.
     for user, email in users:
         msg = create_email(user, test_run)
         if msg is not None :
-            print "=========="
-            print "USER: ",user,"EMAIL:",email
-            print "MSG:"
-            print msg
-        else :
-            print "No email for ",user
+            sendmail(email, subject, msg)
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
