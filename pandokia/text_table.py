@@ -510,7 +510,7 @@ class text_table :
     ## GENERATE CSV
     ##
 
-    def get_csv(self, newline="\n") :
+    def get_csv(self, newline="\n", headings=False) :
         """
         str = o.get_csv()
         str = o.get_csv(newline='\r\n')
@@ -523,6 +523,17 @@ class text_table :
         """
         s = StringIO.StringIO()
         w = csv.writer(s, lineterminator=newline)
+
+        if headings :
+            l = [ ]
+            colcount = -1
+            for r in self.titles :
+                colcount = colcount + 1
+                if self.is_suppressed(colcount) :
+                    continue
+                l.append(r)
+            w.writerow(l)
+
         for r in self.rows :
             r = r.list
             if r is None :
@@ -551,7 +562,7 @@ class text_table :
     ##
 
 
-    def get_awk(self, blank="-", tabwidth=8, separator="\t" ) :
+    def get_awk(self, blank="-", tabwidth=8, separator="\t", headings=False ) :
         """
         string = o.get_awk(blank="-", tabwidth=8, separator="\t" )
 
@@ -572,6 +583,15 @@ class text_table :
 
         """
         s = StringIO.StringIO()
+
+        if headings :
+            for col, x in enumerate(self.titles) :
+                if self.is_suppressed(col) :
+                    continue
+                s.write(x)
+                s.write(separator)
+            s.write('\n')
+
         for r in self.rows :
             if r and r.list :
                 for col, cell in enumerate(r.list) :
@@ -594,13 +614,17 @@ class text_table :
     ##  creates the restructured text "simple" table format
     ##
 
-    def _rst_border(self, s, col_widths) :
-        for x in col_widths :
-            s.write("="*x)
-            s.write("  ")
-        s.write("\n")
+    def _rst_border(self, col_widths) :
+        l = [ ]
+        for col, wid in enumerate(col_widths) :
+            if self.is_suppressed(col) :
+                continue
+            l.append("="*wid)
+            l.append("  ")
+        l.append('\n')
+        return ''.join(l)
 
-    def get_rst(self, include_border=True ) :
+    def get_rst(self, include_border=True, headings=False ) :
         """
         string = o.get_rst()
 
@@ -609,20 +633,42 @@ class text_table :
         uses ==== above and below the table
 
         """
-        col_widths = [ ]
         s = StringIO.StringIO()
+
+        # count up the widest field in each column
+
+        col_widths = [ ]
+
+        # if using headings, initialize the column widths to the width of each heading
+        if headings :
+            for x in self.titles :
+                col_widths.append(len(x))
+
+        # raise each column width to match the widest that we find
         for r in self.rows :
             if r and r.list :
-                for x in range(0,len(r.list)) :
-                    while x >= len(col_widths) :
+                for col in range(0,len(r.list)) :
+                    while col >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[x].text).strip())
-                    if col_widths[x] < l :
-                        col_widths[x] = l
+                    l = len(str(r.list[col].text).strip())
+                    if col_widths[col] < l :
+                        col_widths[col] = l
 
+        # calculate and write the top border line
         if include_border :
-            self._rst_border(s,col_widths)
+            border = self._rst_border(col_widths)
+            s.write(border)
 
+        # display column headings in the first line, if necessary
+        if headings :
+            for col, title in enumerate(self.titles) :
+                if self.is_suppressed(col) :
+                    continue
+                s.write("%-*s"%(col_widths[col],str(title).strip()))
+                s.write("  ")
+            s.write('\n')
+
+        # display the table content
         for r in self.rows :
             if r and r.list :
                 for col in range(0,len(r.list)) :
@@ -632,9 +678,11 @@ class text_table :
                     s.write("  ")
             s.write("\n")
 
+        # write the last border line
         if include_border :
-            self._rst_border(s,col_widths)
+            s.write(border)
 
+        #
         rval = s.getvalue()
         s.close()
         return rval
