@@ -15,19 +15,17 @@ import urllib
 import pandokia.pcgi
 import common
 
+
 #
 #
 #
 
 def run ( ) :
 
-    print "content-type: text/html\n\n"
-
-    print common.page_header()
-
     form = pandokia.pcgi.form
     output = sys.stdout
 
+    global db, qdb
     db = common.open_db()
     qdb = common.open_qdb()
 
@@ -61,11 +59,6 @@ def run ( ) :
     if form.has_key("show_attr") :
         show_attr = int(form["show_attr"].value)
 
-    #
-    # main heading
-    #
-
-    output.write("<h1>Test summary</h1>")
 
     # generate a link to click on to sort.  use sort_link+"thing" to sort
     # on thing.  thing must be "+xyz" or "-xyz" to sort on column xyz
@@ -82,38 +75,205 @@ def run ( ) :
     # need for text_table to offer html text for the column heading
     # instead of just link text.
 
-    # 
-    #  Offer to compare to a previous run
-    #
-    # should we make clickable links of other runs or a drop list?  It
-    # would be nice, but I discoverd that finding the list would slow 
-    # this cgi a _lot_
-    output.write("""
-Compare to:
-<form action=%s>
-<input type=hidden name=qid value='%d'>
-<input type=hidden name=show_attr value='%d'>
-<input type=hidden name=query value='summary'>
-<input type=text name=cmp_run value='%s'>
-<br>
-<input type=submit name=submit value='compare'>
-<input type=submit name=submit value='same'>
-<input type=submit name=submit value='different'>
-</form>
-""" % ( pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run) ) )
 
-    # 
-    output.write("""
-<form action=%s>
-<input type=hidden name=qid value=%d>
-<input type=hidden name=show_attr value=1>
-<input type=hidden name=query value=summary>
-<input type=hidden name=cmp_run value='%s'>
-<input type=submit name=submit value='Add Attributes'>
-</form>
-""" % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
+    # generate the table - used to be written inline here
+    result_table, all_test_run, all_project, all_host, all_context, rowcount, different = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
 
-    output.write('<h3>QID = %d</h3>'%int(qid))
+
+    if pandokia.pcgi.output_format == 'html' :
+        # HTML OUTPUT
+
+        print "content-type: text/html\n\n"
+
+        print common.page_header()
+
+        #
+        # main heading
+        #
+
+        output.write("<h1>Test summary</h1>")
+
+        # 
+        #  Offer to compare to a previous run
+        #
+        # should we make clickable links of other runs or a drop list?  It
+        # would be nice, but I discoverd that finding the list would slow 
+        # this cgi a _lot_
+        output.write("""
+    Compare to:
+    <form action=%s>
+    <input type=hidden name=qid value='%d'>
+    <input type=hidden name=show_attr value='%d'>
+    <input type=hidden name=query value='summary'>
+    <input type=text name=cmp_run value='%s'>
+    <br>
+    <input type=submit name=submit value='compare'>
+    <input type=submit name=submit value='same'>
+    <input type=submit name=submit value='different'>
+    </form>
+    """ % ( pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run) ) )
+
+        # 
+        output.write("""
+    <form action=%s>
+    <input type=hidden name=qid value=%d>
+    <input type=hidden name=show_attr value=1>
+    <input type=hidden name=query value=summary>
+    <input type=hidden name=cmp_run value='%s'>
+    <input type=submit name=submit value='Add Attributes'>
+    </form>
+    """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
+
+        output.write('<h3>QID = %d</h3>'%int(qid))
+
+        # suppose you have 
+        #   d = { 'A' : 1 }
+        # how do you find out the name of the single index value?
+        #   x = [tmp for tmp in d]
+        # makes a list of all the index values
+        #   [tmp for tmp in d][0]
+        # is the first (and only) value in that list
+
+        if len(all_test_run) == 1 :
+            result_table.suppress("test_run")
+            output.write("<h3>test_run: "+cgi.escape([tmp for tmp in all_test_run][0])+"</h3>")
+        if len(all_project) == 1 :
+            result_table.suppress("project")
+            output.write("<h3>project: "+cgi.escape([tmp for tmp in all_project][0])+"</h3>")
+        if len(all_host) == 1 :
+            result_table.suppress("host")
+            output.write("<h3>host: "+cgi.escape([tmp for tmp in all_host][0])+"</h3>")
+        if len(all_context) == 1 :
+            result_table.suppress("context")
+            output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
+
+
+        # try to suppress attribute columns where all the data values are the same
+        global any_attr
+        any_attr = list(any_attr)
+        any_attr.sort()
+
+        same_table =text_table.text_table()
+        same_table.set_html_table_attributes("border=1")
+        same_row = 0
+
+        for x in any_attr :
+            all_same = 1
+            txt = result_table._row_col_cell(0,x).text
+            for y in range(1, rowcount) :
+                ntxt = result_table._row_col_cell(y,x).text
+                if txt != ntxt :
+                    all_same = 0
+                    break
+
+            if all_same :
+                same_table.set_value(same_row,0,x)
+                same_table.set_value(same_row,1,txt)
+                same_row = same_row + 1
+                result_table.suppress(x)
+
+        if same_row > 0 :
+            output.write( "<ul><b>attributes same for all rows:</b>" )
+            output.write( same_table.get_html() )
+            output.write( "</ul><br>" )
+
+        
+        if form.has_key("sort") :
+            sort_order = form["sort"].value
+        else :
+            sort_order = '+test_name'
+
+        reverse_val = sort_order.startswith("-")
+
+        result_table.set_sort_key( sort_order[1:], float )
+
+        result_table.sort([ sort_order[1:] ], reverse=reverse_val)
+        
+
+        output.write('''
+    <script language=javascript>
+        function set_all(value)
+            {
+            len = document.testform.elements.length;
+            ele = document.testform.elements;
+            for (n=0; n<len; n++)
+                ele[n].checked=value;
+            }
+        function toggle(value)
+            {
+            len = document.testform.elements.length;
+            ele = document.testform.elements;
+            for (n=0; n<len; n++)
+                ele[n].checked= ! ele[n].checked;
+            }
+    </script>
+    ''')
+
+        output.write('''
+        <form action=%s method=post name=testform>
+        <input type=hidden name=query value='action'>
+        <input type=hidden name=qid value=%d>
+        ''' % ( pandokia.pcgi.cginame, qid) )
+        
+        output.write(result_table.get_html(color_rows=5))
+
+        output.write('Actions:<br>')
+        output.write('<input type=button name="setall"   value="Select All"   onclick="set_all(true)">')
+        output.write('<input type=button name="clearall" value="Clear All" onclick="set_all(false)">')
+        output.write('<input type=button name="clearall" value="Toggle"    onclick="toggle()">')
+        output.write('<br>')
+        output.write('<input type=submit name="action_remove" value="Remove">')
+        output.write('<input type=submit name="action_keep"   value="Keep">')
+        output.write(' on this report page<br>')
+        output.write('<input type=submit name="action_flagok" value="Flag OK">')
+        output.write('<input type=submit name="action_flagok_rem" value="Flag OK + Remove">')
+        output.write('<input type=submit name="action_cattn" value="Clear Attn">')
+        output.write('<input type=submit name="action_sattn" value="Set Attn">')
+        output.write('<br>')
+        output.write('<input type=submit name="not_expected" value="Not Expected"> in <input type=text name=arg1 value="daily" size=10> test runs')
+        output.write('</form>')
+
+        output.write( "<br>rows: %d <br>"%rowcount )
+        if cmp_run != "" :
+            output.write( "different: %d <br>"%different )
+
+        qdict = { "qid" : qid }
+        output.write( "<a href='"+common.selflink(qdict, linkmode = "detail")+"'>" )
+        output.write( "detail of all</a>" )
+        return
+
+        # end HTML
+
+    if pandokia.pcgi.output_format == 'csv' :
+        # CSV OUTPUT
+        result_table.suppress('checkbox')
+        print "content-type: text/plain\n\n"
+        print result_table.get_csv(headings=1)
+
+    if pandokia.pcgi.output_format == 'rst' :
+        # RST OUTPUT
+        result_table.suppress('checkbox')
+        print "content-type: text/plain\n\n"
+        print result_table.get_rst(headings=1)
+
+    if pandokia.pcgi.output_format == 'awk' :
+        # AWK OUTPUT
+        result_table.suppress('checkbox')
+        print "content-type: text/plain\n\n"
+        print result_table.get_awk(headings=1)
+
+
+any_attr = { }
+
+def load_in_table( tt, row, cursor, prefix, sort_link ) :
+    for x in cursor :
+        ( name, value ) = x
+        name = prefix + name
+        tt.define_column(name,link=sort_link+"+"+name)
+        tt.set_value(row, name, value)
+        any_attr[name]=1
+
+def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
 
     #if cmp_run != '' :
     #    output.write("<h3>Compare to: "+cgi.escape(cmp_run)+"</h3>")
@@ -242,119 +402,4 @@ Compare to:
         result_table.join(tda_table)
         result_table.join(tra_table)
 
-    if len(all_test_run) == 1 :
-        result_table.suppress("test_run")
-        output.write("<h3>test_run: "+cgi.escape([tmp for tmp in all_test_run][0])+"</h3>")
-    if len(all_project) == 1 :
-        result_table.suppress("project")
-        output.write("<h3>project: "+cgi.escape([tmp for tmp in all_project][0])+"</h3>")
-    if len(all_host) == 1 :
-        result_table.suppress("host")
-        output.write("<h3>host: "+cgi.escape([tmp for tmp in all_host][0])+"</h3>")
-    if len(all_context) == 1 :
-        result_table.suppress("context")
-        output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
-
-
-    # try to suppress attribute columns where all the data values are the same
-    global any_attr
-    any_attr = list(any_attr)
-    any_attr.sort()
-
-    same_table =text_table.text_table()
-    same_table.set_html_table_attributes("border=1")
-    same_row = 0
-
-    for x in any_attr :
-        all_same = 1
-        txt = result_table._row_col_cell(0,x).text
-        for y in range(1, rowcount) :
-            ntxt = result_table._row_col_cell(y,x).text
-            if txt != ntxt :
-                all_same = 0
-                break
-
-        if all_same :
-            same_table.set_value(same_row,0,x)
-            same_table.set_value(same_row,1,txt)
-            same_row = same_row + 1
-            result_table.suppress(x)
-
-    if same_row > 0 :
-        output.write( "<ul><b>attributes same for all rows:</b>" )
-        output.write( same_table.get_html() )
-        output.write( "</ul><br>" )
-
-    
-    if form.has_key("sort") :
-        sort_order = form["sort"].value
-    else :
-        sort_order = '+test_name'
-
-    reverse_val = sort_order.startswith("-")
-
-    result_table.set_sort_key( sort_order[1:], float )
-
-    result_table.sort([ sort_order[1:] ], reverse=reverse_val)
-    
-
-    output.write('''
-<script language=javascript>
-    function set_all(value)
-        {
-        len = document.testform.elements.length;
-        ele = document.testform.elements;
-        for (n=0; n<len; n++)
-            ele[n].checked=value;
-        }
-    function toggle(value)
-        {
-        len = document.testform.elements.length;
-        ele = document.testform.elements;
-        for (n=0; n<len; n++)
-            ele[n].checked= ! ele[n].checked;
-        }
-</script>
-''')
-
-    output.write('''
-    <form action=%s method=post name=testform>
-    <input type=hidden name=query value='action'>
-    <input type=hidden name=qid value=%d>
-    ''' % ( pandokia.pcgi.cginame, qid) )
-    
-    output.write(result_table.get_html(color_rows=5))
-
-    output.write('Actions:<br>')
-    output.write('<input type=button name="setall"   value="Select All"   onclick="set_all(true)">')
-    output.write('<input type=button name="clearall" value="Clear All" onclick="set_all(false)">')
-    output.write('<input type=button name="clearall" value="Toggle"    onclick="toggle()">')
-    output.write('<br>')
-    output.write('<input type=submit name="action_remove" value="Remove">')
-    output.write('<input type=submit name="action_keep"   value="Keep">')
-    output.write(' on this report page<br>')
-    output.write('<input type=submit name="action_flagok" value="Flag OK">')
-    output.write('<input type=submit name="action_flagok_rem" value="Flag OK + Remove">')
-    output.write('<input type=submit name="action_cattn" value="Clear Attn">')
-    output.write('<input type=submit name="action_sattn" value="Set Attn">')
-    output.write('<br>')
-    output.write('<input type=submit name="not_expected" value="Not Expected"> in <input type=text name=arg1 value="daily" size=10> test runs')
-    output.write('</form>')
-
-    output.write( "<br>rows: %d <br>"%rowcount )
-    if cmp_run != "" :
-        output.write( "different: %d <br>"%different )
-
-    qdict = { "qid" : qid }
-    output.write( "<a href='"+common.selflink(qdict, linkmode = "detail")+"'>" )
-    output.write( "detail of all</a>" )
-
-any_attr = { }
-
-def load_in_table( tt, row, cursor, prefix, sort_link ) :
-    for x in cursor :
-        ( name, value ) = x
-        name = prefix + name
-        tt.define_column(name,link=sort_link+"+"+name)
-        tt.set_value(row, name, value)
-        any_attr[name]=1
+    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different
