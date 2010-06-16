@@ -21,25 +21,28 @@ def emit_field( output, name, value ) :
     else :
         output.write( name+"="+value+"\n" )
 
+db = common.open_db()
+
+sqlite3 = common.get_db_module()
+db.row_factory = sqlite3.Row
+
+
 #
 # actual export function.
 #   output is a file to write to
 #   where is an SQL where clause, beginning with the word "WHERE "
 #
 def do_export( output, where_text, where_dict ) :
-    db = common.open_db()
-
-    sqlite3 = common.get_db_module()
-    db.row_factory = sqlite3.Row
-
     # list of fields to export
     fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
 
     # tell the reader to forget any defaults
-    output.write( "RESET\n" )
+    output.write( "START\n" )
 
+    sys.stderr.write('begin select\n')
     # 
     c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where_text, where_dict)
+    sys.stderr.write('begin writing\n')
     for record in c :
 
         # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
@@ -62,6 +65,7 @@ def do_export( output, where_text, where_dict ) :
             emit_field(output,'log',x[0])
 
         output.write("END\n")
+    sys.stderr.write('end writing\n')
 
 
 def run(args) :
@@ -70,15 +74,10 @@ def run(args) :
     options, value  = getopt.gnu_getopt(args, 'h:p:c:o:' )
 
     query_dict = { }
-    if len(value) > 1 :
-        sys.stderr.write("too many arguments: %s\n",value[1])
-        return 1
 
     if len(value) < 1 :
         sys.stderr.write("must specify test_run\n")
         return 1
-        
-    query_dict['test_run'] = common.find_test_run(value[0])
 
     output = sys.stdout
 
@@ -92,6 +91,15 @@ def run(args) :
             elif x == '-p' :
                 query_dict['project'] = y
 
-    where_text, where_dict = common.where_tuple([ (x,query_dict[x]) for x in query_dict ] )
+    for name in value :
+        name = common.find_test_run(value[0])
+        c = db.execute('SELECT name FROM distinct_test_run WHERE name GLOB ? ORDER BY name',(name,))
+        for test_run in c :
+            test_run = test_run['name']
+            print test_run
+            sys.stderr.write('test_run %s\n'%test_run)
+            query_dict['test_run'] = test_run
+            where_text, where_dict = common.where_tuple([ (x,query_dict[x]) for x in query_dict ] )
 
-    do_export(output, where_text, where_dict)
+            do_export(output, where_text, where_dict)
+
