@@ -66,6 +66,9 @@ class text_table_cell :
         else :
             self.sort_key = sort_key
 
+    def get_text(self) :
+        return self.text
+
 ###
 ###
 ###
@@ -253,6 +256,17 @@ class text_table :
         return self.rows[row].list[col]
 
     ##
+    def get_title(self, col) :
+
+        if col in self.colmap :
+            col = self.colmap[col]
+        return self.titles[col]
+
+    ##
+    def get_row_count(self) :
+        return len(self.rows)
+
+    ##
 
     def set_html_table_attributes(self, attr) :
         self.html_table_attributes = attr
@@ -382,6 +396,9 @@ class text_table :
 
         while len(this_row) <= col :
             this_row.append(text_table_cell())
+
+        if col > self.number_of_columns :
+            self.number_of_columns = col + 1
 
         return this_row[col]
 

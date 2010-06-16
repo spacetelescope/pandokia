@@ -20,14 +20,23 @@ import common
 #
 #
 
+db = None
+
+def init() :
+    
+    global db, qdb, any_attr
+    if db is None :
+        db = common.open_db()
+        qdb = common.open_qdb()
+
+    any_attr = { }
+
 def run ( ) :
 
     form = pandokia.pcgi.form
     output = sys.stdout
 
-    global db, qdb
-    db = common.open_db()
-    qdb = common.open_qdb()
+    init()
 
     #
     # gather up all the expected parameters
@@ -148,31 +157,9 @@ def run ( ) :
             output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
 
 
-        # try to suppress attribute columns where all the data values are the same
-        global any_attr
-        any_attr = list(any_attr)
-        any_attr.sort()
+        same_table = suppress_attr_all_same( result_table )
 
-        same_table =text_table.text_table()
-        same_table.set_html_table_attributes("border=1")
-        same_row = 0
-
-        for x in any_attr :
-            all_same = 1
-            txt = result_table._row_col_cell(0,x).text
-            for y in range(1, rowcount) :
-                ntxt = result_table._row_col_cell(y,x).text
-                if txt != ntxt :
-                    all_same = 0
-                    break
-
-            if all_same :
-                same_table.set_value(same_row,0,x)
-                same_table.set_value(same_row,1,txt)
-                same_row = same_row + 1
-                result_table.suppress(x)
-
-        if same_row > 0 :
+        if same_table.get_row_count() > 0 :
             output.write( "<ul><b>attributes same for all rows:</b>" )
             output.write( same_table.get_html() )
             output.write( "</ul><br>" )
@@ -247,6 +234,8 @@ def run ( ) :
     if pandokia.pcgi.output_format == 'csv' :
         # CSV OUTPUT
         result_table.suppress('checkbox')
+        if 'suppress_same' in form :
+            suppress_attr_all_same( result_table )
         print "content-type: text/plain\n\n"
         print result_table.get_csv(headings=1)
 
@@ -254,16 +243,18 @@ def run ( ) :
         # RST OUTPUT
         result_table.suppress('checkbox')
         print "content-type: text/plain\n\n"
+        if 'suppress_same' in form :
+            suppress_attr_all_same( result_table )
         print result_table.get_rst(headings=1)
 
     if pandokia.pcgi.output_format == 'awk' :
         # AWK OUTPUT
         result_table.suppress('checkbox')
         print "content-type: text/plain\n\n"
+        if 'suppress_same' in form :
+            suppress_attr_all_same( result_table )
         print result_table.get_awk(headings=1)
 
-
-any_attr = { }
 
 def load_in_table( tt, row, cursor, prefix, sort_link ) :
     for x in cursor :
@@ -403,3 +394,33 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         result_table.join(tra_table)
 
     return result_table, all_test_run, all_project, all_host, all_context, rowcount, different
+
+def suppress_attr_all_same( result_table ) :
+
+        # try to suppress attribute columns where all the data values are the same
+        global any_attr
+        any_attr = list(any_attr)
+        any_attr.sort()
+
+        same_table = text_table.text_table()
+        same_table.set_html_table_attributes("border=1")
+        same_row = 0
+
+        rowcount = result_table.get_row_count()
+
+        for x in any_attr :
+            all_same = 1
+            txt = result_table._row_col_cell(0,x).text
+            for y in range(1, rowcount) :
+                ntxt = result_table._row_col_cell(y,x).text
+                if txt != ntxt :
+                    all_same = 0
+                    break
+
+            if all_same :
+                same_table.set_value(same_row,0,x)
+                same_table.set_value(same_row,1,txt)
+                same_row = same_row + 1
+                result_table.suppress(x)
+
+        return same_table
