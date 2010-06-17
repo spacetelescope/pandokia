@@ -1,8 +1,7 @@
 import random
 import unittest2
 
-print "this is a print statement that runs when example.py is imported"
-
+print "this is a print statement that runs when init_fail.py is imported"
 
 class TestSequenceFunctions(unittest2.TestCase):
 

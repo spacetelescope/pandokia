@@ -1,8 +1,3 @@
-#
-# Here is a sample test based on objects
-#
-from __future__ import division # confidence high
-
 import unittest2
 
 def plus2(x):

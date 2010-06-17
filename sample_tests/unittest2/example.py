@@ -1,8 +1,11 @@
+# This is the example from the Python unittest documentation.  
+
 import random
 import unittest2
 
+# Ok, python's example doesn't do this, but you can see where this output
+# shows up in the pandokia report.
 print "this is a print statement that runs when example.py is imported"
-
 
 class TestSequenceFunctions(unittest2.TestCase):
 
