@@ -15,7 +15,7 @@ except ImportError, e :
 
 # These are the versions of unittest2 that I expect this code to work
 # with.  It might work in other versions, but who knows?
-unittest2_versions = ( '0.3.0', '0.4.0' )
+unittest2_versions = ( '0.3.0', '0.4.0', '0.4.2' )
 
 
 from pandokia.helpers import pycode
