@@ -27,6 +27,7 @@ command_list = [
                 # I plan to use it for the documentation and it
                 # needs a place to live.  and it need pandokia.text_table
     'pdk_shell_runner',
+    'pdk_shell_runner_helper',
     'pdk_filecomp',
     'pdk_stsci_regress',
     'pdk_stsci_regress_helper',

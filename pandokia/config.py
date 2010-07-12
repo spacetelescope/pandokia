@@ -114,7 +114,8 @@ runner_glob = [
     ( 'pycode*.py',         'pycode'    ),      # special runner that just executes python code
     ( '*.py',               'nose'      ),      # nose on a file here
     ( '*.snout',            'snout'   ),        # nose on an installed file
-    ( 'test*.sh',           'shell_runner' ),   # example of writing a test runner
+    ( 'test*.sh',           'shell_runner' ),   # single test in a shell script
+    ( 'test*.csh',          'shell_runner' ),   # single test in a csh script
     ( '*.xml',              'regtest'   ),      # legacy system used at STScI
 ]
 

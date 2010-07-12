@@ -33,9 +33,9 @@ datefmt='+%Y-%m-%d %H:%M:%S'
 
 
 # Compute the test name.  In this case, the test name is the
-# same as the basename of the file.  If you have multiple tests
-# in a single file, you would have to do something like this
-# for each of them.
+# same as the basename of the file.  If you want to allow
+# multiple tests in a single file, you would have to do something 
+# like this for each of them.
 
 test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE`
 
@@ -49,8 +49,30 @@ echo 'start_time='`date "$datefmt"`
 
 
 tmpfile=pdk.runner.tmp
+
 # Run the shell script, gathering output into a temp file. 
-sh $PDK_FILE > $tmpfile 2>&1
+
+if [ -x $PDK_FILE ]
+then
+	# in fact, you can use any language here, not just sh
+	$PDK_FILE > $tmpfile 2>&1
+else
+	case "$PDK_FILE"
+	in
+	*.sh)
+		sh $PDK_FILE > $tmpfile 2>&1
+		;;
+	*.csh)	
+		# by user request
+		csh $PDK_FILE > $tmpfile 2>&1
+		;;
+	*)
+		echo 'pdk_shell_runner: $PDK_FILE not executable and do not know interpreter to use' > $tmpfile
+		( exit 128 )
+		;;
+	esac
+fi
+
 exitcode=$?
 
 # analyze the exit code
