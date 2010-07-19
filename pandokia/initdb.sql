@@ -145,13 +145,17 @@ CREATE UNIQUE INDEX expected_unique
 	ON expected ( test_run_type, project, host, test_name );
 		-- we only need one entry
 
--- projects:
+-- distinct_test_run:
 -- 	It is getting too slow to find all the projects by "select
 -- 	distinct test_run from result_scalar".  So, I'm going to
 --	make a table that just contains the distinct values.
 
 CREATE TABLE distinct_test_run (
-	name VARCHAR UNIQUE
+	name VARCHAR UNIQUE,
+	valuable CHAR(1)
+		-- boolean, but portable; use 1 or 0
+		-- valuable means that we should not refuse to delete
+		-- this test run.
 	);
 
 

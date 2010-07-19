@@ -250,7 +250,7 @@ class test_result(object):
             # if we don't know about this test run, 
             try :
                 # add it to the list of known test runs
-                db.execute("INSERT INTO distinct_test_run ( name ) VALUES ( ? )",(self.test_run,))
+                db.execute("INSERT INTO distinct_test_run ( name, valuable ) VALUES ( ?, 0 )",(self.test_run,))
             except database.IntegrityError :
                 pass
             # remember that we saw it so we don't have to touch the database again

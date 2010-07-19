@@ -143,6 +143,7 @@ def delete_run(args) :
     # need one, though, at the end of the table.
     db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
     db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
+    db.commit()
 
     #
 
@@ -156,13 +157,17 @@ def delete_run(args) :
             db.close()
             return 1
     for x in args :
-        c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?",(x,))
-        for (y,) in c :
-            print "DELETE ",y
-            db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (y,) )
-            db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(y,) )
+        c = db.execute("SELECT name, valuable FROM distinct_test_run WHERE name GLOB ?",(x,))
+        for (name,valuable) in c :
+            print "name",name,"valuable",valuable
+            if valuable != '0' :
+                print "NAME",name," MARKED VALUABLE - NOT DELETED"
+                continue
+            print "DELETE ",name
+            db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
+            db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
             db.commit()
-            print "DONE ",y
+            print "DONE ",name
 
     db.close()
 
