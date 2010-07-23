@@ -130,3 +130,18 @@ function cmp_status {
 		esac
 	done
 }
+
+# a function to diff a bunch of output files and handle all the okfile stuff
+
+function csh_diff {
+	init_okfile
+
+	okfile_entry $*
+
+	for x in $*
+	do
+		testfile diff $x
+	done
+
+	exit $teststatus
+}
