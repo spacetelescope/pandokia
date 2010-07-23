@@ -27,7 +27,7 @@ def clean_queries() :
     print "end  delete old queries", time.time(), int(old)
 
 
-def clean_key_id(which) :
+def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
     # which is the name of a table that we want to clean.  We will call
     # this function once for each of the tables result_log, result_tda,
     # result_tra, and result_tca (when we get that table)
@@ -48,11 +48,13 @@ def clean_key_id(which) :
 
     print "start clean key_id", which, time.time()
 
-    c = db.execute("SELECT MIN(key_id) FROM "+which)
-    (min_key_id,) = c.fetchone()
+    if min_key_id is None :
+        c = db.execute("SELECT MIN(key_id) FROM "+which)
+        (min_key_id,) = c.fetchone()
 
-    c = db.execute("SELECT MAX(key_id) FROM "+which)
-    (max_key_id,) = c.fetchone()
+    if max_key_id is None :
+        c = db.execute("SELECT MAX(key_id) FROM "+which)
+        (max_key_id,) = c.fetchone()
 
     print "max record number",max_key_id
 
@@ -106,6 +108,9 @@ def clean_key_id(which) :
 
         print "        ",time.time()-tyme
 
+        if sleep is not None :
+            time.sleep(sleep)
+
     print "done"
     print "end   clean key_id", which, time.time()
 
@@ -115,9 +120,23 @@ def clean_db(args) :
     global db
     db = pandokia.common.open_db()
 
-    clean_key_id("result_log")
-    clean_key_id("result_tda")
-    clean_key_id("result_tra")
+    min_key_id = None
+    max_key_id = None
+    sleep = 1
+
+    if len(args) > 0 :
+        min_key_id=int(args[0])
+
+    if len(args) > 1 :
+        max_key_id=int(args[1])
+
+    if len(args) > 2 :
+        sleep = int(args[2])
+
+
+    clean_key_id("result_log", min_key_id, max_key_id, sleep)
+    clean_key_id("result_tda", min_key_id, max_key_id, sleep)
+    clean_key_id("result_tra", min_key_id, max_key_id, sleep)
     clean_queries()
 
     db.close()
