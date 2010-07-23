@@ -54,8 +54,10 @@ tmpfile=pdk.runner.tmp
 
 if [ -x $PDK_FILE ]
 then
-	# in fact, you can use any language here, not just sh
-	$PDK_FILE > $tmpfile 2>&1
+	# In fact, you can use any language here, not just sh.
+	# We can say ./ because we know that pdk run always gives us just
+	# the basename.
+	./$PDK_FILE > $tmpfile 2>&1
 else
 	case "$PDK_FILE"
 	in
@@ -64,7 +66,7 @@ else
 		;;
 	*.csh)	
 		# by user request
-		csh $PDK_FILE > $tmpfile 2>&1
+		csh -f $PDK_FILE > $tmpfile 2>&1
 		;;
 	*)
 		echo 'pdk_shell_runner: $PDK_FILE not executable and do not know interpreter to use' > $tmpfile

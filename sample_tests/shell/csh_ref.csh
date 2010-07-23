@@ -1,53 +1,33 @@
-#!/bin/csh
+#!/bin/tcsh -f
+
+# note the existence of an okfile and clear old contents away
+
+	sh -c '. pdk_shell_runner_helper ; init_okfile '
 
 # This part is the actual test:
 
-# output files named ".out" so it is easy to "rm *.out" if we want to
-set outfile1=$0.1.out
-set outfile2=$0.2.out
+	# output files named ".out" so it is easy to "rm *.out" if we want to
+	set outfile1=$0.1.out
+	set outfile2=$0.2.out
 
-# do something to test
-ls -l $0 > $outfile1
-sum $0 > $outfile2
+	# make some output to test
+	cat $0 > $outfile1
+	sum $0 > $outfile2
 
-#end of test
+# log the existence of the output files
 
-# The rest of this is comparing the output/reference files, creating the
-# okfile (for the flagok button on the gui), and computing the exit status
+	sh -c ". pdk_shell_runner_helper ; okfile_entry $outfile1 $outfile2"
 
-# alias for diff and cmp:
+# diff each output file
 
-alias do_diff 'echo \!* ref/\!* >> $okfile ; diff \!* ref/\!* ; set st=( $status $st )'
-alias do_cmp  'echo \!* ref/\!* >> $okfile ; cmp  \!* ref/\!* ; set st=( $status $st )'
+	cmp $outfile1 ref/$outfile1
+	set st1=$status
 
-set okfile=`basename $0`.okfile
+	diff $outfile2 ref/$outfile2
+	set st2=$status
 
-rm -f $okfile
+# collect the diff/cmp statuses into an exit code for pandokia
 
-set st=( )
+	sh -c ". pdk_shell_runner_helper ; cmp_status $st1 $st2 -e "
+	exit $status
 
-#
-# put your file comparisons here
-do_diff  $outfile1 
-do_cmp   $outfile2
-
-# now figure out what the final exit status should be - it is the
-# worst of pass, fail, error
-set teststatus=0
-
-foreach x ( $st )
-	switch ($x)
-	case 0:
-		breaksw
-	case 1:
-		if ( $teststatus == 0 ) set teststatus=1
-		breaksw
-	default:
-		set teststatus=128
-		breaksw
-	endsw
-end
-
-echo teststatus $teststatus
-
-exit $teststatus

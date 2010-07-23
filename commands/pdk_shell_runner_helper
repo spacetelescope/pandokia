@@ -16,6 +16,9 @@
 #	# load these functions
 #	. pdk_shell_runner_helper
 #
+#	# note the existence of an okfile
+#	init_okfile
+#
 #	# run your software
 #	my_program > my_output_file 2> other_output_file
 #
@@ -27,16 +30,34 @@
 #	# use the exit status left behind by testfile
 #	exit $teststatus
 #
+#
+# To use it from csh, see sample_tests/shell/csh_ref.csh in the source code
+#
 
 # Unless we decide otherwise, the test passes
 teststatus=0
 
-# Find the name of the okfile.  Note that $0 is going to be the name of
-# the script containing the test, not the name of this library function
-okfile=`basename $0`.okfile
 
-# purge any old okfile sitting around
-rm -f $okfile
+# find the correct name of the okfile
+okfile=$PDK_DIRECTORY/`basename $PDK_FILE`.okfile
+
+
+# Call this to delcare the existence of an okfile.  If you don't have one,
+# don't call it.
+function init_okfile {
+	# purge any old okfile sitting around
+	rm -f $okfile
+
+	echo 'tda__okfile='$okfile >> $PDK_LOG
+}
+
+# Call this once for each output file that you will okify.
+function okfile_entry {
+	for x in $*
+	do
+		echo $x ref/$x >> $okfile
+	done
+}
 
 # Here is the function to compare output files.  Call it once for each
 # output file.
@@ -56,41 +77,56 @@ function testfile {
 	file=$2
 
 	echo "Comparing output file $file"
-	echo $file ref/$file >> $okfile
+	okfile_entry $file
 
 	# We expect the user to pass in the name of the diff command to use.
 	# I want to choose "diff" or "cmp", but you can also add in parameters
 	# to the comparison.
 	$cmd $file ref/$file
-	st=$?
+	cmp_status $?
 
 	echo ''
 
-	# elevate the exit status if the result of this comparison is
-	# worse than a previous one.
-	#
-	# cmp and diff use these exit codes:
-	#	0 - files match
-	#	1 - files do not match
-	#	2 - problem with comparison
-
-	case $st
-	in
-	0) 
-		:
-		;;
-	1)
-		# raise teststatus from 0 to 1, but do not lower it from 128
-		if [ $teststatus -eq 0 ]
-		then
-			# status 1 will log the test result as Fail
-			teststatus=1
-		fi
-		;;
-	*)
-		# status 128 will log the test result as Error
-		teststatus=128
-		;;
-	esac
 }
 
+
+# This function converts the output from diff/cmp into something suitable for
+# pandokia test status.  Pass as many status as you want - the result is the
+# worst of pass, fail, error.  The "-e" flag is for use by csh scripts.
+
+function cmp_status {
+	for st in $*
+	do
+		if [ X$st = X-e ]
+		then
+			exit $teststatus
+		fi
+
+		# elevate the exit status if the result of this comparison is
+		# worse than a previous one.
+		#
+		# cmp and diff use these exit codes:
+		#	0 - files match
+		#	1 - files do not match
+		#	2 - problem with comparison
+
+		case $st
+		in
+		0) 
+			:
+			;;
+		1)
+			# raise teststatus from 0 to 1, but do not lower it from 128
+			if [ $teststatus -eq 0 ]
+			then
+				# status 1 will log the test result as Fail
+				teststatus=1
+			fi
+			;;
+		*)
+			# status 128 will log the test result as Error
+			teststatus=128
+			;;
+		esac
+	done
+}

@@ -2,25 +2,32 @@
 #
 
 # load the helper functions
-. pdk_shell_runner_helper
 
-# output files named ".out" so we can "rm *.out" later
-outfile1=$0.1.out
-outfile2=$0.2.out
+	. pdk_shell_runner_helper
 
-# do something
-ls -l $0 > $outfile1
-sum $0 > $outfile2
+# note the existence of an okfile and clear old contents away
 
+	init_okfile
+
+# This part is the actual test:
+
+        # output files named ".out" so it is easy to "rm *.out" if we want to
+        outfile1=$0.1.out
+        outfile2=$0.2.out
+
+        # make some output to test
+        cat $0 > $outfile1
+        sum $0 > $outfile2
 
 # compare the output files to what we expected
 
-testfile diff $outfile1
+	# comparing an output file with cmp
+	testfile cmp  $outfile1
 
-testfile cmp $outfile2
+	# comparing an output file with diff
+	testfile diff $outfile2
 
-# report the test result by our exit status
+# return the test exit status
 
-echo teststatus $teststatus
+	exit $teststatus
 
-exit $teststatus
