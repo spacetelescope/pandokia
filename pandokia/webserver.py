@@ -9,9 +9,7 @@ import BaseHTTPServer
 
 class my_handler( CGIHTTPServer.CGIHTTPRequestHandler ) :
 
-    # by default, I don't want any directory where everything is assumed
-    # to be a cgi
-    cgi_directories = [ ]
+    cgi_directories = [ "/cgi-bin/" ]
 
     def __init__(self, request, client_address, server) :
         CGIHTTPServer.CGIHTTPRequestHandler.__init__(self, request, client_address, server)
@@ -41,12 +39,13 @@ class my_handler( CGIHTTPServer.CGIHTTPRequestHandler ) :
         # a cgi directory must be a cgi.  You can have args after
         # another / which the CGI can find in PATH_INFO
         for x in self.cgi_directories :
+            if self.path == x :
+                return False
+
             if self.path.startswith(x) :
                 i = len(x)
-                if self.path[i] == '/' :
-                    print "/"
-                    self.cgi_info = self.path[:i], self.path[i+1:]
-                    return True
+                self.cgi_info = self.path[:i], self.path[i:]
+                return True
 
         # ok, it must not be a cgi
         return False
