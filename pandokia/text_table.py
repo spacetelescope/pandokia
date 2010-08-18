@@ -253,14 +253,19 @@ class text_table :
 
     ##
     def get_cell(self, row, col) :
-        return self.rows[row].list[col]
+        if row >= len(self.rows) :
+            return None
+        row = self.rows[row]
+        if col >= len(row.list) :
+            return None
+        return row.list[col].get_text()
 
     ##
     def get_title(self, col) :
 
         if col in self.colmap :
             col = self.colmap[col]
-        return self.titles[col]
+        return self.titles[col].get_text()
 
     ##
     def get_row_count(self) :
@@ -667,7 +672,7 @@ class text_table :
                 for col in range(0,len(r.list)) :
                     while col >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[col].text).strip())
+                    l = len(str(r.list[col].text))
                     if col_widths[col] < l :
                         col_widths[col] = l
 
@@ -681,7 +686,7 @@ class text_table :
             for col, title in enumerate(self.titles) :
                 if self.is_suppressed(col) :
                     continue
-                s.write("%-*s"%(col_widths[col],str(title).strip()))
+                s.write("%-*s"%(col_widths[col],str(title)))
                 s.write("  ")
             s.write('\n')
 
@@ -691,7 +696,7 @@ class text_table :
                 for col in range(0,len(r.list)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("%-*s"%(col_widths[col],str(r.list[col].text).strip()))
+                    s.write("%-*s"%(col_widths[col],str(r.list[col].text)))
                     s.write("  ")
             s.write("\n")
 
@@ -735,7 +740,7 @@ class text_table :
                 for x in range(0,len(r.list)) :
                     while x >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[x].text).strip())
+                    l = len(str(r.list[x].text))
                     if col_widths[x] < l :
                         col_widths[x] = l
 
@@ -744,7 +749,7 @@ class text_table :
                 for col in range(0,len(r.list)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("|| %-*s "%(col_widths[col],str(r.list[col].text).strip()))
+                    s.write("|| %-*s "%(col_widths[col],str(r.list[col].text)))
             s.write("||\n")
 
         rval = s.getvalue()
