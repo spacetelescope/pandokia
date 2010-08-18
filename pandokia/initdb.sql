@@ -142,7 +142,7 @@ CREATE TABLE expected (
 	);
 
 CREATE UNIQUE INDEX expected_unique 
-	ON expected ( test_run_type, project, host, test_name );
+	ON expected ( test_run_type, project, host, test_name, context );
 		-- we only need one entry
 
 -- distinct_test_run:
