@@ -18,7 +18,7 @@ import pandokia.common as common
 
 def run(args) :
 
-    verbose = 1 # bug: I know there is no way to set it
+    verbose = 0 # bug: I know there is no way to set it
 
     try :
         test_run_type = args[0]
