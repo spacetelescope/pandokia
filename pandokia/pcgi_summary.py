@@ -175,7 +175,9 @@ def run ( ) :
         result_table.set_sort_key( sort_order[1:], float )
 
         result_table.sort([ sort_order[1:] ], reverse=reverse_val)
-        
+        rows = len(result_table.rows)
+	for i in range(0,rows):
+		result_table.set_value(i,"line #",i+1)  
 
         output.write('''
     <script language=javascript>
@@ -184,6 +186,14 @@ def run ( ) :
             len = document.testform.elements.length;
             ele = document.testform.elements;
             for (n=0; n<len; n++)
+                ele[n].checked=value;
+            }
+        function set_range(value)
+            {
+            begin=document.getElementById("begin").value-1;
+            end=document.getElementById("end").value-0;
+            ele=document.testform.elements;
+            for(n=begin; n<end; n++)
                 ele[n].checked=value;
             }
         function toggle(value)
@@ -198,13 +208,18 @@ def run ( ) :
 
         output.write('''
         <form action=%s method=post name=testform>
-        <input type=hidden name=query value='action'>
-        <input type=hidden name=qid value=%d>
-        ''' % ( pandokia.pcgi.cginame, qid) )
+        ''' % ( pandokia.pcgi.cginame,) )
         
         output.write(result_table.get_html(color_rows=5))
-
+	output.write('''
+        <input type=hidden name=query value='action'>
+        <input type=hidden name=qid value=%d>
+	'''% (qid, ) )
         output.write('Actions:<br>')
+	output.write('<input type=text name=begin id=begin value="Begin line" size=10> ')
+	output.write('<input type=text name=end id=end value="End line" size=10> ')
+	output.write('<input type=button name="setrange" value="Set Range" onclick="set_range(true)">')
+	output.write('<br>')
         output.write('<input type=button name="setall"   value="Select All"   onclick="set_all(true)">')
         output.write('<input type=button name="clearall" value="Clear All" onclick="set_all(false)">')
         output.write('<input type=button name="clearall" value="Toggle"    onclick="toggle()">')
@@ -285,6 +300,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (time.time(), qid) )
     c = qdb.execute("SELECT key_id FROM query WHERE qid = ?", (qid,) )
 
+    result_table.define_column("line #", showname='&nbsp;')
     result_table.define_column("runner")
     result_table.define_column("checkbox",  showname='&nbsp;')
     result_table.define_column("attn",      link=sort_link+"+attn")
@@ -358,7 +374,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         all_context[context] = 1
 
         detail_query = { "key_id" : key_id }
-        result_table.set_value(rowcount,"runner",runner)
+	result_table.set_value(rowcount,"runner",runner)
         result_table.set_value(rowcount,"checkbox",'',html='<input type=checkbox name=%s>'%key_id)
         result_table.set_value(rowcount,"attn",attn)
         result_table.set_value(rowcount,"test_run",test_run)
