@@ -170,9 +170,16 @@ def get_db_module() :
 # db is the main database
 # qdb is the query-related database
 #
+
+db=None
+qdb=None
+
 def open_db ( ):
-    sqlite3 = get_db_module()
     global db
+    if db is not None :
+        return db
+
+    sqlite3 = get_db_module()
     dbname = cfg.dbdir+"/pdk.db"
     if not os.path.exists(dbname) :
         print "NO DATABASE FILE",dbname
@@ -184,8 +191,11 @@ def open_db ( ):
     return db
 
 def open_qdb ( ) :
-    sqlite3 = get_db_module()
     global qdb
+    if qdb is not None :
+        return qdb
+
+    sqlite3 = get_db_module()
 
     # timeout = 45 seconds. we may have to wait as long as it takes
     # to implement somebody else's transaction.  That can only be
