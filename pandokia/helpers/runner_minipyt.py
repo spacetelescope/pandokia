@@ -10,6 +10,11 @@ import time
 import gc
 import copy
 
+# In python 2.6 and later, this prevents writing the .pyc files on import.
+# I normally don't want the .pyc files cluttering up the test directories.
+# Before python 2.6, this doesn't do anything, but nothing breaks either.
+sys.dont_write_bytecode = True
+
 # set to true if you want dots
 dots = False
 
