@@ -51,6 +51,7 @@ def run( ) :
 
     qid = int(form['qid'].value)
     if 'action_remove' in form :
+        qid = copy_qid(qdb,qid)
         for key_id in valid_key_ids(form) :
             qdb.execute('DELETE FROM query WHERE qid = ? AND key_id = ?', (qid, key_id))
         qdb.commit()
@@ -65,6 +66,7 @@ def run( ) :
         db.commit()
 
     elif 'action_keep' in form :
+        qid = copy_qid(qdb,qid)
         c = qdb.execute('SELECT key_id FROM query WHERE qid = ?', (qid,))
         for key_id, in c :
             if not str(key_id) in form :
@@ -117,6 +119,17 @@ def run( ) :
             + "</a><br>\n"
             )
 
+def copy_qid(qdb,old_qid) :
+    now = time.time()
+    c = qdb.execute("INSERT INTO query_id ( time ) VALUES ( ? ) ",(now,))
+    new_qid = c.lastrowid
+    qdb.commit()
+
+    s = "INSERT INTO query ( qid, key_id ) SELECT %d, key_id FROM query WHERE qid = %d" % ( new_qid, old_qid )
+    qdb.execute(s)
+    qdb.commit()
+
+    return new_qid
 
 def valid_key_ids(form) :
     l = [ ]
