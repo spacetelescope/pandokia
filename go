@@ -16,7 +16,7 @@ ssbdev)
 	python setup.py -q install --home $there
 	;;
 '')
-	n=29
+	n=30
 	there=/ssbwebv1/data2/pandokia/c$n
 	python setup.py -q install --home $there
 	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi
