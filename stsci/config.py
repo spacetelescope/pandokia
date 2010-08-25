@@ -69,3 +69,15 @@ status_names = {
     'M' : 'missing',
     }
 
+default_user_email_preferences  = [
+#   ( project, format, maxlines )
+#       formats: n=none, c=contact, s=summary, f=full
+    ( 'astrolib',       'n',    100 ),
+    ( 'multidrizzle',   'f',    100 ),
+    ( 'pydrizzle',      'f',    100 ),
+    ( 'pyetc',          'n',    100 ),
+    ( 'stsci_python',   'f',    100 ),
+    ( 'stsdas',         'f',    100 ),
+    ]
+
+
