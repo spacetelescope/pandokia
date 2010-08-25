@@ -100,6 +100,7 @@ def show(user) :
     tb.define_column("contact",showname='Contact')
     tb.define_column("summ",showname='Summary')
     tb.define_column("full",showname='Full')
+    tb.define_column("all", showname='Always')
     tb.define_column("line",showname='Max')
 
     row = 0
@@ -136,6 +137,7 @@ def show(user) :
         tb.set_value(row, 'contact', html='<input type=radio name="radio.%s" value="c" %s>'%(project, ckif('c')))
         tb.set_value(row, 'summ', html='<input type=radio name="radio.%s" value="s" %s>'%(project, ckif('s')))
         tb.set_value(row, 'full', html='<input type=radio name="radio.%s" value="f" %s>'%(project, ckif('f')))
+        tb.set_value(row, 'all', html='<input type=radio name="radio.%s" value="F" %s>'%(project, ckif('F')))
 
         # maxlines is an integer, but 0 means no limit.  display it as a blank field
         if (maxlines == 0) :
@@ -152,7 +154,8 @@ def show(user) :
     output.write('''<p>None=no email about that project<br>
      Contact=email only tests you are a contact for<br>
      Summary=email contains only a count<br>
-     Full=show all tests with problems<br>
+     Full=show all tests with problems, skip projects with none<br>
+     Always=show all tests with problems, show all projects with problems or not<br>
      Max=list at most max tests in the email</p>''')
     output.write('<input type=submit name=submit value=save>')
 
@@ -220,7 +223,7 @@ def save(user) :
             format = 'n'
 
         # ignore it if they are messing with us
-        if not format in [ 'c', 'n', 'f', 's' ] :
+        if not format in [ 'c', 'n', 'f', 'F', 's' ] :
             format = 'n'
 
 

@@ -187,17 +187,26 @@ def create_email(username, test_run) :
 
 
         # format 'f' skips the report if there is nothing to say.
+        # format 'F' does it every time
 
         if format.capitalize() == 'F':
+
             all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
-            if all_hosts is None and some_hosts is None :
+
+            if ( ( all_hosts is None ) and ( some_hosts is None ) ) :
+                if (format == 'F') :
+                    email += "Project: "+ project + "\n\n    No problems to report\n\n"
+                    send_notice = True
                 continue
+
             email += "Project: "+ project + "\n\n"
+
             if all_hosts is not None :
                 email += "These tests failed on all hosts and on all contexts\n"
                 email += all_hosts.get_rst()
                 email += "\n"
                 send_notice = True
+
             if some_hosts is not None :
                 email += "These tests failed on some hosts\n"
                 email += some_hosts.get_rst()
@@ -217,42 +226,87 @@ def create_email(username, test_run) :
 
     if not send_notice :
         return None
+
+    if TEST :
+        email += '\n\nThis email created for %s\n' % username
+
     return email
 
 def build_report_table(test_run,project,maxlines):
+    # Make some tables for a particular user.  The data is all in
+    # memory in the dictionary test_run.  project is which project we are
+    # interested in.
 
-    all_hosts = text_table.text_table()
+    # There are two tables: one for tests that had a problem on all hosts,
+    # and one that had a problem on only some hosts.  Initialize both
+    # tables now.
+    all_hosts  = text_table.text_table()
     some_hosts = text_table.text_table()
 
-    all_hosts .stash_more_count = 0
-    some_hosts.stash_more_count = 0
-
-    test_run = project_test_run(test_run,project);
-
-    cols = ['Host', 'Test Name', 'Context', 'Status']
-    for col_name in cols:
+    for col_name in ( 'Host', 'Context', 'Test Name', 'Status' ) :
         all_hosts.define_column(col_name)
         some_hosts.define_column(col_name)
 
+    # we want to say "N more" when there are more than maxlines in the
+    # table.  We have no convenient place to keep that value, so I'm
+    # stuffing it into the text_table object.  This works in python, though
+    # it isn't particularl good practice.
+    all_hosts .stash_more_count = 0
+    some_hosts.stash_more_count = 0
+
+    # Pick up the data
+    test_run = project_test_run(test_run,project);
+
+    # If there is nothing there, we can leave early
     if len(test_run.keys()) == 0:
         return ( None, None )
 
+
+    # sorted list of affected host names
     hosts = test_run.keys()
     hosts.sort()
 
-    for i, host in enumerate(hosts):
+    # process the data for each host
+    for host in hosts:
+
+        # sort by the test name
         test_run[host].sort()
+
+        # pick which table this is going in
         if host == 'All':
             table = all_hosts
         else:
             table = some_hosts
-        build_report_table_helper( table, test_run[host] )
+
+        # stuff the material into that table
+        for val in test_run[host] :
+
+            # find the next row in the table
+            row = table.get_row_count()
+
+            # just count it if the table is too full
+            if row >= maxlines and maxlines > 0:
+                table.stash_more_count += 1
+                continue
+
+            # insert a row
+            context, test_name, status = val
+            table.set_value(row,'Host',     host)
+            table.set_value(row,'Test Name',test_name)
+            table.set_value(row,'Context',  context)
+            table.set_value(row,'Status',   status)
+
+    # if we cut off either table for going over the maxlines, add a line
+    # at the end showing how many lines we cut off.  This happens after
+    # the end of the loop so we can have a correct total
 
     if all_hosts.stash_more_count > 0 :
-        table.set_value( all_hosts.get_row_count() , 'Test Name' , '%d more' % all_hosts.stash_more_count )
+        all_hosts.set_value( all_hosts.get_row_count() , 'Test Name' , '%d more' % all_hosts.stash_more_count )
 
     if some_hosts.stash_more_count > 0 :
-        table.set_value( some_hosts.get_row_count() , 'Test Name' , '%d more' % some_hosts.stash_more_count )
+        some_hosts.set_value( some_hosts.get_row_count() , 'Test Name' , '%d more' % some_hosts.stash_more_count )
+
+    # if either table didn't have anything in it, return None for that one.
 
     if all_hosts.get_row_count() == 0 :
         all_hosts = None
@@ -262,22 +316,6 @@ def build_report_table(test_run,project,maxlines):
 
     return (all_hosts, some_hosts)
 
-def build_report_table_helper( table, xxx ) :
-    
-    for j, val in xxx :
-
-        row = table.get_row_count()
-
-        if row >= maxlines and maxlines > 0:
-            table.stash_more_count += 1
-            continue
-
-        test_name, context, status = val
-
-        table.set_value(row,0,host)
-        table.set_value(row,1,test_name)
-        table.set_value(row,2,context)
-        table.set_value(row,3,status)
 
 #actually send the email
 def sendmail(addy, subject, text):
