@@ -220,59 +220,64 @@ def create_email(username, test_run) :
     return email
 
 def build_report_table(test_run,project,maxlines):
+
     all_hosts = text_table.text_table()
     some_hosts = text_table.text_table()
-    cols = ['Host', 'Test Name', 'Context', 'Status']
+
+    all_hosts .stash_more_count = 0
+    some_hosts.stash_more_count = 0
+
     test_run = project_test_run(test_run,project);
+
+    cols = ['Host', 'Test Name', 'Context', 'Status']
     for col_name in cols:
         all_hosts.define_column(col_name)
         some_hosts.define_column(col_name)
+
     if len(test_run.keys()) == 0:
         return ( None, None )
-    # This isn't quite right.
-    # There are two different tables, so we need to be tracking
-    # two different row numbers.
-    row_a = 0
-    row_s = 0
-    trip = 0
+
     hosts = test_run.keys()
     hosts.sort()
-    any_all_hosts = False
-    any_some_hosts = False
 
     for i, host in enumerate(hosts):
         test_run[host].sort()
         if host == 'All':
             table = all_hosts
-            row = row_a
         else:
             table = some_hosts
-            row = row_s
-        for j, val in enumerate(test_run[host]):
-            if row >= maxlines and maxlines > 0:
-                table.set_value(row,0,'%d more'%(len(test_run[host])-row))
-                break
-            if host == 'All' :
-                any_all_hosts = True
-            else :
-                any_some_hosts = True
-            table.set_value(row,0,host)
-            test_name, context, status = val
-            table.set_value(row,1,test_name)
-            table.set_value(row,2,context)
-            table.set_value(row,3,status)
-            row = row + 1
-        if host != 'All':
-            # only need to save row_s because there is only one instance
-            # of "All" n the list.
-            row_s = row
+        build_report_table_helper( table, test_run[host] )
 
-    if not any_all_hosts :
+    if all_hosts.stash_more_count > 0 :
+        table.set_value( all_hosts.get_row_count() , 'Test Name' , '%d more' % all_hosts.stash_more_count )
+
+    if some_hosts.stash_more_count > 0 :
+        table.set_value( some_hosts.get_row_count() , 'Test Name' , '%d more' % some_hosts.stash_more_count )
+
+    if all_hosts.get_row_count() == 0 :
         all_hosts = None
-    if not any_some_hosts :
+
+    if some_hosts.get_row_count() == 0 :
         some_hosts = None
 
     return (all_hosts, some_hosts)
+
+def build_report_table_helper( table, xxx ) :
+    
+    for j, val in xxx :
+
+        row = table.get_row_count()
+
+        if row >= maxlines and maxlines > 0:
+            table.stash_more_count += 1
+            continue
+
+        test_name, context, status = val
+
+        table.set_value(row,0,host)
+        table.set_value(row,1,test_name)
+        table.set_value(row,2,context)
+        table.set_value(row,3,status)
 
 #actually send the email
 def sendmail(addy, subject, text):
