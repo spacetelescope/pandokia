@@ -1,5 +1,5 @@
-"""This is the new means to email test reports to contacts.  As it takes shape 
-users will be able to select which reports they like and the level of verbosity 
+"""This is the new means to email test reports to contacts.  As it takes shape
+users will be able to select which reports they like and the level of verbosity
 associated with said reports.
 """
 TEST = True
@@ -22,7 +22,7 @@ if False:
     for i in range(0,100):
         db.execute(query,('name_'+str(i),'email_'+str(i)))
     db.commit()
-        
+
 # insert pref if it exists
 # format takes 'n', 's', 'f', or 'int'
 def add_user_pref(username,project,format,maxlines=0):
@@ -45,23 +45,23 @@ def get_user_projects(username):
 
 #Let us get feed back on this
 def project_test_run(test_run, project):
-    hosts_q = """SELECT DISTINCT(host) FROM result_scalar WHERE test_run = ? AND project = ? 
+    hosts_q = """SELECT DISTINCT(host) FROM result_scalar WHERE test_run = ? AND project = ?
              ORDER BY host, context, test_name"""
-    context_q = """SELECT DISTINCT(context) FROM result_scalar WHERE test_run = ? AND project = ? 
+    context_q = """SELECT DISTINCT(context) FROM result_scalar WHERE test_run = ? AND project = ?
             AND status <> 'P' ORDER BY host, context, test_name"""
-    
+
     host_res = db.execute(hosts_q,(test_run,project))
     hosts = len([host for host, in host_res])
-    
+
     context_res = db.execute(context_q,(test_run,project))
     contexts = len([context[0] for context in context_res])
-    
+
     tests = {}
     res_ary = {}
     if (test_run,project) in test_runs :
         return test_runs[(test_run,project)]
 
-    query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = ? AND project = ? 
+    query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = ? AND project = ?
             AND status <> 'P' ORDER BY host, context, test_name """
     res = db.execute(query,(test_run,project))
     #res_ary = [ (host, test_name, context, status) for host, test_name, context, status in res]
@@ -82,11 +82,11 @@ def project_test_run(test_run, project):
         elif len(test['h']) == hosts and len(set(test['c'])) == contexts:
             res_ary['All'] =  res_ary.get('All',[])
             res_ary['All'].append((test['c'][0],test_name,test['s'][0]))
-    #Build up array of tuples 
+    #Build up array of tuples
     test_runs[(test_run,project)] = res_ary
     return res_ary
 
-    
+
 #summarize test with counts of pass fail error disabled and missing
 # access dictionary with test_summary[(test_run,project)][host][status] host can be specific or all
 def get_test_summary(test_run,project):
@@ -96,7 +96,7 @@ def get_test_summary(test_run,project):
         return test_summary[(test_run,project)]
     query = """SELECT status,context, host FROM result_scalar WHERE test_run = ? AND project = ? """
     res = db.execute(query,(test_run,project))
-    
+
     for status, context, host in res:
         sum_dict[host] = sum_dict.get(host,{})
         sum_dict[host][context] = sum_dict[host].get(context,{})
@@ -107,13 +107,13 @@ def get_test_summary(test_run,project):
             for status in sum_dict[host][context].keys():
                 all_hosts[status] = all_hosts.get(status,0) + sum_dict[host][context][status]
     sum_dict['All'] = all_hosts
-    
+
     for host in sum_dict.keys():
         if host == 'All':
             sum_dict[host]['T'] = sum(sum_dict[host].values())
         else:
             for context in sum_dict[host].keys():
-                sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())    
+                sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())
     test_summary[(test_run,project)] = sum_dict
     #print sum_dict
     return sum_dict
@@ -144,14 +144,14 @@ def create_summary(test_run,project):
                 sum_table.set_value(i+j,1,context)
                 for k, status in enumerate(stat_keys_sorted):
                     sum_table.set_value(i+j,2+k,test_summary[host][context].get(status,0))
-                
+
     #contexts  = test_summary[host].keys()
     #for context in context.sort():
     #print context
     #make up tables for this email.
 
     return sum_table
-    
+
 #create user emails based on format in user_email_pref
 #THIS IS UGLY
 def create_email(username, test_run) :
@@ -273,7 +273,7 @@ def build_report_table(test_run,project,maxlines):
         some_hosts = None
 
     return (all_hosts, some_hosts)
-        
+
 #actually send the email
 def sendmail(addy, subject, text):
     """Interface to the mail system is sequestered here. Presently just
