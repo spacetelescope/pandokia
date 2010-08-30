@@ -325,9 +325,25 @@ def process_file( filename ) :
 
         print 'import succeeds'
 
+        have_setup = 0
+        have_teardown = 0
+        have_pycode = 0
+
         # look through the module for things that might be tests
         l = [ ]
         for name, ob in inspect.getmembers(module, inspect.isfunction) + inspect.getmembers(module, inspect.isclass) :
+
+            if f_name == 'setUp' :
+                have_setup = 1
+                continue
+
+            if f_name == 'tearDown' :
+                have_teardown = 1
+                continue
+
+            if f_name == 'pycode' :
+                have_pycode = 1
+                continue
 
             try :
                 # if it has minipyt_test, that value is a flag
@@ -358,6 +374,14 @@ def process_file( filename ) :
 
         sort_test_list(l, test_order)
 
+        try :
+            if have_setup :
+                module.setUp()
+        except :
+            print "Exception in setUp"
+            file_status = 'E'
+            traceback.print_exc()
+
         for x in l :
             name, ob = x
 
@@ -371,7 +395,19 @@ def process_file( filename ) :
                 print 'class', name, 'as', rname
                 run_test_class( rpt, module, name, ob, test_order )
 
+        if have_pycode :
+            print 'pycode test detected'
+            module.pycode(1)
+
         print 'tests completed'
+
+        try :
+            if have_teardown :
+                module.tearDown()
+        except :
+            print "Exception in tearDown"
+            file_status = 'E'
+            traceback.print_exc()
 
     except AssertionError :
         file_status = 'F'
