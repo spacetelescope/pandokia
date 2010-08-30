@@ -135,6 +135,10 @@ def run ( ) :
 
         output.write('<h3>QID = %d</h3>'%int(qid))
 
+        qdict = { "qid" : qid }
+        output.write( "<a href='"+common.selflink(qdict, linkmode = "treewalk")+"'>" )
+        output.write( "tree walk this qid </a>" )
+
         # suppose you have 
         #   d = { 'A' : 1 }
         # how do you find out the name of the single index value?

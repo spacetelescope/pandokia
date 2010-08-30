@@ -64,6 +64,7 @@ def treewalk ( ) :
     project = get_form(form,'project',  '*')
     status  = get_form(form,'status',   '*')
     attn    = get_form(form,'attn',     '*')
+    qid     = get_form(form,'qid',      None)
 
     debug_cmp = get_form(form,'debug_cmp', 0)
 
@@ -118,6 +119,10 @@ def treewalk ( ) :
         'compare' : comparing,
     }
 
+    if qid is not None :
+        qid = int(qid)
+        query['qid']= qid
+
     if cmp_test_run is not None :
         query['cmp_test_run'] =  cmp_test_run
 
@@ -138,6 +143,9 @@ def treewalk ( ) :
     #
     # show the narrowing parameters
     #
+
+    if qid is not None :
+        output.write( "<h2>QID %d</h2>\n" % qid )
 
     s_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
 
@@ -232,7 +240,9 @@ def treewalk ( ) :
         t = 'show all (not just different)'
     else :
         t = 'show all'
-    show_all_line = common.self_href(lquery, 'treewalk.linkout', t)
+    show_all_line = common.self_href(lquery, 'treewalk.linkout', t) + ' - '
+    lquery['add_attributes'] = 1
+    show_all_line += common.self_href(lquery, 'treewalk.linkout', 'with attributes')
     output.write(show_all_line)
     output.write("<br>")
 
@@ -312,6 +322,15 @@ def treewalk ( ) :
     # test_runs that are in the tests specified)
     #
 
+    if 'qid' in query :
+        return  # bug: temporary work-around.  the narrow-to query is really slow, but doesn't really help the tree walker in qid mode
+        more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(query['qid'])
+    else :
+        more_where = None
+
+    # bug: This whole thing could happen early.  Then, when you find
+    # exactly 1 item in the choices to narrow, you could automatically
+    # include that in all the links.
     for field in ( 'test_run', 'project', 'context', 'host' ) :
         if not '*' in query[field] :
             continue
@@ -329,8 +348,12 @@ def treewalk ( ) :
             ('context', context),
             ('status', status),
             ('attn',attn),
-            ])
-        c = db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+            ], more_where )
+
+        if more_where is None :
+            c = db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+        else :
+            c = db.execute("SELECT DISTINCT %s FROM result_scalar, query %s ORDER BY %s" % ( field, where_text, field ), where_dict)
         for x, in c :
             if x is None :
                 continue
@@ -340,13 +363,18 @@ def treewalk ( ) :
 
     output.write("")
 
+##########
+#
+# link out to summary page
+#
+
 def linkout( ) :
     #
     # linking out of the test walker and into the test display
     #
-    # This does not actually display anything.  It makes an entry in the qdb
-    # database that contains a list of test results, then redirects to the
-    # cgi that displays that.
+    # This does not actually display anything.  It makes an entry in the
+    # poorly named "query" table database that contains a list of test
+    # results, then redirects to the cgi that displays that.
     #
     # It is html safe because it only outputs values that are created here.
 
@@ -364,7 +392,6 @@ def linkout( ) :
 
     #
 
-    qdb = common.open_qdb()
     db = common.open_db()
 
     #
@@ -410,13 +437,24 @@ def linkout( ) :
     else :
         attn = '*'
 
+    if form.has_key("qid") :
+        oldqid = int( form["qid"].value )
+    else :
+        oldqid = None
+
     # create a new qid - this is the identity of a list of test results
 
     now = time.time()
 
-    c = qdb.execute("INSERT INTO query_id ( time ) VALUES ( ? ) ",(now,))
-    qid = c.lastrowid
-    qdb.commit()
+    c = db.execute("INSERT INTO query_id ( time ) VALUES ( ? ) ",(now,))
+    newqid = c.lastrowid
+    db.commit()
+
+    if oldqid is not None :
+        print "WITH QID=",oldqid
+        more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % oldqid
+    else :
+        more_where = None
 
     # find a list of the tests
     where_text, where_dict = common.where_tuple ([ 
@@ -427,50 +465,56 @@ def linkout( ) :
         ('context', context),
         ('status', status),
         ('attn', attn),
-        ])
+        ], more_where = more_where )
 
-    c1 = db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
+    if oldqid is None :
+        c1 = db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
+    else :
+        c1 = db.execute("SELECT result_scalar.key_id FROM result_scalar, query %s" % where_text, where_dict )
 
     a = [ ]
     for x in c1 :
         (key_id, ) = x
         a.append(key_id)
 
-    # Enter the test results into the qdb with the current qid, then
-    # redirect to displaying the qid.  That will get the user the list of
-    # all tests.
+    # Enter the test results with the current qid, then redirect to
+    # displaying the qid.  That will get the user the list of all tests.
 
     # (This used to link directly to the detail display if there was only one,
     # but that makes the checkboxes unavailable in that case.)
 
     for key_id in a :
-        qdb.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (qid, key_id ) )
-    qdb.commit()
+        db.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (newqid, key_id ) )
+    db.commit()
+
+    url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
+
+    if form.has_key('add_attributes') :
+        x = int(form['add_attributes'].value)
+        if x :
+            url += '&show_attr=1'
 
     if not no_redirect :
         output.write(
-            '<html><head><meta http-equiv="REFRESH" content="0;'
-            + pandokia.pcgi.cginame
-            + ( '?query=summary&qid=%s"' % qid ) 
-            + '>\n</head><body>\n'
+            "<html><head><meta http-equiv='REFRESH' content='0;%s'>\n</head><body>\n" % url
             )
     output.write( 
-        "redirecting: <a href='"
-        + pandokia.pcgi.cginame
-        + ("?query=summary&qid=%s'>qid = " % qid)
-        + str(qid) 
-        + "</a><br>\n" 
+        "redirecting: <a href='%s'> qid = %s </a><br>\n" % ( url, newqid )
         )
 
+##########
+#
+# functions
+#
 
-def query_to_where_tuple( query, fields ) :
+def query_to_where_tuple( query, fields, more_where = None ) :
     l = [ ]
     for x in fields :
         if x in query :
             v = query[x]
             l.append( ( x, v ) )
 
-    return common.where_tuple(l)
+    return common.where_tuple(l, more_where = more_where)
 
 def collect_prefixes( query ) :
     #
@@ -481,9 +525,20 @@ def collect_prefixes( query ) :
     #
     test_name = query['test_name']
 
-    where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
+    have_qid = 'qid' in query
+    if have_qid :
+        qid = int(query['qid'])
+        more_where = "query.qid = %d  AND query.key_id = result_scalar.key_id" % qid
+    else :
+        more_where = None
 
-    c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+    where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
+
+    if not have_qid :
+        c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+    else :
+        sys.stdout.flush()
+        c = db.execute("SELECT DISTINCT test_name FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
 
     l = len(test_name)
     prev_one = None
@@ -543,6 +598,13 @@ def collect_table( prefixes, query ) :
     total_row = rownum
     rownum = rownum + 1
 
+    have_qid = 'qid' in query
+    if have_qid :
+        qid = int(query['qid'])
+        more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % qid
+    else :
+        more_where = None
+
     for this_test_name in prefixes :
         lquery['test_name'] = this_test_name
 
@@ -562,8 +624,11 @@ def collect_table( prefixes, query ) :
         for x in common.cfg.statuses :
             if ( status == '*') or ( x in status ) :
                 lquery['status'] = x
-                where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ) )
-                c = db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+                where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
+                if not have_qid :
+                    c = db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+                else :
+                    c = db.execute("SELECT count(*) FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
                 (count_col[x],) = c.fetchone()
                 lquery['status'] = x
                 table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
