@@ -48,7 +48,14 @@ def run( ) :
     if x == 'show' :
         show(user)
     elif x == 'save' :
-        save(user)
+        if ( 'newuser' in form ) and ( user in common.cfg.admin_user_list ) :
+            if form['submit'].value == 'newuser' :
+                newuser = form['newuser'].value
+                save(newuser)
+            else :
+                save(user)
+        else :
+            save(user)
     elif x == 'add_project' :
         add_project(user)
     elif x == 'list' :
@@ -76,7 +83,7 @@ def show(user) :
     c = db.execute('SELECT email FROM user_prefs WHERE username = ?',(user,))
     x = c.fetchone()
     if x is None :
-        email = ''
+        email = user
     else :
         email, = x
 
@@ -93,6 +100,7 @@ def show(user) :
     tb.define_column("contact",showname='Contact')
     tb.define_column("summ",showname='Summary')
     tb.define_column("full",showname='Full')
+    tb.define_column("all", showname='Always')
     tb.define_column("line",showname='Max')
 
     row = 0
@@ -104,6 +112,15 @@ def show(user) :
             return ''
 
     c = db.execute('SELECT username, project, format, maxlines FROM user_email_pref WHERE username = ? ORDER BY project', (user,))
+
+    c = [ x for x in c ]
+
+    if len(c) == 0 :
+        try :
+            x = common.cfg.default_user_email_preferences
+        except :
+            x = [ ]
+        c = [ ( user, x[0], x[1], x[2] ) for x in x ]
 
     for username, project, format, maxlines in c :
         if not project_name_ok :
@@ -120,6 +137,7 @@ def show(user) :
         tb.set_value(row, 'contact', html='<input type=radio name="radio.%s" value="c" %s>'%(project, ckif('c')))
         tb.set_value(row, 'summ', html='<input type=radio name="radio.%s" value="s" %s>'%(project, ckif('s')))
         tb.set_value(row, 'full', html='<input type=radio name="radio.%s" value="f" %s>'%(project, ckif('f')))
+        tb.set_value(row, 'all', html='<input type=radio name="radio.%s" value="F" %s>'%(project, ckif('F')))
 
         # maxlines is an integer, but 0 means no limit.  display it as a blank field
         if (maxlines == 0) :
@@ -136,9 +154,15 @@ def show(user) :
     output.write('''<p>None=no email about that project<br>
      Contact=email only tests you are a contact for<br>
      Summary=email contains only a count<br>
-     Full=show all tests with problems<br>
+     Full=show all tests with problems, skip projects with none<br>
+     Always=show all tests with problems, show all projects with problems or not<br>
      Max=list at most max tests in the email</p>''')
     output.write('<input type=submit name=submit value=save>')
+
+    if user in common.cfg.admin_user_list :
+        output.write('<br>')
+        output.write('<input type=text name=newuser>')
+        output.write('<input type=submit name=submit value=newuser>')
     output.write('</form>')
 
     # this is a different form - it just adds a project to the list of
@@ -175,42 +199,52 @@ def add_project(user) :
 def save(user) :
     form = pandokia.pcgi.form
 
+    email = None
+    if 'email' in form :
+        email = form['email'].value
+
+    if email is None or email == 'None' :
+        email = user
+    
     # save the email address that they entered
-    db.execute('UPDATE user_prefs SET email = ? WHERE username = ?',(form['email'].value,user) )
+    db.execute('DELETE FROM user_prefs WHERE username = ?',(user,))
+    db.execute('INSERT INTO user_prefs ( email, username ) VALUES ( ?, ? )',(email,user) )
 
     # projects is a list of all the projects that the form is submitting
     for project in form.getlist('projects') :
+        if not project_name_ok(project) :
+            continue
 
         # pick out the value of the radio button.
         field_name = 'radio.%s'%project
         if field_name in form :
-            value = form[field_name].value
+            format = form[field_name].value
         else :
-            value = 'n'
+            format = 'n'
 
         # ignore it if they are messing with us
-        if not value in [ 'c', 'n', 'f', 's' ] :
-            value = 'n'
+        if not format in [ 'c', 'n', 'f', 'F', 's' ] :
+            format = 'n'
 
-        db.execute('UPDATE user_email_pref SET format = ? WHERE username = ? AND project = ?',
-                (value, user, project ) )
 
         # pick out the value of the text field that shows how many tests
         # we want reported
         field_name = 'line.%s'%project
         if field_name in form :
-            value = form[field_name].value
+            maxlines = form[field_name].value
         else :
-            value = ''
+            maxlines = ''
 
         # if it is not blank or an integer, blank it out
         try :
-            value = int('0'+value) 
+            maxlines = int('0'+maxlines) 
         except ValueError :
-            value = ''
+            maxlines = ''
 
-        db.execute('UPDATE user_email_pref SET maxlines = ? WHERE username = ? AND project = ?',
-                    (value, user, project ) )
+        # delete and insert instead of update because we may be adding new projects.
+        db.execute('DELETE FROM user_email_pref WHERE username = ? and project = ?',(user, project))
+        db.execute('INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( ?, ?, ?, ? )', (user, project, format, maxlines))
+
 
     db.commit()
     output.write('Preferences saved.<br>')

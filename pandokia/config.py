@@ -154,6 +154,22 @@ status_names = {
 
 #####
 #
+# used if the user has nothing in their email preferences
+#
+
+default_user_email_preferences  = [
+#   ( project, format, maxlines )
+#       formats: n=none, c=contact, s=summary, f=full
+    ( 'astrolib',       'n',    100 ),
+    ( 'multidrizzle',   'f',    100 ),
+    ( 'pydrizzle',      'f',    100 ),
+    ( 'pyetc',          'n',    100 ),
+    ( 'stsci_python',   'f',    100 ),
+    ( 'stsdas',         'f',    100 ),
+    ]
+
+#####
+#
 # END OF CONFIGURATION
 #
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"

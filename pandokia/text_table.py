@@ -258,7 +258,7 @@ class text_table :
         row = self.rows[row]
         if col >= len(row.list) :
             return None
-        return row.list[col].get_text()
+        return row.list[col]
 
     ##
     def get_title(self, col) :

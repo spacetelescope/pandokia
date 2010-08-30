@@ -10,6 +10,11 @@ import time
 import gc
 import copy
 
+# In python 2.6 and later, this prevents writing the .pyc files on import.
+# I normally don't want the .pyc files cluttering up the test directories.
+# Before python 2.6, this doesn't do anything, but nothing breaks either.
+sys.dont_write_bytecode = True
+
 # set to true if you want dots
 dots = False
 
@@ -87,27 +92,36 @@ def run_test_function(rpt, mod, name, ob) :
 
     # run the test
     start_time = time.time()
-    try :
-        setup = getattr(ob, 'setup', None)
-        if setup is not None :
-            setup()
-        ob()
-        status = 'P'
-    except AssertionError :
-        status = 'F'
-        traceback.print_exc()
-    except :
-        status = 'E'
-        traceback.print_exc()
 
-    teardown = getattr(ob, 'teardown', None)
-    if teardown is not None :
+    #
+    disable = getattr(ob, '__disable__', False)
+
+    if not disable :
         try :
-            teardown()
+            setup = getattr(ob, 'setup', None)
+            if setup is not None :
+                setup()
+            ob()
+            status = 'P'
+        except AssertionError :
+            status = 'F'
+            traceback.print_exc()
         except :
-            print "Exception in teardown()"
             status = 'E'
             traceback.print_exc()
+
+        teardown = getattr(ob, 'teardown', None)
+        if teardown is not None :
+            try :
+                teardown()
+            except :
+                print "Exception in teardown()"
+                status = 'E'
+                traceback.print_exc()
+    else :
+        # is disabled
+        status = 'D'
+
     end_time = time.time()
 
     # collect the gathered stdout/stderr
@@ -129,7 +143,12 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 
     pycode.snarf_stdout()
     class_start_time = time.time()
-    class_status = 'P'
+
+    class_disable = getattr(ob, '__disable__', False )
+    if not class_disable :
+        class_status = 'P'
+    else :
+        class_status = 'D'
 
     try :
         l = [ ]
@@ -137,11 +156,14 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
         have_setup = 0
         have_teardown = 0
 
+        # look through the class for names of methods that are interesting
+        # to us.
+
         for f_name, f_ob in inspect.getmembers(ob, inspect.ismethod) :
 
             # magic names to remember.  (The names are ugly
             # because they are copied from nose, which copied
-            # them from unittest.)
+            # them from unittest, which copied them from junit.)
 
             if f_name == 'setUp' :
                 have_setup = 1
@@ -151,7 +173,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
                 have_teardown = 1
                 continue
 
-            # if it has __test__, that value is a flag
+            # if the method has __test__, that value is a flag
             # about whether it is a test or not.
             try :
                 n = getattr(f_ob,'__test__')
@@ -172,7 +194,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
         new_object_every_time = not getattr(ob,'minipyt_shared',0)
 
         # if not, we need to make just one right now
-        if not new_object_every_time :
+        if not new_object_every_time and not class_disable :
             class_ob = ob()
 
         # for each test method on the object
@@ -181,56 +203,63 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             save_tda = { }
             save_tra = { }
 
+
+            pycode.snarf_stdout()
+
+            fn_start_time = time.time()
+
             try :
-                # gather up stdout/stderr for the test
-                pycode.snarf_stdout()
 
-                fn_start_time = time.time()
+                if ( not class_disable ) and ( not getattr( f_ob, '__disable__', False ) ) :
+                    # gather up stdout/stderr for the test
 
-                # make the new object, if necessary
-                if new_object_every_time :
-                    class_ob = ob()
+                    # make the new object, if necessary
+                    if new_object_every_time :
+                        class_ob = ob()
 
-                # blank out the tda/tra dictionaries for each test.
-                class_ob.tda = save_tda
-                class_ob.tra = save_tra
+                    # blank out the tda/tra dictionaries for each test.
+                    class_ob.tda = save_tda
+                    class_ob.tra = save_tra
 
-                # get a bound function that we can call
-                fn = eval('class_ob.'+f_name)
+                    # get a bound function that we can call
+                    fn = eval('class_ob.'+f_name)
 
-                # call the test method
-                try :
-                    if have_setup :
-                        class_ob.setUp()
-                    fn()
-                    fn_status = 'P'
-                except AssertionError :
-                    fn_status = 'F'
-                    traceback.print_exc()
-                except :
-                    fn_status = 'E'
-                    traceback.print_exc()
+                    # call the test method
+                    try :
+                        if have_setup :
+                            class_ob.setUp()
+                        fn()
+                        fn_status = 'P'
+                    except AssertionError :
+                        fn_status = 'F'
+                        traceback.print_exc()
+                    except :
+                        fn_status = 'E'
+                        traceback.print_exc()
 
-                # Always run teardown, no matter how the test worked out.
-                try :
-                    if have_teardown :
-                        class_ob.tearDown()
-                except :
-                    fn_status = 'E'
-                    traceback.print_exc()
+                    # Always run teardown, no matter how the test worked out.
+                    try :
+                        if have_teardown :
+                            class_ob.tearDown()
+                    except :
+                        fn_status = 'E'
+                        traceback.print_exc()
 
-                # The user may have replaced these
-                # dictionaries, so we need to pick them
-                # out of the object.  ( Copy them out of the object because it may be
-                # gone by the time we need them. )
-                save_tda = class_ob.tda
-                save_tra = class_ob.tra
+                    # The user may have replaced these
+                    # dictionaries, so we need to pick them
+                    # out of the object.  ( Copy them out of the object because it may be
+                    # gone by the time we need them. )
+                    save_tda = class_ob.tda
+                    save_tra = class_ob.tra
 
-                # if we make a new object instance for
-                # every test, dispose the old one now
-                if new_object_every_time :
-                    del class_ob
+                    # if we make a new object instance for
+                    # every test, dispose the old one now
+                    if new_object_every_time :
+                        del class_ob
 
+                else :
+                    # it was disabled
+                    fn_status = 'D'
 
             except AssertionError :
                 fn_status = 'F'
@@ -296,9 +325,25 @@ def process_file( filename ) :
 
         print 'import succeeds'
 
+        have_setup = 0
+        have_teardown = 0
+        have_pycode = 0
+
         # look through the module for things that might be tests
         l = [ ]
         for name, ob in inspect.getmembers(module, inspect.isfunction) + inspect.getmembers(module, inspect.isclass) :
+
+            if f_name == 'setUp' :
+                have_setup = 1
+                continue
+
+            if f_name == 'tearDown' :
+                have_teardown = 1
+                continue
+
+            if f_name == 'pycode' :
+                have_pycode = 1
+                continue
 
             try :
                 # if it has minipyt_test, that value is a flag
@@ -329,6 +374,14 @@ def process_file( filename ) :
 
         sort_test_list(l, test_order)
 
+        try :
+            if have_setup :
+                module.setUp()
+        except :
+            print "Exception in setUp"
+            file_status = 'E'
+            traceback.print_exc()
+
         for x in l :
             name, ob = x
 
@@ -342,7 +395,19 @@ def process_file( filename ) :
                 print 'class', name, 'as', rname
                 run_test_class( rpt, module, name, ob, test_order )
 
+        if have_pycode :
+            print 'pycode test detected'
+            module.pycode(1)
+
         print 'tests completed'
+
+        try :
+            if have_teardown :
+                module.tearDown()
+        except :
+            print "Exception in tearDown"
+            file_status = 'E'
+            traceback.print_exc()
 
     except AssertionError :
         file_status = 'F'

@@ -191,6 +191,10 @@ def run() :
     # friendly response.
     sys.stdout.write("content-type: text/html\n\n\n<font color=red><blink>1201</blink></font>\n")
     
-    if cfg.debug :
+    if cfg.debug or ( common.current_user() in common.cfg.adminuser ) :
         for x in form:
-            print x, form[x].value,"<br>"
+            if isinstance(form[x],list) :
+                for y in form[x]:
+                    print x, y,"<br>"
+            else :
+                print x, form[x],"<br>"

@@ -135,6 +135,10 @@ def run ( ) :
 
         output.write('<h3>QID = %d</h3>'%int(qid))
 
+        qdict = { "qid" : qid }
+        output.write( "<a href='"+common.selflink(qdict, linkmode = "treewalk")+"'>" )
+        output.write( "tree walk this qid </a>" )
+
         # suppose you have 
         #   d = { 'A' : 1 }
         # how do you find out the name of the single index value?
@@ -203,6 +207,12 @@ def run ( ) :
             for (n=0; n<len; n++)
                 ele[n].checked= ! ele[n].checked;
             }
+        function condclear(name)
+            {
+            n = document.getElementById(name);
+            if ( n.value.substr(0,1) == '*' )
+                n.value='';
+            }
     </script>
     ''')
 
@@ -216,8 +226,8 @@ def run ( ) :
         <input type=hidden name=qid value=%d>
 	'''% (qid, ) )
         output.write('Actions:<br>')
-	output.write('<input type=text name=begin id=begin value="Begin line" size=10> ')
-	output.write('<input type=text name=end id=end value="End line" size=10> ')
+	output.write("""<input type=text name=begin id=begin value="*Begin line" onfocus='condclear("begin")'size=10> """)
+	output.write("""<input type=text name=end id=end value="*End line" onfocus='condclear("end")' size=10> """)
 	output.write('<input type=button name="setrange" value="Set Range" onclick="set_range(true)">')
 	output.write('<br>')
         output.write('<input type=button name="setall"   value="Select All"   onclick="set_all(true)">')

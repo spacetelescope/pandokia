@@ -169,10 +169,10 @@ def get_db_module() :
 
 # db is the main database
 # qdb is the query-related database
+#   moving to having both in the same db
 #
 
 db=None
-qdb=None
 
 def open_db ( ):
     global db
@@ -191,26 +191,7 @@ def open_db ( ):
     return db
 
 def open_qdb ( ) :
-    global qdb
-    if qdb is not None :
-        return qdb
-
-    sqlite3 = get_db_module()
-
-    # timeout = 45 seconds. we may have to wait as long as it takes
-    # to implement somebody else's transaction.  That can only be
-    # as long as we allow the cgi to run.  In practice, this timeout
-    # is rare/nonexistant on our Xeon, but happens once in a while on
-    # our 400 mhz UltraSparc.
-
-    dbname = cfg.dbdir+"/pdk_query.db"
-    if not os.path.exists(dbname) :
-        print "NO DATABASE FILE",dbname
-    qdb = sqlite3.connect(dbname, timeout=45 )
-    qdb.execute("PRAGMA synchronous = OFF;")
-    qdb.text_factory = str;
-    return qdb
-
+    return open_db()
 
 #
 #
@@ -229,7 +210,17 @@ def next_name( v ) :
     name_dict_counter += 1
     return n
 
-def where_tuple(list) :
+#
+# convert a list of (name,value) to an sql WHERE clause.  value may be
+# a list to mean any one of the list elements.
+#
+# more_where is added to the end with " AND %s ", so you can add additional
+# clauses that don't fit through the interface.
+#
+# the word "WHERE" is automatically added, but if there is nothing to match
+# then the return is a zero length string.
+#
+def where_tuple(list, more_where = None ) :
     global name_dict_counter, name_dict
     name_dict = { }
     name_dict_counter = 0
@@ -277,6 +268,12 @@ def where_tuple(list) :
             and_list.append( '(' + ( ' OR ' .join( or_list ) ) + ')' )
 
     res = ' AND '.join(and_list)
+
+    if more_where :
+        if res != '' :
+            res = res + ' AND ' + more_where
+        else :
+            res = more_where
 
     # if we some how managed to avoid adding any conditions to the
     # string, we also do not want the word "WHERE " in it.  The
