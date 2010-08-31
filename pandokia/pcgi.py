@@ -124,6 +124,11 @@ def run() :
         x.treewalk()
         sys.exit(0)
 
+    if query == "qid_op" :
+        import pandokia.pcgi_qid_op as x
+        x.run()
+        sys.exit(0)
+
     if query == "vview" :
         import pandokia.vview
         pandokia.vview.testwalk()

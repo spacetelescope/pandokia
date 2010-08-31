@@ -137,7 +137,10 @@ def run ( ) :
 
         qdict = { "qid" : qid }
         output.write( "<a href='"+common.selflink(qdict, linkmode = "treewalk")+"'>" )
-        output.write( "tree walk this qid </a>" )
+        output.write( "tree walk this qid </a><br>" )
+
+        output.write( "<a href='"+common.selflink(qdict, linkmode = "qid_op")+"'>" )
+        output.write( "edit this qid </a><br>" )
 
         # suppose you have 
         #   d = { 'A' : 1 }
