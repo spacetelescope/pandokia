@@ -59,7 +59,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
     print "max record number",max_key_id
 
     inc = 100000
-    max_kills = 200
+    max_kills = 400
 
     kill  = [ 1 ] 
     while min_key_id < max_key_id :
@@ -109,6 +109,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
         print "        ",time.time()-tyme
 
         if sleep is not None :
+            print "sleep"
             time.sleep(sleep)
 
     print "done"
@@ -116,6 +117,12 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
 
 
 def clean_db(args) :
+
+    if args[0] == '--help' :
+        print '''
+pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
+'''
+        return
 
     global db
     db = pandokia.common.open_db()
@@ -165,6 +172,20 @@ def delete_run(args) :
     db.commit()
 
     #
+    if args[0] == '--help' :
+        print '''
+pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
+
+    --mine 
+        sticks 'user_YOURNAME_' in front of each test run, so you can
+            pdk delete_run --mine '*'
+        to delete all of your personal test runs
+
+    name1, name2, ...
+        names of test_runs to delete
+
+'''
+        return
 
     if args[0] == '--mine' :
         user_name = get_user_name()
