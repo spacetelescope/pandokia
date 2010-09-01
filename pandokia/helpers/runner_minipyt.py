@@ -18,6 +18,14 @@ sys.dont_write_bytecode = True
 # set to true if you want dots
 dots = False
 
+# local debug flag
+debug = False
+
+#
+if debug :
+    debug_fd = open("/dev/tty","w")
+
+# just in case somebody needs to see a lot of dots when they run their tests. :)
 if 'PDK_DOTS' in os.environ :
     if os.environ['PDK_DOTS'] != 'N' :
         dots = True
@@ -65,7 +73,12 @@ def sort_test_list(l, test_order) :
         l.sort(key=_sort_fn)
     else :
         l.sort()
+    if debug:
+        debug_fd.write("sorted test list: ")
+        debug_fd.write(str([ name for (name,value) in l]))
+        debug_fd.write('\n')
 
+# Generate the report record for a single test.
 def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
     rpt.report( name, status, start_time, end_time, tra, tda, log )
     if dots :
@@ -81,6 +94,9 @@ def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
 ####
 
 def run_test_function(rpt, mod, name, ob) :
+
+    if debug :
+        debug_fd.write("run_test_function: %s\n"% ( name ) )
 
     # blank out the tda/tra dictionaries for each test.
     # poke directly into the module to do it.
@@ -298,6 +314,9 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 
 def process_file( filename ) :
 
+    if debug :
+        debug_fd.write("begin process_file\n")
+
     # pandokia log entry object - writes the pandokia reports
     rpt = pycode.reporter( filename )
 
@@ -319,31 +338,51 @@ def process_file( filename ) :
 
     try :
 
+        if debug :
+            debug_fd.write("process_file: about to import %s %s\n"%(module_name,filename))
 
         # import the module
         module = imp.load_source( module_name, filename )
 
+        if debug :
+            debug_fd.write("process_file: import succeeds\n")
+
         print 'import succeeds'
 
-        have_setup = 0
-        have_teardown = 0
-        have_pycode = 0
+        # these are both flags and the function objects for module
+        # setup/teardown and pycode function
+        setup = None
+        teardown = None
+        pycode_fn = None
+
+        try :
+            setup = module.setUp
+        except AttributeError :
+            pass
+
+        try :
+            teardown = module.tearDown
+        except AttributeError :
+            pass
+
+        try :
+            pycode_fn = module.pycode
+        except AttributeError :
+            pass
+
+        if setup is not None :
+            if debug :
+                debug_fd.write("process_file: running setUp")
+            print "setUp"
+            setup()
 
         # look through the module for things that might be tests
+        if debug :
+            debug_fd.write("process_file: inspect module namespace\n")
         l = [ ]
         for name, ob in inspect.getmembers(module, inspect.isfunction) + inspect.getmembers(module, inspect.isclass) :
-
-            if f_name == 'setUp' :
-                have_setup = 1
-                continue
-
-            if f_name == 'tearDown' :
-                have_teardown = 1
-                continue
-
-            if f_name == 'pycode' :
-                have_pycode = 1
-                continue
+            if debug :
+                debug_fd.write("process_file: inspect name %s\n"%name)
 
             try :
                 # if it has minipyt_test, that value is a flag
@@ -374,14 +413,6 @@ def process_file( filename ) :
 
         sort_test_list(l, test_order)
 
-        try :
-            if have_setup :
-                module.setUp()
-        except :
-            print "Exception in setUp"
-            file_status = 'E'
-            traceback.print_exc()
-
         for x in l :
             name, ob = x
 
@@ -395,19 +426,15 @@ def process_file( filename ) :
                 print 'class', name, 'as', rname
                 run_test_class( rpt, module, name, ob, test_order )
 
-        if have_pycode :
+        if pycode_fn :
             print 'pycode test detected'
-            module.pycode(1)
+            pycode_fn(1, rpt=rpt)
 
         print 'tests completed'
 
-        try :
-            if have_teardown :
-                module.tearDown()
-        except :
-            print "Exception in tearDown"
-            file_status = 'E'
-            traceback.print_exc()
+        if teardown :
+            print "tearDown"
+            teardown()
 
     except AssertionError :
         file_status = 'F'
@@ -428,6 +455,9 @@ def process_file( filename ) :
     gen_report( rpt, None, file_status, file_start_time, file_end_time, { }, { }, log )
 
     rpt.close()
+
+    if debug :
+        debug_fd.write("End process_file\n")
 
 
 ####
