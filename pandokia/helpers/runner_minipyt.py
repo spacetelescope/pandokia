@@ -333,7 +333,7 @@ def process_file( filename ) :
     dots_mode = default_dots_mode
 
     if dots_mode :
-        dots_file.write('File: %s\n'%x)
+        dots_file.write('File: %s\n'%filename)
         dots_file.flush()
 
     # pandokia log entry object - writes the pandokia reports
