@@ -83,11 +83,11 @@ as tests:
 	- classes decorated with pandokia.helpers.minipyt.test
 	  or nose.tools.istest
 
-By default, tests are executed in alphabetical order by name.  If you
+By default, tests are executed in order by line number.  If you
 want to order the tests by line number, use
 
 	{{{
-	minipyt_test_order = 'line'
+	minipyt_test_order = 'name'
 	}}}
 
 in your test module.  This is unreliable for decorated functions because
@@ -140,6 +140,74 @@ test to report the status Error.
 
 The names setUp and tearDown are compatible with nose.  The
 nose.tools.with_setup decorator has no effect on class methods.
+
+
+Special Features
+-------------------------------------------------------------------------------
+
+dots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+minipyt is normally silent when it runs tests.  If you want it to print dots,
+you can
+
+	- set the environment variable PDK_DOTS
+
+	- set the module variable minipyt_dots_mode
+
+to one of these values:
+
+	- a zero-length string gives the default behaviour
+
+	- 'S' shows a dot for each passing test and the status for any
+	  non-passing test
+	  
+	- 'N' shows a dot for each passing test and the test name and
+	  status for any non-passing test
+
+	- 'O show a dot for each passing test and the test name, status, and
+	  output for any non-passing test
+
+If you specify both the environment variable and the module variable, the
+module variable takes precedence.
+
+	{{{
+	# no dots
+	minipyt_dots = ''
+	}}}
+
+	{{{
+	# show dots
+	minipyt_dots = 'S'
+	}}}
+
+
+prevent using nose by mistake
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+nose should recognize and execute most minipyt tests, but you can explicitly
+prevent using a test file with nose by
+
+	{{{
+	import pandokia.helpers.minipyt as mph
+	mph.noseguard()
+	}}}
+
+noseguard() raises an exception if 'nose' is in sys.modules.
+
+This prevents importing the file if nose is also loaded.  If pandokia
+is using minipyt as the test runner, nose will not have been imported.
+If nose is in sys.modules, we assume that is because the test file
+was mistakenly run with pdknose or nosetests.
+
+Presumably, this may cause you problems if you are trying to import the
+test into an interactive python.  If so, disable this function with
+
+	{{{
+        import pandokia.helpers.minipyt as mph
+        mph.disable_noseguard = True
+	}}}
+
 
 
 Decorators

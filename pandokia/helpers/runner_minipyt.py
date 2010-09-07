@@ -15,9 +15,6 @@ import copy
 # Before python 2.6, this doesn't do anything, but nothing breaks either.
 sys.dont_write_bytecode = True
 
-# set to true if you want dots
-dots = False
-
 # local debug flag
 debug = False
 
@@ -26,12 +23,17 @@ if debug :
     debug_fd = open("/dev/tty","w")
 
 # just in case somebody needs to see a lot of dots when they run their tests. :)
-if 'PDK_DOTS' in os.environ :
-    if os.environ['PDK_DOTS'] != 'N' :
-        dots = True
+default_dots_mode = ''
 
-# remember where to send dots (sys.stdout will be captured into the log file)
-dot_file = sys.stdout
+if 'PDK_DOTS' in os.environ :
+    default_dots_mode = os.environ['PDK_DOTS']
+
+dots_mode = default_dots_mode
+
+# where to send dots: sys.stdout will be captured into the log file;
+# I can't think of any other useful place to send them, but we have a
+# special var for the file just in case.
+dots_file = sys.stdout
 
 # the pycode helper contains an object that writes pandokia report files
 import pandokia.helpers.pycode as pycode
@@ -81,13 +83,22 @@ def sort_test_list(l, test_order) :
 # Generate the report record for a single test.
 def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
     rpt.report( name, status, start_time, end_time, tra, tda, log )
-    if dots :
+    if dots_mode :
         if status == 'P' :
-            dot_file.write('.')
+            dots_file.write('.')
         else :
-            if name is None :
-                name = rpt.test_prefix
-            dot_file.write(' %s: %s\n'%(name,status) )
+            if dots_mode == 'N' :
+                if name is None :
+                    name = rpt.test_prefix
+                dots_file.write(' %s: %s\n'%(name,status) )
+            elif dots_mode == 'S' :
+                dots_file.write(status)
+            elif dots_mode == 'O' :
+                dots_file.write('-'*70)
+                dots_file.write('\n%s: %s\n'%(name,status) )
+                dots_file.write(log)
+                dots_file.write('\n')
+        dots_file.flush()
 
 ####
 #### actually run a test function
@@ -317,6 +328,14 @@ def process_file( filename ) :
     if debug :
         debug_fd.write("begin process_file\n")
 
+    global dots_mode
+
+    dots_mode = default_dots_mode
+
+    if dots_mode :
+        dots_file.write('File: %s\n'%x)
+        dots_file.flush()
+
     # pandokia log entry object - writes the pandokia reports
     rpt = pycode.reporter( filename )
 
@@ -347,7 +366,10 @@ def process_file( filename ) :
         if debug :
             debug_fd.write("process_file: import succeeds\n")
 
-        print 'import succeeds'
+        try :
+            dots_mode = module.minipyt_dots_mode
+        except :
+            pass
 
         # these are both flags and the function objects for module
         # setup/teardown and pycode function
@@ -456,6 +478,10 @@ def process_file( filename ) :
 
     rpt.close()
 
+    if dots_mode :
+        dots_file.write('\n')
+        dots_file.flush()
+
     if debug :
         debug_fd.write("End process_file\n")
 
@@ -466,11 +492,7 @@ def process_file( filename ) :
 
 def main(argv) :
     for x in argv :
-        if dots :
-            dot_file.write('File: %s\n'%x)
         process_file( x )
-        if dots :
-            dot_file.write('\n')
 
 
 ####
