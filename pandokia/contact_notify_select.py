@@ -36,57 +36,62 @@ def add_user_pref(username,project,format,maxlines=0):
         db.commit()
         return "Pref commited"
 
-#Grabs the test runs that users are associated with.
+# For projects that a user is interested in, find the name/format/maxlines preferences
 def get_user_projects(username):
     query = """SELECT project, format, maxlines FROM user_email_pref WHERE username=? AND format <> 'N' ORDER BY project"""
     res = db.execute(query,(username,))
     res = [ (project, format, maxlines) for project, format, maxlines in res ]
     return res
 
-#Let us get feed back on this
+# The return value is a tuple:
+#   first value is an array indexed by (host,context).  Each element is a list of (test_name, status) 
+#   second value is a list of tests that failed on all host/context pairs
 def project_test_run(test_run, project):
-    hosts_q = """SELECT DISTINCT(host) FROM result_scalar WHERE test_run = ? AND project = ?
-             ORDER BY host, context, test_name"""
-    context_q = """SELECT DISTINCT(context) FROM result_scalar WHERE test_run = ? AND project = ?
-            AND status <> 'P' ORDER BY host, context, test_name"""
 
-    host_res = db.execute(hosts_q,(test_run,project))
-    hosts = len([host for host, in host_res])
-
-    context_res = db.execute(context_q,(test_run,project))
-    contexts = len([context[0] for context in context_res])
-
-    tests = {}
-    res_ary = {}
     if (test_run,project) in test_runs :
         return test_runs[(test_run,project)]
+
+    c = db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = ? AND project = ? ORDER BY host, context ",
+        ( test_run, project) )
+    host_context = [ ]
+    for host, context in c :
+        host_context.append( (host, context) )
 
     query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = ? AND project = ?
             AND status <> 'P' ORDER BY host, context, test_name """
     res = db.execute(query,(test_run,project))
-    #res_ary = [ (host, test_name, context, status) for host, test_name, context, status in res]
 
+    # we make an array where
+    #   tests[name] is a dict
+    #       ['hc'] is a list of host/contexts where that test failed
+    #       ['s'] is the status
+    tests = {}
     for host, test_name, context, status in res:
-        tests[test_name] = tests.get(test_name,{'h' : [], 'c' : [], 's' : []})
-        tests[test_name]['h'].append(host)
-        tests[test_name]['c'].append(context)
+        tests[test_name] = tests.get(test_name,{'hc' : [], 's' : []})
+        tests[test_name]['hc'].append( (host,context) )
         tests[test_name]['s'].append(status)
 
-    #tests[test_name].sort()
-    for test_name, test in tests.iteritems():
-        if len(test['h']) < hosts or len(set(test['c'])) < contexts:
-            for i in range(0,len(test['h'])):
-                #print test['h'][i], hosts
-                res_ary[test['h'][i]] =  res_ary.get(test['h'][i],[])
-                res_ary[test['h'][i]].append((test['c'][i],test_name,test['s'][i]))
-        elif len(test['h']) == hosts and len(set(test['c'])) == contexts:
-            res_ary['All'] =  res_ary.get('All',[])
-            res_ary['All'].append((test['c'][0],test_name,test['s'][0]))
-    #Build up array of tuples
-    test_runs[(test_run,project)] = res_ary
-    return res_ary
+    # Now convert that into the actual result
 
+    res_ary = { }
+    all_list = [ ]
+    for test_name in tests:
+        test = tests[test_name]
 
+        # if it affected all of the host/context, list it in the all_list
+        # otherwise, list it under the host/context
+
+        if len(test['hc']) == len(host_context) :
+            all_list.append(test_name)
+        else :
+            for hc in test['hc'] :
+                res_ary[hc] = res_ary.get(hc,[])
+                res_ary[hc].append( ( test_name, test['s'][0] ) )
+
+    test_runs[(test_run,project)] = res_ary, all_list
+
+    return res_ary, all_list
+        
 #summarize test with counts of pass fail error disabled and missing
 # access dictionary with test_summary[(test_run,project)][host][status] host can be specific or all
 def get_test_summary(test_run,project):
@@ -152,17 +157,22 @@ def create_summary(test_run,project):
 
     return sum_table
 
-#create user emails based on format in user_email_pref
-#THIS IS UGLY
+# create user emails based on format specified in the user_email_pref table
+
 def create_email(username, test_run) :
-    user_email_q = """SELECT email FROM user_prefs WHERE username = ?"""
-    user_email_res = db.execute(user_email_q,(username,))
-    user_email = [email for email, in user_email_res]
+
     email = "Test report for %s:\n\n" % test_run
+
     projects = get_user_projects(username)
+
     num_proj = len(projects)
+
+    # For some of the formats, we may not send the email if there is
+    # nothing to say.  Set this flag any time you know that you need to
+    # actually send the email.
     send_notice = False
 
+    # For each project the user is interested in
     for project in projects:
         project, format, maxlines = project
 
@@ -231,79 +241,84 @@ def create_email(username, test_run) :
 
     return email
 
-def build_report_table(test_run,project,maxlines):
-    # Make some tables for a particular user.  The data is all in
-    # memory in the dictionary test_run.  project is which project we are
-    # interested in.
+# Make some tables for a particular user.  test_run is the test run
+# we are interested in. project is which project we are interested in.
+# maxlines is the max number of lines to put in a table that lists specific
+# test results.
 
+def build_report_table(test_run,project,maxlines):
     # There are two tables: one for tests that had a problem on all hosts,
     # and one that had a problem on only some hosts.  Initialize both
     # tables now.
-    all_hosts  = text_table.text_table()
     some_hosts = text_table.text_table()
-
     for col_name in ( 'Host', 'Context', 'Test Name', 'Status' ) :
-        all_hosts.define_column(col_name)
         some_hosts.define_column(col_name)
 
+    all_hosts  = text_table.text_table()
+    all_hosts.define_column('Test Name')
+
     # we want to say "N more" when there are more than maxlines in the
-    # table.  We have no convenient place to keep that value, so I'm
-    # stuffing it into the text_table object.  This works in python, though
-    # it isn't particularl good practice.
-    all_hosts .stash_more_count = 0
-    some_hosts.stash_more_count = 0
+    # table.  These are the counts of N for the two tables
+    all_hosts_more_count = 0
+    some_hosts_more_count = 0
 
     # Pick up the data
-    test_run = project_test_run(test_run,project);
+    hc_array, all_list = project_test_run(test_run,project);
 
-    # If there is nothing there, we can leave early
-    if len(test_run.keys()) == 0:
-        return ( None, None )
+    ## construct the table of tests that had problems in some places
 
-
-    # sorted list of affected host names
-    hosts = test_run.keys()
-    hosts.sort()
+    # sorted list of affected host/context names
+    hc_list = hc_array.keys()
+    hc_list.sort()
 
     # process the data for each host
-    for host in hosts:
+    for hc in hc_list:
 
         # sort by the test name
-        test_run[host].sort()
-
-        # pick which table this is going in
-        if host == 'All':
-            table = all_hosts
-        else:
-            table = some_hosts
+        hc_array[hc].sort()
 
         # stuff the material into that table
-        for val in test_run[host] :
+        for val in hc_array[hc] :
 
             # find the next row in the table
-            row = table.get_row_count()
+            row = some_hosts.get_row_count()
 
             # just count it if the table is too full
             if row >= maxlines and maxlines > 0:
-                table.stash_more_count += 1
+                some_hosts_more_count += 1
                 continue
 
+            # separate the host/context from the index tuple
+            host, context = hc
+
             # insert a row
-            context, test_name, status = val
-            table.set_value(row,'Host',     host)
-            table.set_value(row,'Test Name',test_name)
-            table.set_value(row,'Context',  context)
-            table.set_value(row,'Status',   status)
+            test_name, status = val
+            some_hosts.set_value(row,'Host',     host)
+            some_hosts.set_value(row,'Test Name',test_name)
+            some_hosts.set_value(row,'Context',  context)
+            some_hosts.set_value(row,'Status',   status)
+
+    ## construct the table of tests that had problems everywhere
+
+    for x in all_list :
+        row = all_hosts.get_row_count()
+
+        # just count it if the table is too full
+        if row >= maxlines and maxlines > 0:
+            all_hosts_more_count += 1
+            continue
+
+        all_hosts.set_value(row,'Test Name', x)
 
     # if we cut off either table for going over the maxlines, add a line
     # at the end showing how many lines we cut off.  This happens after
     # the end of the loop so we can have a correct total
 
-    if all_hosts.stash_more_count > 0 :
-        all_hosts.set_value( all_hosts.get_row_count() , 'Test Name' , '%d more' % all_hosts.stash_more_count )
+    if all_hosts_more_count > 0 :
+        all_hosts.set_value( all_hosts.get_row_count() , 'Test Name' , '%d more' % all_hosts_more_count )
 
-    if some_hosts.stash_more_count > 0 :
-        some_hosts.set_value( some_hosts.get_row_count() , 'Test Name' , '%d more' % some_hosts.stash_more_count )
+    if some_hosts_more_count > 0 :
+        some_hosts.set_value( some_hosts.get_row_count() , 'Test Name' , '%d more' % some_hosts_more_count )
 
     # if either table didn't have anything in it, return None for that one.
 
@@ -334,7 +349,6 @@ def sendmail(addy, subject, text):
 
 
 def run(args):
-    user = 'nobody'
     test_run = pandokia.common.find_test_run("daily_latest")
     if args:
         # for each user name, look it up the email address in the table
