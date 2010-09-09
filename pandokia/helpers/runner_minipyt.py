@@ -205,6 +205,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             try :
                 n = getattr(f_ob,'__test__')
                 if n :
+                    rname = getattr(ob,'__test_name__', name)
                     l.append( ( f_name, f_ob ) )
                 continue
             except AttributeError :
