@@ -163,6 +163,8 @@ def create_email(username, test_run) :
 
     email = "Test report for %s:\n\n" % test_run
 
+    email += 'For more detail see %s?query=day_report.2&test_run=%s\n\n' % ( pandokia.common.cfg.pdk_url, test_run )
+
     projects = get_user_projects(username)
 
     num_proj = len(projects)
