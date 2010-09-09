@@ -97,7 +97,6 @@ def extract_info(testrun=None, status=None, project=None):
         
 
     #clean up & return dict
-    db.close()
     return cdict, failcount
 
 def extract_stats(testrun=None):
@@ -156,7 +155,6 @@ def extract_stats(testrun=None):
 
 
     #Return the answers
-    db.close()
     return hostfail, hostcount
 
 
