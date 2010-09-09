@@ -2,7 +2,7 @@
 users will be able to select which reports they like and the level of verbosity
 associated with said reports.
 """
-TEST = True
+TEST = False
 import pandokia.common
 import pandokia.contact_notify
 import text_table
@@ -227,8 +227,7 @@ def create_email(username, test_run) :
     if not send_notice :
         return None
 
-    if TEST :
-        email += '\n\nThis email created for %s\n' % username
+    email += '\n\nThis email created for %s\n' % username
 
     return email
 
