@@ -137,14 +137,14 @@ Except as noted, all of the options can be used with any of the variations of
   time to the nearest minute. 
 
 The following environment variables are reserved for internal use by
-pandokia, or for implementation in a future release::
+pandokia:
 
-{{{
-PDK_CONTEXT 
-PDK_FILE 
-PDK_TESTPREFIX 
-PDK_PROCESS_SLOT 
-}}}
+.. code-block:: python
+
+	PDK_CONTEXT 
+	PDK_FILE 
+	PDK_TESTPREFIX 
+	PDK_PROCESS_SLOT 
 
 
 Creating a Test Tree

@@ -1,0 +1,33 @@
+===============================================================================
+regtest - an STScI legacy system for IRAF packages
+===============================================================================
+
+:abstract:
+
+	``regtest`` tests IRAF tasks.  It is a legacy system in use
+	at STScI.  It is so specialized that it is unlikely to be useful
+	to you.
+
+.. contents::
+
+Test definitions
+-------------------------------------------------------------------------------
+
+Each test exists in a separate XML file.  The file format is defined in the
+Pandokia source code in stsci_regtest/TEST_FORMAT.xml 
+
+Test Execution
+-------------------------------------------------------------------------------
+
+This runner uses PyRAF to execute IRAF tasks.  Before executing the tasks
+under test, it loads these IRAF packages::
+
+	fitsio
+	images
+	stsdas
+	tables
+
+In the test definition, it lists one or more output files.  Each output file
+is compared to a reference file.  If all match (within the parameters of the
+comparison), the test passes.
+

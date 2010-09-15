@@ -1,0 +1,17 @@
+===============================================================================
+snout - use nose to run tests in installed code
+===============================================================================
+
+:abstract:
+
+	Some packages install tests along with their source code.  The
+	``snout`` runner can find those tests in an importable module
+	and run it as part of a normal Pandokia test run.
+
+.. contents::
+
+overview
+-------------------------------------------------------------------------------
+
+bug: write this.
+

@@ -49,17 +49,13 @@ a C extension that core dumps the python interpreter, there is still a
 possibility to lose the test report. )
 
 As a side effect of this architecture, it is possible to consider a python
-file to be a single test.  The simplest minipyt test that passes is:
+file to be a single test.  The simplest minipyt test that passes is::
 
-	{{{
 	assert True
-	}}}
 
-and the simplest test that fails is:
+and the simplest test that fails is::
 
-	{{{
 	assert False
-	}}}
 
 In these examples, the name of the test matches the name of the file.
 
@@ -70,29 +66,27 @@ In the namespace of the imported module, these things are recognized
 as tests:
 
 	- functions that have names beginning or ending with "test",
-	  that are not decorated with pandokia.helpers.minipyt.nottest
-	  or nose.tools.nottest
+	  that are not decorated with ``pandokia.helpers.minipyt.nottest``
+	  or ``nose.tools.nottest``
 
 	- classes that have names beginning or ending with "test"
-	  that are not decorated with pandokia.helpers.minipyt.nottest
-	  or nose.tools.nottest
+	  that are not decorated with ``pandokia.helpers.minipyt.nottest``
+	  or ``nose.tools.nottest``
 
-	- functions decorated with pandokia.helpers.minipyt.test
-	  or nose.tools.istest
+	- functions decorated with ``pandokia.helpers.minipyt.test``
+	  or ``nose.tools.istest``
 
-	- classes decorated with pandokia.helpers.minipyt.test
-	  or nose.tools.istest
+	- classes decorated with ``pandokia.helpers.minipyt.test``
+	  or ``nose.tools.istest``
 
 By default, tests are executed in order by line number.  If you
-want to order the tests by line number, use
+want to order the tests by name, use::
 
-	{{{
 	minipyt_test_order = 'name'
-	}}}
 
-in your test module.  This is unreliable for decorated functions because
-the line number used for the sort may be the line number of some part
-of the decorator, not the line number of your code.
+in your test module.  Sorting by line number is unreliable for decorated
+functions because the line number used for the sort may be the line
+number of some part of the decorator, not the line number of your code.
 
 Executing Test Functions 
 -------------------------------------------------------------------------------
@@ -169,31 +163,25 @@ to one of these values:
 	  output for any non-passing test
 
 If you specify both the environment variable and the module variable, the
-module variable takes precedence.
+module variable takes precedence.::
 
-	{{{
 	# no dots
 	minipyt_dots = ''
-	}}}
 
-	{{{
 	# show dots
 	minipyt_dots = 'S'
-	}}}
 
 
 prevent using nose by mistake
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 nose should recognize and execute most minipyt tests, but you can explicitly
-prevent using a test file with nose by
+prevent using a test file with nose by::
 
-	{{{
 	import pandokia.helpers.minipyt as mph
 	mph.noseguard()
-	}}}
 
-noseguard() raises an exception if 'nose' is in sys.modules.
+``noseguard()`` raises an exception if 'nose' is in sys.modules.
 
 This prevents importing the file if nose is also loaded.  If pandokia
 is using minipyt as the test runner, nose will not have been imported.
@@ -201,12 +189,10 @@ If nose is in sys.modules, we assume that is because the test file
 was mistakenly run with pdknose or nosetests.
 
 Presumably, this may cause you problems if you are trying to import the
-test into an interactive python.  If so, disable this function with
+test into an interactive python.  If so, disable this function with::
 
-	{{{
         import pandokia.helpers.minipyt as mph
         mph.disable_noseguard = True
-	}}}
 
 
 
@@ -218,12 +204,12 @@ minipyt
 
 These decorators are available in pandokia.helpers.minipyt:
 
-	- test
+	- ``test``
 
 		marks a function or class as a test, even if the name
 		does not otherwise look like a test
 
-	- nottest
+	- ``nottest``
 
 		marks a function or class as not a test, even if the
 		name looks like it should be a test
@@ -233,27 +219,24 @@ All work on both functions, classes, and methods.
 nose
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Many nose decorators work in minipyt tests.
+Many nose decorators work in minipyt tests.::
 
-	{{{
 	import nose.tools
 
 	@nose.tools.raises(IOError)
 	def test_mine() :
 		...
-	}}}
 
 These decorators are known to work:
 
-	- nose.tools.raises
+	- ``nose.tools.raises``
 
-	- nose.tools.timed
+	- ``nose.tools.timed``
 
-	- nose.tools.with_setup
+	- ``nose.tools.with_setup`` (on test functions only, not class
+	  methods)
 
-		on test functions only, not class methods
+	- ``nose.tools.nottest``
 
-	- nose.tools.nottest
-
-	- nose.tools.istest
+	- ``nose.tools.istest``
 

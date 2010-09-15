@@ -1,13 +1,19 @@
 ================================================================================
-Adding Test Runners to Pandokia
+Test Runners
 ================================================================================
 
 :abstract:
 
 	This is a summary of the test runners included with pandokia.
 
-.. contents::
+.. toctree::
 
-	runner_pycode.txt
 	runner_minipyt.txt
 	runner_nose.txt
+	runner_snout.txt
+	runner_regtest.txt
+	runner_shell_runner.txt
+	runner_shunit2.txt
+	runner_snout.txt
+	runner_unit2.txt
+
