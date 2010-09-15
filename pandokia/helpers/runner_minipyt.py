@@ -183,8 +183,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
         have_setup = 0
         have_teardown = 0
 
-        # look through the class for names of methods that are interesting
-        # to us.
+        # look through the class for methods that are interesting to us.
 
         for f_name, f_ob in inspect.getmembers(ob, inspect.ismethod) :
 
@@ -200,13 +199,20 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
                 have_teardown = 1
                 continue
 
+            if debug :
+                debug_fd.write('function name %s\n'%f_name)
+
             # if the method has __test__, that value is a flag
-            # about whether it is a test or not.
+            # about whether it is a test or not.  Note there are
+            # ** three ** conditions here: true, false, and no attribute
             try :
                 n = getattr(f_ob,'__test__')
+                if debug :
+                    debug_fd.write('__test__ %s\n'%n)
                 if n :
-                    rname = getattr(ob,'__test_name__', name)
-                    l.append( ( f_name, f_ob ) )
+                    rname = getattr(f_ob,'__test_name__', f_name)
+                    if debug :
+                        debug_fd.write('actual name used %s\n'%rname)
                 continue
             except AttributeError :
                 pass
@@ -227,6 +233,8 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 
         # for each test method on the object
         for f_name, f_ob in l :
+            if debug :
+                debug_fd.write('test method: %s %s\n'%(f_name,str(f_ob)))
 
             save_tda = { }
             save_tra = { }
@@ -249,14 +257,11 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
                     class_ob.tda = save_tda
                     class_ob.tra = save_tra
 
-                    # get a bound function that we can call
-                    fn = eval('class_ob.'+f_name)
-
                     # call the test method
                     try :
                         if have_setup :
                             class_ob.setUp()
-                        fn()
+                        f_ob(class_ob)
                         fn_status = 'P'
                     except AssertionError :
                         fn_status = 'F'
@@ -412,7 +417,8 @@ def process_file( filename ) :
                 # about whether it is a test or not.
                 n = getattr(ob,'__test__')
                 if n :
-                    l.append( (name, ob) )
+                    rname = getattr(ob,'__test_name__', name)
+                    l.append( (rname, ob) )
                 continue
             except AttributeError :
                 # if it does not have __test__, we consider
@@ -441,6 +447,7 @@ def process_file( filename ) :
 
             # use nose-compatible name, if present
             rname = getattr(ob,'compat_func_name', name)
+            rname = getattr(ob,'__test_name__', rname)
 
             if type(ob) == function :
                 print 'function', name, 'as', rname
