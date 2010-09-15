@@ -215,7 +215,7 @@ class test_result(object):
             print "NOT INSERTING ",self.test_name," (not an error)"
             return
 
-        self.test_name.replace("//","/")
+        self.test_name = self.test_name.replace("//","/")
 
         # compute attention automatically
         if self.status == 'P' :
