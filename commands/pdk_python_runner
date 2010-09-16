@@ -15,26 +15,26 @@ import re
 
 # 
 def usage() :
-	sys.stderr.write("usage: %s runner_name [ args ]\n" % sys.argv[0] )
-	sys.stderr.write("       runner_name must be alpha, numeric, or _\n" )
-	sys.exit(1)
+    sys.stderr.write("usage: %s runner_name [ args ]\n" % sys.argv[0] )
+    sys.stderr.write("       runner_name must be alpha, numeric, or _\n" )
+    sys.exit(1)
 
 # 
 if len(sys.argv) < 2 :
-	usage()
+    usage()
 
 #
 runner_name = sys.argv[1]
 if not re.match('^[a-zA-Z0-9]+$',runner_name) :
-	usage()
+    usage()
 
 # 
 try :
-	s = "import %s%s as runner" % ( prefix, runner_name)
-	exec( s )
+    s = "import %s%s as runner" % ( prefix, runner_name)
+    exec( s )
 except ImportError, e :
-	sys.stderr.write("Cannot import %s%s:\n%s\n" % ( prefix, runner_name, str(e)) )
-	sys.exit(1)
+    sys.stderr.write("Cannot import %s%s:\n%s\n" % ( prefix, runner_name, str(e)) )
+    sys.exit(1)
 
 #
 runner.main(sys.argv[2:])
