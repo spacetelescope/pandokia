@@ -21,9 +21,11 @@ debug = False
 #
 if debug :
     debug_fd = open("/dev/tty","w")
+    debug_fd.write("HELLO - minipyt debug!\n")
 
 # just in case somebody needs to see a lot of dots when they run their tests. :)
 default_dots_mode = ''
+default_dots_mode = 'N'
 
 if 'PDK_DOTS' in os.environ :
     default_dots_mode = os.environ['PDK_DOTS']
@@ -76,12 +78,10 @@ def sort_test_list(l, test_order) :
     else :
         l.sort()
     if debug:
-        debug_fd.write("sorted test list: ")
-        debug_fd.write(str([ name for (name,value) in l]))
-        debug_fd.write('\n')
+        debug_fd.write("sorted test list: %s\n" % str([ name for (name,value) in l]))
 
 # Generate the report record for a single test.
-def gen_report( rpt, name, status, start_time, end_time, tra, tda, log ) :
+def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
     rpt.report( name, status, start_time, end_time, tra, tda, log )
     if dots_mode :
         if status == 'P' :
@@ -177,6 +177,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
     else :
         class_status = 'D'
 
+    # put a try around handling everything in the class
     try :
         l = [ ]
 
@@ -200,7 +201,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
                 continue
 
             if debug :
-                debug_fd.write('function name %s\n'%f_name)
+                debug_fd.write('run_test_class: function name %s\n'%f_name)
 
             # if the method has __test__, that value is a flag
             # about whether it is a test or not.  Note there are
@@ -208,11 +209,12 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             try :
                 n = getattr(f_ob,'__test__')
                 if debug :
-                    debug_fd.write('__test__ %s\n'%n)
+                    debug_fd.write('run_test_class: __test__ %s\n'%n)
                 if n :
-                    rname = getattr(f_ob,'__test_name__', f_name)
+                    rname = getattr(f_ob,'run_test_class: __test_name__', f_name)
                     if debug :
-                        debug_fd.write('actual name used %s\n'%rname)
+                        debug_fd.write('run_test_class: actual name used %s\n'%rname)
+                l.append( (rname, f_ob) )
                 continue
             except AttributeError :
                 pass
@@ -230,15 +232,13 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
         # if not, we need to make just one right now
         if not new_object_every_time and not class_disable :
             class_ob = ob()
+            class_ob.tda = getattr(class_ob, 'tda', { } )
+            class_ob.tra = getattr(class_ob, 'tra', { } )
 
         # for each test method on the object
         for f_name, f_ob in l :
             if debug :
-                debug_fd.write('test method: %s %s\n'%(f_name,str(f_ob)))
-
-            save_tda = { }
-            save_tra = { }
-
+                debug_fd.write('run_test_class: test method: %s %s\n'%(f_name,str(f_ob)))
 
             pycode.snarf_stdout()
 
@@ -247,15 +247,12 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             try :
 
                 if ( not class_disable ) and ( not getattr( f_ob, '__disable__', False ) ) :
-                    # gather up stdout/stderr for the test
 
                     # make the new object, if necessary
                     if new_object_every_time :
                         class_ob = ob()
-
-                    # blank out the tda/tra dictionaries for each test.
-                    class_ob.tda = save_tda
-                    class_ob.tra = save_tra
+                        class_ob.tda = getattr(class_ob, 'tda', { } )
+                        class_ob.tra = getattr(class_ob, 'tra', { } )
 
                     # call the test method
                     try :
@@ -278,22 +275,11 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
                         fn_status = 'E'
                         traceback.print_exc()
 
-                    # The user may have replaced these
-                    # dictionaries, so we need to pick them
-                    # out of the object.  ( Copy them out of the object because it may be
-                    # gone by the time we need them. )
-                    save_tda = class_ob.tda
-                    save_tra = class_ob.tra
-
-                    # if we make a new object instance for
-                    # every test, dispose the old one now
-                    if new_object_every_time :
-                        del class_ob
-
                 else :
                     # it was disabled
                     fn_status = 'D'
 
+            # exceptions that came out of a test method
             except AssertionError :
                 fn_status = 'F'
                 traceback.print_exc()
@@ -305,8 +291,14 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 
             fn_log = pycode.end_snarf_stdout()
 
-            gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, save_tda, save_tra, fn_log )
+            gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, class_ob.tda, class_ob.tra, fn_log )
 
+            # if we make a new object instance for
+            # every test, dispose the old one now
+            if new_object_every_time :
+                del class_ob
+
+    # exceptions that came out of handling the class, but not one of the test methods
     except AssertionError :
         class_status = 'F'
         traceback.print_exc()
@@ -328,11 +320,22 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 # There is a test name that corresponds to the file.  This gathers any
 # result and/or error that comes from the file, but not from an individual
 # test.
+#
+# filename is the name of a file of python code that contains the tests
+#
+# test_name is the name to use for all tests in this file; default is
+#   derived from the file name of the python code
+#
+# test_args is additional information passed in for the test code to use
+#   as parameters
+#
 
-def process_file( filename ) :
+def process_file( filename, test_name = None, test_args = None ) :
 
     if debug :
         debug_fd.write("begin process_file\n")
+        debug_fd.write("file: %s\n" % filename)
+        debug_fd.write("args: %s\n" % test_args)
 
     global dots_mode
 
@@ -342,12 +345,19 @@ def process_file( filename ) :
         dots_file.write('File: %s\n'%filename)
         dots_file.flush()
 
-    # pandokia log entry object - writes the pandokia reports
-    rpt = pycode.reporter( filename )
 
     # the module name is the basename of the file, without the extension
     module_name = os.path.basename(filename)
     module_name = os.path.splitext(module_name)[0]
+
+    # pandokia log entry object - writes the pandokia reports
+    if debug :
+        debug_fd.write( "test_args %s\n"%test_args)
+
+    if test_args is not None :
+        rpt = pycode.reporter( test_name )
+    else :
+        rpt = pycode.reporter( filename )
 
     # gather up the stdout from processing the whole file.    individual
     # tests will suck up their own stdout, so it will not end up in
@@ -371,6 +381,11 @@ def process_file( filename ) :
 
         if debug :
             debug_fd.write("process_file: import succeeds\n")
+
+        if test_args :
+            if debug :
+                debug_fd.write("entering minipyt_external_args into module\n")
+            module.minipyt_external_args = test_args
 
         try :
             dots_mode = module.minipyt_dots_mode
@@ -438,7 +453,7 @@ def process_file( filename ) :
         try :
             test_order = module.minipyt_test_order
         except :
-            test_order = 'alpha'
+            test_order = 'line'
 
         sort_test_list(l, test_order)
 
@@ -498,9 +513,21 @@ def process_file( filename ) :
 #### an entry point for pdk_python_runner to use
 ####
 
-def main(argv) :
-    for x in argv :
-        process_file( x )
+def main(arg) :
+    if debug :
+        print len(arg)
+        for x in arg :
+            print "arg: ",x
+        print 'PDK_FILE = ',os.environ['PDK_FILE']
+
+    if len(arg) > 1 :
+        # if there are multiple args then:
+        #   arg[0] is the name of a python file with test definitions in it
+        #   arg[1] is the name to use for this test
+        #   the remaining args are parameters for the test code to use
+        process_file( arg[0], arg[1], arg[2:] )
+    else :
+        process_file( arg[0] )
 
 
 ####

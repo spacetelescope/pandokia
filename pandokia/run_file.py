@@ -83,8 +83,12 @@ def get_runner_mod(runner) :
     if runner in runner_modules :
         runner_mod = runner_modules[runner]
     else :
-        n = "pandokia.runners."+runner
-        __import__(n)
+        try :
+            n = "pandokia_runner_" + runner
+            __import__(n)
+        except ImportError :
+            n = "pandokia.runners."+runner
+            __import__(n)
         runner_mod = sys.modules[n]
         runner_modules[runner] = runner_mod
     return runner_mod
