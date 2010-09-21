@@ -235,6 +235,17 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             class_ob.tda = getattr(class_ob, 'tda', { } )
             class_ob.tra = getattr(class_ob, 'tra', { } )
 
+            # Save the tda/tra as set by the class.  This copy is the
+            # value that is reported with the test result for the class.
+            # The dict that remains on the class object can be update
+            # by each test.
+            class_tda_rpt = class_ob.tda.copy()
+            class_tra_rpt = class_ob.tra.copy()
+
+        else:
+            class_tda_rpt = { }
+            class_tra_rpt = { }
+
         # for each test method on the object
         for f_name, f_ob in l :
             if debug :
@@ -310,7 +321,7 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
     class_end_time = time.time()
     class_log = pycode.end_snarf_stdout() 
 
-    gen_report( rpt, name, class_status, class_start_time, class_end_time, { }, { }, class_log )
+    gen_report( rpt, name, class_status, class_start_time, class_end_time, class_tda_rpt, class_tra_rpt, class_log )
     
 
 ####
