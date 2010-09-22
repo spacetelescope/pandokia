@@ -1,4 +1,8 @@
 
+#
+# This is a library routine used by the CGI portion of the flagok operation
+#
+
 import cgi
 import pandokia.config
 import os.path
