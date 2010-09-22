@@ -203,6 +203,10 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
             if valuable != '0' :
                 print "NAME",name," MARKED VALUABLE - NOT DELETED"
                 continue
+            print "NAME",name
+            c = db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = ?",  (name,))
+            kmin,kmax = c.fetchone() 
+            print kmin, kmax
             print "DELETE ",name
             db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
             db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
