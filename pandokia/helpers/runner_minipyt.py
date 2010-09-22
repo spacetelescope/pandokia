@@ -142,7 +142,6 @@ def run_test_function(rpt, mod, name, ob) :
             try :
                 teardown()
             except :
-                print "Exception in teardown()"
                 status = 'E'
                 traceback.print_exc()
     else :
@@ -176,6 +175,12 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
         class_status = 'P'
     else :
         class_status = 'D'
+
+    # These attributes will be used in two cases:
+    #  - a new object is created for each test ( there are no per-class attributes )
+    #  - an error during the class init ( we never got to collect the attributes )
+    class_tda_rpt = { }
+    class_tra_rpt = { }
 
     # put a try around handling everything in the class
     try :
@@ -242,9 +247,6 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
             class_tda_rpt = class_ob.tda.copy()
             class_tra_rpt = class_ob.tra.copy()
 
-        else:
-            class_tda_rpt = { }
-            class_tra_rpt = { }
 
         # for each test method on the object
         for f_name, f_ob in l :
@@ -357,6 +359,12 @@ def process_file( filename, test_name = None, test_args = None ) :
         dots_file.flush()
 
 
+    # in case the module completely fails to import 
+    module = None
+    module_tda = { }
+    module_tra = { }
+
+
     # the module name is the basename of the file, without the extension
     module_name = os.path.basename(filename)
     module_name = os.path.splitext(module_name)[0]
@@ -381,6 +389,7 @@ def process_file( filename, test_name = None, test_args = None ) :
     # make sure we can import from the directory where the file is
     sys_path_save = copy.copy(sys.path)
     sys.path.insert(0,os.path.dirname(filename))
+
 
     try :
 
@@ -427,7 +436,6 @@ def process_file( filename, test_name = None, test_args = None ) :
         if setup is not None :
             if debug :
                 debug_fd.write("process_file: running setUp")
-            print "setUp"
             setup()
 
         # look through the module for things that might be tests
@@ -483,13 +491,12 @@ def process_file( filename, test_name = None, test_args = None ) :
                 run_test_class( rpt, module, name, ob, test_order )
 
         if pycode_fn :
-            print 'pycode test detected'
+            print 'pycode test'
             pycode_fn(1, rpt=rpt)
 
         print 'tests completed'
 
         if teardown :
-            print "tearDown"
             teardown()
 
     except AssertionError :
@@ -502,13 +509,17 @@ def process_file( filename, test_name = None, test_args = None ) :
     # restore sys.path
     sys.path = sys_path_save
 
+    if module is not None :
+        module_tda = getattr( module, 'tda', { } )
+        module_tra = getattr( module, 'tra', { } )
+
     log = pycode.end_snarf_stdout()
     file_end_time = time.time()
 
     # the name for the report on the file as a whole is derived from
     # the file name. the report object is already set up to do this,
     # so we do not need to provide any more parts of the test name.
-    gen_report( rpt, None, file_status, file_start_time, file_end_time, { }, { }, log )
+    gen_report( rpt, None, file_status, file_start_time, file_end_time, module_tda, module_tra, log )
 
     rpt.close()
 
