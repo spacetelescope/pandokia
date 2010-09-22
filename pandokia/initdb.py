@@ -54,36 +54,21 @@ def run(args) :
 
     verbose = '-v' in args 
 
-    if 'db' in args :
-        # don't init the database if it already exists
-        dbname = pandokia.cfg.dbdir+"/pdk.db"
-        if os.path.exists(dbname) :
-            sys.stderr.write( "database already exists: %s\n"%dbname )
-            return 1
+    # warn if the database already exists - you may want to create the database file
+    # and do things to the empty database (e.g. sqlite pragma auto_vacuum) before
+    # creating the table
+    dbname = pandokia.cfg.dbdir+"/pdk.db"
+    if os.path.exists(dbname) :
+        sys.stderr.write( "warning: database already exists: %s\n"%dbname )
 
-        # make the empty file so we don't get an error in open_db
-        open(dbname,"w").close()
+    # make the empty file so we don't get an error in open_db
+    open(dbname,"w").close()
 
-        # feed the sql commands to init the database
-        db = pandokia.common.open_db()
-        filename = getfile("initdb.sql")
-        run_sql_file(db, filename, verbose)
-        print "main db initialized"
-
-    if 'qdb' in args :
-        # don't init the database if it already exists
-        dbname = pandokia.cfg.dbdir+"/pdk_query.db"
-        if os.path.exists(dbname) :
-            sys.stderr.write( "database already exists: %s\n"%dbname )
-            return 1
-        # make the empty file so we don't get an error in open_db
-        open(dbname,"w").close()
-
-        # feed the sql commands to init the database
-        db = pandokia.common.open_qdb()
-        filename = getfile("initqdb.sql")
-        run_sql_file(db, filename, verbose)
-        print "query db initialized"
+    # feed the sql commands to init the database
+    db = pandokia.common.open_db()
+    filename = getfile("initdb.sql")
+    run_sql_file(db, filename, verbose)
+    print "db initialized"
 
     return 0
 

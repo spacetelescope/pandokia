@@ -83,6 +83,7 @@ def run( ) :
             user = 'None'
 
         for key_id in valid_key_ids(form) :
+            print "Flagging %s<br>"%key_id
             text_present |= pandokia.flagok.flagok(db, client, key_id, user)
 
         pandokia.flagok.commit(db)
