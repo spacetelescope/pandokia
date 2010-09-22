@@ -488,7 +488,7 @@ current_user_name = None
 def current_user() :
     if 'REMOTE_USER' in os.environ :
         return os.environ["REMOTE_USER"]
-    return None
+    return 'Nobody'
 
 ######
 #--#--# GENERAL
