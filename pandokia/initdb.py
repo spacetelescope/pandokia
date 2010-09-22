@@ -47,10 +47,6 @@ def run(args) :
         print "The database directory is "
         print "   ",pandokia.cfg.dbdir
         print ""
-        print "Specify which database to initialize with"
-        print "    pdk initdb db"
-        print "    pdk initdb qdb"
-        return
 
     verbose = '-v' in args 
 
