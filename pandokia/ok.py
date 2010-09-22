@@ -3,6 +3,15 @@
 # Copyright 2010, Association of Universities for Research in Astronomy (AURA) 
 #
 
+#
+# pdk ok [ list_of_okfiles ]
+#
+# an okfile contains information to update a single test that uses
+# reference files.  Each line of the file contains two fields separated
+# by spaces.  The first field is the name of the output file, and the
+# second field is the name of the reference file.  If the second field
+# is missing, the reference file has the same name in the directory "ref/".
+
 import sys
 import os
 import os.path
@@ -13,15 +22,6 @@ import datetime
 
 # suffix to put on old reference files
 old = "." + datetime.date.today().isoformat() + ".old"
-
-#
-# pdk ok [ list_of_okfiles ]
-#
-# an okfile contains information to update a single test that uses
-# reference files.  Each line of the file contains two fields separated
-# by spaces.  The first field is the name of the output file, and the
-# second field is the name of the reference file.  If the second field
-# is missing, the reference file has the same name in the directory "ref/".
 
 try_to_delete = 1
 
