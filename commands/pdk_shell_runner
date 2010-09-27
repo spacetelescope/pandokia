@@ -33,11 +33,22 @@ datefmt='+%Y-%m-%d %H:%M:%S'
 
 
 # Compute the test name.  In this case, the test name is the
-# same as the basename of the file.  If you want to allow
-# multiple tests in a single file, you would have to do something 
+# same as the basename of the file, minus any extension.  If you want
+# to allow multiple tests in a single file, you would have to do something
 # like this for each of them.
 
-test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE`
+case "$PDK_FILE"
+in
+*.sh)
+	test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE .sh`
+	;;
+*.csh)
+	test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE .csh`
+	;;
+*)
+	test_name=${PDK_TESTPREFIX}/$PDK_FILE
+	;;
+esac
 
 
 # Report things about this test that we know already and that
@@ -55,7 +66,7 @@ tmpfile=pdk.runner.tmp
 if [ -x $PDK_FILE ]
 then
 	# In fact, you can use any language here, not just sh.
-	# We can say ./ because we know that pdk run always gives us just
+	# We can say ./ because we know that pdkrun always gives us just
 	# the basename.
 	./$PDK_FILE > $tmpfile 2>&1
 else
