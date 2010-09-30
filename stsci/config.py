@@ -25,7 +25,7 @@ os_info = {
     "herbert":  "RHE 4 / 32",
     "macbert":  "Mac PPC",
     "motoko":   "RHE 4",
-    "quagga":   "RHE 3",
+    "quagga":   "RHE 5",
     "ssbwebv1": "RHE 5 / 64",
     "thor":     "RHE 4 / 64",
     "timthe":   "Mac PPC",
