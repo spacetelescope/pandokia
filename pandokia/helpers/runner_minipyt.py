@@ -51,7 +51,7 @@ function = type(function)
 ####
 
 #
-# Her is a sort function to sort the list of tests into the order that
+# Here is a sort function to sort the list of tests into the order that
 # they are defined in the file, at least for things that are statically
 # defined.
 # 
@@ -67,6 +67,8 @@ def _sort_fn(a) :
     (name,ob) = a
     code = getattr( ob, 'func_code', None )
     line = getattr( code, 'co_firstlineno', 0 )
+    if debug :
+        debug_fd.write("sort: %s %s\n"%(str(a), line))
     return line
 
 # sort the tests into the order we want to do them
@@ -142,6 +144,7 @@ def run_test_function(rpt, mod, name, ob) :
             try :
                 teardown()
             except :
+                print "Exception in teardown()"
                 status = 'E'
                 traceback.print_exc()
     else :
@@ -158,164 +161,191 @@ def run_test_function(rpt, mod, name, ob) :
     
 
 ####
+####
+####
+
+
+def get_exception_str() :
+    type, value, tb = sys.exc_info()
+
+    # where was the exception ?
+    lineno = tb.tb_lineno
+    co = tb.tb_frame.f_code
+    filename = co.co_filename
+    name = co.co_name
+
+    #
+    del tb
+
+    # we might include more information here
+    return '%s in "%s", line %d, in %s' % (repr(value),filename,lineno,name)
+
+
+####
 #### actually run a test class
 ####
 
-# There is a test name that corresponds to the whole class.  This gathers any
-# result and/or error that comes from the class, but not from an individual
-# test method.
 
-def run_test_class( rpt, mod, name, ob, test_order ) :
+def locate_test_methods( ob, test_order ) :
+    l = [ ]
+
+    # look through the class for methods that are interesting to us.
+
+    for f_name, f_ob in inspect.getmembers(ob, inspect.ismethod) :
+
+        # if the method has __test__, that value is a flag
+        # about whether it is a test or not.  Note there are
+        # ** three ** conditions here: true, false, and no attribute
+        try :
+            n = getattr(f_ob,'__test__')
+            if debug :
+                debug_fd.write('run_test_class: __test__ %s\n'%n)
+            if n :
+                rname = getattr(f_ob,'run_test_class: __test_name__', f_name)
+                if debug :
+                    debug_fd.write('run_test_class: actual name used %s\n'%rname)
+            l.append( (rname, f_ob) )
+            continue
+        except AttributeError :
+            pass
+
+        # if the method name looks like a test, it is a test
+        if f_name.startswith('test') or f_name.endswith('test') :
+            l.append( (f_name, f_ob) )
+
+    sort_test_list(l, test_order)
+
+    return l
+
+
+#### TEST METHOD
+
+def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
+    pycode.snarf_stdout()
+
+    fn_start_time = time.time()
+
+    # clear the test attributes
+    class_ob.tda = { }
+    class_ob.tra = { }
+
+    exception_str = None
+
+    if getattr( f_ob, '__disable__', False ) :
+        status = 'D'
+
+    else :
+        # call the test method
+        try :
+
+            # call setUp if it is there
+            setup = getattr( class_ob, 'setUp', None)
+            if setup :
+                setup()
+
+            # call the test method
+            f_ob(class_ob)
+
+            # pass if we managed to return
+            fn_status = 'P'
+
+        except AssertionError :
+            exception_str = get_exception_str()
+            fn_status = 'F'
+            traceback.print_exc()
+
+        except :
+            exception_str = get_exception_str()
+            fn_status = 'E'
+            traceback.print_exc()
+
+        try :
+            # call tearDown if it is there
+            teardown = getattr( class_ob, 'tearDown', None)
+            if teardown :
+                teardown()
+
+        except :
+            print 'exception in teardown'
+            exception_str = get_exception_str()
+            fn_status = 'E'
+            traceback.print_exc()
+
+    fn_end_time = time.time()
+
+    fn_log = pycode.end_snarf_stdout()
+
+    tda = getattr(class_ob,'class_tda',{}).copy()
+    tda.update( getattr(class_ob,'tda',{}) )
+
+    tra = getattr(class_ob,'class_tra',{}).copy()
+    tra.update( getattr(class_ob,'tra',{}) )
+
+    if exception_str is not None :
+        tra['exception'] = exception_str
+
+    gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, tda, tra, fn_log )
+
+
+#### run the tests in a single instance of a test object
+
+def run_test_class_single( rpt, mod, name, ob, test_order ) :
 
     pycode.snarf_stdout()
     class_start_time = time.time()
 
-    class_disable = getattr(ob, '__disable__', False )
-    if not class_disable :
-        class_status = 'P'
-    else :
-        class_status = 'D'
+    class_status = 'P'
+    exception_str = None
 
-    # These attributes will be used in two cases:
-    #  - a new object is created for each test ( there are no per-class attributes )
-    #  - an error during the class init ( we never got to collect the attributes )
-    class_tda_rpt = { }
-    class_tra_rpt = { }
+    # find the test methods on the class object
+    l = locate_test_methods( ob, test_order )
 
-    # put a try around handling everything in the class
+    # instantiate the object; bail out early if we can't
     try :
-        l = [ ]
+        class_ob = ob()
+    except :
+        exception_str = get_exception_str()
+        traceback.print_exc()
+        # really nothing more we can do...
+        gen_report( rpt, name, 'E', class_start_time, time.time(), { }, { 'exception' : exception_str }, pycode.end_snarf_stdout() )
+        return
 
-        have_setup = 0
-        have_teardown = 0
+    # make sure the class attribute dictionaries exist
+    class_ob.class_tda = getattr(class_ob, 'class_tda', {} )
+    class_ob.class_tra = getattr(class_ob, 'class_tra', {} )
 
-        # look through the class for methods that are interesting to us.
-
-        for f_name, f_ob in inspect.getmembers(ob, inspect.ismethod) :
-
-            # magic names to remember.  (The names are ugly
-            # because they are copied from nose, which copied
-            # them from unittest, which copied them from junit.)
-
-            if f_name == 'setUp' :
-                have_setup = 1
-                continue
-
-            if f_name == 'tearDown' :
-                have_teardown = 1
-                continue
-
-            if debug :
-                debug_fd.write('run_test_class: function name %s\n'%f_name)
-
-            # if the method has __test__, that value is a flag
-            # about whether it is a test or not.  Note there are
-            # ** three ** conditions here: true, false, and no attribute
-            try :
-                n = getattr(f_ob,'__test__')
-                if debug :
-                    debug_fd.write('run_test_class: __test__ %s\n'%n)
-                if n :
-                    rname = getattr(f_ob,'run_test_class: __test_name__', f_name)
-                    if debug :
-                        debug_fd.write('run_test_class: actual name used %s\n'%rname)
-                l.append( (rname, f_ob) )
-                continue
-            except AttributeError :
-                pass
-
-            # if the method name looks like a test, it is a test
-            if f_name.startswith('test') or f_name.endswith('test') :
-                l.append( (f_name, f_ob) )
-
-        # have a deterministic order
-        sort_test_list(l, test_order)
-
-        # do we need to make a new instance of the object for every test?
-        new_object_every_time = not getattr(ob,'minipyt_shared',0)
-
-        # if not, we need to make just one right now
-        if not new_object_every_time and not class_disable :
-            class_ob = ob()
-            class_ob.tda = getattr(class_ob, 'tda', { } )
-            class_ob.tra = getattr(class_ob, 'tra', { } )
-
-            # Save the tda/tra as set by the class.  This copy is the
-            # value that is reported with the test result for the class.
-            # The dict that remains on the class object can be update
-            # by each test.
-            class_tda_rpt = class_ob.tda.copy()
-            class_tra_rpt = class_ob.tra.copy()
-
+    try :
+        # class setup is run once after the object init
+        class_setup = getattr(class_ob, 'classSetUp', None )
+        if class_setup :
+            class_setup()
 
         # for each test method on the object
         for f_name, f_ob in l :
             if debug :
                 debug_fd.write('run_test_class: test method: %s %s\n'%(f_name,str(f_ob)))
 
-            pycode.snarf_stdout()
-
-            fn_start_time = time.time()
-
-            try :
-
-                if ( not class_disable ) and ( not getattr( f_ob, '__disable__', False ) ) :
-
-                    # make the new object, if necessary
-                    if new_object_every_time :
-                        class_ob = ob()
-                        class_ob.tda = getattr(class_ob, 'tda', { } )
-                        class_ob.tra = getattr(class_ob, 'tra', { } )
-
-                    # call the test method
-                    try :
-                        if have_setup :
-                            class_ob.setUp()
-                        f_ob(class_ob)
-                        fn_status = 'P'
-                    except AssertionError :
-                        fn_status = 'F'
-                        traceback.print_exc()
-                    except :
-                        fn_status = 'E'
-                        traceback.print_exc()
-
-                    # Always run teardown, no matter how the test worked out.
-                    try :
-                        if have_teardown :
-                            class_ob.tearDown()
-                    except :
-                        fn_status = 'E'
-                        traceback.print_exc()
-
-                else :
-                    # it was disabled
-                    fn_status = 'D'
-
-            # exceptions that came out of a test method
-            except AssertionError :
-                fn_status = 'F'
-                traceback.print_exc()
-            except :
-                fn_status = 'E'
-                traceback.print_exc()
-
-            fn_end_time = time.time()
-
-            fn_log = pycode.end_snarf_stdout()
-
-            gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, class_ob.tda, class_ob.tra, fn_log )
-
-            # if we make a new object instance for
-            # every test, dispose the old one now
-            if new_object_every_time :
-                del class_ob
+            # run the test method
+            run_test_method( name, class_ob, f_name, f_ob, rpt ) 
 
     # exceptions that came out of handling the class, but not one of the test methods
     except AssertionError :
+        exception_str = get_exception_str()
         class_status = 'F'
         traceback.print_exc()
+
     except :
+        exception_str = get_exception_str()
+        class_status = 'E'
+        traceback.print_exc()
+
+    try :
+        # optional teardown
+        class_teardown = getattr(class_ob, 'classTearDown', None )
+        if class_teardown :
+            class_teardown()
+    except :
+        exception_str = get_exception_str()
         class_status = 'E'
         traceback.print_exc()
 
@@ -323,8 +353,111 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
     class_end_time = time.time()
     class_log = pycode.end_snarf_stdout() 
 
-    gen_report( rpt, name, class_status, class_start_time, class_end_time, class_tda_rpt, class_tra_rpt, class_log )
-    
+    tda = getattr(class_ob,'class_tda',{})
+
+    tra = getattr(class_ob,'class_tra',{})
+
+    if exception_str is not None :
+        tra['exception'] = exception_str
+
+    gen_report( rpt, name, class_status, class_start_time, class_end_time, tda, tra, class_log )
+
+#### run tests, fresh object for each test
+
+def run_test_class_multiple( rpt, mod, name, ob, test_order ) :
+
+    pycode.snarf_stdout()
+    class_start_time = time.time()
+
+    print "MULTIPLE"
+    class_status = 'P'
+    exception_str = None
+
+    # find the test methods on the class object
+    l = locate_test_methods( ob, test_order )
+
+    # for each test method on the object
+    for f_name, f_ob in l :
+
+        if debug :
+            debug_fd.write('run_test_class: test method: %s %s\n'%(f_name,str(f_ob)))
+
+        try :
+
+            # bug: stdout and exceptions go to the class, not the test 
+            class_ob = ob()
+
+            # we have them so it is easy to convert tests back/forth
+            class_ob.class_tda = { }
+            class_ob.class_tra = { }
+
+            # class setup is run once after the object init
+            class_setup = getattr(class_ob, 'classSetUp', None )
+            if class_setup :
+                class_setup()
+
+            # run the test method
+            run_test_method( name, class_ob, f_name, f_ob, rpt ) 
+
+        # exceptions that came out of handling the class, but not one of the test methods
+        except AssertionError :
+            exception_str = get_exception_str()
+            class_status = 'F'
+            traceback.print_exc()
+
+        except :
+            exception_str = get_exception_str()
+            class_status = 'E'
+            traceback.print_exc()
+
+        try :
+            # bug: stdout and exceptions go to the class, not the test 
+
+            # optional teardown
+            class_teardown = getattr(class_ob, 'classTearDown', None )
+            if class_teardown :
+                class_teardown()
+        except :
+            exception_str = get_exception_str()
+            class_status = 'E'
+            traceback.print_exc()
+
+    # this is the end of everything relating to the class.
+    class_end_time = time.time()
+    class_log = pycode.end_snarf_stdout() 
+
+    # it really doesn't make sense to say there is an attribute for
+    # the class, when we have made many class objects, each with separate
+    # attributes
+    tda = { }
+    tra = { }
+
+    if exception_str is not None :
+        tra['exception'] = exception_str
+
+    gen_report( rpt, name, class_status, class_start_time, class_end_time, tda, tra, class_log )
+
+
+# There is a test name that corresponds to the whole class.  This gathers any
+# result and/or error that comes from the class, but not from an individual
+# test method.
+
+def run_test_class( rpt, mod, name, ob, test_order ) :
+
+    if getattr(ob, '__disable__', False ) :
+        gen_report( rpt, name, 'D' )
+        return  # bug: find the test names and report status=D
+
+    new_object_every_time = not getattr(ob,'minipyt_shared',0)
+
+    # the difference between making a new object for every test and
+    # using the same object over and over is just enough to make it worth
+    # separating into two functions.
+    if new_object_every_time :
+        run_test_class_multiple( rpt, mod, name, ob, test_order )
+    else :
+        run_test_class_single( rpt, mod, name, ob, test_order )
+
 
 ####
 #### run a whole file of tests
@@ -359,12 +492,6 @@ def process_file( filename, test_name = None, test_args = None ) :
         dots_file.flush()
 
 
-    # in case the module completely fails to import 
-    module = None
-    module_tda = { }
-    module_tra = { }
-
-
     # the module name is the basename of the file, without the extension
     module_name = os.path.basename(filename)
     module_name = os.path.splitext(module_name)[0]
@@ -373,16 +500,17 @@ def process_file( filename, test_name = None, test_args = None ) :
     if debug :
         debug_fd.write( "test_args %s\n"%test_args)
 
-    if test_args is not None :
+    if test_name is not None :
         rpt = pycode.reporter( test_name )
     else :
         rpt = pycode.reporter( filename )
 
     # gather up the stdout from processing the whole file.    individual
     # tests will suck up their own stdout, so it will not end up in
-    # the file.
+    # this log.
     pycode.snarf_stdout()
 
+    #
     file_start_time = time.time()
     file_status = 'P'
 
@@ -390,6 +518,7 @@ def process_file( filename, test_name = None, test_args = None ) :
     sys_path_save = copy.copy(sys.path)
     sys.path.insert(0,os.path.dirname(filename))
 
+    exception_str = None
 
     try :
 
@@ -415,27 +544,16 @@ def process_file( filename, test_name = None, test_args = None ) :
         # these are both flags and the function objects for module
         # setup/teardown and pycode function
         setup = None
-        teardown = None
-        pycode_fn = None
 
         try :
             setup = module.setUp
         except AttributeError :
             pass
 
-        try :
-            teardown = module.tearDown
-        except AttributeError :
-            pass
-
-        try :
-            pycode_fn = module.pycode
-        except AttributeError :
-            pass
-
         if setup is not None :
             if debug :
                 debug_fd.write("process_file: running setUp")
+            print "setUp"
             setup()
 
         # look through the module for things that might be tests
@@ -474,15 +592,22 @@ def process_file( filename, test_name = None, test_args = None ) :
         except :
             test_order = 'line'
 
+        print "TEST ORDER", test_order
+
         sort_test_list(l, test_order)
 
         for x in l :
             name, ob = x
 
-            # use nose-compatible name, if present
+            # default name is the object name
+
+            # but use nose-compatible name, if present
             rname = getattr(ob,'compat_func_name', name)
+
+            # but use our explicitly defined name, if present
             rname = getattr(ob,'__test_name__', rname)
 
+            # call the appropriate runner
             if type(ob) == function :
                 print 'function', name, 'as', rname
                 run_test_function( rpt, module, rname, ob )
@@ -490,13 +615,29 @@ def process_file( filename, test_name = None, test_args = None ) :
                 print 'class', name, 'as', rname
                 run_test_class( rpt, module, name, ob, test_order )
 
+        # look for a pycode function - call it if necessary
+        pycode_fn = None
+        try :
+            pycode_fn = module.pycode
+        except AttributeError :
+            pass
+
         if pycode_fn :
-            print 'pycode test'
+            print 'pycode test detected'
             pycode_fn(1, rpt=rpt)
 
         print 'tests completed'
 
+        # look for a teardown function - call it if necessary
+        teardown = None
+
+        try :
+            teardown = module.tearDown
+        except AttributeError :
+            pass
+
         if teardown :
+            print "tearDown"
             teardown()
 
     except AssertionError :
@@ -509,17 +650,29 @@ def process_file( filename, test_name = None, test_args = None ) :
     # restore sys.path
     sys.path = sys_path_save
 
-    if module is not None :
-        module_tda = getattr( module, 'tda', { } )
-        module_tra = getattr( module, 'tra', { } )
-
     log = pycode.end_snarf_stdout()
     file_end_time = time.time()
+
+    tda = { }
+    tra = { }
+
+    try :
+        tda = module.module_tda
+    except :
+        pass
+
+    try :
+        tra = module.module_tra
+    except :
+        pass
+
+    if exception_str is not None :
+        tra['exception'] = exception_str
 
     # the name for the report on the file as a whole is derived from
     # the file name. the report object is already set up to do this,
     # so we do not need to provide any more parts of the test name.
-    gen_report( rpt, None, file_status, file_start_time, file_end_time, module_tda, module_tra, log )
+    gen_report( rpt, None, file_status, file_start_time, file_end_time, tda, tra, log )
 
     rpt.close()
 

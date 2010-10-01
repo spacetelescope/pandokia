@@ -40,8 +40,7 @@ xyz.py will have a test name of "xyz".  The status value reported is:
 
 This behaviour is intended primarily to detect and report errors in
 test files.  Because of the plugin architecture of nose and py.test,
-there are certain kinds of problems that the pandokia plugins cannot
-detect/report.
+there are certain kinds of problems that the plugins cannot detect/report.
 
 For pure python, minipyt will always report at least one test record
 for each file, no matter how badly the import goes.  ( If the test uses
@@ -58,6 +57,9 @@ and the simplest test that fails is::
 	assert False
 
 In these examples, the name of the test matches the name of the file.
+
+You can report attributes for the module by loading them into the  global
+dictionaries module_tda and module_tra.
 
 Recognizing Tests
 -------------------------------------------------------------------------------
@@ -80,7 +82,7 @@ as tests:
 	  or ``nose.tools.istest``
 
 By default, tests are executed in order by line number.  If you
-want to order the tests by name, use::
+want to order the tests by name, set the global variable::
 
 	minipyt_test_order = 'name'
 
@@ -113,14 +115,68 @@ A method is a test if the name starts or ends with "test" and has
 not been decorated with nottest, or if it has been decorated with
 pandokia.helpers.minipyt.test or nose.tools.istest.
 
-If the class has the attribute minipyt_shared=True, only one instance is
+
+single object instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the class has the attribute minipyt_shared=True, only one object instance is
 created; all the tests run in that same instance.  This can be helpful
 if the class initialization performs some shareable operation, such as
 connecting to a database.
 
+::
+
+	- create object
+
+	- call obj.classSetUp()
+
+	- for each test method
+
+		call obj.setUp()
+		call test method
+		call obj.tearDown()
+		
+
+	- call obj.classTearDown()
+
+obj.class_tda and obj.class_tra are attributes that belong to the class.
+
+obj.tda and obj.tra are attributes that belong the the most recently executed
+tests.  The attribute set reported is the union of class_tXa and tXa.
+
+
+multiple object instances
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If the class has the attribute minipyt_shared=False or if the attribute
-is not set, a new instance is created for each test.  This is compatible
-with other test frameworks such as nose, py.test, and unittest.
+is not set, a new instance is created for each test.  This is similar
+to other test frameworks such as nose, py.test, and unittest.
+
+::
+
+	- for each test method
+
+		create obj
+
+		call obj.classSetUp()
+
+		call obj.setUp()
+
+		call test method
+
+		call obj.tearDown()
+
+		call obj.classTearDown()
+
+
+obj.class_tda and obj.class_tra are attributes that belong to the class.
+
+obj.tda and obj.tra are attributes that belong the the most recently executed
+tests.  The attribute set reported is the union of class_tXa and tXa.
+
+
+running the test methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 minipyt will call each method to execute the test.  If the class has
 a method named "setUp", it will be called before each test method.
