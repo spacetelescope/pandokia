@@ -177,6 +177,10 @@ def get_exception_str() :
     #
     del tb
 
+    # the line number above is incorrect sometimes - don't return it until we get it consistently right
+    return repr(value)
+
+
     # we might include more information here
     return '%s in "%s", line %d, in %s' % (repr(value),filename,lineno,name)
 
