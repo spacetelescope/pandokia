@@ -353,7 +353,6 @@ def run(args, hack_callback) :
             # the record.
             if hack_callback :
                 if not hack_callback(rx) :
-                    print "SKIP",rx.test_name
                     continue
             try :
                 rx.insert(db)
