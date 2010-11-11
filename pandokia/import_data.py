@@ -272,7 +272,7 @@ class test_result(object):
 
 import pandokia.common
 
-def run(args) :
+def run(args, hack_callback) :
     global insert_count, line_count
 
     print "importing into ",pandokia.common.cfg.dbdir
@@ -347,6 +347,14 @@ def run(args) :
 
 
             rx = test_result(x)
+
+            # the hack_callback allows us to insert something to modify the 
+            # record before we insert it; we also have the option of ignoring
+            # the record.
+            if hack_callback :
+                if not hack_callback(rx) :
+                    print "SKIP",rx.test_name
+                    continue
             try :
                 rx.insert(db)
             except database.IntegrityError:
@@ -362,4 +370,21 @@ def run(args) :
     # could use all_test_run here to clear the cgi cache
 
     sys.exit(exit_status)
+
+
+def hack_import(args) :
+    run(args, hack_callback = pyetchack)
+
+def pyetchack(arg) :
+    # for a hack_callback, arg is a dict.  Modify the dict in any way
+    # that you like to change what gets imported.  Return true if
+    # the record should be imported, false if it should be ignored.
+
+    n = arg.test_name
+
+    if not n.endswith('.all') :
+        return False
+
+    arg.test_name = arg.test_name.replace(".peng.all","")
+    return True
 

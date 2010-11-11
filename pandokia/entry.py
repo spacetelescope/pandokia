@@ -142,6 +142,10 @@ def run() :
         import pandokia.import_data as x
         return x.run(args)
 
+    if cmd == 'hackimport' :
+        import pandokia.import_data as x
+        return x.hack_import(args)
+
     if cmd == 'import_contact' :
         import pandokia.import_contact as x
         return x.run()
