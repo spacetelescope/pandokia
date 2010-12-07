@@ -108,7 +108,9 @@ class Pdk(nose.plugins.base.Plugin):
         initialize it for this test run."""
 
         fname=self.pdklogfile
-        hostname,junk=platform.node().split('.',1)
+        hostname = platform.node()
+        if '.' in hostname :
+            hostname = hostname.split('.',1)[0]
 
         try:
             # determine whether we need to write the defaults
