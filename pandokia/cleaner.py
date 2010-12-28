@@ -118,7 +118,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
 
 def clean_db(args) :
 
-    if args[0] == '--help' :
+    if len(args) > 0 and args[0] == '--help' :
         print '''
 pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
 '''
@@ -172,7 +172,7 @@ def delete_run(args) :
     db.commit()
 
     #
-    if args[0] == '--help' :
+    if len(args) > 0 and args[0] == '--help' :
         print '''
 pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
 
@@ -187,7 +187,7 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
 '''
         return
 
-    if args[0] == '--mine' :
+    if len(args) > 0 and args[0] == '--mine' :
         user_name = get_user_name()
         args = [ 'user_' + user_name + '_' + x for x in args[1:] ]
     print 'args', args
@@ -211,6 +211,10 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
             db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
             db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
             db.commit()
+
+            clean_key_id("result_log", kmin, kmax, None)
+            clean_key_id("result_tda", kmin, kmax, None)
+            clean_key_id("result_tra", kmin, kmax, None)
             print "DONE ",name
 
     db.close()
