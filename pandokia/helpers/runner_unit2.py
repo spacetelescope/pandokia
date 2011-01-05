@@ -101,8 +101,8 @@ class pdk_test_result(object):
         test.tra = getattr( test, 'tra', { } )
         test.tda = getattr( test, 'tda', { } )
 
-	    # gather stdout for the whole test run.  This includes
-	    # setUp() and tearDown().
+        # gather stdout for the whole test run.  This includes
+        # setUp() and tearDown().
         pycode.snarf_stdout()
 
     def stopTest(self, test) :
@@ -141,8 +141,8 @@ class pdk_test_result(object):
         self.print_status( err )
 
     def addExpectedFailure(self, test, err):
-	    # "expected failure" ?  If it did what we expected, it
-	    # passed, right???
+        # "expected failure" ?  If it did what we expected, it
+        # passed, right???
         self.pdk_status = 'P'   
         sys.stdout.write('Expected Failure')
         self.print_status( err )

@@ -1,7 +1,7 @@
 import unittest2
 
 def plus2(x):
-	return x+2
+    return x+2
 
 # The object contains a list of methods named "test_*" that are all
 # the tests.  For each one, the object gets instatiated, then it calls

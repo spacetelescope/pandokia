@@ -157,14 +157,14 @@ def self_href( query_dict, linkmode, text ) :
 
 def get_db_module() :
     try :
-	# if you have python 2.5, this is part of python (if you
-	# have the sqlite libraries)
+        # if you have python 2.5, this is part of python (if you
+        # have the sqlite libraries)
         import sqlite3
     except ImportError, e :
-	# if you have python 2.4, you have to install pysqlite2,
-	# which is about the same as sqlite3, but with the library
-	# in a different name.
-	import pysqlite2.dbapi2 as sqlite3
+        # if you have python 2.4, you have to install pysqlite2,
+        # which is about the same as sqlite3, but with the library
+        # in a different name.
+        import pysqlite2.dbapi2 as sqlite3
     return sqlite3
 
 # db is the main database
@@ -554,8 +554,8 @@ def parse_time( arg ) :
         else :
             x = time.strptime(arg,'%Y-%m-%d %H:%M:%S')
             d = datetime.datetime(year=x[0], month=x[1], day=x[2],
-		hour=x[3], minute=x[4], second=x[5] )
-	    # not in 2.4:
+            hour=x[3], minute=x[4], second=x[5] )
+            # not in 2.4:
             # d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
         return d
     except ValueError :

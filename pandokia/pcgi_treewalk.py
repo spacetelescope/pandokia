@@ -269,10 +269,10 @@ def treewalk ( ) :
         # the same.
         #
         # So, for each cell, if it appears to contain an int in
-	    # both cells, subtract them.
+        # both cells, subtract them.
         #
-	    # We know that column 1 contains the test name, so we don't
-	    # even try to handle those.
+        # We know that column 1 contains the test name, so we don't
+        # even try to handle those.
         #
         for row in range(0, len(table.rows) ):
             for col in range(1,len(table.rows[row].list)) :
