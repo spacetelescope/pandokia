@@ -183,8 +183,8 @@ def run ( ) :
 
         result_table.sort([ sort_order[1:] ], reverse=reverse_val)
         rows = len(result_table.rows)
-	for i in range(0,rows):
-		result_table.set_value(i,"line #",i+1)  
+        for i in range(0,rows):
+            result_table.set_value(i,"line #",i+1)  
 
         output.write('''
     <script language=javascript>
@@ -224,15 +224,15 @@ def run ( ) :
         ''' % ( pandokia.pcgi.cginame,) )
         
         output.write(result_table.get_html(color_rows=5))
-	output.write('''
+        output.write('''
         <input type=hidden name=query value='action'>
         <input type=hidden name=qid value=%d>
-	'''% (qid, ) )
+        '''% (qid, ) )
         output.write('Actions:<br>')
-	output.write("""<input type=text name=begin id=begin value="*Begin line" onfocus='condclear("begin")'size=10> """)
-	output.write("""<input type=text name=end id=end value="*End line" onfocus='condclear("end")' size=10> """)
-	output.write('<input type=button name="setrange" value="Set Range" onclick="set_range(true)">')
-	output.write('<br>')
+        output.write("""<input type=text name=begin id=begin value="*Begin line" onfocus='condclear("begin")'size=10> """)
+        output.write("""<input type=text name=end id=end value="*End line" onfocus='condclear("end")' size=10> """)
+        output.write('<input type=button name="setrange" value="Set Range" onclick="set_range(true)">')
+        output.write('<br>')
         output.write('<input type=button name="setall"   value="Select All"   onclick="set_all(true)">')
         output.write('<input type=button name="clearall" value="Clear All" onclick="set_all(false)">')
         output.write('<input type=button name="clearall" value="Toggle"    onclick="toggle()">')
@@ -387,7 +387,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         all_context[context] = 1
 
         detail_query = { "key_id" : key_id }
-	result_table.set_value(rowcount,"runner",runner)
+        result_table.set_value(rowcount,"runner",runner)
         result_table.set_value(rowcount,"checkbox",'',html='<input type=checkbox name=%s>'%key_id)
         result_table.set_value(rowcount,"attn",attn)
         result_table.set_value(rowcount,"test_run",test_run)
