@@ -16,8 +16,8 @@ test_runs = {}
 test_summary = {}
 
 
-#Let us insert some test data into the user_prefs table.
 if False:
+    # Insert some fake test data into the user_prefs table.
     query = 'INSERT INTO user_prefs VALUES (?,?)'
     for i in range(0,100):
         db.execute(query,('name_'+str(i),'email_'+str(i)))
