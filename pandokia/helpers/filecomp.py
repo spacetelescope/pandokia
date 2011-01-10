@@ -4,6 +4,13 @@ pandokia.helpers.filecomp - a general interface for intelligently
 
 contents of this module:
 
+    compare_files( list, okroot=None, tda=None )
+            list is a list of (filename, comparison_type)
+            okroot is the base name of the okfile.
+            tda is a dict to update with the name of the okfile
+
+            This function is probably what you want to use in your test.
+
     command(str, env) 
             portable way to run a shell command (the python library has
             many ways to do this, but nearly all are deprecated.  This
@@ -25,9 +32,13 @@ contents of this module:
             an example of how to make your own comparison function; this is
             not actually used, but you can look at the docstring.
 
+    ensure_dir( name )
+            make sure directory exists, creating if necessary.  (There is no
+            function like this in the python library.)
+
 '''
 
-__all__ = [ 'command', 'check_file', 'file_comparators', 'cmp_example' ]
+__all__ = [ 'command', 'check_file', 'file_comparators', 'compare_files', 'ensure_dir' ]
 
 import os
 import re
@@ -120,26 +131,60 @@ def cmp_example( the_file, reference_file, header_message, quiet, **kwargs ) :
 
 
 ###
-### super-simple implementation of binary file compare
+### binary file compare
 ###
 
-# bug: just compare the data right here
-
-def cmp_binary( the_file, reference_file, msg, quiet, **kwargs ) :
+def cmp_binary( res, ref, msg, quiet, **kwargs ) :
     '''
     cmp_binary - a byte-for-byte binary comparison; the files must
         match exactly.  No kwargs are recognized.
     '''
-    r=command("cmp -s %s %s"%(the_file, reference_file))
-    if r == 1:
-        if not quiet :
-            if msg is not None :
-                sys.stdout.write("%s\n",msg)
-            sys.stdout.write("file match error: %s\n"%the_file)
+    try :
+        f1 = open(res, 'r')
+    except :
+        print "cannot open result file:",res
+        raise
+
+    try :
+        f2 = open(ref,'r')
+    except :
+        f1.close()
+        print "cannot open reference file",ref
+        raise
+
+    # pick the length out of the stat structure
+    s1 = os.fstat(f1.fileno())[6]
+    s2 = os.fstat(f2.fileno())[6]
+
+    if s1 != s2 :
+        print "files are different size:"
+        print "    %s %d"%(res,s1)
+        print "    %s %d"%(ref,s2)
+        f1.close()
+        f2.close()
         return False
-    elif r != 0:
-        raise OSError("cmp command returned error status %d"%r)
-    return True
+
+    blksize=65536
+    offset=0
+    while 1 :
+        d1 = f1.read(blksize)
+        d2 = f2.read(blksize)
+
+        if d1 == '' and d2 == '' :
+            f1.close()
+            f2.close()
+            return True
+
+        if d1 == d2 :
+            continue
+
+        # bug: be nice to show the offset where they are different
+        print "files are different: ",res,ref
+        f1.close()
+        f2.close()
+        return True
+
+    # not reached
 
 ###
 ### FITS - Flexible Image Transport System
@@ -346,6 +391,9 @@ def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
 ###
 
 
+###
+### Here are the built-in comparisons available; add your own if necessary
+###
 
 file_comparators = {
     'binary':       cmp_binary,
@@ -353,10 +401,18 @@ file_comparators = {
     'text':         cmp_text,
 }
 
+###
+###
+###
+
 def update_okfile(okfh, name, ref):
     
     okfh.write("%s %s\n"%(os.path.abspath(name),
                           os.path.abspath(ref)))
+
+###
+### compare a single file
+###
     
 def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
                 cleanup=False, okfh=None, **kwargs ) :
@@ -418,7 +474,120 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
 
         #Last of all, raise the AssertionError that defines a failed test
         if exc :
-            raise(AssertionError("files are different: %s, ref/%s\n"%(name,name)))
+            raise(AssertionError("files are different: %s, %s\n"%(name,ref)))
     #and return the True/False (Pass/Fail) status
     return r
 
+
+###
+### a file comparator that does everything you need to check several
+### output files in a single test.  (but not yet with all the options of
+### compare_file)
+###
+
+def compare_files( list, okroot=None, tda=None ):
+    '''
+    compare_files( list, okroot=None, tda=None )
+
+        list is a tuple of (filename, comparator, kwargs) 
+            filename is the name of a file in the directory out/; it is
+                compared to a file of the same name in the directory ref/,
+
+            comparator is the name of the comparator to use.  The default
+                system has 'text', 'binary', and 'fits'.
+
+            kwargs is a dict of keyword args to pass to comparator
+                function, or None.  You may omit kwargs if it is not needed.
+
+        okroot is the bas name of the okfile.  If present, an okfile named
+            okroot+'.okfile' is created.  Normally, you would use the
+            basename of the current file plus the test name.
+
+        tda is the tda dict.  If there is a tda dict and an okfile, the
+            "_okfile" tda is set.
+
+    In your code, you would write something like:
+
+        x = compare_files(
+                list = [
+                    ( 'binary_output',  'binary' ),
+                    ( 'text_output',    'binary', { 'ignore_date' : True } ),
+                    ],
+                okroot= __file__ + '.testname',
+                tda=tda
+                )
+
+        if x :
+            raise x
+
+    '''
+
+    # see if we are using an okfile; if we are, get it ready
+    if okroot is not None :
+        okfn = os.path.join(os.getcwd(), okroot + '.okfile')
+        if tda is not None :
+            tda['_okfile'] = okfn
+        try :
+            os.unlink(okfn)
+        except :
+            pass
+        okfh = open(okfn, 'w')
+    else :
+        okfh = None
+
+    # ret_exc is the exception that the application should raise
+    # to fail/error the test.  We want to compare all the files in
+    # the list, then pick one of the worst-case exceptions to return.
+    # We do this by looping over all the files and only remembering an
+    # exception that is worse than what we have seen so far.
+    ret_exc = None
+
+    for x in list :
+        # pick out file name, comparator type, kwargs (optional)
+        if len(x) > 2 :
+            name, type, kwargs = x
+        else :
+            name, type = x
+            kwargs = { }
+    
+        # perform the comparison
+        try :
+            print "\nCOMPARE:",name
+            check_file( name='out/'+name, cmp=type, ref='ref/'+ name, okfh=okfh, exc=True)
+
+        # assertion error means the test fails
+        except AssertionError, e :
+            print "FAIL"
+            if ret_exc is None :
+                ret_exc = e
+
+        # any other exception means the test errors
+        except Exception, e:
+            print "ERROR",str(e)
+            if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :
+                ret_exc = e
+
+    print ""
+
+    # remember to close the okfile
+    okfh.close()
+
+    # return the exception
+    return ret_exc
+
+###
+### what os.makedirs should have been...
+###
+
+def ensure_dir(name) :
+    '''
+    Create a directory hierarchy, ignoring any exceptions.  
+    There is no native python function that does this.  
+
+    If there is an error, presumably your code will try to use
+    the directory later and detect the problem then.
+    '''
+    try :
+        os.makedirs(name)
+    except :
+        pass
