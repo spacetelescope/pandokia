@@ -272,7 +272,7 @@ class test_result(object):
 
 import pandokia.common
 
-def run(args, hack_callback) :
+def run(args, hack_callback = None) :
     global insert_count, line_count
 
     print "importing into ",pandokia.common.cfg.dbdir
