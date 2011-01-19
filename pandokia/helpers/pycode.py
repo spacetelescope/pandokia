@@ -228,8 +228,8 @@ def snarf_stdout( tagname=None ) :
 def end_snarf_stdout( tagname=None ) :
     s = sys.stdout.getvalue()
 
+    # we only opened one StringIO so we only need to close it once
     sys.stdout.close()
-    sys.stderr.close()
 
     sys.stdout = save_stdout.pop()
     sys.stderr = save_stderr.pop()
