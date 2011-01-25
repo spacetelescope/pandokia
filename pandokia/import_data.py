@@ -7,6 +7,8 @@ import re
 import sys
 import pandokia.common as common
 
+import cStringIO as StringIO
+
 database = common.get_db_module()
 
 exit_status = 0
@@ -116,6 +118,7 @@ def read_record(f) :
             if value != "" :
                 print "INVALID INPUT FILE - stuff after colon",name,line_count
                 exit_status = 1
+            stuff = StringIO.StringIO()
             while 1 :
                 l = f.readline()
                 line_count = line_count + 1
@@ -130,9 +133,10 @@ def read_record(f) :
                     print "INVALID INPUT FILE - missing prefix in multi-line",name,line_count
                     exit_status = 1
                     break
-                # bug: this is hokey, but if you allow \0 in the string, the string gets truncated.
-                l = l.replace("\0","\\0")
-                ans[name] = ans.get(name,"") + l[1:]
+                stuff.write(l[1:])
+            # bug: this is hokey, but if you allow \0 in the string, the string gets truncated.
+            ans[name] = stuff.getvalue().replace("\0","\\0")
+            del stuff
             continue
 
         print "INVALID INPUT FILE - unrecognized line",l,line_count
