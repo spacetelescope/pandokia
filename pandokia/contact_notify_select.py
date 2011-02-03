@@ -45,7 +45,7 @@ def get_user_projects(username):
 
 # The return value is a tuple:
 #   first value is an array indexed by (host,context).  Each element is a list of (test_name, status) 
-#   second value is a list of tests that failed on all host/context pairs
+#   second value is a list of tests that "not pass" on all host/context pairs
 def project_test_run(test_run, project):
 
     if (test_run,project) in test_runs :
@@ -63,7 +63,7 @@ def project_test_run(test_run, project):
 
     # we make an array where
     #   tests[name] is a dict
-    #       ['hc'] is a list of host/contexts where that test failed
+    #       ['hc'] is a list of host/contexts where that test "not pass"
     #       ['s'] is the status
     tests = {}
     for host, test_name, context, status in res:
@@ -214,13 +214,13 @@ def create_email(username, test_run) :
             email += "Project: "+ project + "\n\n"
 
             if all_hosts is not None :
-                email += "These tests failed on all hosts and on all contexts\n"
+                email += "These tests had a problem on all hosts and on all contexts\n"
                 email += all_hosts.get_rst()
                 email += "\n"
                 send_notice = True
 
             if some_hosts is not None :
-                email += "These tests failed on some hosts\n"
+                email += "These tests had a problem on some hosts\n"
                 email += some_hosts.get_rst()
                 email += "\n"
                 send_notice = True
