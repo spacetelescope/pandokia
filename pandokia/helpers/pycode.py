@@ -182,6 +182,13 @@ class reporter(object) :
 
         self.report_file.write('END\n')
 
+        # You would think we don't need this, but in practice sometimes
+        # python C extensions will core dump the whole python interpreter.
+        # In that case, this gets as much of our output as possible.
+        self.report_file.flush()
+
+
+    # see ticket #51
     def start( self, test_name, tda={ } ) :
         self.test_name = test_name
         self.tda = tda
