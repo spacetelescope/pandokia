@@ -41,8 +41,12 @@ def rpt1(  ) :
     if test_run == '-me' :
         test_run = 'user_' + common.current_user() + '_*'
 
+    my_run_prefix = 'user_' + common.current_user()
+
+    admin = common.current_user() in common.cfg.admin_user_list
+
     # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
-    c = db.execute("SELECT name FROM distinct_test_run WHERE name GLOB ?  ORDER BY name DESC ",( test_run,))
+    c = db.execute("SELECT name, valuable, record_count FROM distinct_test_run WHERE name GLOB ? ORDER BY name DESC ",( test_run,))
 
     table = text_table.text_table()
 
@@ -52,8 +56,7 @@ def rpt1(  ) :
     tquery = { 'project' : '*', 'host' : '*' }
 
     row = 0
-    for x in c :
-        (x,) = x
+    for x, val, record_count in c :
         if x is None :
             continue
         dquery["test_run"] = x
@@ -62,8 +65,20 @@ def rpt1(  ) :
 
         table.set_value(row, 0, text=x, link=common.selflink(dquery,"day_report.2") )
         table.set_value(row, 2, text='(tree display)', link=common.selflink(tquery,"treewalk") )
-        table.set_value(row, 3, text='(problem tests)', link=common.selflink(lquery,"treewalk.linkout") )
+        # table.set_value(row, 3, text='(problem tests)', link=common.selflink(lquery,"treewalk.linkout") )
+        if val == '0' :
+            if x.startswith(my_run_prefix) :
+                table.set_value(row, 4, text='(delete)', link=common.selflink(tquery,"delete_run.ays") )
+            else :
+                table.set_value(row, 4, text='(delete)', html='<font color=gray>(delete)</font>', link=common.selflink(tquery,"delete_run.ays") )
+        else :
+            table.set_value(row, 4, text='(valuable)' )
+
+        if record_count is not None and record_count > 0 :
+            table.set_value(row, 5, text=record_count )
+            
         row = row + 1
+
 
     if pandokia.pcgi.output_format == 'html' :
         sys.stdout.write(common.cgi_header_html)
@@ -73,6 +88,8 @@ def rpt1(  ) :
     elif pandokia.pcgi.output_format == 'csv' :
         sys.stdout.write(common.cgi_header_csv)
         sys.stdout.write(table.get_csv())
+
+    sys.stdout.flush()
 
     return
 

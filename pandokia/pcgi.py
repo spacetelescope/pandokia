@@ -159,6 +159,14 @@ def run() :
             x.rpt3()
         sys.exit(0)
 
+    if query.startswith("delete_run.") :
+        import pandokia.pcgi_delete as x
+        if query == "delete_run.ays" :
+            x.delete_are_you_sure()
+        if query == "delete_run.conf" :
+            x.delete_confirmed()
+        sys.exit(0)
+
     if query == 'flagok' :
         import pandokia.pcgi_flagok as x
         x.flagok()
@@ -184,7 +192,7 @@ def run() :
         print ""
         pid = form['pid'].value
         sig = form['sig'].value
-        if common.current_user() in common.cfg.adminuser :
+        if common.current_user() in common.cfg.admin_user_list :
             os.kill(int(pid),int(sig))
         print "done"
         sys.exit(0)
@@ -196,7 +204,8 @@ def run() :
     # friendly response.
     sys.stdout.write("content-type: text/html\n\n\n<font color=red><blink>1201</blink></font>\n")
     
-    if cfg.debug or ( common.current_user() in common.cfg.adminuser ) :
+    if cfg.debug or ( common.current_user() in common.cfg.admin_user_list ) :
+        print "YOU ARE ADMIN, DEBUG FOLLOWS"
         for x in form:
             if isinstance(form[x],list) :
                 for y in form[x]:

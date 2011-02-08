@@ -155,10 +155,13 @@ CREATE UNIQUE INDEX expected_unique
 
 CREATE TABLE distinct_test_run (
 	name VARCHAR UNIQUE,
-	valuable CHAR(1)
+	valuable CHAR(1),
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
 		-- this test run.
+	record_count INTEGER
+		-- how many records in this test run
+		-- if 0 or NULL, we don't know
 	);
 
 
@@ -211,3 +214,17 @@ CREATE TABLE query (
 
 CREATE INDEX query_index 
 	ON query ( qid ) ;
+
+-- delete_queue:
+--	deleting stuff in pandokia is very slow.  We have multiple tables
+--	to update for every deletion, and there is no good way to make
+--	that happen fast.  So, when you delete a test run, copy the key_ids 
+--	to delete_queue.  Later, a background process goes around deleting
+--	those key_ids from tda/tra/log tables.  You don't have to wait
+--	for it.
+--
+--	pending questions:  do we index this table or not for speed?
+
+CREATE TABLE delete_queue (
+	key_id INTEGER
+	);

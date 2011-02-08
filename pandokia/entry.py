@@ -19,6 +19,11 @@ pdk clean
     keep cruft from accumulating, but you don't need to do it right away.
     It may take some time depending on the size of your database.
 
+pdk delete_background_step
+    run one step of the background cleaner used by the new delete algorithm
+
+pdk delete_background
+
 pdk delete_run test_run
     removes named test run from the database
 
@@ -105,6 +110,14 @@ def run() :
     if cmd == 'clean' :
         import pandokia.cleaner
         return pandokia.cleaner.clean_db(args)
+
+    if cmd == 'delete_background_step' :
+        import pandokia.cleaner
+        return pandokia.cleaner.delete_background_step()
+
+    if cmd == 'delete_background' :
+        import pandokia.cleaner
+        return pandokia.cleaner.delete_background(args)
 
     if cmd == 'config' :
         import pandokia.config

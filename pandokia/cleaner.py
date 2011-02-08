@@ -9,6 +9,13 @@ import os
 import pandokia.common
 
 
+global db
+db = pandokia.common.open_db()
+
+def get_user_name() :
+    # may need to do something more for ms windows
+    return os.getlogin()
+
 #
 # a qid identifies an arbitrarily chosen group of test results.  The CGI
 # creates them in response to some queries, but we need some way to get
@@ -124,9 +131,6 @@ pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
 '''
         return
 
-    global db
-    db = pandokia.common.open_db()
-
     min_key_id = None
     max_key_id = None
     sleep = 1
@@ -155,8 +159,6 @@ pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
 # pdk delete_run testrun
 #
 def delete_run(args) :
-    global db
-    db = pandokia.common.open_db()
 
     print "Deleting from database", pandokia.common.cfg.dbdir
 
@@ -194,34 +196,77 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
     for x in args :
         if x == "*" :
             print "* is too dangerous - nothing done"
-            db.close()
             return 1
-    for x in args :
-        c = db.execute("SELECT name, valuable FROM distinct_test_run WHERE name GLOB ?",(x,))
-        for (name,valuable) in c :
-            print "name",name,"valuable",valuable
+    for name in args :
+        print "ARG",name
+        c = db.execute("SELECT name, valuable FROM distinct_test_run WHERE name GLOB ?",(name,))
+        for (n,valuable) in c :
+            print "name",n,"valuable",valuable
             if valuable != '0' :
-                print "NAME",name," MARKED VALUABLE - NOT DELETED"
+                print "NAME",n," MARKED VALUABLE - NOT DELETED"
                 continue
-            print "NAME",name
-            c = db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = ?",  (name,))
-            kmin,kmax = c.fetchone() 
-            print kmin, kmax
-            print "DELETE ",name
-            db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
-            db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
-            db.commit()
+            new_delete(n)
 
-            clean_key_id("result_log", kmin, kmax, None)
-            clean_key_id("result_tda", kmin, kmax, None)
-            clean_key_id("result_tra", kmin, kmax, None)
-            print "DONE ",name
+def old_delete( name ) :
+    print "NAME",name
+    c = db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = ?",  (name,))
+    kmin,kmax = c.fetchone() 
+    print kmin, kmax
+    print "DELETE ",name
+    db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
+    db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
+    db.commit()
 
-    db.close()
+    clean_key_id("result_log", kmin, kmax, None)
+    clean_key_id("result_tda", kmin, kmax, None)
+    clean_key_id("result_tra", kmin, kmax, None)
+    print "DONE ",name
 
-    print "don't forget to 'pdk clean' "
+def new_delete( name ) :
+    c = db.execute("INSERT INTO delete_queue SELECT key_id FROM result_scalar WHERE test_run = ? ", (name,))
+    c = db.execute("DELETE FROM distinct_test_run WHERE name = ?", (name,))
+    db.commit()
 
+def delete_background_step( n = 200 ) :
+    start = time.time()
+    db.execute("DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_tda    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_tra    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_log    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM delete_queue  WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
+    end1 = time.time()
+    db.commit()
+    end2 = time.time()
+    print "step - ",end1-start, end2-start
 
-def get_user_name() :
-    # may need to do something more for ms windows
-    return os.getlogin()
+def delete_background( args ) :
+    n = 20000
+    ns = 200
+    sleeptime=10
+    # max records to delete
+    if len(args) > 0 :
+        n = int(args[0])
+    # number of records in a single step
+    if len(args) > 1 :
+        ns = int(args[1])
+    # sleep time between deleting chunks
+    if len(args) > 2 :
+        sleeptime=int(args[2])
+    while n > 0 :
+        db.commit()
+        c=db.execute("SELECT count(*) FROM delete_queue")
+        print c
+        c = c.fetchone()
+        print c
+        if c is None :
+            print "HOW?"
+        (remaining,) = c
+        print "remaining:",remaining
+        if remaining <= 0 :
+            return
+        print "delete"
+        delete_background_step( ns )
+        print "sleep"
+        n = n - ns
+        time.sleep(sleeptime)
+
