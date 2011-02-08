@@ -14,7 +14,7 @@ adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
 os_info = {
 
     "arzach":   "RHE 5 / 64",
-    "banana":   "Mac x86",
+    "banana":   "Mac Leopard",
     "basil":    "Solaris 10",
     "bond":     "Mac Leopard",
     "cadeau":   "Mac Leopard",
@@ -26,6 +26,7 @@ os_info = {
     "macbert":  "Mac PPC",
     "motoko":   "RHE 4",
     "quagga":   "RHE 5",
+    "rhaynes":  "Mac Snow Leopard",
     "ssbwebv1": "RHE 5 / 64",
     "thor":     "RHE 4 / 64",
     "timthe":   "Mac PPC",
