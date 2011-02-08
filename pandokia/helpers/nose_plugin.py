@@ -170,7 +170,10 @@ class Pdk(nose.plugins.base.Plugin):
         # For error status, remember the exception - we have to get it now before it
         # is lost due to another exception happening somewhere
         if status == 'E' :
-            exc = repr(test._exc_info()[1])
+            try :
+                exc = repr(test._exc_info()[1])
+            except AtributeError :
+                exc = 'test._exc_info not available'
         else :
             exc = None
 
