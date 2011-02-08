@@ -172,7 +172,7 @@ class Pdk(nose.plugins.base.Plugin):
         if status == 'E' :
             try :
                 exc = repr(test._exc_info()[1])
-            except AtributeError :
+            except AttributeError :
                 exc = 'test._exc_info not available'
         else :
             exc = None
