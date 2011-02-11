@@ -171,8 +171,12 @@ class Pdk(nose.plugins.base.Plugin):
         # is lost due to another exception happening somewhere
         if status == 'E' :
             try :
+                # this works in python 2.5 and 2.6
                 exc = repr(test._exc_info()[1])
             except AttributeError :
+                # this happens in python 2.7, because they replaces unittest
+                # with unittest2 and we do not yet know where to look for 
+                # the exception.
                 exc = 'test._exc_info not available'
         else :
             exc = None
