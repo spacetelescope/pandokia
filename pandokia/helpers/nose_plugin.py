@@ -154,7 +154,7 @@ class Pdk(nose.plugins.base.Plugin):
     def addSuccess(self,test):
         self.write_report( test, 'P' )
 
-    # our function to implement the features common to 
+    # our function to implement the features common to all the add* functions
     def write_report(self, test, status, trace = '' ) :
 
         # record the end time here, because nose does not always call stopTest()
@@ -181,6 +181,7 @@ class Pdk(nose.plugins.base.Plugin):
         else :
             exc = None
 
+        # actually write the record to the log file
         self.pdklog(test.test,status,log=capt, exc=exc)
 
 
@@ -243,24 +244,25 @@ class Pdk(nose.plugins.base.Plugin):
 
 
     def pdklog(self,test,status,log=None, exc=None):
-        """Creates a log file containing the test name, status,and timestamp,
-        as well as any attributes in the tda and tra dictionaries if present.
-        Does not yet support fancy separating of multi-line items."""
+        """Write a record of a single test result to the PDK log file.
+        This includes everything that we know how to report about this particular
+        test.  (Information common to all tests was written as a SETDEFAULT
+        block when we opened the log file.)
+        """
 
-
-        #Fix up the test name
+        # Fix up the test name
         name = None
         if name is None:
-            #Most tests have a .name attribute
+            # Most tests have a .name attribute
             try:
                 name=cleanname(test.name)
             except AttributeError:
-                #But generated tests have the name one level down
+                # But generated tests have the name one level down
                 try:
                     name=cleanname(test.test.name)
                 except AttributeError:
-                    #If we can't find it there either,
-                    #construct something reasonable from the id string
+                    # If we can't find it there either,
+                    # construct something reasonable from the id string
                     name=cleanname(test.id().replace(' ','_'))
 
             if self.pdktestprefix != '':
@@ -271,12 +273,13 @@ class Pdk(nose.plugins.base.Plugin):
                 else :
                     name="%s%s" %(self.pdktestprefix,name)
 
+        # collect the attributes from this test - separate function because
+        # there are so many places you might have to look
         tda, tra = self.find_txa(test)
 
         if not isinstance( tda, dict ) :
-            #if we don't have any, be creative:
-            #Use the test type & arguments if any
-            # (I'm not sure this is possible - Mark)
+            # if we don't have any, be creative:
+            # Use the test type & arguments if any
             tda = { }
             tda['testtype'] = str(type(test))
             if hasattr(test,'arg'):
@@ -288,10 +291,17 @@ class Pdk(nose.plugins.base.Plugin):
                     except:
                         pass
 
+        # report an attribute that contains the exception that caused
+        # the test to error.
         if exc is not None :
             tra['Exception'] = exc
 
-        # write the log record
+        # write the log record - the pycode log object writes the log
+        # entry and flushes the output file in case we crash later
+        #
+        # (Someday, it might be nice to use the start()/finish() interface
+        # to the pycode reporter.  A crashed test run would leave just a
+        # little more information in the pdk log.)
         self.rpt.report(
             test_name = name,
             status = status,
