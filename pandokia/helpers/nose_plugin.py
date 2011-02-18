@@ -248,7 +248,7 @@ class Pdk(nose.plugins.base.Plugin):
         Does not yet support fancy separating of multi-line items."""
 
 
-        #Fix up the name
+        #Fix up the test name
         name = None
         if name is None:
             #Most tests have a .name attribute
