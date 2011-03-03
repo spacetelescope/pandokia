@@ -106,7 +106,7 @@ def get( spec, argv = None ) :
             this_spec = spec[this_opt]
 
             # if the spec starts with - that means this opt is an
-	        # alias for another opt.  You only get one time through,
+            # alias for another opt.  You only get one time through,
             # though - no chains and no loops.
             if this_spec.startswith('-') :
                 this_opt=this_spec
