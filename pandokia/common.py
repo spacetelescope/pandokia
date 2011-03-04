@@ -282,6 +282,15 @@ def where_tuple(list, more_where = None ) :
         res =  "WHERE " + res
     return res, name_dict
 
+#
+# explain the query plan using the database-dependent syntax
+#
+def explain_query( text, query_dict ) :
+    f = cStringIO.StringIO()
+    c = db.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
+    for x in c :
+        f.write(str(x))
+    return f.getvalue()
 
 #
 # convert a test_run name entered by a user into a real test_run name; various
