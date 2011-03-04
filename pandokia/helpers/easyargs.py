@@ -17,26 +17,31 @@ Return values:
     (If the order matters to you, you can't use this library.)
 
     args is the list of non-option arguments that remain after collecting
-    the options.  We stopped when the next arg did not start with '-'.
+    the options.  It stopped processing argv when the next arg did not
+    start with '-'.
 
 spec is a dictionary where the key is an option and the value is a
 description of how to process it.
 
     spec = {
-        '-v' : '',
-        '-f' : '=',
-        '-mf' : '=+',
-        '--verbose' : '-v',
+        '-v' : '',              # arg takes no parameter, opt['-v'] is
+                                # how many times it occurred
+        '-f' : '=',             # arg takes a parameter
+        '-mf' : '=+',           # arg takes a parameter, may be specified 
+                                # several times to get a list
+        '--verbose' : '-v',     # arg is an alias for some other arg
     }
 
 
 The value '' means that we should count how many times the option occurs.
 So,
     # myprog.py -v
-    if opt['-v'] :
+    if opt['-v'] > 0 :
         print "verbose"
+    else :
+        print "not verbose"
     if opt['-v'] >= 2 :
-        print "more verbose"
+        print "even more verbose"
 
 The value '=' means that we should collect the next word as a parameter
 to the option.  Only the last instance of the option counts:
@@ -44,8 +49,8 @@ to the option.  Only the last instance of the option counts:
     if '-f' in opt :
         print "file name is",opt['-f']
 
-The value '=+' means that we should collect a list of values given to
-the option:
+The value '=+' means that the option may occur more than once and we want a list
+of all the values given
     # myprog -f f1 -f f2 
     if '-f' in opt :
         for x in opt['-f'] :
@@ -92,7 +97,9 @@ def get( spec, argv = None ) :
 
         this_opt = argv[n]
 
+        # if we recognize this arg
         if this_opt in spec :
+
             # consume it
             n=n+1
 
@@ -100,7 +107,6 @@ def get( spec, argv = None ) :
             # of the arg that the user gave, not the other arg it is
             # aliased to
             org_this_opt = this_opt
-
 
             # find the spec for how to handle it
             this_spec = spec[this_opt]
@@ -133,12 +139,10 @@ def get( spec, argv = None ) :
                 else :
                     opts[this_opt]=thisarg
 
-            # otherwise, the opt takes no args - the returned value
-            # is how many times we saw it
+            # spec does not start with '=', the opt takes no args -
+            # the returned value is how many times we saw it
             else :
-                l = opts.get(this_opt,0)
-                l = l + 1
-                opts[this_opt] = l
+                opts[this_opt] += 1
 
         # unknown arg
         elif this_opt.startswith('-') :
@@ -186,3 +190,4 @@ if __name__ == '__main__' :
     for x in l :
         print x,args[x]
     print rest
+
