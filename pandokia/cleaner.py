@@ -153,14 +153,7 @@ pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
     db.close()
 
 
-#
-# entry point:
-#
-# pdk delete_run testrun
-#
-def delete_run(args) :
-
-    print "Deleting from database", pandokia.common.cfg.dbdir
+def block_last_record() :
 
     # This is preserving the integer primary key on the result_scalar table.  If you 
     # delete the last record, then insert a new one, the same primary key might get used again.
@@ -171,7 +164,17 @@ def delete_run(args) :
     # need one, though, at the end of the table.
     db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
     db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
-    db.commit()
+
+#
+# entry point:
+#
+# pdk delete_run testrun
+#
+def delete_run(args) :
+
+    print "Deleting from database", pandokia.common.cfg.dbdir
+
+    block_last_record()
 
     #
     if len(args) > 0 and args[0] == '--help' :
@@ -207,6 +210,111 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
                 continue
             new_delete(n)
 
+def delete(args) :
+    '''pdk delete -field value -otherfield othervalue ...
+
+    deletes records from the database where all the parameters match
+
+    This command can remove a subset of the records for a test run.
+    It can also remove all the records for a test run, but leave
+    the test run in the index as an empty dataset.
+
+    The count of records in a test run will be incorrect until
+    you update it.
+
+    pdk delete -test_run foo -project bar -context baz -host xyzzy
+
+    also accepts:
+
+        -n      do not actually do it, just show the queries and 
+                the query plan
+
+        -wild   allow wildcards; some queries are dramatically
+                inefficient when you use wildcards, so you have to
+                actively ask to use them.  if you use * or ? and
+                do not specify -wild, it implies -n
+
+        -count  do not delete the records - just show how many are
+                affected
+
+'''
+    import pandokia.helpers.easyargs as easyargs
+    import pandokia.common as common
+    opt, args = easyargs.get( 
+        {
+        '-test_run' : '=',
+        '-project' : '=',
+        '-context' : '=',
+        '-host' : '=',
+        '-status' : '=',
+        '-n' : '',
+        '-wild' : '',
+        '-count' : '',
+        }, 
+        args 
+    )
+
+    if len(args) != 0 :
+        print 'pdk delete does not take any non-flag arguments - you must have typed the command wrong'
+        return 1
+
+    dont = opt['-n']
+    del opt['-n']
+
+    wild = opt['-wild']
+    del opt['-wild']
+
+    count = opt['-count']
+    del opt['-count']
+    if count :
+        dont = 1
+
+    if '-test_run' in opt :
+        opt['-test_run'] = common.find_test_run(opt['-test_run'])
+
+    if len(opt) < 1 :
+        print 'no args specified - nothing deleted'
+        return 1
+
+    lll = [ ]
+    for x in sorted(opt.keys()) :
+        v = opt[x]
+        lll.append( ( x[1:], v ) )
+        if not wild :
+            if ( '*' in v ) or ( '?' in v ) :
+                print '\nError: must use -wild for ',x,v,'\n'
+                dont=1
+
+    where_text, where_dict = common.where_tuple( lll )
+
+    q1 = "INSERT INTO delete_queue SELECT key_id FROM result_scalar %s " % ( where_text, ) 
+    q2 = "DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM result_scalar %s ) " % ( where_text, )
+
+    if dont :
+        print "q1",q1
+        print "q2",q2
+        for x in sorted(where_dict.keys()) :
+            print "   ",x,where_dict[x]
+
+        print "query plan 1:"
+        print common.explain_query(q1, where_dict)
+
+        print "query plan 2:"
+        print common.explain_query(q2, where_dict)
+        c = db.execute( "EXPLAIN QUERY PLAN " + q2, where_dict )
+
+    if count :
+        c = db.execute("SELECT count(*) FROM result_scalar %s" % (where_text,) , where_dict )
+        print "total records",c.fetchone()[0]
+
+    if not dont :
+        block_last_record()
+        c = db.execute( q1, where_dict )
+        c = db.execute( q2 , where_dict )
+        db.commit()
+
+    return 0
+        
 def old_delete( name ) :
     print "NAME",name
     c = db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = ?",  (name,))

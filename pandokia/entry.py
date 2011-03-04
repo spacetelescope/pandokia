@@ -131,6 +131,10 @@ def run() :
         import pandokia.cleaner
         return pandokia.cleaner.delete_run(args)
 
+    if cmd == 'delete' :
+        import pandokia.cleaner
+        return pandokia.cleaner.delete(args)
+
     if cmd == 'email' :
         import pandokia.contact_notify_select
         return pandokia.contact_notify_select.run(args)
