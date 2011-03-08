@@ -2,6 +2,7 @@ import os
 import os.path
 import sys
 import fnmatch
+import datetime
 
 import pandokia
 
@@ -9,6 +10,8 @@ import pandokia
 import subprocess
 
 import pandokia.common as common
+
+from pandokia.run_status import pdkrun_status
 
 #
 # find the file name patterns that associate a file name with a test runner
@@ -175,6 +178,9 @@ def run( dirname, basename, envgetter, runner ) :
         # that we made all of these log entries for it.
 
         full_filename = dirname+"/"+env['PDK_FILE']
+
+        pdkrun_status( full_filename )
+
         f = open(env['PDK_LOG'],"a")
         f.write("\n\nSTART\n")
         f.write('test_run=%s\n'     % env['PDK_TESTRUN'])
@@ -195,7 +201,7 @@ def run( dirname, basename, envgetter, runner ) :
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
-                print 'COMMAND :', thiscmd, '(for file %s)'% full_filename
+                print 'COMMAND :', thiscmd, '(for file %s)'% full_filename, datetime.datetime.now()
                 sys.stdout.flush()
                 sys.stderr.flush()
                 p = subprocess.Popen(thiscmd, shell=True, env = env )
@@ -211,7 +217,7 @@ def run( dirname, basename, envgetter, runner ) :
                         status="signal %d, core dumped" % ( status & 0x7f )
                     else :
                         status="signal %d" % ( status & 0x7f )
-                print "COMMAND EXIT:",status
+                print "COMMAND EXIT:",status,datetime.datetime.now()
 
                 
 
@@ -266,6 +272,8 @@ def run( dirname, basename, envgetter, runner ) :
         print "NO RUNNER FOR",dirname +"/"+basename,"\n"
 
     os.chdir(save_dir)
+
+    pdkrun_status( '' )
 
     return ( return_status, stat_summary )
 
