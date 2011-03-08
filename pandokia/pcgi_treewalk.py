@@ -446,7 +446,7 @@ def linkout( ) :
 
     now = time.time()
 
-    c = db.execute("INSERT INTO query_id ( time ) VALUES ( ? ) ",(now,))
+    c = db.execute("INSERT INTO query_id ( time, expires ) VALUES ( ?, ? ) ",(now,now+common.cfg.default_qid_expire_days*86400))
     newqid = c.lastrowid
     db.commit()
 

@@ -95,6 +95,38 @@ def run( ) :
                 db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ? AND context = ?",(project,host,test_name,context))
         db.commit()
 
+    elif 'claim_qid' in form :
+        print "CLAIM", common.current_user()
+        db.execute("UPDATE query_id SET username = ? WHERE qid = ?",(common.current_user(), qid))
+        db.commit()
+
+    elif 'valuable_qid' in form :
+        v = int(form['valuable_qid'].value)
+        if v :
+            expire = 0
+        else :
+            expire = time.time() + 30 * 86400
+        db.execute("UPDATE query_id SET username = ?, expires = ? WHERE qid = ?",(common.current_user(), expire, qid))
+        db.commit()
+
+    elif 'edit_comment' in form :
+        text_present = 1
+        c = db.execute("SELECT notes FROM query_id WHERE qid = ?",(qid,))
+        note = c.fetchone()[0]
+        if note is None :
+            note = ''
+        output.write('<form action=%s method=get name=edit_comment>' % pandokia.pcgi.cginame )
+        output.write('<input type=hidden name=query value=action>')
+        output.write('<input type=hidden name=qid value=%d>'%qid)
+        output.write('<input type=hidden name=save_comment value=1>')
+        output.write('<textarea cols="80" rows="10" name=comment>%s</textarea><br>'%(cgi.escape(note)))
+        output.write('<input type=submit value="save">')
+        output.write('</form>')
+
+    elif 'save_comment' in form :
+        notes = form['comment'].value
+        db.execute('UPDATE query_id SET notes = ? WHERE qid = ?', (notes, qid) )
+        db.commit()
 
     if text_present :
         output.write(

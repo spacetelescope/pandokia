@@ -86,8 +86,7 @@ def run ( ) :
 
 
     # generate the table - used to be written inline here
-    result_table, all_test_run, all_project, all_host, all_context, rowcount, different = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
-
+    result_table, all_test_run, all_project, all_host, all_context, rowcount, different, expires, claimant, notes = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
 
     if pandokia.pcgi.output_format == 'html' :
         # HTML OUTPUT
@@ -134,11 +133,46 @@ def run ( ) :
     """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
 
         output.write('<h3>QID = %d</h3>'%int(qid))
+        if expires == 0 :
+            output.write('<b>never expires</b>')
+        else :
+            if expires is not None :
+                expires = float(expires)
+                e = time.localtime(expires)
+                output.write('expires %4d-%02d-%02d'%(e.tm_year, e.tm_mon, e.tm_mday))
+            else :
+                output.write('expires someday')
 
+            qdict = { "qid" : qid, "valuable_qid" : 1  }
+            output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+            output.write( "never expire</a> )" )
+
+        qdict = { "qid" : qid, "valuable_qid" : 0  }
+        output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+        output.write( "normal expire</a> )" )
+
+        output.write(', ')
+        qdict = { "qid" : qid, "claim_qid" : 1  }
+
+        if claimant != None :
+            output.write( "owner %s\n" % claimant )
+        else :
+            output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+            output.write( "Claim this qid</a> ) <br>" )
+
+        if notes is None :
+            notes = 'None'
+
+        qdict = { "qid" : qid, "edit_comment" : 1  }
+        output.write( "<br><a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+        output.write('Comment:</a><br><pre>%s</pre>\n'%cgi.escape(notes))
+
+        
         qdict = { "qid" : qid }
         output.write( "<a href='"+common.selflink(qdict, linkmode = "treewalk")+"'>" )
-        output.write( "tree walk this qid </a><br>" )
+        output.write( "tree walk this qid </a>, " )
 
+        qdict = { "qid" : qid }
         output.write( "<a href='"+common.selflink(qdict, linkmode = "qid_op")+"'>" )
         output.write( "edit this qid </a><br>" )
 
@@ -310,7 +344,28 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     # this query finds all the test results that are an interesting part of this request
     #
 
-    qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (time.time(), qid) )
+    c = qdb.execute("SELECT expires, username, notes FROM query_id WHERE qid = ?", (qid,))
+    x = c.fetchone()
+
+    if x is not None :
+        expires = x[0]
+        claimant = x[1]
+        if claimant == '' :
+            claimant = None
+        notes = x[2]
+    else :
+        expires = None
+        claimant = None
+        notes = ''
+
+    now = time.time()
+    qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (now, qid) )
+    if expires > 0 and expires < now + ( 30 * 86400 ) :
+        expires = now + ( 30 * 86400 )
+        qdb.execute("UPDATE query_id SET expires = ? WHERE qid = ?", (expires, qid) )
+
+    qdb.commit()
+
     c = qdb.execute("SELECT key_id FROM query WHERE qid = ?", (qid,) )
 
     result_table.define_column("line #", showname='&nbsp;')
@@ -422,7 +477,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         result_table.join(tda_table)
         result_table.join(tra_table)
 
-    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different
+    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different, expires, claimant, notes
 
 def suppress_attr_all_same( result_table ) :
 

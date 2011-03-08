@@ -170,6 +170,12 @@ default_user_email_preferences  = [
 
 #####
 #
+# how many days old must a qid be to expire
+default_qid_expire_days = 30
+
+
+#####
+#
 # END OF CONFIGURATION
 #
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"

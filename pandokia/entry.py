@@ -108,8 +108,13 @@ def run() :
         return x.run(args)
 
     if cmd == 'clean' :
+        print "not implemented any more"
+        return 1
+
+
+    if cmd == 'clean_queries' :
         import pandokia.cleaner
-        return pandokia.cleaner.clean_db(args)
+        return pandokia.cleaner.clean_queries()
 
     if cmd == 'delete_background_step' :
         import pandokia.cleaner

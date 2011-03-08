@@ -25,13 +25,19 @@ def clean_queries() :
 
     qdb=pandokia.common.open_qdb()
 
-    old = time.time() - 60*86400
-    print "start delete old queries", time.time(), int(old)
+    now = time.time()
+    print "start delete old queries", now
 
-    qdb.execute("DELETE FROM query_id WHERE time < ? ", ( old, ) )
+    # placeholder so we don't re-use any of the deleted sequence numbers
+    qdb.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( ?, ?, 'nobody', 'placeholder for cleaner' )", (now,now+10))
+
+    # delete the records related to the query
+    qdb.execute("DELETE FROM query WHERE qid IN ( SELECT qid FROM query_id WHERE expires > 0 AND expires < ? ) ", (now,))
+
+    # delete 
+    qdb.execute("DELETE FROM query_id WHERE expires > 0 AND expires < ? ", ( now, ) )
+
     qdb.commit()
-
-    print "end  delete old queries", time.time(), int(old)
 
 
 def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :

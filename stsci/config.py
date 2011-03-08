@@ -82,3 +82,4 @@ default_user_email_preferences  = [
     ]
 
 
+default_qid_expire_days = 30
