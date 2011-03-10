@@ -198,7 +198,7 @@ CREATE TABLE query_id (
 	time	VARCHAR,		-- time_t a cgi last touched this query
 	expires	INTEGER,		-- time_t when it is ok to delete this query
 	username VARCHAR,		-- who claimed this qid
-	notes    VARCHAR,
+	notes    VARCHAR
 	);
 
 CREATE INDEX query_id_index 
