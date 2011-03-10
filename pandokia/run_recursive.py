@@ -2,6 +2,7 @@ import os
 import os.path
 import pandokia
 import pandokia.multirun
+import pandokia.run_status
 import stat
 import errno
 
@@ -130,6 +131,11 @@ def run( dirs, envgetter, max_procs=None ) :
     # multirun starts several concurrent processes, but we don't want 
     # to say we are finished until they are all done.
     pandokia.multirun.wait_all()
+
+    # ensure that all the slots are reporting empty by the time we
+    # are finished.
+    for slot in slots_used :
+        pandokia.run_status.pdkrun_status( '', slot )
 
 
     # collect the summary of how many tests had each status

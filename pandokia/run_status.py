@@ -1,3 +1,4 @@
+import os
 
 test_mode = None
 #   not in test mode
@@ -209,13 +210,11 @@ import time
 
 mem = None
 
-def pdkrun_status( current_file, stage, slot=None ) :
+def pdkrun_status( name, slot=None ) :
     '''A status setting function for use within pdkrun
 
-    You call pdkrun_status( filename, stage ) to note that filename 
-
-    current_file is the name of the file of tests currently being processed
-    stage is a string describing what stage of the processing we are in
+    You call pdkrun_status( filename ) to note that filename is currently
+    being processed.
 
     slot is the slot number to note the status in (default is PDK_PROCESS_SLOT environment)
     '''
@@ -235,8 +234,8 @@ def pdkrun_status( current_file, stage, slot=None ) :
     global mem
     if mem is None :
         mem = status_block( os.environ['PDK_STATUSFILE'] )
-        mem.set_my_record(n)
+        mem.set_my_record(slot)
 
     # stuff the value into the data block
-    mem.set_status_text( repr(name) + ',' + repr(value) + ',%d'%time.time())
+    mem.set_status_text( repr(name) + ',%d'%time.time())
 
