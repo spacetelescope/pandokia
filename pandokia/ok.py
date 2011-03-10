@@ -29,10 +29,18 @@ def run(args) :
     # entry point for the command line
 
     prob = 0
+    verbose = 0
 
     for okfile in args :
         if okfile == '-h' :
             print helpstr
+
+        if okfile == '-v' :
+            verbose = 1
+            continue
+
+        if verbose :
+            print "okfile", okfile
 
         f = open(okfile,'r')
 
@@ -56,7 +64,7 @@ def run(args) :
 
             dest = os.path.join(dirname,dest)
 
-            prob = prob | doit(src,dest)
+            prob = prob | doit(src,dest, verbose)
 
         try :
             if try_to_delete :
@@ -64,12 +72,11 @@ def run(args) :
         except IOError, e:
             print "cannot remove ",okfile
             print e
-
     return prob
 
 
 # actually do the rename/copy with any directory create needed
-def doit(src, dest) :
+def doit(src, dest, verbose) :
 
     # We ignore a lot of errors here with overly broad except clauses.
     # That is because the possible exceptions are not clearly defined,
@@ -94,6 +101,7 @@ def doit(src, dest) :
     # rename the reference file to the "old" name
     try :
         os.rename(dest, dest+old)
+
     except Exception, e:
         if os.path.exists(dest) :
             print "cannot rename",dest," to ",dest+old
