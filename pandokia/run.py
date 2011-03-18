@@ -71,12 +71,16 @@ def run(args) :
     verbose = 0 # not implemented
     dry_run = 0 # not implemented
 
+    want_status = 0 # only want status, not actual run
+    w_flag = 0      # when showing status, 
+
     if args == [ ] :
         args = [ '-r', '.' ]
-    opts,args = getopt.gnu_getopt(args,"rvp",
+    opts,args = getopt.gnu_getopt(args,"rvpsw",
             ["recursive", "environment_already_set", "dir", "log=",
              "project=", "test_run=", "test_prefix=",
              "show-command", "verbose","parallel=","help", "context=",
+             "status","wait","vs",
              ])
     for (opt, optarg) in opts :
         if opt == '-r' or  opt == '--recursive' :
@@ -100,12 +104,26 @@ def run(args) :
             project = optarg
         elif opt == '--context' :
             context = optarg
-        elif opt == '--verbose' :
+        elif opt == '--verbose' or opt == '-v' :
             verbose = 1
         elif opt == '--dry-run' :
             dry_run = 1
         elif opt == '-' or opt == '--parallel' : 
             parallel = str(int(optarg))
+        elif opt == '--status' :
+            want_status=1
+        elif opt == '--wait' or opt == '-w' :
+            w_flag = 1
+        elif opt == "--vs" :
+            want_status = 1
+            w_flag = 1
+            verbose = 1
+
+    if want_status :
+        # only show the status of something else that is running
+        import pandokia.run_status as x
+        x.display(visual=verbose, waiting_for_start=w_flag)
+        return 0,0
 
     if project is None :
         project = default_project()
@@ -123,6 +141,18 @@ def run(args) :
     os.environ['PDK_PROJECT'] = project
     os.environ['PDK_TESTRUN'] = test_run
     os.environ['PDK_CONTEXT'] = context
+
+    if not 'PDK_STATUSFILE' in os.environ :
+        initialized_status_file = 1
+        os.environ['PDK_STATUSFILE'] = os.getcwd() + '/pdk_statusfile'
+        import pandokia.run_status
+        if parallel is None :
+            n_status_records = 1
+        else :
+            n_status_records =  int(parallel)
+        pandokia.run_status.init_status( file = os.environ['PDK_STATUSFILE'], n_records = n_status_records )
+    else :
+        initialized_status_file = 0
 
     if test_prefix is not None :
         os.environ['PDK_TESTPREFIX'] = test_prefix
@@ -182,6 +212,11 @@ def run(args) :
             print ""
             print "Summary:"
             common.print_stat_dict(t_stat)
+
+    if initialized_status_file :
+        for x in range(0, n_status_records ) :
+            pandokia.run_status.pdkrun_status('', slot=x)
+        os.unlink(os.environ['PDK_STATUSFILE'])
 
     return ( was_error, t_stat )
 

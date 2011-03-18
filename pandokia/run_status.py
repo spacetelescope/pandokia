@@ -2,9 +2,10 @@ import os
 
 test_mode = None
 #   not in test mode
-
+#
 # test_mode = 'L'
 #   cause it to be very likely that the watcher will see a locked record
+#
 # test_mode = 'C'
 #   cause it to be very likely that the watcher will see a record change
 #   while it is reading it
@@ -13,12 +14,24 @@ if test_mode :
     saw_locked = 0
     saw_changed = 0
 
-def init_status(file, n_records, status_text_size = 2000 ) :
+def init_status(file=None, n_records=10, status_text_size = 2000 ) :
     '''Create a status file with n_records blank records in it
     '''
 
     valid_flag_size = 4
 
+    try :
+        import mmap
+    except ImportError :
+        return None
+
+    if file is None :
+        file = os.getcwd() + '/pdk_statusfile'
+        try :
+            os.unlink(file)
+        except :
+            pass
+    
     #
     f = open(file,'w')
 
@@ -28,7 +41,7 @@ def init_status(file, n_records, status_text_size = 2000 ) :
     #   time, we use the actual length that resulted.  So, you can
     #   grow the header without worrying about alignment/size issues.
     def gen_header() :
-        s= 'PDKRUN status monitor 000\n%08d %d %d %d\n'%( 
+        s= '********PDKRUN status monitor 000\n%08d %d %d %d\n'%( 
             header_size,  status_text_size, n_records, valid_flag_size )
         return s
 
@@ -40,7 +53,8 @@ def init_status(file, n_records, status_text_size = 2000 ) :
 
     assert header_size == len(header)
 
-    f.write(header)
+    f.write(('%08x'%time.time())[0:8])
+    f.write(header[8:])
 
     # write a blank record for everybody - use a \n between and
     # the file will be plain text
@@ -51,16 +65,17 @@ def init_status(file, n_records, status_text_size = 2000 ) :
     # done - force it out to disk
     f.close()
 
+    return file
+
 class status_block(object):
 
     def __init__( self, file ) :
-        print "INIT"
         import mmap
-        f=open(file,'a+b')
+        f=open(file,'r+b')
 
         # first line is header to recognize the data file
         n = f.readline()   
-        if n != 'PDKRUN status monitor 000\n' :
+        if n[8:] != 'PDKRUN status monitor 000\n' :
             raise Exception('Not a PDKRUN status monitor file: %s'%file)
 
         # second line is about record sizes
@@ -92,6 +107,11 @@ class status_block(object):
             flags = mmap.MAP_SHARED,
             prot = mmap.PROT_READ | mmap.PROT_WRITE
             )
+
+        self.header_timestamp = self.mem[0:8]
+
+    def header_changed( self ) :
+        return self.mem[0:8] != self.header_timestamp
 
     def get_status_text( self, n ) :
         return self.get_value_at_offset( n, self.status_text_offset, self.status_text_size )
@@ -166,33 +186,16 @@ if __name__ == '__main__' :
     s = sys.stdin.readline().strip() 
 
     if s == 'i' :
-        init_status('filename', 10)
+        init_status('pdk_statusfile', 10)
         s = 'w'
 
-    if s == 'w' :
-        m = status_block('filename')
-        print '\033[H\033[J'
-        while 1 :
-            print '\033[H'
-            for x in range(0,m.n_records) :
-                s = m.get_status_text(x)
-                if s is None :
-                    print '-'
-                else :
-                    print x, s.strip(), '\033[K'
-
-            print time.time()
-            if test_mode :
-                print saw_locked, saw_changed
-            time.sleep(1)
-
     if s == 's' :
-        m = status_block('filename')
+        m = status_block('pdk_statusfile')
         m.set_my_record(1)
         for x in range(0,10000000) :
             m.set_status_text("%d"%x)
     else :
-        m = status_block('filename')
+        m = status_block('pdk_statusfile')
         m.set_my_record(int(s))
         while 1 :
             print ">"
@@ -210,11 +213,10 @@ import time
 
 mem = None
 
-def pdkrun_status( name, slot=None ) :
+def pdkrun_status( text, slot=None ) :
     '''A status setting function for use within pdkrun
 
-    You call pdkrun_status( filename ) to note that filename is currently
-    being processed.
+    You call pdkrun_status( text ) to set your status
 
     slot is the slot number to note the status in (default is PDK_PROCESS_SLOT environment)
     '''
@@ -237,5 +239,70 @@ def pdkrun_status( name, slot=None ) :
         mem.set_my_record(slot)
 
     # stuff the value into the data block
-    mem.set_status_text( repr(name) + ',%d'%time.time())
+    mem.set_status_text( repr(text) + ',%d'%time.time())
 
+
+def display( visual, waiting_for_start ) :
+    import sys
+    import time
+    import ast
+    import os.path
+    import datetime
+
+    filename = 'pdk_statusfile'
+
+    done_waiting = not waiting_for_start
+
+    if waiting_for_start :
+        while not os.path.exists(filename) :
+            time.sleep(1)
+
+    m = status_block(filename)
+
+    times = { }
+
+    while 1 :
+        if visual:
+            # every terminal we see is likely to be ANSI (xterm, gnome-terminal, kterm, putty )
+            # home, clear to end of page
+            sys.stdout.write('\033[H\033[J')
+
+        if m.header_changed() :
+            m = status_block(filename)
+            done_waiting = not waiting_for_start
+
+        any = 0
+        for x in range(0,m.n_records) :
+            s = m.get_status_text(x)
+            if s is None :
+                sys.stdout.write('-')
+            else :
+                try :
+                    text, tyme = ast.literal_eval(s)
+                except SyntaxError :
+                    text = str(s).strip()
+                    tyme = 'None'
+                else :
+                    if not tyme in times :
+                        times = { }
+                        times[tyme] = str(datetime.datetime.fromtimestamp(tyme))
+                    tyme = times[tyme]
+                    text = str(text).strip()
+                    if text != '' :
+                        any = 1
+                        done_waiting = 1
+                sys.stdout.write('%2d %s %s'%(x,tyme,text))
+
+            if visual :
+                # clear to end of line
+                sys.stdout.write('\033[K')
+            sys.stdout.write('\n')
+
+        if test_mode :
+            sys.stdout.write('%d %d %d\n'%(time.time(),saw_locked, saw_changed))
+
+        if not visual :
+            break
+        if not any and done_waiting :
+            break
+        time.sleep(1)
