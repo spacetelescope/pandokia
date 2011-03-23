@@ -1,17 +1,9 @@
--- pdk.db
---
--- This is the schema for the main database.  It contains all
--- there is to know about the test results.
---
-
-pragma auto_vacuum = 2 ;
-
-
 -- result_scalar:
 --	each row represents a single test result
 
 CREATE TABLE result_scalar (
-	key_id 		INTEGER PRIMARY KEY, 
+	key_id 		SERIAL,
+		PRIMARY KEY ( key_id ),
 		-- primary key is assigned by database; this is a
 		-- unique identifier
 	test_run 	VARCHAR,
@@ -24,13 +16,13 @@ CREATE TABLE result_scalar (
 		-- what computer did this test run on.  You might
 		-- argue that this should be a TDA, but it seems
 		-- important enough to institutionalize
-	status VARCHAR,
+	status CHAR(1),
 		-- 'P' = pass
 		-- 'E' = error (could not complete test)
 		-- 'F' = fail
 		-- 'M' = missing
 		-- 'D' = disabled (told not to run)
-		-- 'Uxxx' for any user defined status
+		-- lower case reserved for any user defined status
 	test_runner VARCHAR,
 		-- what type of test runner ran this test
 	start_time VARCHAR,
@@ -161,7 +153,7 @@ CREATE TABLE distinct_test_run (
 		-- this test run.
 	record_count INTEGER
 		-- how many records in this test run
-		-- if 0 or NULL, we don't know
+		-- if 0 or NULL, we dont know
 	);
 
 
@@ -223,10 +215,9 @@ CREATE INDEX query_index
 --	to update for every deletion, and there is no good way to make
 --	that happen fast.  So, when you delete a test run, copy the key_ids 
 --	to delete_queue.  Later, a background process goes around deleting
---	those key_ids from tda/tra/log tables.  You don't have to wait
+--	those key_ids from tda/tra/log tables.  You dont have to wait
 --	for it.
 --
---	pending questions:  do we index this table or not for speed?
 
 CREATE TABLE delete_queue (
 	key_id INTEGER
