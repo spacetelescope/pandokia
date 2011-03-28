@@ -17,6 +17,7 @@ import os
 import os.path
 import shutil
 import pandokia.common as common
+import re
 
 import datetime
 
@@ -30,6 +31,8 @@ def run(args) :
 
     prob = 0
     verbose = 0
+    web_file = 0
+    create_old = 0
 
     for okfile in args :
         if okfile == '-h' :
@@ -39,40 +42,115 @@ def run(args) :
             verbose = 1
             continue
 
+        if okfile == '-w' :
+            web_file = 1
+            continue
+
+        if okfile == '-old' :
+            create_old = 1
+            continue
+
         if verbose :
             print "okfile", okfile
 
-        f = open(okfile,'r')
+        if web_file :
+            prob |= process_webfile( okfile )
+            if create_old :
+                try :
+                    os.rename( okfile, okfile + old )
+                except Exception, e :
+                    print "cannot rename",okfile,"to",okfile+old
+                    print e
+        else :
+            prob |= process_okfile( okfile )
 
-        dirname = os.path.dirname(okfile)
-
-        for line in f :
-            line = line.strip()
-            if line.startswith('#') :
-                continue
-            line = line.split()
-            if len(line) != 2 :
-                print "invalid input:",line
-
-            src = line[0]
-            dest = line[1]
-
-            # watch carefully: os.path.join can tell whether src is a
-            # fully qualfied path.  If it is, it ignores dirname, otherwise
-            # it uses src as a relative path.
-            src = os.path.join(dirname,src)
-
-            dest = os.path.join(dirname,dest)
-
-            prob = prob | doit(src,dest, verbose)
-
-        try :
-            if try_to_delete :
-                os.unlink(okfile)
-        except IOError, e:
-            print "cannot remove ",okfile
-            print e
     return prob
+
+#
+# process_webfile processes the file that the web server created
+#
+
+web_re = re.compile('^[A-Za-z0-9/_.-]*$')
+
+def process_webfile( webfile ) :
+    prob = 0
+
+    f = open( webfile, 'r' )
+
+    for line in f :
+        line = line.strip()
+        if line.startswith('#' ) :
+            continue
+        line = line.split()
+        if len(line) != 4 :
+            print "invalid input in web file:",line
+            prob = 1
+            continue
+
+        ip, tesfile, user, okfile = line
+
+        if not web_re.match( okfile ) :
+            print "invalid okfile",ip, user, repr(okfile)
+            prob = 1
+            continue
+
+        print user, ip, okfile 
+
+        process_okfile( okfile )
+
+    return prob
+
+
+#
+# process_okfile processes an okfile directly
+#
+
+def process_okfile( okfile ) :
+
+    try :
+        f = open(okfile,'r')
+    except Exception, e :
+        print "    cannot open",okfile
+        print "    ",e
+        return 1
+
+    print "    okfile",okfile
+
+    prob = 0
+
+    dirname = os.path.dirname(okfile)
+
+    for line in f :
+        line = line.strip()
+        if line.startswith('#') :
+            continue
+        line = line.split()
+        if len(line) != 2 :
+            print "        invalid input in ok file %s: %s"%(okfile,line)
+            prob = 1
+            continue
+
+        src = line[0]
+        dest = line[1]
+
+        # watch carefully: os.path.join can tell whether src is a
+        # fully qualfied path.  If it is, it ignores dirname, otherwise
+        # it uses src as a relative path.
+        src = os.path.join(dirname,src)
+
+        dest = os.path.join(dirname,dest)
+
+        prob = prob | doit(src,dest, verbose)
+
+    try :
+        if try_to_delete :
+            os.unlink(okfile)
+    except IOError, e:
+        print "        cannot remove ",okfile
+        print e
+
+    return prob
+
 
 
 # actually do the rename/copy with any directory create needed
