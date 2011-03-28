@@ -54,7 +54,7 @@ def run(args) :
             print "okfile", okfile
 
         if web_file :
-            prob |= process_webfile( okfile )
+            prob |= process_webfile( okfile, verbose )
             if create_old :
                 try :
                     os.rename( okfile, okfile + old )
@@ -62,7 +62,7 @@ def run(args) :
                     print "cannot rename",okfile,"to",okfile+old
                     print e
         else :
-            prob |= process_okfile( okfile )
+            prob |= process_okfile( okfile, verbose )
 
     return prob
 
@@ -72,7 +72,7 @@ def run(args) :
 
 web_re = re.compile('^[A-Za-z0-9/_.-]*$')
 
-def process_webfile( webfile ) :
+def process_webfile( webfile, verbose ) :
     prob = 0
 
     f = open( webfile, 'r' )
@@ -96,7 +96,7 @@ def process_webfile( webfile ) :
 
         print user, ip, okfile 
 
-        process_okfile( okfile )
+        process_okfile( okfile, verbose )
 
     return prob
 
@@ -105,7 +105,7 @@ def process_webfile( webfile ) :
 # process_okfile processes an okfile directly
 #
 
-def process_okfile( okfile ) :
+def process_okfile( okfile, verbose ) :
 
     try :
         f = open(okfile,'r')
