@@ -49,6 +49,21 @@ directoryname
     default is a generated string including the user name and the
     time to the nearest minute
 
+-s
+--status
+    show the status 
+
+    --wait
+    -w
+        wait for something to start before displaying the status
+    
+    -v
+        clear the screen and do an updating display
+
+    --vs
+        same as pdkrun -s -w -v
+        
+
 Defaults can also be set by environment variables.
 
 
