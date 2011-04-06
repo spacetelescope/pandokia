@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, 2011 Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
 
 import sys
@@ -12,8 +12,6 @@ import os
 
 import urllib
 
-import pandokia
-cfg = pandokia.cfg
 import pandokia.text_table as text_table
 import pandokia.pcgi
 import common
@@ -46,6 +44,9 @@ def treewalk ( ) :
 
     output.write(common.page_header())
 
+    global db
+    db = common.open_db()
+
     #
     # gather up all the expected parameters
     #
@@ -53,16 +54,16 @@ def treewalk ( ) :
     if form.has_key("test_name") :
         test_name = form["test_name"].value
         if test_name == '' :
-            test_name = '%'
+            test_name = '*'
     else :
-        test_name = "%"
+        test_name = "*"
 
-    context = get_form(form,'context',  '%')
-    host    = get_form(form,'host',     '%')
-    test_run= get_form(form,'test_run', '%')
-    project = get_form(form,'project',  '%')
-    status  = get_form(form,'status',   '%')
-    attn    = get_form(form,'attn',     '%')
+    context = get_form(form,'context',  '*')
+    host    = get_form(form,'host',     '*')
+    test_run= get_form(form,'test_run', '*')
+    project = get_form(form,'project',  '*')
+    status  = get_form(form,'status',   '*')
+    attn    = get_form(form,'attn',     '*')
     qid     = get_form(form,'qid',      None)
 
     debug_cmp = get_form(form,'debug_cmp', 0)
@@ -102,8 +103,6 @@ def treewalk ( ) :
 
             comparing = 1
 
-
-    status = [ x for x in status ]
 
     #
     # query values we will always pass back to the next instantion of ourself
@@ -157,15 +156,10 @@ def treewalk ( ) :
         ( 'status', 'status' ),
         ] :
 
-        if query[var] != '%' :
+        if query[var] != '*' :
             lquery = copy.copy(query)
-            lquery[var] = "%"
-            print "content-type: text/plain\n"
-            value = query[var]
-            if isinstance(value,list) :
-                value = ''.join(value)
-            print var, label, value, "<br>"
-            line = s_line % ( label, cgi.escape(value), common.self_href(lquery,"treewalk",remove_arrow)  )
+            lquery[var] = "*"
+            line = s_line % ( label, cgi.escape(query[var]), common.self_href(lquery,"treewalk",remove_arrow)  )
             output.write(line)
 
     #
@@ -173,9 +167,9 @@ def treewalk ( ) :
     # include a link to clear the test_run selection
     #
 
-    if test_run != "%" :
+    if test_run != "*" :
         lquery = copy.copy(query)
-        lquery["test_run"] = "%"
+        lquery["test_run"] = "*"
         test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
         tmp1 = common.self_href(lquery,"treewalk",remove_arrow)
         tmp2 = common.previous_daily(test_run)
@@ -217,13 +211,13 @@ def treewalk ( ) :
     t = ""
     for x in lst :
         t = t + x
-        lquery["test_name"] = t+"%"
+        lquery["test_name"] = t+"*"
         line = common.self_href(lquery, 'treewalk', cgi.escape(x))
         output.write(line)
 
     # if we are not at the very top, also include a link that gets us back
     # to "" (i.e. no prefix at all)
-    if test_name != "%" :
+    if test_name != "*" :
         lquery["test_name"]=""
         output.write("&nbsp;&nbsp;&nbsp;")
         output.write(common.self_href(lquery,"treewalk",remove_arrow))
@@ -338,7 +332,7 @@ def treewalk ( ) :
     # exactly 1 item in the choices to narrow, you could automatically
     # include that in all the links.
     for field in ( 'test_run', 'project', 'context', 'host' ) :
-        if not '%' in query[field] :
+        if not '*' in query[field] :
             continue
         lquery = { }
         for x in query :
@@ -346,8 +340,8 @@ def treewalk ( ) :
                 lquery[x] = query[x]
         output.write("<h3>Narrow to %s</h3>" % field)
 
-        where_text, where_dict = cfg.pdk_db.where_dict([ 
-            ('test_name', test_name+"%"),
+        where_text, where_dict = common.where_tuple([ 
+            ('test_name', test_name+"*"),
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
@@ -357,9 +351,9 @@ def treewalk ( ) :
             ], more_where )
 
         if more_where is None :
-            c = cfg.pdk_db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+            c = db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
         else :
-            c = cfg.pdk_db.execute("SELECT DISTINCT %s FROM result_scalar, query %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+            c = db.execute("SELECT DISTINCT %s FROM result_scalar, query %s ORDER BY %s" % ( field, where_text, field ), where_dict)
         for x, in c :
             if x is None :
                 continue
@@ -398,6 +392,8 @@ def linkout( ) :
 
     #
 
+    db = common.open_db()
+
     #
     # gather up all the expected parameters
     #
@@ -407,41 +403,39 @@ def linkout( ) :
     if form.has_key("test_name") :
         test_name = form["test_name"].value
     else :
-        test_name = "%"
+        test_name = "*"
         
     if form.has_key("context") :
         context = form["context"].value
     else :
-        context = "%"
+        context = "*"
         
     if form.has_key("host") :
         host = form["host"].value
     else :
-        host = "%"
+        host = "*"
 
     if form.has_key("test_run") :
         test_run = form["test_run"].value
     else :
-        test_run = "%"
+        test_run = "*"
     # handle special names of test runs
     test_run = common.find_test_run(test_run)
 
     if form.has_key("project") :
         project = form["project"].value
     else :
-        project = "%"
+        project = "*"
 
     if form.has_key("status") :
         status = form["status"].value
     else :
-        status = "%"
-
-    status = [ x for x in status ]
+        status = "*"
 
     if form.has_key("attn") :
         attn = form["attn"].value
     else :
-        attn = '%'
+        attn = '*'
 
     if form.has_key("qid") :
         oldqid = int( form["qid"].value )
@@ -452,9 +446,9 @@ def linkout( ) :
 
     now = time.time()
 
-    c = cfg.pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ",(now,now+common.cfg.default_qid_expire_days*86400))
+    c = db.execute("INSERT INTO query_id ( time, expires ) VALUES ( ?, ? ) ",(now,now+common.cfg.default_qid_expire_days*86400))
     newqid = c.lastrowid
-    cfg.pdk_db.commit()
+    db.commit()
 
     if oldqid is not None :
         print "WITH QID=",oldqid
@@ -463,7 +457,7 @@ def linkout( ) :
         more_where = None
 
     # find a list of the tests
-    where_text, where_dict = common.where_dict ([ 
+    where_text, where_dict = common.where_tuple ([ 
         ('test_name', test_name),
         ('test_run', test_run), 
         ('project', project),
@@ -474,9 +468,9 @@ def linkout( ) :
         ], more_where = more_where )
 
     if oldqid is None :
-        c1 = cfg.pdk_db.execute("SELECT key_id FROM result_scalar %s"%where_text, where_dict )
+        c1 = db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
     else :
-        c1 = cfg.pdk_db.execute("SELECT result_scalar.key_id FROM result_scalar, query %s" % where_text, where_dict )
+        c1 = db.execute("SELECT result_scalar.key_id FROM result_scalar, query %s" % where_text, where_dict )
 
     a = [ ]
     for x in c1 :
@@ -490,8 +484,8 @@ def linkout( ) :
     # but that makes the checkboxes unavailable in that case.)
 
     for key_id in a :
-        cfg.pdk_db.execute("INSERT INTO query ( qid, key_id ) VALUES ( :1, :2 ) ", (newqid, key_id ) )
-    cfg.pdk_db.commit()
+        db.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (newqid, key_id ) )
+    db.commit()
 
     url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
 
@@ -520,7 +514,7 @@ def query_to_where_tuple( query, fields, more_where = None ) :
             v = query[x]
             l.append( ( x, v ) )
 
-    return cfg.pdk_db.where_dict(l, more_where = more_where)
+    return common.where_tuple(l, more_where = more_where)
 
 def collect_prefixes( query ) :
     #
@@ -541,10 +535,10 @@ def collect_prefixes( query ) :
     where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
 
     if not have_qid :
-        c = cfg.pdk_db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+        c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
     else :
         sys.stdout.flush()
-        c = cfg.pdk_db.execute("SELECT DISTINCT test_name FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
+        c = db.execute("SELECT DISTINCT test_name FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
 
     l = len(test_name)
     prev_one = None
@@ -562,7 +556,7 @@ def collect_prefixes( query ) :
         else :
             # This happens when there are still more levels after this one
             y = y.start()
-            this_one = r_test_name[:l+y+1]+"%"
+            this_one = r_test_name[:l+y+1]+"*"
 
         if this_one != prev_one :
             if prev_one is not None : 
@@ -581,7 +575,6 @@ def collect_table( prefixes, query ) :
     #
 
     status = query['status']
-    status = [ x for x in status ]
 
     rownum = 0
 
@@ -594,7 +587,7 @@ def collect_table( prefixes, query ) :
     count_col = { }
     lquery = copy.copy(query)
     for x in common.cfg.statuses :
-        if ( status == '%' )  or ( x in status ) :
+        if ( status == '*' )  or ( x in status ) :
             lquery['status'] = x
             table.define_column(x,showname=common.cfg.status_names[x],link=common.selflink(lquery, 'treewalk' ))
         total_col[x] = 0
@@ -615,7 +608,7 @@ def collect_table( prefixes, query ) :
     for this_test_name in prefixes :
         lquery['test_name'] = this_test_name
 
-        if "%" in this_test_name :
+        if "*" in this_test_name :
             linkmode = 'treewalk'
         else :
             linkmode = 'treewalk.linkout'
@@ -629,13 +622,13 @@ def collect_table( prefixes, query ) :
         count = 0
 
         for x in common.cfg.statuses :
-            if ( status == '%') or ( x in status ) :
+            if ( status == '*') or ( x in status ) :
                 lquery['status'] = x
                 where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
                 if not have_qid :
-                    c = cfg.pdk_db.execute("SELECT count(*) FROM result_scalar %s GROUP BY test_name ORDER BY test_name " % where_text, where_dict )
+                    c = db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
                 else :
-                    c = cfg.pdk_db.execute("SELECT count(*) FROM result_scalar, query %s GROUP BY test_name ORDER BY test_name" % where_text, where_dict )
+                    c = db.execute("SELECT count(*) FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
                 (count_col[x],) = c.fetchone()
                 lquery['status'] = x
                 table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
@@ -654,7 +647,7 @@ def collect_table( prefixes, query ) :
     table.set_value(total_row,"count",     text=total_count )
     table.set_html_cell_attributes(total_row, 'count', 'align="right"' )
     for x in common.cfg.statuses :
-        if ( status == '%') or ( x in status ) :
+        if ( status == '*') or ( x in status ) :
             table.set_value(total_row,x,      text=total_col[x] )
             table.set_html_cell_attributes(total_row, x, 'align="right"' )
 
