@@ -46,8 +46,8 @@ pdk import_contact < contact_file
     table to generate the matching patterns, so you may need to 
     'pdk gen_expected' first.
 
-pdk initdb [ qdb | db ]
-    create tables and indexes in the database
+pdk initdb
+    obsolete - see sql scripts in pandokia/sql
 
 pdk notify
     send notification emails about failed tests
@@ -173,8 +173,8 @@ def run() :
         return x.run()
 
     if cmd == 'initdb' :
-        import pandokia.initdb as x
-        return x.run(args)
+        print "this entry point is obsolete"
+        return 1
 
     if cmd == 'notify':
         import pandokia.contact_notify

@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, 2010, 2011 Association of Universities for Research in Astronomy (AURA) 
 #
 
 #
@@ -14,6 +14,8 @@ import pandokia.text_table as text_table
 import urllib
 
 import pandokia
+cfg = pandokia.cfg
+
 import pandokia.common as common
 
 import pandokia.pcgi
@@ -29,7 +31,7 @@ import pandokia.pcgi
 
 def rpt1(  ) :
 
-    db = common.open_db()
+    db = cfg.pdk_db.open_db()
 
     form = pandokia.pcgi.form
 
@@ -39,21 +41,23 @@ def rpt1(  ) :
         test_run = '*'
 
     if test_run == '-me' :
-        test_run = 'user_' + common.current_user() + '_*'
+        test_run = 'user_' + common.current_user() + '_%'
 
     my_run_prefix = 'user_' + common.current_user()
 
     admin = common.current_user() in common.cfg.admin_user_list
 
     # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
-    c = db.execute("SELECT name, valuable, record_count FROM distinct_test_run WHERE name GLOB ? ORDER BY name DESC ",( test_run,))
+    where_str, where_dict = cfg.pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
+    sql = "SELECT test_run, valuable, record_count FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
+    c = cfg.pdk_db.execute( sql, where_dict)
 
     table = text_table.text_table()
 
     # day report, tree walk, problem list
     dquery = { }
-    lquery = { 'project' : '*', 'host' : '*', 'status' : '[FE]' }
-    tquery = { 'project' : '*', 'host' : '*' }
+    lquery = { 'project' : '%', 'host' : '%', 'status' : [ 'F', 'E' ] }
+    tquery = { 'project' : '%', 'host' : '%' }
 
     row = 0
     for x, val, record_count in c :
@@ -189,7 +193,7 @@ def rpt2( ) :
 
 def gen_daily_table( test_run, projects, query_context, query_host ) :
 
-    db = common.open_db()
+    db = cfg.pdk_db.open_db()
 
     # convert special names, e.g. daily_latest to the name of the latest daily_*
     test_run = common.find_test_run(test_run)
@@ -228,8 +232,8 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
 
     n_cols = 3
 
-    hc_where, hc_where_dict = common.where_tuple( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
-    c = db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
+    hc_where, hc_where_dict = cfg.pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
+    c = cfg.pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
     for project, host, context in c :
 
         if project != prev_project :
@@ -241,7 +245,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
 
             # values common to all the links we will write in this pass through the loop
             query["project"] = project
-            query["host"] = "*"
+            query["host"] = "%"
 
             # this link text is common to all the links for this project
             link = common.selflink(query_dict = query, linkmode="treewalk" )
@@ -285,7 +289,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
         total_results = 0
         missing_count = 0
         for status in status_types :
-            c1 = db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = ? AND project = ? AND host = ? AND status = ? AND context = ?",
+            c1 = cfg.pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5",
                 ( test_run, project, host, status, context ) )
             (x,) = c1.fetchone()
             total_results += x
@@ -334,7 +338,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     row = row + 1
     total_row = row
 
-    query['host']  = '*'
+    query['host']  = '%'
     query['project'] = projects
     query['host'] = query_host
     query['context'] = query_context

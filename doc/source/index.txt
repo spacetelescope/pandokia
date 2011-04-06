@@ -26,6 +26,7 @@ Contents:
    vocabulary.txt
    demo.txt
    faq.txt
+   programming.txt
 
 Indices and tables
 ==================

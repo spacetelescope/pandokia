@@ -35,7 +35,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=37
+	set n=38
 	set there=/ssbwebv1/data2/pandokia/c$n
 	python setup.py -q install --home $there
 	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi

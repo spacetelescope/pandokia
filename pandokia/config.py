@@ -13,15 +13,19 @@
 #
 
 ######
-# This version of pandokia only knows how to use sqlite3 as a database.
-# dbdir is the directory where the database files are stored.
-# This directory _and_ the database files must be writeable to
-# the cgi.
+#
+# To select the database to use, import the appropriate database
+# interface code as pdk_db; set db_arg to what pdk_db.open_db()
+# will need to know to access your database
 
-# This line causes the database to be stored with the installed code,
-# but you can put any fully qualified path name here.
-import os.path
-dbdir = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
+if 0 :
+    import pandokia.db_sqlite as pdk_db
+    db_arg = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
+
+if 1 :
+    import pandokia.db_psycopg2 as pdk_db
+    db_arg = 'dbname=test'
+
 
 ######
 # Who are authorized users:
