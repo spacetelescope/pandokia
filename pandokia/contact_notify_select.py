@@ -3,13 +3,14 @@ users will be able to select which reports they like and the level of verbosity
 associated with said reports.
 """
 TEST = False
+
+import pandokia
+pdk_db = pandokia.cfg.pdk_db
+
 import pandokia.common
-import pandokia.contact_notify
 import text_table
 from collections import defaultdict
 import subprocess
-
-db = pandokia.common.open_db()
 
 #A dictionary of test runs for easy storage.
 test_runs = {}
@@ -18,28 +19,31 @@ test_summary = {}
 
 if False:
     # Insert some fake test data into the user_prefs table.
-    query = 'INSERT INTO user_prefs VALUES (?,?)'
     for i in range(0,100):
-        db.execute(query,('name_'+str(i),'email_'+str(i)))
-    db.commit()
+        pdk_db.execute( "INSERT INTO user_prefs VALUES ( :1 , :2 )", ('name_'+str(i),'email_'+str(i)))
+    pdk_db.commit()
 
 # insert pref if it exists
 # format takes 'n', 's', 'f', or 'int'
 def add_user_pref(username,project,format,maxlines=0):
-    query = 'INSERT INTO user_email_pref VALUES (?,?,?,?)'
-    check_query = "SELECT username FROM user_email_pref WHERE username=? AND project = ? AND format = ? AND maxlines = ?"
-    has_entry = db.execute(check_query,(username,project,format,maxlines))
+    has_entry = pdk_db.execute(
+        "SELECT username FROM user_email_pref WHERE username= :1 AND project = :2 AND format = :3 AND maxlines = :4 ",
+        (username,project,format,maxlines)
+        )
     if has_entry.fetchone():
         return 'has entry'
     else:
-        db.execute(query,(username,project,format,maxlines))
-        db.commit()
+        pdk_db.execute(
+            "INSERT INTO user_email_pref VALUES ( :1 , :2, :3, :4 )",
+            (username,project,format,maxlines)
+        )
+        pdk_db.commit()
         return "Pref commited"
 
 # For projects that a user is interested in, find the name/format/maxlines preferences
 def get_user_projects(username):
-    query = """SELECT project, format, maxlines FROM user_email_pref WHERE username=? AND format <> 'N' ORDER BY project"""
-    res = db.execute(query,(username,))
+    query = """SELECT project, format, maxlines FROM user_email_pref WHERE username= :1 AND format <> 'N' ORDER BY project"""
+    res = pdk_db.execute(query,(username,))
     res = [ (project, format, maxlines) for project, format, maxlines in res ]
     return res
 
@@ -51,15 +55,15 @@ def project_test_run(test_run, project):
     if (test_run,project) in test_runs :
         return test_runs[(test_run,project)]
 
-    c = db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = ? AND project = ? ORDER BY host, context ",
+    c = pdk_db.execute("SELECT DISTINCT host, context FROM result_scalar WHERE test_run = :1 AND project = :2 ORDER BY host, context ",
         ( test_run, project) )
     host_context = [ ]
     for host, context in c :
         host_context.append( (host, context) )
 
-    query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = ? AND project = ?
+    query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = :1 AND project = :2
             AND status <> 'P' ORDER BY host, context, test_name """
-    res = db.execute(query,(test_run,project))
+    res = pdk_db.execute(query,(test_run,project))
 
     # we make an array where
     #   tests[name] is a dict
@@ -99,8 +103,8 @@ def get_test_summary(test_run,project):
     all_hosts = {}
     if (test_run, project) in test_summary:
         return test_summary[(test_run,project)]
-    query = """SELECT status,context, host FROM result_scalar WHERE test_run = ? AND project = ? """
-    res = db.execute(query,(test_run,project))
+    query = """SELECT status,context, host FROM result_scalar WHERE test_run = :1 AND project = :2 """
+    res = pdk_db.execute(query,(test_run,project))
 
     for status, context, host in res:
         sum_dict[host] = sum_dict.get(host,{})
@@ -186,16 +190,20 @@ def create_email(username, test_run) :
         # if there is nothing to report.
 
         if format == 'c' :
-            # show only the test that the user is listed as a contact for.
-            # (this needs work; see get_contact_report() for details)
-            #
-            r = pandokia.contact_notify.get_contact_report(username, project, test_run)
-            if r is not None :
-                email += "Project: "+ project + "\n\n"
-                email += pandokia.contact_notify.get_contact_report(username, project, test_run)
-                email += '\n'
-                send_notice = True
-            continue
+            email += 'format c no longer supported'
+            format = 'f'
+
+            if 0 :
+                # show only the test that the user is listed as a contact for.
+                # (this needs work; see get_contact_report() for details)
+                #
+                r = pandokia.contact_notify.get_contact_report(username, project, test_run)
+                if r is not None :
+                    email += "Project: "+ project + "\n\n"
+                    email += pandokia.contact_notify.get_contact_report(username, project, test_run)
+                    email += '\n'
+                    send_notice = True
+                continue
 
 
         # format 'f' skips the report if there is nothing to say.
@@ -357,7 +365,7 @@ def run(args):
         users = [ ]
         for user in args :
             found = 0
-            c = db.execute("SELECT email FROM user_prefs WHERE username = ?", (user,))
+            c = pdk_db.execute("SELECT email FROM user_prefs WHERE username = :1", (user,))
             for email, in c :
                 users.append( (user, email) )
                 found=1
@@ -366,7 +374,7 @@ def run(args):
     else:
         # get a list of all the (user, email) from the user prefs
         query = """SELECT username, email FROM user_prefs"""
-        user_res = db.execute(query)
+        user_res = pdk_db.execute(query)
         users = [(user,email) for user,email in user_res]
 
     subject = 'Test Results: %s' % test_run

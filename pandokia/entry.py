@@ -104,7 +104,6 @@ def run() :
 
     if cmd == 'check_expected' :
         import pandokia.check_expected as x
-        print "ARGS",args
         return x.run(args)
 
     if cmd == 'clean' :
@@ -177,6 +176,8 @@ def run() :
         return 1
 
     if cmd == 'notify':
+        print "COMMAND OBSOLETE"
+        return 1
         import pandokia.contact_notify
         return pandokia.contact_notify.run(args)
 

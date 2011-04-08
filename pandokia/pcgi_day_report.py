@@ -233,7 +233,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     n_cols = 3
 
     hc_where, hc_where_dict = cfg.pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
-    c = cfg.pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar " + hc_where, hc_where_dict )
+    c = cfg.pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
     for project, host, context in c :
 
         if project != prev_project :

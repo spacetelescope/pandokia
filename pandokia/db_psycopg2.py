@@ -79,6 +79,8 @@ def execute( statement, parameters = [ ], db = None ) :
 
     # create a cursor, execute the statement
     c = db.cursor()
+    # print "QUERY:",statement,"<br>"
+    # print parameters,"<br>"
     c.execute( statement, parameters )
 
     # return the cursor

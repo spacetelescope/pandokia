@@ -1,6 +1,8 @@
+import pandokia
+pdk_db = pandokia.cfg.pdk_db
+
 import pandokia.common
 
-db = pandokia.common.open_db()
 
 ##########
 #
@@ -11,7 +13,7 @@ def load_key_id( key_id ) :
 
 
     # select every column of result_scalar 
-    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar WHERE key_id = ?", (key_id,) )
+    c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar WHERE key_id = :1", (key_id,) )
 
     return load_part_2( c.fetchone() )
 
@@ -42,17 +44,17 @@ def load_part_2( result_scalar_tuple ) :
     key_id = result_scalar_tuple[0]
 
     # collect values from the other tables: tda
-    c1 = db.execute("SELECT name, value FROM result_tda WHERE key_id = ?",(key_id,))
+    c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
     for x in c1 :
         out['tda_'+x[0]] = x[1]
 
     # collect values from the other tables: tra
-    c1 = db.execute("SELECT name, value FROM result_tra WHERE key_id = ?",(key_id,))
+    c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
     for x in c1 :
         out['tra_'+x[0]] = x[1]
 
     # collect values from the other tables: log
-    c1 = db.execute("SELECT log FROM result_log WHERE key_id = ?",(key_id,))
+    c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
     x = c1.fetchone()
     if x is not None :
         out['log'] = x[0]
@@ -100,7 +102,7 @@ def load_identity( test_run = None, project = None, context = None, host = None,
     # convert the list to sql and make the query
     hc_where, hc_where_dict = pandokia.common.where_tuple( select )
 
-    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " + hc_where, hc_where_dict )
+    c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " + hc_where, hc_where_dict )
 
     l = [ ]
     for x in c :

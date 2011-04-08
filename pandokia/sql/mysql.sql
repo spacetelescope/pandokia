@@ -57,6 +57,12 @@ CREATE INDEX result_scalar_project
 CREATE INDEX result_scalar_test_name 
 	ON result_scalar ( test_name );
 
+
+-- this particular query is used to look up each line of the day_report
+CREATE INDEX result_scalar_day_report
+	ON result_scalar ( context, status, host, project, test_run ) ;
+
+
 -- result_tda:
 --	one row for each Test Definition Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -191,7 +197,9 @@ CREATE TABLE user_email_pref (
 --	time is used to know when we can purge the record
 
 CREATE TABLE query_id (
-	qid 	INTEGER PRIMARY KEY, 	-- unique number of query
+	qid 		INTEGER AUTO_INCREMENT,
+			PRIMARY KEY ( qid ),
+			-- unique number of query
 	time	INTEGER,		-- time_t a cgi last touched this query
 	expires	INTEGER,		-- time_t when it is ok to delete this query
 	username VARCHAR(30),		-- who claimed this qid
@@ -227,3 +235,19 @@ CREATE INDEX query_index
 CREATE TABLE delete_queue (
 	key_id INTEGER
 	);
+
+--
+--
+ALTER TABLE result_scalar ENGINE = Innodb ;
+ALTER TABLE result_tda ENGINE = Innodb ;
+ALTER TABLE result_tra ENGINE = Innodb ;
+ALTER TABLE result_log ENGINE = Innodb ;
+ALTER TABLE contact ENGINE = Innodb ;
+ALTER TABLE expected ENGINE = Innodb ;
+ALTER TABLE distinct_test_run ENGINE = Innodb ;
+ALTER TABLE user_prefs ENGINE = Innodb ;
+ALTER TABLE user_email_pref ENGINE = Innodb ;
+ALTER TABLE query_id ENGINE = Innodb ;
+ALTER TABLE query ENGINE = Innodb ;
+ALTER TABLE delete_queue ENGINE = Innodb ;
+

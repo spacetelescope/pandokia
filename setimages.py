@@ -3,7 +3,7 @@
 def setimages() :
     import os
     import base64
-    f = open( os.path.dirname(__file__) + "pandokia/head.png", "rb" )
+    f = open( "delta.gif", "rb" )
     header = f.read()
     f.close()
     header = base64.b64encode(header)

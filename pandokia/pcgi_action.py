@@ -19,6 +19,8 @@ import pandokia.pcgi
 import pandokia.flagok
 import common
 
+pdk_db = pandokia.cfg.pdk_db
+
 
 def run( ) :
     # 
@@ -39,11 +41,6 @@ def run( ) :
         no_redirect = 0
 
     #
-
-    qdb = common.open_qdb()
-    db = common.open_db()
-
-    #
     # gather up all the expected parameters
     #
 
@@ -51,10 +48,10 @@ def run( ) :
 
     qid = int(form['qid'].value)
     if 'action_remove' in form :
-        qid = copy_qid(qdb,qid)
+        qid = copy_qid(qid)
         for key_id in valid_key_ids(form) :
-            qdb.execute('DELETE FROM query WHERE qid = ? AND key_id = ?', (qid, key_id))
-        qdb.commit()
+            pdk_db.execute('DELETE FROM query WHERE qid = :1 AND key_id = :2 ', (qid, key_id))
+        pdk_db.commit()
 
     if ( 'action_cattn' in form ) or ( 'action_sattn' in form ) :
         if 'action_cattn' in form :
@@ -62,16 +59,16 @@ def run( ) :
         else :
             value='Y'
         for key_id in valid_key_ids(form) :
-            db.execute("UPDATE result_scalar SET attn = ? WHERE key_id = ?", (value,key_id))
-        db.commit()
+            pdk_db.execute("UPDATE result_scalar SET attn = :1 WHERE key_id = :2 ", (value,key_id))
+        pdk_db.commit()
 
     elif 'action_keep' in form :
-        qid = copy_qid(qdb,qid)
-        c = qdb.execute('SELECT key_id FROM query WHERE qid = ?', (qid,))
+        qid = copy_qid(pdk_db,qid)
+        c = pdk_db.execute('SELECT key_id FROM query WHERE qid = :1 ', (qid,))
         for key_id, in c :
             if not str(key_id) in form :
-                qdb.execute('DELETE FROM query WHERE qid = ? AND key_id = ?', (qid, key_id))
-        qdb.commit()
+                pdk_db.execute('DELETE FROM query WHERE qid = :1 AND key_id = :2 ', (qid, key_id))
+        pdk_db.commit()
 
     elif 'action_flagok' in form :
         # pick out client IP for logging
@@ -84,21 +81,21 @@ def run( ) :
 
         for key_id in valid_key_ids(form) :
             print "Flagging %s<br>"%key_id
-            text_present |= pandokia.flagok.flagok(db, client, key_id, user)
+            text_present |= pandokia.flagok.flagok(client, key_id, user)
 
-        pandokia.flagok.commit(db)
+        pandokia.flagok.commit()
 
     elif 'not_expected' in form :
         for key_id in valid_key_ids(form) :
-            c = db.execute("SELECT project, host, test_name, context FROM result_scalar WHERE key_id = ?", (key_id,) )
+            c = pdk_db.execute("SELECT project, host, test_name, context FROM result_scalar WHERE key_id = :1 ", (key_id,) )
             for project, host, test_name, context in c :
-                db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = ? AND host = ? AND test_name = ? AND context = ?",(project,host,test_name,context))
-        db.commit()
+                pdk_db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = :1 AND host = :2 AND test_name = :3 AND context = :4 ",(project,host,test_name,context))
+        pdk_db.commit()
 
     elif 'claim_qid' in form :
         print "CLAIM", common.current_user()
-        db.execute("UPDATE query_id SET username = ? WHERE qid = ?",(common.current_user(), qid))
-        db.commit()
+        pdk_db.execute("UPDATE query_id SET username = :1 WHERE qid = :2 ",(common.current_user(), qid))
+        pdk_db.commit()
 
     elif 'valuable_qid' in form :
         v = int(form['valuable_qid'].value)
@@ -106,12 +103,12 @@ def run( ) :
             expire = 0
         else :
             expire = time.time() + 30 * 86400
-        db.execute("UPDATE query_id SET username = ?, expires = ? WHERE qid = ?",(common.current_user(), expire, qid))
-        db.commit()
+        pdk_db.execute("UPDATE query_id SET username = :1, expires = :2 WHERE qid = :3",(common.current_user(), expire, qid))
+        pdk_db.commit()
 
     elif 'edit_comment' in form :
         text_present = 1
-        c = db.execute("SELECT notes FROM query_id WHERE qid = ?",(qid,))
+        c = pdk_db.execute("SELECT notes FROM query_id WHERE qid = :1",(qid,))
         note = c.fetchone()[0]
         if note is None :
             note = ''
@@ -125,8 +122,8 @@ def run( ) :
 
     elif 'save_comment' in form :
         notes = form['comment'].value
-        db.execute('UPDATE query_id SET notes = ? WHERE qid = ?', (notes, qid) )
-        db.commit()
+        pdk_db.execute('UPDATE query_id SET notes = :1 WHERE qid = :2', (notes, qid) )
+        pdk_db.commit()
 
     if text_present :
         output.write(
@@ -152,15 +149,15 @@ def run( ) :
             + "</a><br>\n"
             )
 
-def copy_qid(qdb,old_qid) :
+def copy_qid(old_qid) :
     now = time.time()
-    c = qdb.execute("INSERT INTO query_id ( time ) VALUES ( ? ) ",(now,))
+    c = pdk_db.execute("INSERT INTO query_id ( time ) VALUES ( :1 ) ",(now,))
     new_qid = c.lastrowid
-    qdb.commit()
+    pdk_db.commit()
 
     s = "INSERT INTO query ( qid, key_id ) SELECT %d, key_id FROM query WHERE qid = %d" % ( new_qid, old_qid )
-    qdb.execute(s)
-    qdb.commit()
+    pdk_db.execute(s)
+    pdk_db.commit()
 
     return new_qid
 

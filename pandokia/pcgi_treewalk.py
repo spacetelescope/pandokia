@@ -12,6 +12,9 @@ import os
 
 import urllib
 
+import pandokia
+pdk_db = pandokia.config.pdk_db
+
 import pandokia.text_table as text_table
 import pandokia.pcgi
 import common
@@ -43,9 +46,6 @@ def treewalk ( ) :
     output.write(common.cgi_header_html)
 
     output.write(common.page_header())
-
-    global db
-    db = common.open_db()
 
     #
     # gather up all the expected parameters
@@ -340,8 +340,11 @@ def treewalk ( ) :
                 lquery[x] = query[x]
         output.write("<h3>Narrow to %s</h3>" % field)
 
-        where_text, where_dict = common.where_tuple([ 
-            ('test_name', test_name+"*"),
+        tn = test_name
+        if not tn.endswith("*") :
+            tn = tn + "*" 
+        where_text, where_dict = pdk_db.where_dict([ 
+            ('test_name', tn),
             ('test_run', test_run), 
             ('project', project),
             ('host', host),
@@ -351,9 +354,9 @@ def treewalk ( ) :
             ], more_where )
 
         if more_where is None :
-            c = db.execute("SELECT DISTINCT %s FROM result_scalar %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+            c = pdk_db.execute("SELECT DISTINCT %s FROM result_scalar %s GROUP BY %s ORDER BY %s" % ( field, where_text, field, field ), where_dict)
         else :
-            c = db.execute("SELECT DISTINCT %s FROM result_scalar, query %s ORDER BY %s" % ( field, where_text, field ), where_dict)
+            c = pdk_db.execute("SELECT DISTINCT %s FROM result_scalar, query %s GROUP BY %s ORDER BY %s" % ( field, where_text, field, field ), where_dict)
         for x, in c :
             if x is None :
                 continue
@@ -389,10 +392,6 @@ def linkout( ) :
         no_redirect = 1
     else :
         no_redirect = 0
-
-    #
-
-    db = common.open_db()
 
     #
     # gather up all the expected parameters
@@ -446,9 +445,11 @@ def linkout( ) :
 
     now = time.time()
 
-    c = db.execute("INSERT INTO query_id ( time, expires ) VALUES ( ?, ? ) ",(now,now+common.cfg.default_qid_expire_days*86400))
+    c = pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ",(now,now+common.cfg.default_qid_expire_days*86400))
     newqid = c.lastrowid
-    db.commit()
+    print "content-type: text/plain\n"
+    print "QID ",newqid
+    pdk_db.commit()
 
     if oldqid is not None :
         print "WITH QID=",oldqid
@@ -457,7 +458,7 @@ def linkout( ) :
         more_where = None
 
     # find a list of the tests
-    where_text, where_dict = common.where_tuple ([ 
+    where_text, where_dict = pdk_db.where_dict([ 
         ('test_name', test_name),
         ('test_run', test_run), 
         ('project', project),
@@ -468,9 +469,9 @@ def linkout( ) :
         ], more_where = more_where )
 
     if oldqid is None :
-        c1 = db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
+        c1 = pdk_db.execute("SELECT key_id FROM result_scalar "+where_text, where_dict )
     else :
-        c1 = db.execute("SELECT result_scalar.key_id FROM result_scalar, query %s" % where_text, where_dict )
+        c1 = pdk_db.execute("SELECT result_scalar.key_id FROM result_scalar, query %s" % where_text, where_dict )
 
     a = [ ]
     for x in c1 :
@@ -484,8 +485,8 @@ def linkout( ) :
     # but that makes the checkboxes unavailable in that case.)
 
     for key_id in a :
-        db.execute("INSERT INTO query ( qid, key_id ) VALUES ( ?, ? ) ", (newqid, key_id ) )
-    db.commit()
+        pdk_db.execute("INSERT INTO query ( qid, key_id ) VALUES ( :1, :2 ) ", (newqid, key_id ) )
+    pdk_db.commit()
 
     url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
 
@@ -514,7 +515,7 @@ def query_to_where_tuple( query, fields, more_where = None ) :
             v = query[x]
             l.append( ( x, v ) )
 
-    return common.where_tuple(l, more_where = more_where)
+    return pdk_db.where_dict(l, more_where = more_where)
 
 def collect_prefixes( query ) :
     #
@@ -535,10 +536,10 @@ def collect_prefixes( query ) :
     where_text, where_dict = query_to_where_tuple( query, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
 
     if not have_qid :
-        c = db.execute("SELECT DISTINCT test_name FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+        c = pdk_db.execute("SELECT DISTINCT test_name FROM result_scalar %s GROUP BY test_name ORDER BY test_name" % where_text, where_dict )
     else :
         sys.stdout.flush()
-        c = db.execute("SELECT DISTINCT test_name FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
+        c = pdk_db.execute("SELECT DISTINCT test_name FROM result_scalar, query %s GROUP BY test_name ORDER BY test_name" % where_text, where_dict )
 
     l = len(test_name)
     prev_one = None
@@ -626,10 +627,14 @@ def collect_table( prefixes, query ) :
                 lquery['status'] = x
                 where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
                 if not have_qid :
-                    c = db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+                    c = pdk_db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
                 else :
-                    c = db.execute("SELECT count(*) FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
-                (count_col[x],) = c.fetchone()
+                    c = pdk_db.execute("SELECT count(*) FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
+                datum = c.fetchone()
+                if datum is None :
+                    count_col[x] = 0
+                else :
+                    (count_col[x],) = datum
                 lquery['status'] = x
                 table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
                 table.set_html_cell_attributes(rownum, x, 'align="right"' )
