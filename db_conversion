@@ -124,7 +124,7 @@ pcgi_day_report.py
 	c
 
 pcgi_delete.py
-	c
+	f
 
 pcgi_detail.py
 	c

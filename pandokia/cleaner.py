@@ -173,8 +173,6 @@ def block_last_record() :
 #
 def delete_run(args) :
 
-    print "Deleting from database", pandokia.common.cfg.dbdir
-
     block_last_record()
 
     #
@@ -203,7 +201,7 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
             return 1
     for name in args :
         print "ARG",name
-        c = pdk_db.execute("SELECT name, valuable FROM distinct_test_run WHERE name GLOB :1",(name,))
+        c = pdk_db.execute("SELECT test_run, valuable FROM distinct_test_run WHERE test_run LIKE :1",(name,))
         for (n,valuable) in c :
             print "name",n,"valuable",valuable
             if valuable != '0' :
@@ -333,7 +331,7 @@ def old_delete( name ) :
 
 def new_delete( name ) :
     c = pdk_db.execute("INSERT INTO delete_queue SELECT key_id FROM result_scalar WHERE test_run = :1 ", (name,))
-    c = pdk_db.execute("DELETE FROM distinct_test_run WHERE name = :1 ", (name,))
+    c = pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1 ", (name,))
     pdk_db.commit()
 
 def delete_background_step( n = 200 ) :

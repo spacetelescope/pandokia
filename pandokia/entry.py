@@ -147,6 +147,10 @@ def run() :
         import pandokia.export
         return pandokia.export.run(args)
 
+    if cmd == 'gen_contact' :
+        import pandokia.gen_contact as x
+        return x.run(args)
+
     if cmd == 'gen_expected' :
         import pandokia.gen_expected as x
         return x.run(args)

@@ -41,7 +41,7 @@ def rpt1(  ) :
         test_run = '*'
 
     if test_run == '-me' :
-        test_run = 'user_' + common.current_user() + '_%'
+        test_run = 'user_' + common.current_user() + '_*'
 
     my_run_prefix = 'user_' + common.current_user()
 
@@ -56,8 +56,8 @@ def rpt1(  ) :
 
     # day report, tree walk, problem list
     dquery = { }
-    lquery = { 'project' : '%', 'host' : '%', 'status' : [ 'F', 'E' ] }
-    tquery = { 'project' : '%', 'host' : '%' }
+    lquery = { 'project' : '*', 'host' : '*', 'status' : [ 'F', 'E' ] }
+    tquery = { 'project' : '*', 'host' : '*' }
 
     row = 0
     for x, val, record_count in c :
@@ -338,7 +338,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     row = row + 1
     total_row = row
 
-    query['host']  = '%'
+    query['host']  = '*'
     query['project'] = projects
     query['host'] = query_host
     query['context'] = query_context
