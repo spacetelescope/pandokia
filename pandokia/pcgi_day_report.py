@@ -14,7 +14,7 @@ import pandokia.text_table as text_table
 import urllib
 
 import pandokia
-cfg = pandokia.cfg
+pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.common as common
 
@@ -31,8 +31,6 @@ import pandokia.pcgi
 
 def rpt1(  ) :
 
-    db = cfg.pdk_db.open_db()
-
     form = pandokia.pcgi.form
 
     if form.has_key("test_run") :
@@ -48,9 +46,9 @@ def rpt1(  ) :
     admin = common.current_user() in common.cfg.admin_user_list
 
     # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
-    where_str, where_dict = cfg.pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
+    where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
     sql = "SELECT test_run, valuable, record_count FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
-    c = cfg.pdk_db.execute( sql, where_dict)
+    c = pdk_db.execute( sql, where_dict)
 
     table = text_table.text_table()
 
@@ -193,8 +191,6 @@ def rpt2( ) :
 
 def gen_daily_table( test_run, projects, query_context, query_host ) :
 
-    db = cfg.pdk_db.open_db()
-
     # convert special names, e.g. daily_latest to the name of the latest daily_*
     test_run = common.find_test_run(test_run)
 
@@ -232,8 +228,8 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
 
     n_cols = 3
 
-    hc_where, hc_where_dict = cfg.pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
-    c = cfg.pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
+    hc_where, hc_where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
+    c = pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
     for project, host, context in c :
 
         if project != prev_project :
@@ -289,7 +285,7 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
         total_results = 0
         missing_count = 0
         for status in status_types :
-            c1 = cfg.pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5",
+            c1 = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5",
                 ( test_run, project, host, status, context ) )
             (x,) = c1.fetchone()
             total_results += x
