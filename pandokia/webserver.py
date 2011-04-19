@@ -68,7 +68,10 @@ def run( args = [ ] ) :
     if len(args) > 0 :
         ip = args[0]
     else :
-        ip = '127.0.0.1'
+        import platform
+        ip = platform.node()
+
+    print "ip:",ip
     port = 7070
 
     # make sure pdk.cgi is here somewhere - if not, make a symlink
