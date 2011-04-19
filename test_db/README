@@ -1,0 +1,35 @@
+It is hard to automatically test the databases because we have so
+much external setup to do.  Here is the sequence:
+
+- install pandokia
+
+- edit the installed configuration to select your database driver
+  and instance
+
+- select your test run name
+
+	setenv PDK_TEST_RUN pdk_db_test
+
+- DESTROY ANY PANDOKIA DATA IN THE DATABASE
+- create your database tables
+- set your context for the database you are testing
+
+	pdk sql drops.sql
+	pdk sql sqlite.sql
+	setenv PDK_CONTEXT sqlite
+
+	pdk sql drops.sql
+	pdk sql mysql.sql
+	setenv PDK_CONTEXT mysqldb
+
+- some tests that import data
+
+	** this totally doesn't work if you don't start with an empty database
+
+		pdkrun import
+
+	look for result at end:
+
+	pass=N fail=0 error=0
+
+

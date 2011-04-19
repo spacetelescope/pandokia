@@ -3,13 +3,30 @@
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
 
+#
+# sqlite3 database driver
+#
+
+__all__ = [
+    'commit',
+    'db_module',
+    'execute',
+    'explain_query',
+    'open_db',
+    'pdk_db_driver',
+    'where_dict',
+    ]
+
+
+
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+pdk_db_driver = 'sqlite'
+
+
 import os
 
-import pandokia
-cfg = pandokia.cfg
 
-######
-#--#--# DB
 #
 # Since we were in a hurry to get it working, we use certain sqlite3
 # features:
@@ -52,7 +69,8 @@ def open_db ( access_str=None ):
     if access_str is None :
         if xdb is not None :
             return xdb
-        access_str = cfg.dbdir+"/pdk.db"
+        import pandokia.config
+        access_str = pandokia.config.db_arg+"/pdk.db"
 
     if not os.path.exists(access_str) :
         print "NO DATABASE FILE",access_str
@@ -64,6 +82,9 @@ def open_db ( access_str=None ):
     xdb.execute("PRAGMA synchronous = OFF;")
     xdb.text_factory = str;
 
+    # must have case_sensitive_like so LIKE 'arf%' can use the
+    # indexes.  With non-case-sensitive like, any LIKE clause
+    # turns into a linear search of the table.
     xdb.execute("PRAGMA case_sensitive_like = true;")
     return xdb
 

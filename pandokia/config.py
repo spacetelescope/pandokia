@@ -29,7 +29,7 @@ def readpass() :
     f.close()
     return s.strip()
 
-if 0 :
+if 1 :
     # Database: SQLITE
     #           http://www.sqlite.org/
     #
@@ -38,9 +38,12 @@ if 0 :
     # pysqlite - same driver, developed separately from python distribution
     #           http://code.google.com/p/pysqlite/
     import pandokia.db_sqlite as pdk_db
+    import os
 
-    # db_arg is the file name of the database
-    db_arg = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
+    # db_arg is the file name of the database; default here is to store it
+    # in the install dir, but normally you would point this somewhere that
+    # you have a big disk to store your data
+    db_arg = os.path.dirname(os.path.abspath(__file__))
 
 if 0 :
     # DOES NOT WORK YET
@@ -52,7 +55,7 @@ if 0 :
     import pandokia.db_psycopg2 as pdk_db
     db_arg = 'dbname=test'
 
-if 1 :
+if 0 :
     # Database: MYSQL
     #           http://www.mysql.com/
     # MySQLdb
@@ -63,7 +66,7 @@ if 1 :
     db_arg = { 'host' : 'goldink', 
             'user' : 'pyetc', 
             'passwd' : readpass(),
-            'db' : 'test_pandokia'
+            'db' : 'test_pandokia2'
         }
 
 

@@ -1,0 +1,62 @@
+START
+test_run=test_report_1_a
+project=default
+host=banana
+location=test_db/import/test_report_1
+test_runner=hand_crafted_file
+context=default
+SETDEFAULT
+test_name=a/1
+status=P
+start_time=1303242150.49
+end_time=1303242150.49
+log:
+.Output from test is here
+.2 lines
+
+tda_a=aaaaa
+tda_b=bbbbb
+tra_a=AAAAA
+tra_b=BBBBB
+END
+
+test_name=a/2
+status=P
+start_time=1303242150.49
+end_time=1303242150.49
+log:
+.Output from test is here
+.2 lines
+
+tda_a=aaaaaXXX
+tda_b=bbbbbXXX
+tra_a=AAAAAXXX
+tra_b=BBBBBXXX
+END
+
+test_name=a/3
+status=P
+start_time=2011-04-19 15:50:21.123456
+end_time=2011-04-19 15:50:21.654321
+log:
+.Output from test is here
+.2 lines
+
+tda_a=aaaaaYYY
+tda_b=bbbbbYYY
+tra_a=AAAAAYYY
+tra_b=BBBBBYYY
+END
+
+test_name=a/3
+status=P
+END
+
+test_name=b/1
+status=F
+END
+
+test_name=b/2
+status=E
+END
+

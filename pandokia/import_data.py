@@ -181,17 +181,21 @@ class test_result(object):
         self.test_runner= self._lookup("test_runner")
         self.status     = self._lookup("status")
         self.log        = self._lookup("log","")
-        self.start_time = self._lookup("start_time","0")
-        self.end_time   = self._lookup("end_time","0")
+        self.start_time = self._lookup("start_time",'')
+        self.end_time   = self._lookup("end_time",'')
 
         try :
-            self.start_time = common.parse_time(self.start_time)
+            if self.start_time != '' :
+                self.start_time = common.parse_time(self.start_time)
+                self.start_time = common.sql_time(self.start_time)
         except ValueError :    
             print ""
             print "INVALID START TIME, line",line_count
 
         try :
-            self.end_time = common.parse_time(self.end_time)
+            if self.end_time != '' :
+                self.end_time = common.parse_time(self.end_time)
+                self.end_time = common.sql_time(self.end_time)
         except ValueError :    
             print ""
             print "INVALID END TIME, line",line_count

@@ -127,6 +127,7 @@ def do_result( key_id ) :
         row = 0
         tb = text_table.text_table()
         tb.set_html_table_attributes("border=1")
+
         tb.set_value(row, 0, "test_run")
         tmp = common.previous_daily(test_run) 
         if tmp is not None :
@@ -135,6 +136,10 @@ def do_result( key_id ) :
             tb.set_value(row, 1, test_run, html= tmp )
         else :
             tb.set_value(row, 1, test_run)
+        row += 1
+
+        tb.set_value(row, 0, "key_id")
+        tb.set_value(row, 1, key_id)
         row += 1
 
         tb.set_value(row, 0, "project")

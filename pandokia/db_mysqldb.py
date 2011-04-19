@@ -3,38 +3,59 @@
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
 
+#
+# mysql database driver
+#
+
+__all__ = [ 
+    'commit',
+    'db_module',
+    'execute',
+    'explain_query',
+    'open_db',
+    'pdk_db_driver',
+    'where_dict',
+    ]
+
+
+# debugging 
+_tty = None
+# _tty = open("/dev/tty","w")
+
 import cStringIO as StringIO
-
-tty = open("/dev/tty","w")
-
 import os
 
-######
-#--#--# DB
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+pdk_db_driver = 'mysqldb'
+
+
+
 import MySQLdb as db_module
 import re
 
-xdb=None
+# This is the cached open database connection
+_xdb=None
 
 def open_db ( access_arg=None ):
-    global xdb
+    global _xdb
     if access_arg is None :
-        if xdb is not None :
-            return xdb
+        if _xdb is not None :
+            return _xdb
         import pandokia
         access_arg = pandokia.cfg.db_arg
 
-    xdb = db_module.connect( **access_arg )
-    return xdb
+    _xdb = db_module.connect( **access_arg )
+    return _xdb
 
 #
 # generic commit so the user doesn't need to grab the db handle
 
 def commit( db = None ) :
     if db is None :
-        if xdb is None :
+        if _xdb is None :
             open_db()
-        db = xdb
+        db = _xdb
     db.commit()
 
 #
@@ -42,7 +63,7 @@ def commit( db = None ) :
 #
 def explain_query( text, query_dict ) :
     f = StringIO.StringIO()
-    c = execute( 'EXPLAIN extended '+ text, query_dict, xdb )
+    c = execute( 'EXPLAIN EXTENDED '+ text, query_dict, _xdb )
     for x in c :
         f.write(str(x))
     return f.getvalue()
@@ -53,17 +74,17 @@ def explain_query( text, query_dict ) :
 # (this capability not offered by dbapi)
 #
 
-pat_from = ':([a-zA-Z0-9_]*)'
+_pat_from = re.compile(':([a-zA-Z0-9_]*)')
 
-pat_to = '%(\\1)s '
+_pat_to = '%(\\1)s '
 
 def execute( statement, parameters = [ ], db = None ) :
 
     # choose the default database
     if db is None :
-        if xdb is None :
+        if _xdb is None :
             open_db()
-        db = xdb
+        db = _xdb
 
     # convert the parameters, as necessary
     if isinstance(parameters, dict) :
@@ -79,17 +100,17 @@ def execute( statement, parameters = [ ], db = None ) :
         raise db_module.ProgrammingError
 
     # for mysql, convert :xxx to %(xxx)s
-    statement = re.sub(pat_from, pat_to, statement)
+    statement = _pat_from.sub(_pat_to, statement)
 
     # create a cursor, execute the statement
     c = db.cursor()
-    if 0 and not statement.startswith('EXPLAIN') :
-        tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
-        tty.write(explain_query( statement, parameters ) +"\nWARN: ")
+    if _tty is not None and not statement.startswith('EXPLAIN') :
+        _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
+        _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
         c.execute("SHOW WARNINGS")
         for x in c :
-            tty.write(str(x)+"\n")
-        tty.write("\n\n\n")
+            _tty.write(str(x)+"\n")
+        _tty.write("\n\n\n")
     # print parameters,"<br>"
     c.execute( statement, parameters )
 

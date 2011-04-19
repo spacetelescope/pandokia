@@ -139,6 +139,10 @@ def run() :
         import pandokia.cleaner
         return pandokia.cleaner.delete(args)
 
+    if cmd == 'dump_table' :
+        import pandokia.db
+        return pandokia.db.cmd_dump_table(args)
+
     if cmd == 'email' :
         import pandokia.contact_notify_select
         return pandokia.contact_notify_select.run(args)
@@ -175,10 +179,6 @@ def run() :
         import pandokia.import_contact as x
         return x.run()
 
-    if cmd == 'initdb' :
-        print "this entry point is obsolete"
-        return 1
-
     if cmd == 'notify':
         print "COMMAND OBSOLETE"
         return 1
@@ -197,6 +197,10 @@ def run() :
         # print "Summary of entire run:"
         # common.print_stat_dict(lstat)
         return err
+
+    if cmd == 'sql' :
+        import pandokia.db
+        return pandokia.db.sql_files( args )
 
     if cmd == 'version' or cmd == '--version' or cmd == '-v' or cmd == '-V' :
         import pandokia

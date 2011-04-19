@@ -3,6 +3,30 @@
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
 
+#
+# postgres database driver, using pyscopg2
+#
+# postgres support is not ready yet - the pandokia code assumes
+# that cursor.lastrowid contains the value just created by an
+# auto-increment field; postgres does not do this.  We need a
+# more portable way to handle auto-increments for postgres support.
+# 
+
+__all__ = [
+    'commit',
+    'db_module',
+    'execute',
+    'explain_query',
+    'open_db',
+    'pdk_db_driver',
+    'where_dict',
+    ]
+
+
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+pdk_db_driver = 'psycopg2'
+
 import os
 
 ######

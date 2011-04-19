@@ -17,12 +17,17 @@ re_funky_chars = re.compile('[^ -~]')
 re_star_x_star = re.compile('^\*[^*]*\*$')
 
 
-def next_name( v ) :
-    global name_dict_counter
-    n = str(name_dict_counter)
-    name_dict[n] = v
-    name_dict_counter += 1
-    return n
+class name_sequence(object) :
+
+    def __init__(self) :
+        self.counter = 0
+        self.dict = { }
+
+    def next(self, v) :
+        n = str(self.counter)
+        self.counter += 1
+        self.dict[n] = v
+        return n
 
 #
 # convert a list of (name,value) to an sql WHERE clause.  value may be
@@ -35,13 +40,11 @@ def next_name( v ) :
 # then the return is a zero length string.
 #
 def where_dict(list, more_where = None ) :
-    global name_dict_counter, name_dict
-    name_dict = { }
-    name_dict_counter = 0
+    ns = name_sequence()
 
     and_list = [ ]
     for name, value in list :
-        if ( value == '*' ) or ( value is None ) :
+        if ( value == '*' ) or ( value == '%' ) or ( value is None ) :
             # if value is "*", we don't need to do a
             # comparison at all.  In sqlite, " xxx glob '*' "
             # takes much longer than leaving out the glob operator.
@@ -68,15 +71,15 @@ def where_dict(list, more_where = None ) :
                 # is convenient to just quietly drop it.
                 v = re_funky_chars.sub('',v)
 
-                # if value contains a wild card, add a GLOB
+                # if value contains a wild card, add a GLOB/LIKE
                 # action, otherwise add '='.
                 if '%' in v :
-                    n = next_name( v )
-                    or_list.append( name + " LIKE :" + n + " " )
+                    n = ns.next( v )
+                    or_list.append( " %s LIKE :%s "%(name,n) )
 
                 elif '*' in v :
                     # this is a hack to make some things a little easier to get going
-                    # *x or X* can be used with LIKE
+                    # *X or X* can be used with LIKE
 
                     if v.startswith('*') :
                         v = '%'+v[1:]
@@ -84,27 +87,30 @@ def where_dict(list, more_where = None ) :
                         v = v[:-1]+'%'
 
                     if '*' in v :
-                        assert 0, 'GLOB not supported'
+                        assert 0, 'GLOB not supported except *xx or xx* '
 
-                    n = next_name( v )
-                    or_list.append( name + " LIKE :"+n+" ")
+                    n = ns.next( v )
+                    or_list.append( " %s LIKE :%s "%(name,n) )
 
                 elif '*' in v or '?' in v or '[' in v :
                     assert 0, 'GLOB not supported'
-                    or_list.append( name + " GLOB :" + n + " " )
                 else :
-                    n = next_name( v )
-                    or_list.append( name + " = :" + n + " " )
+                    n = ns.next( v )
+                    or_list.append( " %s = :%s "%(name,n) )
                 
         # print "or_list",or_list
         if len(or_list) > 0 :
-            and_list.append( '(' + ( ' OR ' .join( or_list ) ) + ')' )
+            and_list.append(
+                    ' ( %s ) ' 
+                    % 
+                    ( ' OR ' .join( or_list ) )
+                )
 
     res = ' AND '.join(and_list)
 
     if more_where :
         if res != '' :
-            res = res + ' AND ' + more_where
+            res = ' %s AND %s '%(res,more_where)
         else :
             res = more_where
 
@@ -113,5 +119,84 @@ def where_dict(list, more_where = None ) :
     # user then has "select ... from table" + ""
     if res != "" :
         res =  "WHERE " + res
-    return res, name_dict
+    return res, ns.dict
 
+
+#
+# extract a table as a csv file
+# used for testing
+#
+
+def table_to_csv( tablename, fname, where='', cols=None ) :
+    import pandokia
+    pdk_db = pandokia.cfg.pdk_db
+
+    if cols is None :
+        c = pdk_db.execute('SELECT * FROM %s LIMIT 1'%tablename )
+        cols = [ x[0] for x in c.description ]
+
+    colstr = ','.join(cols)
+    
+    import csv
+
+    if isinstance(fname,str) :
+        f = open(fname,"wb")
+    else :
+        f = fname
+
+    cc = csv.writer(f)
+    cc.writerow( cols )
+
+    c = pdk_db.execute('select %s from %s %s order by %s asc '%(colstr, tablename, where, colstr) )
+    for x in c :
+        cc.writerow( [ y for y in x ] )
+
+    if isinstance(fname,str) :
+        f.close()
+
+def cmd_dump_table( args ) :
+    import sys
+    for x in args :
+        table_to_csv( x,sys.stdout )
+
+#
+# run a big sequence of SQL commands
+#
+
+def sql_commands(s) :
+    import pandokia.config
+    pdk_db = pandokia.config.pdk_db
+
+    import re
+    comment = re.compile('--.*$')
+
+    s = s.split('\n')
+    s = [ comment.sub('',x).rstrip() for x in s ]
+
+    c = ''
+    line = 0
+    for x in s :
+        line = line + 1
+        if x == '' :
+            continue
+        c = c + x + '\n'
+        if c.endswith(';\n') :
+            print "line",line
+            print c
+            pdk_db.execute(c)
+            c = ''
+
+    pdk_db.commit()
+
+def sql_files( files ) :
+    import os.path
+
+    dir = os.path.dirname(__file__) + "/sql/"
+
+    for x in files :
+        try :
+            f = open(x)
+        except IOError:
+            f = open(dir+x)
+        sql_commands(f.read())
+        f.close()
