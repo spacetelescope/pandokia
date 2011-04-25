@@ -193,6 +193,11 @@ def run() :
         # common.print_stat_dict(lstat)
         return err
 
+    if cmd == 'runstatus' :
+        import pandokia.run_status as x
+        err = x.display_interactive(args)
+        return err
+
     if cmd == 'version' or cmd == '--version' or cmd == '-v' or cmd == '-V' :
         import pandokia
         print "pandokia",pandokia.__version__
