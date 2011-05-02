@@ -49,21 +49,6 @@ directoryname
     default is a generated string including the user name and the
     time to the nearest minute
 
--s
---status
-    show the status 
-
-    --wait
-    -w
-        wait for something to start before displaying the status
-    
-    -v
-        clear the screen and do an updating display
-
-    --vs
-        same as pdkrun -s -w -v
-        
-
 Defaults can also be set by environment variables.
 
 
@@ -86,16 +71,12 @@ def run(args) :
     verbose = 0 # not implemented
     dry_run = 0 # not implemented
 
-    want_status = 0 # only want status, not actual run
-    w_flag = 0      # when showing status, 
-
     if args == [ ] :
         args = [ '-r', '.' ]
     opts,args = getopt.gnu_getopt(args,"rvpsw",
             ["recursive", "environment_already_set", "dir", "log=",
              "project=", "test_run=", "test_prefix=",
              "show-command", "verbose","parallel=","help", "context=",
-             "status","wait","vs",
              ])
     for (opt, optarg) in opts :
         if opt == '-r' or  opt == '--recursive' :
@@ -125,20 +106,6 @@ def run(args) :
             dry_run = 1
         elif opt == '-' or opt == '--parallel' : 
             parallel = str(int(optarg))
-        elif opt == '--status' :
-            want_status=1
-        elif opt == '--wait' or opt == '-w' :
-            w_flag = 1
-        elif opt == "--vs" :
-            want_status = 1
-            w_flag = 1
-            verbose = 1
-
-    if want_status :
-        # only show the status of something else that is running
-        import pandokia.run_status as x
-        x.display(visual=verbose, waiting_for_start=w_flag)
-        return 0,0
 
     if project is None :
         project = default_project()

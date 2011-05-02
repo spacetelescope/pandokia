@@ -14,11 +14,30 @@ if test_mode :
     saw_locked = 0
     saw_changed = 0
 
+
+# A note on locking:
+#
+# The shared memory block is divided into records.  Each process knows
+# its own record number and only updates its own record.  So, we have
+# no need to deal with competing writers.
+#
+# The reader would like to recover consistent data.  The valid flag has
+# a serial number that is incremented each time it is updated, though
+# it wraps fairly quickly.  get_value_at_offset() looks for the valid
+# flag being different before/after it recovers the data.  If it is
+# different, we know we lost the race and should look again.
+#
+# Since it takes so little time to copy out a value, we presume that the
+# writer cannot make so many updates that N+1+1+1... wraps back around
+# to exactly N again while we are reading the data.
+# 
+# 
+
 def init_status(file=None, n_records=10, status_text_size = 2000 ) :
     '''Create a status file with n_records blank records in it
     '''
 
-    valid_flag_size = 4
+    valid_flag_size = 1
 
     try :
         import mmap
@@ -154,19 +173,20 @@ class status_block(object):
         return self.set_value_at_offset( self.status_text_offset, self.status_text_size, value )
 
     def set_value_at_offset(self, offset, blocklen, value ) :
-        # no locking because we own the data in this block
-
         start = self.my_record_offset
 
         # find the old valid flag so we can make the new one be different
         old_valid_flag = self.mem[ start : start + self.valid_flag_size ]
 
-        # lock the record
+        # lock the record - as a multi-byte operation, this is not atomic, but
+        # if valid_flag_size == 1, it is.
         self.mem[ start : start + self.valid_flag_size ] = self.locked_valid_flag
 
         # pad the value
         if len(value) < blocklen :
             value = value + (' ' * (blocklen - len(value) + 1))
+
+        # limit the value
         value = value[0:blocklen]
 
         # stuff it into the shared memory
@@ -174,9 +194,11 @@ class status_block(object):
 
         # clear the lock
         try :
-            n = int(old_valid_flag) + 1
+            n = (int(old_valid_flag) + 1) & 7
         except :
             n = 0
+
+        # set the new valid flag
         self.mem[ start : start + self.valid_flag_size ] = "%*d"%(self.valid_flag_size,n)
 
 
@@ -306,3 +328,7 @@ def display( visual, waiting_for_start ) :
         if not any and done_waiting :
             break
         time.sleep(1)
+
+def display_interactive(args) :
+    # should do some arg parsing here
+    display(1,1)

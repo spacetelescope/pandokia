@@ -69,9 +69,12 @@ class ComparisonClass:
     def writeresults(self, fh):
 
         if self.failed:
-            for tline,rline in self.diffs:
-                fh.write("? %s: %s\n"%(self.testfile,tline.rstrip()))
-                fh.write("? %s: %s\n"%(self.reffile,rline.rstrip()))
+            for tup in self.diffs:
+                # tup is (tline, rline, <optional line num>)
+                if len(tup) > 2:
+                    fh.write("? line %d,\n" % tup[2])
+                fh.write("? %s: %s\n"%(self.testfile,tup[0].rstrip()))
+                fh.write("? %s: %s\n"%(self.reffile,tup[1].rstrip()))
                 fh.write("? \n")
                 fh.flush()
 
@@ -276,7 +279,7 @@ class AsciiComparison(ComparisonClass):
                     tline=test[i]
                     rline=ref[i]
                 if tline != rline:
-                    self.diffs.append((tline,rline))
+                    self.diffs.append((tline,rline,i+1))
 
         if len(self.diffs) != 0:
             self.failed=True
