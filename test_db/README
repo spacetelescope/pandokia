@@ -8,7 +8,7 @@ much external setup to do.  Here is the sequence:
 
 - select your test run name
 
-	setenv PDK_TEST_RUN pdk_db_test
+	setenv PDK_TESTRUN pdk_db_test
 
 - DESTROY ANY PANDOKIA DATA IN THE DATABASE
 - create your database tables
@@ -26,10 +26,12 @@ much external setup to do.  Here is the sequence:
 
 	** this totally doesn't work if you don't start with an empty database
 
-		pdkrun import
-
-	look for result at end:
+	Look for this after each run:
 
 	pass=N fail=0 error=0
 
+		pdkrun aa_assert.py
 
+		pdkrun import 
+
+		pdkrun import2

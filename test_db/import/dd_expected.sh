@@ -29,13 +29,13 @@ pdk dump_table result_scalar > output/$tname.check
 
 # compare to what we expect
 echo CMP GEN
-diff -C 3 output/$tname.gen ref/$tname.gen
+diff -C 3 ref/$tname.gen output/$tname.gen
 r=$?
 
 echo ''
 echo CMP CHECK
 
-diff -C 3 output/$tname.check ref/$tname.check
+diff -C 3 ref/$tname.check output/$tname.check
 r=$r$?
 
 exit $r

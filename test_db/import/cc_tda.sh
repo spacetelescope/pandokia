@@ -14,7 +14,7 @@ echo "../output/$tname ../ref/$tname" > okfile/$tname
 python -c "import pandokia.db as d; d.table_to_csv('result_tda','output/$tname')"
 
 # compare to what we expect
-diff -C 3 output/$tname ref/$tname
+diff -C 3 ref/$tname output/$tname
 r=$?
 
 exit $r

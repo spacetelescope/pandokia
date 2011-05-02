@@ -19,11 +19,11 @@ pdk dump_table result_scalar > output/$tname.dump
 
 # compare to what we expect
 echo OUTPUT
-diff -C 3 output/$tname ref/$tname
+diff -C 3 ref/$tname output/$tname 
 r=$?
 
 echo TABLE
-diff -C 3 output/$tname.dump ref/$tname.dump
+diff -C 3 ref/$tname.dump output/$tname.dump
 r=$r$?
 
 exit $r
