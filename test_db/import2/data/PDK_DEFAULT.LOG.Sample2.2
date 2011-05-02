@@ -1,0 +1,338 @@
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/import_error.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/nose.failure.Failure.runTest
+status=E
+start_time=2011-04-20 13:59:49.785
+end_time=2011-04-20 13:59:49.797
+tra_Exception=ValueError('throwing an exception',)
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/loader.py", line 382, in loadTestsFromName
+.    addr.filename, addr.module)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 39, in importFromPath
+.    return self.importFromDir(dir_path, fqname)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 86, in importFromDir
+.    mod = load_module(part_fqname, fh, filename, desc)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/import_error.py", line 2, in <module>
+.    raise ValueError("throwing an exception")
+.ValueError: throwing an exception
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/import_fail.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/nose.failure.Failure.runTest
+status=E
+start_time=2011-04-20 13:59:50.361
+end_time=2011-04-20 13:59:50.361
+tra_Exception=SyntaxError('invalid syntax', ('/Users/sienkiew/work/db_port/sample_tests/nose/import_fail.py', 1, 11, 'this import will fail because of a syntax error!\n'))
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/loader.py", line 382, in loadTestsFromName
+.    addr.filename, addr.module)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 39, in importFromPath
+.    return self.importFromDir(dir_path, fqname)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 86, in importFromDir
+.    mod = load_module(part_fqname, fh, filename, desc)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/import_fail.py", line 1
+.    this import will fail because of a syntax error!
+.              ^
+.SyntaxError: invalid syntax
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/test_classes.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/test_classes.FromUnit.testfail
+status=F
+start_time=2011-04-20 13:59:50.910
+end_time=2011-04-20 13:59:50.911
+tda_a=1
+tra_c=3
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/test_classes.py", line 13, in testfail
+.    self.failIf(True)
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 593, in deprecated_func
+.    return original_func(*args, **kwargs)
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 399, in assertFalse
+.    raise self.failureException(msg)
+.AssertionError: True is not False
+
+END
+test_name=nose/test_classes.FromUnit.testpass
+status=P
+start_time=2011-04-20 13:59:50.912
+end_time=2011-04-20 13:59:50.912
+tda_a=1
+tra_b=2
+log=
+END
+test_name=nose/test_classes.TestClassSetup.testfail
+status=F
+start_time=2011-04-20 13:59:50.912
+end_time=2011-04-20 13:59:50.922
+tda_a=1
+tda_b=2
+tra_d=4
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/test_classes.py", line 48, in testfail
+.    assert False
+.AssertionError
+
+END
+test_name=nose/test_classes.TestClassSetup.testpass
+status=P
+start_time=2011-04-20 13:59:50.922
+end_time=2011-04-20 13:59:50.922
+tda_a=1
+tda_b=2
+tra_c=3
+tra_d=4
+log=
+END
+test_name=nose/test_classes.TestFromClass.testfail
+status=F
+start_time=2011-04-20 13:59:50.922
+end_time=2011-04-20 13:59:50.923
+tda_a=1
+tra_c=3
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/test_classes.py", line 25, in testfail
+.    assert False
+.AssertionError
+
+END
+test_name=nose/test_classes.TestFromClass.testpass
+status=P
+start_time=2011-04-20 13:59:50.923
+end_time=2011-04-20 13:59:50.923
+tda_a=1
+tra_b=2
+log=
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/test_funcs.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/test_funcs.testfail
+status=F
+start_time=2011-04-20 13:59:51.540
+end_time=2011-04-20 13:59:51.541
+tda_a=1
+tra_b=2
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/test_funcs.py", line 7, in testfail
+.    raise AssertionError('test fails')
+.AssertionError: test fails
+
+END
+test_name=nose/test_funcs.testpass
+status=P
+start_time=2011-04-20 13:59:51.542
+end_time=2011-04-20 13:59:51.542
+tda_a=11
+tra_b=12
+log=
+END
+test_name=nose/test_funcs.testerror
+status=E
+start_time=2011-04-20 13:59:51.542
+end_time=2011-04-20 13:59:51.543
+tda_a=99
+tra_Exception=ValueError('this test has an error',)
+tra_b=99
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/test_funcs.py", line 17, in testerror
+.    raise ValueError('this test has an error')
+.ValueError: this test has an error
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/testgen.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/testgen.testgen(0,_1,_2)
+status=P
+start_time=2011-04-20 13:59:52.178
+end_time=2011-04-20 13:59:52.178
+tda_a=0
+tda_b=1
+tra_c=2
+log=
+END
+test_name=nose/testgen.testgen(1,_2,_3)
+status=P
+start_time=2011-04-20 13:59:52.179
+end_time=2011-04-20 13:59:52.179
+tda_a=1
+tda_b=2
+tra_c=3
+log=
+END
+test_name=nose/testgen.testgen(2,_3,_4)
+status=P
+start_time=2011-04-20 13:59:52.179
+end_time=2011-04-20 13:59:52.179
+tda_a=2
+tda_b=3
+tra_c=4
+log=
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/testmod.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/testmod.testpass
+status=P
+start_time=2011-04-20 13:59:52.696
+end_time=2011-04-20 13:59:52.696
+tda_a=1
+tda_c=3
+tra_b=2
+log:
+.passing
+
+END
+test_name=nose/testmod.testfail
+status=F
+start_time=2011-04-20 13:59:52.697
+end_time=2011-04-20 13:59:52.698
+tda_a=1
+tda_c=3
+tra_b=2
+tra_d=4
+log:
+.failing
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/db_port/sample_tests/nose/testmod.py", line 15, in testfail
+.    assert False
+.AssertionError: 
+.-------------------- >> begin captured stdout << ---------------------
+.failing
+.
+.--------------------- >> end captured stdout << ----------------------
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/tf1.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf1.test1
+status=P
+start_time=2011-04-20 13:59:53.228
+end_time=2011-04-20 13:59:53.228
+log=
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/tf2.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf2.test1
+status=P
+start_time=2011-04-20 13:59:53.759
+end_time=2011-04-20 13:59:53.760
+tda_answer=42
+log:
+.tda_answer=42
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/nose/tf3.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf3.test1
+status=P
+start_time=2011-04-20 13:59:54.300
+end_time=2011-04-20 13:59:54.300
+tra_xxx=1
+log=
+END

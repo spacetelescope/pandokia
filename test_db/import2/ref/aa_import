@@ -1,0 +1,80 @@
+FILE: data/PDK_DEFAULT.LOG.Sample2.0
+23 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample2.1
+62 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample2.2
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+17 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample2.3
+5 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample3.0
+23 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample3.1
+62 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample3.2
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+17 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample3.3
+5 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample4.0
+23 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample4.1
+62 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample4.2
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+17 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample4.3
+5 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample5minipyt.0
+62 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample5nose.0
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+NOT INSERTING  nose/nose.failure.Failure.runTest  (not an error)
+Can we have the nose plugin stop reporting these?
+17 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample5shell.0
+5 records
+
+
+FILE: data/PDK_DEFAULT.LOG.Sample5unittest2.0
+23 records
+
+

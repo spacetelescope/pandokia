@@ -1,0 +1,345 @@
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/autogen.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/autogen.test_alphabet.test_0
+status=P
+start_time=1303322388.06
+end_time=1303322388.06
+log:
+.test  test_0 ('A', 65)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_1
+status=P
+start_time=1303322388.06
+end_time=1303322388.06
+log:
+.test  test_1 ('B', 66)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_2
+status=F
+start_time=1303322388.06
+end_time=1303322388.15
+log:
+.test  test_2 ('Z', 99)
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "autogen.py", line 65, in do_test
+.    self.do_tst( name, arg )
+.  File "autogen.py", line 36, in do_tst
+.    self.assertEqual(x, output)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 521, in assertEqual
+.    assertion_func(first, second, msg=msg)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 514, in _baseAssertEqual
+.    raise self.failureException(msg)
+.AssertionError: 90 != 99
+
+END
+test_name=unittest2/autogen.test_alphabet.test_A
+status=P
+start_time=1303322388.15
+end_time=1303322388.15
+log:
+.test  test_A ('A', 65)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_B
+status=P
+start_time=1303322388.15
+end_time=1303322388.16
+log:
+.test  test_B ('B', 66)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_Z
+status=F
+start_time=1303322388.16
+end_time=1303322388.16
+log:
+.test  test_Z ('Z', 99)
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "autogen.py", line 65, in do_test
+.    self.do_tst( name, arg )
+.  File "autogen.py", line 36, in do_tst
+.    self.assertEqual(x, output)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 521, in assertEqual
+.    assertion_func(first, second, msg=msg)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 514, in _baseAssertEqual
+.    raise self.failureException(msg)
+.AssertionError: 90 != 99
+
+END
+test_name=unittest2/autogen
+status=E
+start_time=1303322388.04
+end_time=1303322388.16
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/example.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/example.TestSequenceFunctions.test_choice
+status=P
+start_time=1303322388.54
+end_time=1303322388.54
+log=
+END
+test_name=unittest2/example.TestSequenceFunctions.test_sample
+status=P
+start_time=1303322388.54
+end_time=1303322388.54
+log=
+END
+test_name=unittest2/example.TestSequenceFunctions.test_shuffle
+status=P
+start_time=1303322388.54
+end_time=1303322388.54
+log=
+END
+test_name=unittest2/example
+status=E
+start_time=1303322388.31
+end_time=1303322388.54
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.this is a print statement that runs when example.py is imported
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/import_fail.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/import_fail
+status=E
+start_time=1303322388.71
+end_time=1303322388.73
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_unit2.py", line 211, in main
+.    module = imp.load_source( module_name, filename )
+.  File "import_fail.py", line 4
+.    This line causes a syntax error on import!
+.            ^
+.SyntaxError: invalid syntax
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/init_fail.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/init_fail.TestSequenceFunctions.test_choice
+status=E
+start_time=1303322389.02
+end_time=1303322389.02
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 333, in run
+.    self.setUp()
+.  File "init_fail.py", line 10, in setUp
+.    raise ValueError("This is what happens when the object creation has an exception")
+.ValueError: This is what happens when the object creation has an exception
+
+END
+test_name=unittest2/init_fail.TestSequenceFunctions.test_shuffle
+status=E
+start_time=1303322389.02
+end_time=1303322389.02
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 333, in run
+.    self.setUp()
+.  File "init_fail.py", line 10, in setUp
+.    raise ValueError("This is what happens when the object creation has an exception")
+.ValueError: This is what happens when the object creation has an exception
+
+END
+test_name=unittest2/init_fail
+status=E
+start_time=1303322388.96
+end_time=1303322389.02
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.this is a print statement that runs when init_fail.py is imported
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/no_test_1.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/no_test_1
+status=F
+start_time=1303322389.19
+end_time=1303322389.2
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.This file reports status=F because 0 != 1
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_unit2.py", line 211, in main
+.    module = imp.load_source( module_name, filename )
+.  File "no_test_1.py", line 3, in <module>
+.    assert 0 == 1
+.AssertionError
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/no_test_2.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/no_test_2
+status=E
+start_time=1303322389.39
+end_time=1303322389.49
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.This file reports status=P and contains no tests
+
+END
+
+
+START
+test_run=Sample2
+project=default
+host=banana
+location=/Users/sienkiew/work/db_port/sample_tests/unittest2/test_oo.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/test_oo.test_1.test_a
+status=P
+start_time=1303322389.71
+end_time=1303322389.71
+tra_a=6
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_b
+status=P
+start_time=1303322389.71
+end_time=1303322389.71
+tra_b=8
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_c
+status=P
+start_time=1303322389.71
+end_time=1303322389.71
+tra_c=10
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_d
+status=F
+start_time=1303322389.71
+end_time=1303322389.71
+tra_c=10
+log:
+.test setup
+.example of a failing test
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "test_oo.py", line 44, in test_d
+.    assert self.c == 12
+.AssertionError
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_e
+status=E
+start_time=1303322389.71
+end_time=1303322389.71
+log:
+.test setup
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "test_oo.py", line 47, in test_e
+.    raise Exception("yow!")
+.Exception: yow!
+.test teardown
+
+END
+test_name=unittest2/test_oo
+status=E
+start_time=1303322389.69
+end_time=1303322389.71
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.TEST1 INIT
+.ARG= test_a
+.TEST1 INIT
+.ARG= test_b
+.TEST1 INIT
+.ARG= test_c
+.TEST1 INIT
+.ARG= test_d
+.TEST1 INIT
+.ARG= test_e
+
+END
