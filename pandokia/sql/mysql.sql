@@ -1,3 +1,13 @@
+--
+-- CREATE DATABASE pandokia_database ;
+-- USE pandokia_database;
+--
+-- These permissions should be sufficient for the application to run
+-- but not necessarily for database maintenance:
+--
+-- GRANT DELETE, INSERT, SELECT, SHOW VIEW ON TABLE pandokia_database.* TO 'pandokia_user' ;
+--
+
 -- result_scalar:
 --	each row represents a single test result
 
