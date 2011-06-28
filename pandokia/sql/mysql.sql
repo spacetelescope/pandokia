@@ -5,7 +5,7 @@
 -- These permissions should be sufficient for the application to run
 -- but not necessarily for database maintenance:
 --
--- GRANT DELETE, INSERT, SELECT, SHOW VIEW ON TABLE pandokia_database.* TO 'pandokia_user' ;
+-- GRANT DELETE, INSERT, SELECT, UPDATE, SHOW VIEW ON TABLE pandokia.* TO 'pandokia' ;
 --
 
 -- result_scalar:
