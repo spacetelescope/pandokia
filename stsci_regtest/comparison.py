@@ -18,7 +18,12 @@ R. Jedrzejewski, 3 October 2007
 import re, os
 import datespec  # for ascii comparisons
 import tempfile  #}
-import pytools.fitsdiff  as fitsdiff #} for fits comparisons
+
+try :
+    import pytools.fitsdiff  as fitsdiff #} for fits comparisons
+except :
+    import stsci.tools.fitsdiff as fitsdiff
+
 import sys
 
 from pyraf import iraf      #}
