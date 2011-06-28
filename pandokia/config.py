@@ -23,13 +23,24 @@
 #
 
 def readpass() :
+    # read the database password out of a file; try two files because
+    # one of them is read-only to the web server user and the other is
+    # read-only to the group.  The specification of the db/pass is a
+    # horrible hack, but good enough for now.
     import os.path
-    f=open(os.path.dirname(__file__)+"/password")
+    d=os.path.dirname(__file__)
+    try :
+        f=open(d+"/password")
+    except :
+        try :
+            f=open(d+"/alt_password")
+        except :
+            return None
     s=f.read()
     f.close()
     return s.strip()
 
-if 1 :
+if 0 :
     # Database: SQLITE
     #           http://www.sqlite.org/
     #
@@ -63,10 +74,10 @@ if 0 :
     import pandokia.db_mysqldb as pdk_db
 
     # db_arg is a dict of the parameters to pass to connect()
-    db_arg = { 'host' : 'goldink', 
-            'user' : 'pyetc', 
+    db_arg = { 'host' : 'whatever', 
+            'user' : 'whatever', 
             'passwd' : readpass(),
-            'db' : 'test_pandokia2'
+            'db' : 'whatever'
         }
 
 
@@ -84,10 +95,10 @@ if 0 :
 user_list = None
 
 # which users can see/operate the admin interfaces 
-admin_user_list = ( 'sienkiew', 'Nobody' )
+admin_user_list = ( 'sienkiew', )
 
 # 
-adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
+adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>'
 
 
 ######
@@ -107,17 +118,25 @@ os_info = {
     "arzach":   "RHE 5 / 64",
     "banana":   "Mac x86",
     "basil":    "Solaris 10",
-    "bond":     "Mac Leopard",
-    "cadeau":   "Mac Leopard",
-    "doof":     "Centos 5.3",
+    "blinky":   "UR",
+    "bond":     "Leopard",
+    "cadeau":   "Snow Leopard",
+    "clyde":    "UR",
     "dukat":    "Windows/XP",
-    "ekky":     "Mac x86",
-    "etc-dev1": "RHE4 / 64, ETC",
-    "gaudete":  "RHE 4 / 64",
+    "ekky":     "Leopard",
+    "etcbrady":  "RHE 5 ETC",
+    "etccartier": "RHE 5 ETC",
+    "etcdevens": "RHE 5 ETC",
+    "etcedis":  "RHE 5 ETC",
+    "gaudete":  "RHE 5 / 64",
     "herbert":  "RHE 4 / 32",
+    "inky":     "UR",
+    "jwcalibdev": "RHE 5 / 64",
     "macbert":  "Mac PPC",
-    "motoko":   "RHE 4",
-    "quagga":   "RHE 3",
+    "pinky":    "UR",
+    "quagga":   "RHE 5 ETC",
+    "r3":       "Ubuntu 10",
+    "rhaynes":  "Snow Leopard",
     "ssbwebv1": "RHE 5 / 64",
     "thor":     "RHE 4 / 64",
     "timthe":   "Mac PPC",
