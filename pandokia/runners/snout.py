@@ -124,7 +124,7 @@ def list( env ) :
     # know that only one process can be running tests in a single directory.
 
     for location in find_locations(env['PDK_FILE']) :
-        s='pdknose --pdk --with-doctest --doctest-tests --pdklog='+tmpfile+' --collect-only %s' % location
+        s='pdknose --pdk --exe --with-doctest --doctest-tests --pdklog='+tmpfile+' --collect-only %s' % location
         pandokia.helpers.filecomp.command(s)
 
     # gather the names from pdk.log
