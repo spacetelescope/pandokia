@@ -19,4 +19,3 @@ echo XXXXX
 echo arzach again - earlier python versions
 ssh arzach "cd $wdir && rm -rf build && ./go irafdev 2.5.4 && ./go irafdev 2.6.5"
 
-ssh tufnel 'cd pandokia_dev/pandokia && svn update && rm -rf build && sh go pyssg && sh go ssbdev'
