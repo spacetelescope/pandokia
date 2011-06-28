@@ -16,4 +16,3 @@ do
 	exit 0
 done
 
-ssh tufnel 'cd pandokia_dev/pandokia && svn update && rm -rf build && sh go pyssg && sh go ssbdev'
