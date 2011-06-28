@@ -1,85 +1,28 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
-
-dbdir="/ssbwebv1/data2/pandokia/database"
-
-user_list = None
-
-admin_user_list = ( 'sienkiew' )
-adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
-
-
-os_info = {
-
-    "arzach":   "RHE 5 / 64",
-    "banana":   "Mac Leopard",
-    "basil":    "Solaris 10",
-    "bond":     "Mac Leopard",
-    "cadeau":   "Mac Leopard",
-    "dukat":    "Windows/XP",
-    "ekky":     "Mac x86",
-    "etc-dev1": "RHE4 / 64, ETC",
-    "gaudete":  "RHE 4 / 64",
-    "herbert":  "RHE 4 / 32",
-    "macbert":  "Mac PPC",
-    "motoko":   "RHE 4",
-    "quagga":   "RHE 5",
-    "rhaynes":  "Mac Snow Leopard",
-    "ssbwebv1": "RHE 5 / 64",
-    "thor":     "RHE 4 / 64",
-    "timthe":   "Mac PPC",
-    "tufnel":   "Solaris pipeline",
-
-    }
+# This is just stuff to APPEND to config.py for the stsci configuration.
+# See also pwform.html for the weird dance we do to get the password
+# into a file that is only readable by the web server.
 
 pdk_url = "https://ssb.stsci.edu/pandokia/pdk.cgi"
-
-
-exclude_dirs = [
-    '.svn',
-    '.subversion',
-    'CVS',
-]
-
-runner_glob = [
-#   ( 'not_a_test*.py',     None        ),      # file name that is recognizably not a test
-    ( 'pycode*.py',         'pycode'    ),      # special runner that just executes python code
-    ( '*.py',               'nose'      ),      # nose on a file here
-    ( '*.snout',            'snout'   ),        # nose on an installed file
-    ( 'test*.sh',           'shell_runner' ),   # example of writing a test runner
-    ( '*.xml',              'regtest'   ),      # legacy system used at STScI
-]
-
-server_maintenance = False
-
-debug = True
 
 cginame = 'https://ssb.stsci.edu/pandokia/pdk.cgi'
 
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
 
-statuses = [ 'P', 'F', 'E', 'D', 'M' ]
+if not 'pdk_db' in globals() :
+    # Database: MYSQL
+    #           http://www.mysql.com/
+    # MySQLdb
+    #           http://mysql-python.sourceforge.net/MySQLdb.html
+    import pandokia.db_mysqldb as pdk_db
 
-status_names = {
-    'P' : 'pass',
-    'F' : 'fail',
-    'E' : 'error',
-    'D' : 'disable',
-    'M' : 'missing',
-    }
+    # db_arg is a dict of the parameters to pass to connect()
+    db_arg = { 'host' : 'localhost',
+            'user' : 'pandokia',
+            'passwd' : readpass(),
+            'db' : 'pandokia'
+        }
 
-default_user_email_preferences  = [
-#   ( project, format, maxlines )
-#       formats: n=none, c=contact, s=summary, f=full
-    ( 'astrolib',       'n',    100 ),
-    ( 'multidrizzle',   'f',    100 ),
-    ( 'pydrizzle',      'f',    100 ),
-    ( 'pyetc',          'n',    100 ),
-    ( 'stsci_python',   'f',    100 ),
-    ( 'stsdas',         'f',    100 ),
-    ]
-
-
-default_qid_expire_days = 30
