@@ -90,7 +90,7 @@ def command( env ) :
     # the prefix already ends with a /
     prefix = env['PDK_TESTPREFIX'] + basename
     for location in l :
-        l1.append( 'pdknose --pdk --with-doctest --doctest-tests --pdktestprefix=%s %s' % ( prefix, location)  )
+        l1.append( 'pdknose --pdk --exe --with-doctest --doctest-tests --pdktestprefix=%s %s' % ( prefix, location)  )
 
 
     return l1
