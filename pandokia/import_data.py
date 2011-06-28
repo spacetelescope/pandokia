@@ -24,6 +24,8 @@ default_record = { }
 
 all_test_run = {  }
 
+quiet = 0
+
 def read_record(f) :
     global line_count, default_record
 
@@ -277,6 +279,14 @@ class test_result(object):
             cfg.pdk_db.execute("INSERT INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )" ,
                 ( res.lastrowid, x, self.tra[x] ) )
 
+        # BUG: this is stupid.  Do something about it.
+
+        if len(self.log) > 999000 :
+            # hack around mysql's "max_allowed_packet" limit.  Somehow this still results in
+            # /ssbwebv1/data2/pandokia/c38/lib/python/pandokia/db_mysqldb.py:115: Warning: Data truncated for column 'log' at row 1
+            # but at least it doesn't crash the import...
+            self.log = self.log[0:999000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
+
         cfg.pdk_db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
                 ( res.lastrowid, self.log ) )
 
@@ -306,6 +316,10 @@ def run(args, hack_callback = None) :
                 prefix,value=filename.split('=',1)
             else :
                 prefix, value= ( filename, '' )
+            if filename == '-q' :
+                global quiet
+                quiet=1
+                continue
             if filename.startswith("-host=") :
                 default_host = value
                 continue
@@ -377,7 +391,8 @@ def run(args, hack_callback = None) :
             try :
                 rx.insert(db)
             except database.IntegrityError:
-                print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
+                if not quiet :
+                    print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
 
             db.commit()
 
