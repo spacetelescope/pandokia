@@ -13,7 +13,6 @@ do
 	echo XXXXX
 	echo $x
 	ssh $x "cd $wdir && rm -rf build && ./go iraf && ./go irafx && ./go irafdev"
-	exit 0
 done
 
 echo XXXXX
