@@ -16,12 +16,25 @@ rm -f $tmpfile2
 
 PDK_LOG=$tmpfile2 pdk_stsci_regress_helper > $tmpfile 2>&1
 
-cat $tmpfile2 >> $PDK_LOG
-( echo 'log:'
-sed 's/^/./' < $tmpfile
-echo ''
-echo END
-) >> $PDK_LOG
+if [ -d $tmpfile2 ]
+then
+	cat $tmpfile2 >> $PDK_LOG
+	( echo 'log:'
+	sed 's/^/./' < $tmpfile
+	echo ''
+	echo END
+	) >> $PDK_LOG
+else
+	(
+	echo 'test_name='$PDK_TESTPREFIX/`basename $PDK_FILE .xml`
+	echo 'status=E'
+	echo 'end_time='`date +%s`
+	echo '.pdk_stsci_regress_helper did not produce tmpfile2:'
+	sed 's/^/./' < $tmpfile
+	echo ''
+	echo END
+	) >> $PDK_LOG
+fi
 
 rm -f $tmpfile
 rm -f $tmpfile2
