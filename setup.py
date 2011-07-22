@@ -22,6 +22,7 @@ package_list = [
 command_list = [
     'pdk', 
     'pdknose',
+    'pdkpytest',
     'pdkrun',
     'tbconv',   # this doesn't really belong in pandokia, but
                 # I plan to use it for the documentation and it
@@ -42,6 +43,7 @@ command_list = [
 # python we happen to be using.
 use_usr_bin_env = [
     'pdknose',
+    'pdkpytest',
     'pdk_stsci_regress_helper',
     'pdk_python_runner',
 ]
@@ -58,6 +60,8 @@ args = {
     'scripts' :         [ "commands/"+x for x in command_list ],
     'packages':         package_list,
     'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg' ] },
+    # For py.test plugin
+    'entry_points':     {'pytest20': ['pandokia = pandokia.helpers.pytest_plugin']},
 }
 
 #
