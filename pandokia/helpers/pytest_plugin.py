@@ -4,6 +4,7 @@ Adds a plugin for capturing test output from py.test
 
 import os, time, datetime, sys, re, types
 
+import py.code
 import py.test
 import pytest
 from _pytest import runner
@@ -164,13 +165,24 @@ def pytest_runtest_makereport(__multicall__, item, call):
                 name = '%s/%s' % (state['pdktestprefix'], name)
             else:
                 name = '%s%s' % (state['pdktestprefix'], name)
-        status = {'passed': 'P', 'failed': 'E', 'skipped': 'S'}[report.outcome]
 
-        log = '\n\n'.join((x for x in item.outerr if x))
-        
         tda, tra = find_txa(item)
-
-        if report.longrepr is not None:
+        
+        log = None
+        if report.outcome == 'passed':
+            status = 'P'
+        elif report.outcome == 'skipped':
+            status = 'S'
+        else:
+            if not isinstance(call.excinfo, py.code.ExceptionInfo):
+                status = 'E'
+                log = '\n\n'.join((x for x in item.outerr if x))
+            else:
+                if call.excinfo.errisinstance(AssertionError):
+                    status = 'F'
+                else:
+                    status = 'E'
+                    log = '\n\n'.join((x for x in item.outerr if x))
             tra['Exception'] = report.longrepr
         
         state['report'].report(
