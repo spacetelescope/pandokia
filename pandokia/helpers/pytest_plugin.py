@@ -168,22 +168,27 @@ def pytest_runtest_makereport(__multicall__, item, call):
 
         tda, tra = find_txa(item)
         
-        log = None
+        log = ''
+        if item.outerr[0]:
+            log += 'STDOUT:\n%s\n' % item.outerr[0]
+        if item.outerr[1]:
+            log += 'STDERR:\n%s\n' % item.outerr[1]
+        
         if report.outcome == 'passed':
             status = 'P'
+            log = '\n\n'.join([x for x in item.outerr if x])
         elif report.outcome == 'skipped':
             status = 'S'
         else:
             if not isinstance(call.excinfo, py.code.ExceptionInfo):
                 status = 'E'
-                log = '\n\n'.join((x for x in item.outerr if x))
             else:
                 if call.excinfo.errisinstance(AssertionError):
                     status = 'F'
                 else:
                     status = 'E'
-                    log = '\n\n'.join((x for x in item.outerr if x))
-            tra['Exception'] = report.longrepr
+                    tra['Exception'] = call.excinfo.exconly()
+            log += 'EXCEPTION:\n%s\n' % str(report.longrepr)
         
         state['report'].report(
             test_name = name,
