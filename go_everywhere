@@ -13,6 +13,9 @@ do
 	echo XXXXX
 	echo $x
 	ssh $x "cd $wdir && rm -rf build && ./go iraf && ./go irafx && ./go irafdev"
-	exit 0
 done
+
+echo XXXXX
+echo arzach again - earlier python versions
+ssh arzach "cd $wdir && rm -rf build && ./go irafdev 2.5.4 && ./go irafdev 2.6.5"
 

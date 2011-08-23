@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, 2011 Association of Universities for Research in Astronomy (AURA) 
 #
 
 #

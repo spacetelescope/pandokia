@@ -22,6 +22,7 @@ package_list = [
 command_list = [
     'pdk', 
     'pdknose',
+    'pdkpytest',
     'pdkrun',
     'tbconv',   # this doesn't really belong in pandokia, but
                 # I plan to use it for the documentation and it
@@ -42,6 +43,7 @@ command_list = [
 # python we happen to be using.
 use_usr_bin_env = [
     'pdknose',
+    'pdkpytest',
     'pdk_stsci_regress_helper',
     'pdk_python_runner',
 ]

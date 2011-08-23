@@ -8,8 +8,8 @@ unsetenv PYTHONPATH
 switch ( "$1" )
 
 case iraf:
-	iraf
-	set libdir=$PYTHONPATH
+	iraf $2
+	set libdir=$PYTHONPATH $2
 	python setup.py -q install --install-lib $libdir
 	cp stsci/config.py $libdir/pandokia/config.py
 	# no top_level.html needed
@@ -17,7 +17,7 @@ case iraf:
 	exit 0
 
 case irafx:
-	irafx
+	irafx $2
 	set libdir=$PYTHONPATH
 	python setup.py -q install --install-lib $libdir
 	cp stsci/config.py $libdir/pandokia/config.py
@@ -26,7 +26,7 @@ case irafx:
 	exit 0
 
 case irafdev:
-	irafdev
+	irafdev $2
 	set libdir=$PYTHONPATH
 	python setup.py -q install --install-lib $libdir
 	cp stsci/config.py $libdir/pandokia/config.py
