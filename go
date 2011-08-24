@@ -35,7 +35,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=40
+	set n=41
 	set there=/ssbwebv1/data2/pandokia/c$n
 	find $there -name '*.pyc' -exec rm -f {} ';'
 	python setup.py -q install --home $there
@@ -56,7 +56,7 @@ case "":
 
 	cat stsci/config.py >> $there/lib/python/pandokia/config.py
 
-	set pass=$there/lib/python/pandokia/password
+	set pass=$there/lib/python/pandokia/alt_password
 	if ( ! -f $pass ) then
 		echo 'Must set password in '$pass
 	endif

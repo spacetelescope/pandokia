@@ -23,19 +23,27 @@
 #
 
 def readpass() :
-    # read the database password out of a file; try two files because
-    # one of them is read-only to the web server user and the other is
-    # read-only to the group.  The specification of the db/pass is a
-    # horrible hack, but good enough for now.
-    import os.path
-    d=os.path.dirname(__file__)
+    # import os.path
+    # d=os.path.dirname(__file__)
+    d = '/ssbwebv1/data2/pandokia/'
+    pf = 'mysql_password'
     try :
-        f=open(d+"/password")
+        f=open(d+pf)
     except :
         try :
             f=open(d+"/alt_password")
         except :
             return None
+        s=f.read()
+        f.close()
+        f=open(d+pf,"w")
+        f.write(s)
+        f.close()
+        import os
+        os.chmod(d+pf,0600)
+        os.unlink(d+"/alt_password")
+        f=open(d+pf)
+
     s=f.read()
     f.close()
     return s.strip()
