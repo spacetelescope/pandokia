@@ -139,7 +139,7 @@ def read_record(f) :
                     exit_status = 1
                     break
                 stuff.write(l[1:])
-            # bug: this is hokey, but if you allow \0 in the string, the string gets truncated.
+            # bug: this is hokey, but if you allow \0 in the string (in sqlite), the string gets truncated.
             ans[name] = stuff.getvalue().replace("\0","\\0")
             del stuff
             continue
@@ -281,11 +281,12 @@ class test_result(object):
 
         # BUG: this is stupid.  Do something about it.
 
-        if len(self.log) > 999000 :
+        if len(self.log) > 990000 :
             # hack around mysql's "max_allowed_packet" limit.  Somehow this still results in
             # /ssbwebv1/data2/pandokia/c38/lib/python/pandokia/db_mysqldb.py:115: Warning: Data truncated for column 'log' at row 1
             # but at least it doesn't crash the import...
-            self.log = self.log[0:999000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
+            self.log = self.log[0:990000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
+            print "LOG TRUNCATED: key_id=%d" % res.lastrowid
 
         cfg.pdk_db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
                 ( res.lastrowid, self.log ) )

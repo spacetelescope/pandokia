@@ -36,12 +36,15 @@ def readpass() :
             return None
         s=f.read()
         f.close()
-        f=open(d+pf,"w")
-        f.write(s)
-        f.close()
-        import os
-        os.chmod(d+pf,0600)
-        os.unlink(d+"/alt_password")
+        return s.strip()
+        try :
+            f=open(d+pf,"w")
+            f.write(s)
+            f.close()
+            import os
+            os.chmod(d+pf,0600)
+        except :
+            pass
         f=open(d+pf)
 
     s=f.read()
@@ -238,6 +241,8 @@ default_user_email_preferences  = [
 #   ( project, format, maxlines )
 #       formats: n=none, c=contact, s=summary, f=full
     ( 'astrolib',       'n',    100 ),
+    ( 'axe',            'n',    100 ),
+    ( 'betadrizzle',    'n',    100 ),
     ( 'multidrizzle',   'f',    100 ),
     ( 'pydrizzle',      'f',    100 ),
     ( 'pyetc',          'n',    100 ),
