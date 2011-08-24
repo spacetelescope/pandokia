@@ -19,7 +19,6 @@ import types
 import pandokia
 cfg = pandokia.cfg
 
-pdk_db = pandokia.cfg.pdk_db
 
 ######
 #--#--# CGI
@@ -209,6 +208,7 @@ def next_daily( test_run ) :
 #
 def get_contact( project, test_name, mode='str') :
     # 
+    pdk_db = pandokia.cfg.pdk_db
     c = pdk_db.execute("SELECT email FROM contact WHERE project = :1 AND test_name = :2 ORDER BY email",(project, test_name))
     s = [ ]
     for x in c :
