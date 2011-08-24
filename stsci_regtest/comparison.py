@@ -19,7 +19,6 @@ import re, os
 import datespec  # for ascii comparisons
 import tempfile  #}
 
-# this guy got a new name
 try :
     import pytools.fitsdiff  as fitsdiff #} for fits comparisons
 except :

@@ -6,10 +6,16 @@
 import sys
 import pandokia.common as common
 
+import pandokia
+cfg = pandokia.cfg
+
+db = cfg.pdk_db.open_db()
+
 #
 # emit a single field of an output record.  use name=value
 # or name:\n.text\n.text\n.text\n\n as appropriate
 def emit_field( output, name, value ) :
+    value=str(value)
     if "\n" in value :
         # put . in front of first line; put . after each
         # line, but take off extra . at end;  A field that
@@ -21,11 +27,6 @@ def emit_field( output, name, value ) :
     else :
         output.write( name+"="+value+"\n" )
 
-db = common.open_db()
-
-sqlite3 = common.get_db_module()
-db.row_factory = sqlite3.Row
-
 
 #
 # actual export function.
@@ -36,30 +37,36 @@ def do_export( output, where_text, where_dict ) :
     # list of fields to export
     fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
 
+    # fields_zip is the index in the returned record of each name in fields
+    # it is 1+ because key_id is not listed
+    fields_zip = zip( range(1,1+len(fields)), fields )
+
     # tell the reader to forget any defaults
     output.write( "START\n" )
 
     sys.stderr.write('begin select\n')
     # 
-    c = db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar "+where_text, where_dict)
+    sql = ("SELECT key_id, %s FROM result_scalar " % ','.join(fields) ) +where_text
+    c = cfg.pdk_db.execute( sql, where_dict)
     sys.stderr.write('begin writing\n')
     for record in c :
 
+        key_id = record[0]
         # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
-        for x in fields :
+        for x, name in fields_zip :
             if record[x] is not None :
-                emit_field(output,x,record[x])
+                emit_field(output,name,record[x])
 
         # and now the other tables
-        c1 = db.execute("SELECT name, value FROM result_tda WHERE key_id = ?",(record['key_id'],))
+        c1 = cfg.pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
         for x in c1 :
             emit_field(output,'tda_'+x[0],x[1])
         
-        c1 = db.execute("SELECT name, value FROM result_tra WHERE key_id = ?",(record['key_id'],))
+        c1 = cfg.pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
         for x in c1 :
             emit_field(output,'tra_'+x[0],x[1])
 
-        c1 = db.execute("SELECT log FROM result_log WHERE key_id = ?",(record['key_id'],))
+        c1 = cfg.pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
         x = c1.fetchone()
         if x is not None :
             emit_field(output,'log',x[0])
@@ -93,13 +100,12 @@ def run(args) :
 
     for name in value :
         name = common.find_test_run(value[0])
-        c = db.execute('SELECT name FROM distinct_test_run WHERE name GLOB ? ORDER BY name',(name,))
+        c = cfg.pdk_db.execute('SELECT name FROM distinct_test_run WHERE name LIKE :1 ORDER BY name',(name,))
         for test_run in c :
-            test_run = test_run['name']
-            print test_run
+            test_run = test_run[0]
             sys.stderr.write('test_run %s\n'%test_run)
             query_dict['test_run'] = test_run
-            where_text, where_dict = common.where_tuple([ (x,query_dict[x]) for x in query_dict ] )
+            where_text, where_dict = cfg.pdk_db.where_dict([ (x,query_dict[x]) for x in query_dict ] )
 
             do_export(output, where_text, where_dict)
 

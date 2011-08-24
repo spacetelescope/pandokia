@@ -343,6 +343,25 @@ def new_delete( name ) :
 
 def delete_background_step( n = 200 ) :
     start = time.time()
+    db.execute("DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_tda    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_tra    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM result_log    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    db.execute("DELETE FROM delete_queue  WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    end1 = time.time()
+    db.commit()
+    end2 = time.time()
+    print "step - ",end1-start, end2-start
+
+
+def delete_background_step_test( n = 200 ) :
+    start = time.time()
+    print "LOOK"
+    c = db.execute(" SELECT key_id FROM delete_queue LIMIT ? ", (n,) )
+    for x in c :
+        print x
+    print "DELETE"
+    return
     db.execute("DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
     db.execute("DELETE FROM result_tda    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
     db.execute("DELETE FROM result_tra    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
@@ -352,6 +371,7 @@ def delete_background_step( n = 200 ) :
     db.commit()
     end2 = time.time()
     print "step - ",end1-start, end2-start
+
 
 def delete_background( args ) :
     n = 20000
@@ -378,7 +398,6 @@ def delete_background( args ) :
         print "remaining:",remaining
         if remaining <= 0 :
             return
-        print "delete"
         delete_background_step( ns )
         print "sleep"
         n = n - ns

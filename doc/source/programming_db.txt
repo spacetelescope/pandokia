@@ -1,0 +1,138 @@
+===============================================================================
+Database Programming in Pandokia
+===============================================================================
+
+:abstract:
+
+	Pandokia uses a SQL-based database.  It uses it directly through DBAPI,
+	not through an ORM.  There are some conventions to follow to implement
+	portable SQL.
+
+
+.. contents::
+
+DBAPI limitations
+-------------------------------------------------------------------------------
+
+DBAPI defines something that looks like a standard interface to databases,
+but you can't quite write a program assuming DBAPI and expect it to work
+with any database that offers a DBAPI interface.
+
+The main problem comes in parameter passing.  If you look at PEP 249
+( http://www.python.org/dev/peps/pep-0249/ ), you can see 5 possible
+values for paramstyle.  None of them are available in every database.
+
+Notably, mysqldb and pyscopg2 offer only 'format' and 'pyformat', while
+sqlite3 offers 'qmark', 'named', and some parameter formats that are not 
+part of DBAPI.
+
+Solution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The solution is an SQL execute that converts a standard format for parameters
+to whatever the database engine wants.
+
+cursor = db_execute( statement, parameters, db=None )
+
+	perform a database action with named parameters
+	(parameters is a dict)
+
+	statement contains an instance of :AAA for each named parameter.
+	The parameter name is [a-ZA-Z0-9_]+
+
+	If parameters is a dict, it will be used as-is.
+
+	If parameters is a list or tuple, it will be converted into
+	a dict with keys '1', '2', '3', ...
+
+	If parameters is any other type, it is an error.
+
+	It IS NOT permitted to have the character ':' in a string
+	literal in your sql.
+
+	It IS NOT permitted to have the character '%' in a string
+	literal in your sql.  (This limitation is inherited from
+	some of the DBAPI implementations.)
+
+	db is optional - if omitted or None, use the default pandokia database
+
+The return value is a cursor 
+
+Why this interface?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is easy and fast for regex substition to convert this to something
+that any dbapi database can use.
+
+I would like your sql to be allowed to say " where a like 'arf%' ", but
+this will not pass through some of the dbapi implementations.
+
+Stylistically, I like ":arf" better than "%(arf)s"
+
+General Usage
+-------------------------------------------------------------------------------
+
+.. ::
+
+	import pandokia
+	pdb_db = pandokia.cfg.pdk_db
+
+	cursor = pdk_db.execute( query, parameters )
+
+
+Always fully specify the columns to retrieve; never use "SELECT *".
+
+Use :1, :2, ... for parameters when you have only a fixed set of parameters.
+
+
+
+
+.. :
+
+	c = pdk_db.execute("select a, b from tbl where a = :1 and b = :2",('a_value','b_value'))
+	for x in c :
+		print c[0],c[1]
+
+
+Dynamically constructed WHERE clauses
+-------------------------------------------------------------------------------
+
+The parameter to where_dict is a list of ( column_name, value ), where column_name is a required column name and value is a value to match.  If value is a list, 
+
+Example:
+
+.. :
+
+	x = pdk_db.where_dict( [ 
+		( 'a', 1 ), 
+		( 'b', [ 'x', 'y' ] ),
+		( 'c', 'z*' )
+		]
+
+turns into
+
+.. :
+	WHERE ( a = 1 ) AND ( b = 'x' OR b = 'y' ) AND ( c LIKE 'z%' )
+
+
+COMMIT
+-------------------------------------------------------------------------------
+
+.. :
+
+	pdk_db.commit()
+
+
+EXPLAIN QUERY PLAN
+-------------------------------------------------------------------------------
+
+.. :
+
+	s = pdk_db.explain_query( text, qhere_dict )
+
+	print s
+
+
+
+
+

@@ -17,6 +17,8 @@ import os
 import urllib
 
 import pandokia
+pdk_db = pandokia.cfg.pdk_db
+
 import pandokia.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
@@ -48,43 +50,41 @@ def run( ) :
     if 'other' in form :
         other_qid = int( form['other'].value )
 
-    db = common.open_db()
-
     if 'nameremove' in form :
         #####
 
         output.write('nameremove operation<br>')
-        c = db.execute("SELECT result_scalar.test_name FROM result_scalar, query WHERE query.qid = %d AND query.key_id = result_scalar.key_id " % other_qid )
+        c = pdk_db.execute("SELECT result_scalar.test_name FROM result_scalar, query WHERE query.qid = %d AND query.key_id = result_scalar.key_id " % other_qid )
         remove_names = [ ]
         for x, in c :
             remove_names.append(x)
 
         remove_key_ids = [ ]
 
-        c = db.execute("SELECT query.key_id, result_scalar.test_name  FROM query, result_scalar WHERE query.qid = ? AND query.key_id = result_scalar.key_id", (qid,))
+        c = pdk_db.execute("SELECT query.key_id, result_scalar.test_name  FROM query, result_scalar WHERE query.qid = %d AND query.key_id = result_scalar.key_id" % qid)
         for key_id, name in c :
             if name in remove_names :
                 remove_key_ids.append(key_id)
 
         for key_id in remove_key_ids :
-            db.execute("DELETE FROM query WHERE query.qid = %d AND query.key_id = %d" % (qid, key_id))
+            pdk_db.execute("DELETE FROM query WHERE query.qid = %d AND query.key_id = %d" % (qid, key_id))
 
-        db.commit()
+        pdk_db.commit()
         change=1
 
     if 'add' in form :
-        db.execute( "INSERT INTO query ( qid, key_id ) SELECT %d, key_id FROM query WHERE qid = %d AND key_id NOT IN ( SELECT key_id FROM query WHERE qid = %d )" % ( qid, other_qid, qid ) )
-        db.commit()
+        pdk_db.execute( "INSERT INTO query ( qid, key_id ) SELECT %d, key_id FROM query WHERE qid = %d AND key_id NOT IN ( SELECT key_id FROM query WHERE qid = %d )" % ( qid, other_qid, qid ) )
+        pdk_db.commit()
         change = 1
 
     if 'remove' in form :
-        db.execute("DELETE FROM query WHERE ( query.qid = %d ) AND ( query.key_id IN ( SELECT query.key_id FROM query WHERE qid = %d )) "
+        pdk_db.execute("DELETE FROM query WHERE ( query.qid = %d ) AND ( query.key_id IN ( SELECT query.key_id FROM query WHERE qid = %d )) "
             % ( qid, other_qid ) )
-        db.commit()
+        pdk_db.commit()
         change = 1
 
     if change or 1:
-        c = db.execute("SELECT COUNT(*) FROM query WHERE query.qid = %d"%qid)
+        c = pdk_db.execute("SELECT COUNT(*) FROM query WHERE query.qid = %d"%qid)
         x = c.fetchone()
         output.write('%d rows<br>'%x[0])
 

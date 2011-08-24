@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, 2011 Association of Universities for Research in Astronomy (AURA) 
 #
 
 #
@@ -46,8 +46,8 @@ pdk import_contact < contact_file
     table to generate the matching patterns, so you may need to 
     'pdk gen_expected' first.
 
-pdk initdb [ qdb | db ]
-    create tables and indexes in the database
+pdk initdb
+    obsolete - see sql scripts in pandokia/sql
 
 pdk notify
     send notification emails about failed tests
@@ -104,7 +104,6 @@ def run() :
 
     if cmd == 'check_expected' :
         import pandokia.check_expected as x
-        print "ARGS",args
         return x.run(args)
 
     if cmd == 'clean' :
@@ -140,6 +139,10 @@ def run() :
         import pandokia.cleaner
         return pandokia.cleaner.delete(args)
 
+    if cmd == 'dump_table' :
+        import pandokia.db
+        return pandokia.db.cmd_dump_table(args)
+
     if cmd == 'email' :
         import pandokia.contact_notify_select
         return pandokia.contact_notify_select.run(args)
@@ -147,6 +150,10 @@ def run() :
     if cmd == 'export' :
         import pandokia.export
         return pandokia.export.run(args)
+
+    if cmd == 'gen_contact' :
+        import pandokia.gen_contact as x
+        return x.run(args)
 
     if cmd == 'gen_expected' :
         import pandokia.gen_expected as x
@@ -172,11 +179,9 @@ def run() :
         import pandokia.import_contact as x
         return x.run()
 
-    if cmd == 'initdb' :
-        import pandokia.initdb as x
-        return x.run(args)
-
     if cmd == 'notify':
+        print "COMMAND OBSOLETE"
+        return 1
         import pandokia.contact_notify
         return pandokia.contact_notify.run(args)
 
@@ -192,6 +197,10 @@ def run() :
         # print "Summary of entire run:"
         # common.print_stat_dict(lstat)
         return err
+
+    if cmd == 'sql' :
+        import pandokia.db
+        return pandokia.db.sql_files( args )
 
     if cmd == 'runstatus' :
         import pandokia.run_status as x

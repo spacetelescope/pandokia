@@ -596,8 +596,6 @@ def process_file( filename, test_name = None, test_args = None ) :
         except :
             test_order = 'line'
 
-        print "TEST ORDER", test_order
-
         sort_test_list(l, test_order)
 
         for x in l :

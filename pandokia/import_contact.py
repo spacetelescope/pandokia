@@ -18,11 +18,12 @@
 import pandokia.common as common
 import sys
 
+import pandokia
+pdk_db = pandokia.cfg.pdk_db
+
 debug = 0
 
 def run () :
-    db = common.open_db()
-
     prev_project = None
 
     # read all the lines and then sort them.  this ensures that
@@ -45,12 +46,12 @@ def run () :
 
         if project != prev_project :
             # commit when we move on to the next project
-            db.commit()
+            pdk_db.commit()
             # When we start a project, purge all the entries from the table.
             # We then construct all the entries for that project.
             if debug :
                 print "DELETE ", project
-            db.execute("DELETE FROM contact WHERE project = ?",(project,))
+            pdk_db.execute("DELETE FROM contact WHERE project = :1 ",(project,))
             prev_project = project
 
         if email == '' :
@@ -61,13 +62,12 @@ def run () :
         # find all the tests that match the prefix; write a record for each of them
         if debug :
             print "QUERY PREFIX",prefix
-        c = db.execute("SELECT DISTINCT test_name FROM expected WHERE project = ? AND test_name GLOB ?",(project,prefix+"*"))
+        c = pdk_db.execute("SELECT DISTINCT test_name FROM expected WHERE project = :1 AND test_name LIKE :2 ",(project,prefix+"%"))
         for test_name in c :
             ( test_name, ) = test_name
             if debug :
                 print "INSERT ",project, test_name, email
-            db.execute("INSERT INTO contact ( project, test_name, email ) VALUES ( ?, ?, ? )", (project, test_name, email) )
+            pdk_db.execute("INSERT INTO contact ( project, test_name, email ) VALUES ( :1, :2, :3 )", (project, test_name, email) )
 
-    db.commit()
+    pdk_db.commit()
 
-    db.close()

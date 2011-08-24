@@ -13,6 +13,8 @@ import pandokia.text_table as text_table
 import pandokia.pcgi
 import common
 
+cfg = pandokia.cfg
+
 output = sys.stdout
 
 def run( ) :
@@ -24,11 +26,8 @@ def run( ) :
     output.write(common.cgi_header_html)
     output.write(common.page_header())
 
-    # everybody needs the database
-    global db
-    db = common.open_db()
-
     #
+
     form = pandokia.pcgi.form
 
     # find out whose preferences we are handling
@@ -48,7 +47,7 @@ def run( ) :
     if x == 'show' :
         show(user)
     elif x == 'save' :
-        if ( 'newuser' in form ) and ( user in common.cfg.admin_user_list ) :
+        if ( 'newuser' in form ) and ( user in cfg.admin_user_list ) :
             if form['submit'].value == 'newuser' :
                 newuser = form['newuser'].value
                 save(newuser)
@@ -59,10 +58,10 @@ def run( ) :
     elif x == 'add_project' :
         add_project(user)
     elif x == 'list' :
-        if user in common.cfg.admin_user_list :
+        if user in cfg.admin_user_list :
             list_users()
 
-    if user in common.cfg.admin_user_list :
+    if user in cfg.admin_user_list :
         output.write('<p><a href=%s?query=prefs&subtype=list>list all</a></p>'%common.get_cgi_name())
 
 # show the user preferences as an input form
@@ -80,7 +79,7 @@ def show(user) :
     output.write('<input type=hidden name=subtype value=save>')
 
     # show the user's email address
-    c = db.execute('SELECT email FROM user_prefs WHERE username = ?',(user,))
+    c = cfg.pdk_db.execute('SELECT email FROM user_prefs WHERE username = :1',(user,))
     x = c.fetchone()
     if x is None :
         email = user
@@ -111,13 +110,13 @@ def show(user) :
         else :
             return ''
 
-    c = db.execute('SELECT username, project, format, maxlines FROM user_email_pref WHERE username = ? ORDER BY project', (user,))
+    c = cfg.pdk_db.execute('SELECT username, project, format, maxlines FROM user_email_pref WHERE username = :1 ORDER BY project', (user,))
 
     c = [ x for x in c ]
 
     if len(c) == 0 :
         try :
-            x = common.cfg.default_user_email_preferences
+            x = cfg.default_user_email_preferences
         except :
             x = [ ]
         c = [ ( user, x[0], x[1], x[2] ) for x in x ]
@@ -159,7 +158,7 @@ def show(user) :
      Max=list at most max tests in the email</p>''')
     output.write('<input type=submit name=submit value=save>')
 
-    if user in common.cfg.admin_user_list :
+    if user in cfg.admin_user_list :
         output.write('<br>')
         output.write('<input type=text name=newuser>')
         output.write('<input type=submit name=submit value=newuser>')
@@ -187,8 +186,8 @@ def add_project(user) :
         output.write('Project names can contain upper/lower case letters, digits, underline, dot, and slash.')
 
     else :
-        db.execute("INSERT INTO user_email_pref ( username, project, format ) VALUES ( ?, ?, 'n')",(user, project))
-        db.commit()
+        cfg.pdk_db.execute("INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, 'n', 0)",(user, project))
+        cfg.pdk_db.commit()
         output.write('added %s'%cgi.escape(project))
 
     output.write('<br>')
@@ -207,8 +206,8 @@ def save(user) :
         email = user
     
     # save the email address that they entered
-    db.execute('DELETE FROM user_prefs WHERE username = ?',(user,))
-    db.execute('INSERT INTO user_prefs ( email, username ) VALUES ( ?, ? )',(email,user) )
+    cfg.pdk_db.execute('DELETE FROM user_prefs WHERE username = :1',(user,))
+    cfg.pdk_db.execute('INSERT INTO user_prefs ( email, username ) VALUES ( :1, :2 )',(email,user) )
 
     # projects is a list of all the projects that the form is submitting
     for project in form.getlist('projects') :
@@ -242,11 +241,15 @@ def save(user) :
             maxlines = ''
 
         # delete and insert instead of update because we may be adding new projects.
-        db.execute('DELETE FROM user_email_pref WHERE username = ? and project = ?',(user, project))
-        db.execute('INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( ?, ?, ?, ? )', (user, project, format, maxlines))
+        cfg.pdk_db.execute('DELETE FROM user_email_pref WHERE username = :1 and project = :2',(user, project))
+        try :
+            maxlines = int(maxlines)
+        except :
+            maxlines = 0
+        cfg.pdk_db.execute('INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, :3, :4 )', (user, project, format, maxlines))
 
 
-    db.commit()
+    cfg.pdk_db.commit()
     output.write('Preferences saved.<br>')
     output.write('<a href=%s?query=prefs>Back to preference page</a><br>'%common.get_cgi_name())
     output.write('<a href=%s>Back to top level</a><br>'%common.get_cgi_name())
@@ -262,12 +265,12 @@ def list_users() :
     # Make sure that every user in he user_email_pref table also has a
     # a user name in user_prefs table.  We can probably find a better place
     # to put this.
-    c = db.execute('''SELECT DISTINCT username FROM user_email_pref WHERE
-        username NOT IN ( SELECT username FROM user_prefs ) ''' )
+    c = cfg.pdk_db.execute(" SELECT DISTINCT username FROM user_email_pref WHERE "
+        " username NOT IN ( SELECT username FROM user_prefs ) " )
     for x, in c :
         print "user %s not in user_prefs table - adding<br>"%cgi.escape(x)
-        db.execute('INSERT INTO user_prefs ( username ) VALUES ( ? )', (x,))
-    db.commit()
+        cfg.pdk_db.execute("INSERT INTO user_prefs ( username ) VALUES ( :1 )", (x,))
+    cfg.pdk_db.commit()
 
     # Make a table showing all the user prefs.
     tb = text_table.text_table()
@@ -280,20 +283,20 @@ def list_users() :
     # about, so it can look in the user preferences instead of searching all
     # the results for project names.
     project = [ ]
-    c = db.execute('SELECT DISTINCT project FROM user_email_pref ORDER BY project')
+    c = cfg.pdk_db.execute("SELECT DISTINCT project FROM user_email_pref ORDER BY project")
     for (x,) in c :
         project.append(x)
         tb.define_column('p.'+x, showname=x)
 
     # for each user, add a row to the table
-    c = db.execute('SELECT username, email FROM user_prefs ORDER BY username')
+    c = cfg.pdk_db.execute("SELECT username, email FROM user_prefs ORDER BY username")
     for user, email in c :
         # stuff the fixed material into the table
         tb.set_value(row, 0, user)
         tb.set_value(row, 1, email)
 
         # find for each project that this user has a preference about:
-        c1 = db.execute('SELECT project, format, maxlines FROM user_email_pref WHERE username = ?',(user,))
+        c1 = cfg.pdk_db.execute("SELECT project, format, maxlines FROM user_email_pref WHERE username = :1",(user,))
         for p,f,m in c1 :
             # stuff that preference into the table.
             if m is not None :

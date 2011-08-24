@@ -1,0 +1,3 @@
+*.py	minipyt
+*.sh	shell_runner
+*	none

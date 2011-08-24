@@ -65,7 +65,13 @@ def run( args = [ ] ) :
     # you could parse args here if you wanted to.  I don't care to spend
     # the time.  This is just here for people who can't (or don't want to)
     # install a full featured web server just to try things out.
-    ip = '127.0.0.1'
+    if len(args) > 0 :
+        ip = args[0]
+    else :
+        import platform
+        ip = platform.node()
+
+    print "ip:",ip
     port = 7070
 
     # make sure pdk.cgi is here somewhere - if not, make a symlink

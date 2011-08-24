@@ -1,3 +1,13 @@
+-- POSTGRES SUPPORT DOES NOT WORK!
+--
+-- Pandokia assumes that inserts into a table with a SERIAL PRIMARY
+-- KEY will return the inserted value of the key as cursor.lastrowid;
+-- In fact, that is not what pyscopg2 does.  You need to do something
+-- different from how you do it in sqlite and mysql, which is not
+-- yet implemented.
+--
+
+
 -- result_scalar:
 --	each row represents a single test result
 
@@ -146,7 +156,7 @@ CREATE UNIQUE INDEX expected_unique
 --	make a table that just contains the distinct values.
 
 CREATE TABLE distinct_test_run (
-	name VARCHAR UNIQUE,
+	test_run VARCHAR UNIQUE,
 	valuable CHAR(1),
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
@@ -186,7 +196,8 @@ CREATE TABLE user_email_pref (
 --	time is used to know when we can purge the record
 
 CREATE TABLE query_id (
-	qid 	INTEGER PRIMARY KEY, 	-- unique number of query
+	qid 		SERIAL,
+		PRIMARY KEY ( qid ), 	-- unique number of query
 	time	VARCHAR,		-- time_t a cgi last touched this query
 	expires	INTEGER,		-- time_t when it is ok to delete this query
 	username VARCHAR,		-- who claimed this qid

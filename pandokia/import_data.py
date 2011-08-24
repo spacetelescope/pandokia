@@ -6,10 +6,13 @@
 import re
 import sys
 import pandokia.common as common
+import pandokia
+
+cfg = pandokia.cfg = pandokia.cfg
 
 import cStringIO as StringIO
 
-database = common.get_db_module()
+database = pandokia.cfg.pdk_db.db_module
 
 exit_status = 0
 
@@ -20,6 +23,8 @@ line_count = 0
 default_record = { }
 
 all_test_run = {  }
+
+quiet = 0
 
 def read_record(f) :
     global line_count, default_record
@@ -178,17 +183,21 @@ class test_result(object):
         self.test_runner= self._lookup("test_runner")
         self.status     = self._lookup("status")
         self.log        = self._lookup("log","")
-        self.start_time = self._lookup("start_time","0")
-        self.end_time   = self._lookup("end_time","0")
+        self.start_time = self._lookup("start_time",'')
+        self.end_time   = self._lookup("end_time",'')
 
         try :
-            self.start_time = common.parse_time(self.start_time)
+            if self.start_time != '' :
+                self.start_time = common.parse_time(self.start_time)
+                self.start_time = common.sql_time(self.start_time)
         except ValueError :    
             print ""
             print "INVALID START TIME, line",line_count
 
         try :
-            self.end_time = common.parse_time(self.end_time)
+            if self.end_time != '' :
+                self.end_time = common.parse_time(self.end_time)
+                self.end_time = common.sql_time(self.end_time)
         except ValueError :    
             print ""
             print "INVALID END TIME, line",line_count
@@ -206,6 +215,14 @@ class test_result(object):
             print "FIELDS MISSING",self.missing,line_count
             exit_status = 1
 
+    def try_insert( self, db ) :
+        return cfg.pdk_db.execute(
+                "INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner ) values "
+                " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11 )" ,
+                ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
+                  self.start_time, self.end_time, self.location, self.attn, self.test_runner ) 
+            )
+
     def insert(self, db) :
 
         global insert_count
@@ -217,79 +234,92 @@ class test_result(object):
 
         if self.test_name.endswith("nose.failure.Failure.runTest"):
             print "NOT INSERTING ",self.test_name," (not an error)"
+            print "Can we have the nose plugin stop reporting these?"
             return
 
         self.test_name = self.test_name.replace("//","/")
 
         # compute attention automatically
         if self.status == 'P' :
-            attn = 'N'
+            self.attn = 'N'
         else :
-            attn = 'Y'
+            self.attn = 'Y'
 
         # but use the value in the input record if there is one
-        attn = self._lookup("attn",attn)
+        self.attn = self._lookup("attn",self.attn)
 
         try :
-            res = db.execute("INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" ,
-                ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
-                  self.start_time, self.end_time, self.location, attn, self.test_runner ) )
+            res = self.try_insert(db)
             insert_count += 1
 
         except database.IntegrityError, e:
+            db.rollback()
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
-            c = db.execute("select status from result_scalar where test_run = ? and host = ? and context = ? and project = ? and test_name = ? and status = 'M'",(self.test_run, self.host, self.context, self.project, self.test_name ) )
+            c = cfg.pdk_db.execute("select status from result_scalar where "
+                "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
+                (self.test_run, self.host, self.context, self.project, self.test_name ) 
+                )
             x = c.fetchone()
             if x is not None :
-                db.execute("delete from result_scalar where  test_run = ? and host = ? and context = ? and project = ? and test_name = ? and status = 'M' ",(self.test_run, self.host, self.context, self.project, self.test_name ) )
-                res = db.execute("INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" ,
-                    ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
-                      self.start_time, self.end_time, self.location, attn, self.test_runner ) )
+                cfg.pdk_db.execute("delete from result_scalar where "
+                    "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
+                    (self.test_run, self.host, self.context, self.project, self.test_name ) 
+                    )
+                res = self.try_insert(db)
                 insert_count += 1
             else :
                 raise e
+
+        for x in self.tda :
+            cfg.pdk_db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )" ,
+                ( res.lastrowid, x, self.tda[x] ) )
+
+        for x in self.tra :
+            cfg.pdk_db.execute("INSERT INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )" ,
+                ( res.lastrowid, x, self.tra[x] ) )
+
+        # BUG: this is stupid.  Do something about it.
+
+        if len(self.log) > 999000 :
+            # hack around mysql's "max_allowed_packet" limit.  Somehow this still results in
+            # /ssbwebv1/data2/pandokia/c38/lib/python/pandokia/db_mysqldb.py:115: Warning: Data truncated for column 'log' at row 1
+            # but at least it doesn't crash the import...
+            self.log = self.log[0:999000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
+
+        cfg.pdk_db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
+                ( res.lastrowid, self.log ) )
+
+        db.commit()
 
         if not self.test_run in all_test_runs :
             # if we don't know about this test run, 
             try :
                 # add it to the list of known test runs
-                db.execute("INSERT INTO distinct_test_run ( name, valuable ) VALUES ( ?, 0 )",(self.test_run,))
+                cfg.pdk_db.execute("INSERT INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",(self.test_run,))
+                db.commit()
             except database.IntegrityError :
-                pass
+                db.rollback()
             # remember that we saw it so we don't have to touch the database again
             all_test_runs[self.test_run] = 1
 
-        for x in self.tda :
-            db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( ?, ?, ? )" ,
-                ( res.lastrowid, x, self.tda[x] ) )
-
-        for x in self.tra :
-            db.execute("INSERT INTO result_tra ( key_id, name, value ) values ( ?, ?, ? )" ,
-                ( res.lastrowid, x, self.tra[x] ) )
-
-        db.execute("INSERT INTO result_log ( key_id, log ) values ( ?, ? )",
-                ( res.lastrowid, self.log ) )
-
-
-
-
-import pandokia.common
 
 def run(args, hack_callback = None) :
     global insert_count, line_count
 
-    print "importing into ",pandokia.common.cfg.dbdir
-
     default_test_runner = ''
     default_context = 'unk'
-    db = pandokia.common.open_db()
+    db = cfg.pdk_db.open_db()
     for filename in args :
         if filename.startswith("-") :
             if '=' in filename :
                 prefix,value=filename.split('=',1)
             else :
                 prefix, value= ( filename, '' )
+            if filename == '-q' :
+                global quiet
+                quiet=1
+                continue
             if filename.startswith("-host=") :
                 default_host = value
                 continue
@@ -361,7 +391,8 @@ def run(args, hack_callback = None) :
             try :
                 rx.insert(db)
             except database.IntegrityError:
-                print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
+                if not quiet :
+                    print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
 
             db.commit()
 

@@ -18,9 +18,12 @@
 
 debug = 0
 
+import sys
+import pandokia.common as common
+import pandokia
+pdk_db = pandokia.cfg.pdk_db
+
 def run(args) :
-    import sys
-    import pandokia.common as common
     try :
         test_run_type = args[0]
         test_run_pattern = args[1]
@@ -29,13 +32,11 @@ def run(args) :
         print "   pdk gen_expected test_run_type test_run_pattern"
         sys.exit(1)
 
-    db = common.open_db()
-
     test_run_pattern = common.find_test_run( test_run_pattern )
 
     print "test_run_pattern = ",test_run_pattern
 
-    c = db.execute("select distinct project, host, context, test_name from result_scalar where test_run = ?", ( test_run_pattern, ) )
+    c = pdk_db.execute("select distinct project, host, context, test_name from result_scalar where test_run = :1 ", ( test_run_pattern, ) )
 
     for ( project, host, context, test_name ) in c :
         if test_name.endswith("nose.failure.Failure.runTest") :
@@ -48,9 +49,9 @@ def run(args) :
             print "expect ",test_run_type, project, host, context, test_name
         # insert to the expected table; if the record is already there, it's ok.
         try : 
-            db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( ?, ?, ?, ?, ? )', ( test_run_type, project, host, context, test_name ))
-        except db.IntegrityError, e:
+            pdk_db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )', ( test_run_type, project, host, context, test_name ))
+        except pdk_db.db_module.IntegrityError, e:
             if debug :
                 print "exception", e
             pass
-    db.commit()
+    pdk_db.commit()

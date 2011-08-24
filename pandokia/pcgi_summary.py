@@ -15,28 +15,23 @@ import urllib
 import pandokia.pcgi
 import common
 
+import pandokia
+
+pdk_db = pandokia.cfg.pdk_db
+
 
 #
 #
 #
-
-db = None
-
-def init() :
-    
-    global db, qdb, any_attr
-    if db is None :
-        db = common.open_db()
-        qdb = common.open_qdb()
-
-    any_attr = { }
 
 def run ( ) :
+
+    global any_attr
 
     form = pandokia.pcgi.form
     output = sys.stdout
 
-    init()
+    any_attr = { }
 
     #
     # gather up all the expected parameters
@@ -344,7 +339,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     # this query finds all the test results that are an interesting part of this request
     #
 
-    c = qdb.execute("SELECT expires, username, notes FROM query_id WHERE qid = ?", (qid,))
+    c = pdk_db.execute("SELECT expires, username, notes FROM query_id WHERE qid = :1", (qid,))
     x = c.fetchone()
 
     if x is not None :
@@ -359,14 +354,14 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         notes = ''
 
     now = time.time()
-    qdb.execute("UPDATE query_id SET time = ? WHERE qid = ?", (now, qid) )
+    pdk_db.execute("UPDATE query_id SET time = :1 WHERE qid = :2", (now, qid) )
     if expires > 0 and expires < now + ( 30 * 86400 ) :
         expires = now + ( 30 * 86400 )
-        qdb.execute("UPDATE query_id SET expires = ? WHERE qid = ?", (expires, qid) )
+        pdk_db.execute("UPDATE query_id SET expires = :1 WHERE qid = :2", (expires, qid) )
 
-    qdb.commit()
+    pdk_db.commit()
 
-    c = qdb.execute("SELECT key_id FROM query WHERE qid = ?", (qid,) )
+    c = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1", (qid,) )
 
     result_table.define_column("line #", showname='&nbsp;')
     result_table.define_column("runner")
@@ -399,7 +394,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         # find the result of this test
         #
 
-        c1 = db.execute("SELECT test_run, project, host, context, test_name, status, attn, test_runner FROM result_scalar WHERE key_id = ? ", (key_id,) )
+        c1 = pdk_db.execute("SELECT test_run, project, host, context, test_name, status, attn, test_runner FROM result_scalar WHERE key_id = :1 ", (key_id,) )
 
         y = c1.fetchone()   # unique index
 
@@ -412,7 +407,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         # if we are comparing to another run, find the other one; 
         # suppress lines that are different - should be optional
         if cmp_run != "" :
-            c2 = db.execute("SELECT status, key_id FROM result_scalar WHERE test_run = ? AND project = ? AND host = ? AND test_name = ? AND context = ?",
+            c2 = pdk_db.execute("SELECT status, key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5",
                 ( cmp_run, project, host, test_name, context ) )
             other_status = c2.fetchone()   # unique index
             if other_status is None :
@@ -460,11 +455,11 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
             result_table.set_value(rowcount,"stat",status, html="<font color=red>"+str(status)+"</font>", link=this_link)
 
         if show_attr :
-            c3 = db.execute("SELECT name, value FROM result_tda WHERE key_id = ?", ( key_id, ) )
+            c3 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1", ( key_id, ) )
             load_in_table( tda_table, rowcount, c3, "tda_", sort_link )
             del c3
 
-            c3 = db.execute("SELECT name, value FROM result_tra WHERE key_id = ?", ( key_id, ) )
+            c3 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1", ( key_id, ) )
             load_in_table( tra_table, rowcount, c3, "tra_", sort_link )
             del c3
 
