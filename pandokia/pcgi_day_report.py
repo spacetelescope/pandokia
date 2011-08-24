@@ -51,34 +51,57 @@ def rpt1(  ) :
     c = pdk_db.execute( sql, where_dict)
 
     table = text_table.text_table()
+    table.define_column('addval',   showname='')
+    table.define_column('run',      showname='test_run')
+    table.define_column('tree',     showname='')
+    table.define_column('del',      showname='')
+    table.define_column('count',    showname='records')
 
-    # day report, tree walk, problem list
-    dquery = { }
-    lquery = { 'project' : '*', 'host' : '*', 'status' : [ 'F', 'E' ] }
+
+    # query parameters for various links
+
+    # link to day_report
+    # link to tree walk of test run
     tquery = { 'project' : '*', 'host' : '*' }
+
+    # link to declare a run as valuable
+    vquery = { 'valuable_run' : 1 }
+
+    # link to update the count in a test run
+    cquery = { }
+
 
     row = 0
     for x, val, record_count in c :
         if x is None :
             continue
-        dquery["test_run"] = x
-        lquery["test_run"] = x
         tquery["test_run"] = x
+        vquery["test_run"] = x
+        cquery["count_run"] = x
 
-        table.set_value(row, 0, text=x, link=common.selflink(dquery,"day_report.2") )
-        table.set_value(row, 2, text='(tree display)', link=common.selflink(tquery,"treewalk") )
-        # table.set_value(row, 3, text='(problem tests)', link=common.selflink(lquery,"treewalk.linkout") )
+        # mark as valuable:
+        # https://ssb.stsci.edu/pandokia/c41.cgi?query=action&test_run=daily_2011-08-24&valuable_run=1
+        table.set_value(row, 'addval', html='<a href="%s">!</a>&nbsp;&nbsp;&nbsp;' % common.selflink(vquery,"action") )
+
+        table.set_value(row, 'run', text=x, link=common.selflink(tquery,"day_report.2") )
+        table.set_value(row, 'tree', text='(tree display)', link=common.selflink(tquery,"treewalk") )
         if val == '0' :
             if x.startswith(my_run_prefix) :
-                table.set_value(row, 4, text='(delete)', link=common.selflink(tquery,"delete_run.ays") )
+                table.set_value(row, 'del', text='(delete)', link=common.selflink(tquery,"delete_run.ays") )
             else :
-                table.set_value(row, 4, text='(delete)', html='<font color=gray>(delete)</font>', link=common.selflink(tquery,"delete_run.ays") )
+                table.set_value(row, 'del', text='(delete)', html='<font color=gray>(delete)</font>', link=common.selflink(tquery,"delete_run.ays") )
         else :
-            table.set_value(row, 4, text='(valuable)' )
+            table.set_value(row, 'del', text='(valuable)' )
 
-        if record_count is not None and record_count > 0 :
-            table.set_value(row, 5, text=record_count )
-            
+
+        # update the count field 
+        # https://ssb.stsci.edu/pandokia/c41.cgi?query=action&count_run=daily_2011-08-24
+
+        update_count = common.selflink(cquery,'action')
+        if record_count is None or record_count <= 0 :
+            record_count = '&nbsp;'
+        table.set_value(row, 'count', html=str(record_count), link=update_count )
+
         row = row + 1
 
 
@@ -87,6 +110,8 @@ def rpt1(  ) :
         sys.stdout.write(common.page_header())
         sys.stdout.write('<h2>%s</h2>'%cgi.escape(test_run))
         sys.stdout.write(table.get_html(headings=1))
+        sys.stdout.write("<br>Click on the ! to mark a test run as too valuable to delete\n")
+        sys.stdout.write("<br>Click on record count to check the count and update it\n")
     elif pandokia.pcgi.output_format == 'csv' :
         sys.stdout.write(common.cgi_header_csv)
         sys.stdout.write(table.get_csv())

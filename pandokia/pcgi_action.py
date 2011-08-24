@@ -46,7 +46,14 @@ def run( ) :
 
     form = pandokia.pcgi.form
 
-    qid = int(form['qid'].value)
+    # lots of cases use qid
+    if 'qid' in form :
+        qid = int(form['qid'].value)
+    else :
+        qid = None
+
+    #
+
     if 'action_remove' in form :
         qid = copy_qid(qid)
         for key_id in valid_key_ids(form) :
@@ -106,6 +113,25 @@ def run( ) :
         pdk_db.execute("UPDATE query_id SET username = :1, expires = :2 WHERE qid = :3",(common.current_user(), expire, qid))
         pdk_db.commit()
 
+    elif 'valuable_run' in form :
+        text_present = 1
+        v = int(form['valuable_run'].value)
+        test_run = str(form['test_run'].value)
+        pdk_db.execute("UPDATE distinct_test_run SET valuable = :1 WHERE test_run = :2",(v,test_run))
+        pdk_db.commit()
+        if v :
+            v = 'valuable'
+        else :
+            v = 'not valuable'
+        print "Test run",test_run," marked as ",v
+
+    elif 'count_run' in form :
+        text_present = 1
+        v = str(form['count_run'].value)
+        pdk_db.execute("UPDATE distinct_test_run SET record_count = ( SELECT COUNT(*) FROM result_scalar WHERE test_run = :1 ) WHERE test_run = :2 ",
+            (v,v) )
+        pdk_db.commit()
+
     elif 'edit_comment' in form :
         text_present = 1
         c = pdk_db.execute("SELECT notes FROM query_id WHERE qid = :1",(qid,))
@@ -125,29 +151,32 @@ def run( ) :
         pdk_db.execute('UPDATE query_id SET notes = :1 WHERE qid = :2', (notes, qid) )
         pdk_db.commit()
 
-    if text_present :
-        output.write(
-            "<a href='"
-            + pandokia.pcgi.cginame
-            + ("?query=summary&qid=%s'>back to qid = " % qid)
-            + str(qid)
-            + "</a><br>\n"
-            )
-    else :
-        if not no_redirect :
+    if qid is not None :
+        if text_present :
             output.write(
-                '<html><head><meta http-equiv="REFRESH" content="0;'
+                "<a href='"
                 + pandokia.pcgi.cginame
-                + ( '?query=summary&qid=%s"' % qid )
-                + '>\n</head><body>\n'
+                + ("?query=summary&qid=%s'>back to qid = " % qid)
+                + str(qid)
+                + "</a><br>\n"
                 )
-        output.write(
-            "redirecting: <a href='"
-            + pandokia.pcgi.cginame
-            + ("?query=summary&qid=%s'>qid = " % qid)
-            + str(qid)
-            + "</a><br>\n"
-            )
+        else :
+            if not no_redirect :
+                output.write(
+                    '<html><head><meta http-equiv="REFRESH" content="0;'
+                    + pandokia.pcgi.cginame
+                    + ( '?query=summary&qid=%s"' % qid )
+                    + '>\n</head><body>\n'
+                    )
+            output.write(
+                "redirecting: <a href='"
+                + pandokia.pcgi.cginame
+                + ("?query=summary&qid=%s'>qid = " % qid)
+                + str(qid)
+                + "</a><br>\n"
+                )
+    else :
+        output.write("<br>Hit BACK and RELOAD\n")
 
 def copy_qid(old_qid) :
     now = time.time()

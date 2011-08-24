@@ -13,7 +13,7 @@ pdk check_expected test_run_type test_run
     expected for type test_run_type; create a Missing record for any
     test that is missing.
 
-pdk clean
+pdk oldclean
     removes associated records from database if related primary records
     have been deleted.  You need to do this after 'pdk delete_run' to
     keep cruft from accumulating, but you don't need to do it right away.
@@ -138,6 +138,10 @@ def run() :
     if cmd == 'delete' :
         import pandokia.cleaner
         return pandokia.cleaner.delete(args)
+
+    if cmd == 'oldclean' :
+        import pandokia.cleaner
+        return pandokia.cleaner.clean_db(args)
 
     if cmd == 'dump_table' :
         import pandokia.db

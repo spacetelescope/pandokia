@@ -8,9 +8,11 @@ import sys
 import os
 import pandokia.common
 
+import pandokia.config
 
-global db
-db = pandokia.common.open_db()
+pdk_db = pandokia.config.pdk_db
+
+
 
 def get_user_name() :
     # may need to do something more for ms windows
@@ -23,21 +25,19 @@ def get_user_name() :
 #
 def clean_queries() :
 
-    qdb=pandokia.common.open_qdb()
-
     now = time.time()
     print "start delete old queries", now
 
     # placeholder so we don't re-use any of the deleted sequence numbers
-    qdb.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( ?, ?, 'nobody', 'placeholder for cleaner' )", (now,now+10))
+    pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+10))
 
     # delete the records related to the query
-    qdb.execute("DELETE FROM query WHERE qid IN ( SELECT qid FROM query_id WHERE expires > 0 AND expires < ? ) ", (now,))
+    pdk_db.execute("DELETE FROM query WHERE qid IN ( SELECT qid FROM query_id WHERE expires > 0 AND expires < :1 ) ", (now,))
 
     # delete 
-    qdb.execute("DELETE FROM query_id WHERE expires > 0 AND expires < ? ", ( now, ) )
+    pdk_db.execute("DELETE FROM query_id WHERE expires > 0 AND expires < :1 ", ( now, ) )
 
-    qdb.commit()
+    pdk_db.commit()
 
 
 def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
@@ -62,11 +62,11 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
     print "start clean key_id", which, time.time()
 
     if min_key_id is None :
-        c = db.execute("SELECT MIN(key_id) FROM "+which)
+        c = pdk_db.execute("SELECT MIN(key_id) FROM "+which)
         (min_key_id,) = c.fetchone()
 
     if max_key_id is None :
-        c = db.execute("SELECT MAX(key_id) FROM "+which)
+        c = pdk_db.execute("SELECT MAX(key_id) FROM "+which)
         (max_key_id,) = c.fetchone()
 
     print "max record number",max_key_id
@@ -80,7 +80,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
         kill = [ ]
 
         # sql is safe - 'which' is a parameter I passed in as one of a few constants
-        c = db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= ? and key_id <= ?", (min_key_id,min_key_id+inc))
+        c = pdk_db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= :1 and key_id <= :2", (min_key_id,min_key_id+inc))
 
         # set the min key number to the next value to use, in case we don't find anything
         # in this query
@@ -94,7 +94,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
         for (key_id,) in c :
             # For each key_id, see if there is a result_scalar entry for that key_id.  If
             # there is, leave it.  If not, delete the attribute entries.
-            c1 = db.execute("SELECT count(*) FROM result_scalar WHERE key_id = ?",(key_id,))
+            c1 = pdk_db.execute("SELECT count(*) FROM result_scalar WHERE key_id = :1",(key_id,))
             (count,) = c1.fetchone()
             if count == 0 :
                 # don't just delete it now - save up a batch to do all at once
@@ -112,12 +112,12 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
             print "kill"
             for key_id in kill :
                     # sql is safe - which is a parameter I passed in as one of a few constants
-                    db.execute("DELETE FROM "+which+" WHERE key_id = ?",(key_id,))
+                    pdk_db.execute("DELETE FROM "+which+" WHERE key_id = :1",(key_id,))
 
             # Commit!  The whole point of deleting in chunks is so that a specific transaction
             # does not grow too large.  Also, we don't keep the database locked for so long.    
             # (sqlite only locks the entire database, not tables or rows.)
-            db.commit()
+            pdk_db.commit()
 
         print "        ",time.time()-tyme
 
@@ -156,8 +156,6 @@ pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
     clean_key_id("result_tra", min_key_id, max_key_id, sleep)
     clean_queries()
 
-    db.close()
-
 
 def block_last_record() :
 
@@ -168,8 +166,8 @@ def block_last_record() :
     #
     # We do this by always inserting a record that we are not going to delete.  We only
     # need one, though, at the end of the table.
-    db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
-    db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
+    pdk_db.execute("DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
+    pdk_db.execute("INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
 
 #
 # entry point:
@@ -178,7 +176,7 @@ def block_last_record() :
 #
 def delete_run(args) :
 
-    print "Deleting from database", pandokia.common.cfg.dbdir
+    print "Deleting from database"
 
     block_last_record()
 
@@ -208,7 +206,8 @@ pdk delete_run [ --mine ] 'name1' 'name2' 'name3'
             return 1
     for name in args :
         print "ARG",name
-        c = db.execute("SELECT name, valuable FROM distinct_test_run WHERE name GLOB ?",(name,))
+        where_text, where_dict = pdk_db.where_dict( [ ('test_run', name) ] )
+        c = pdk_db.execute( "SELECT test_run, valuable FROM distinct_test_run  %s " % where_text, where_dict)
         for (n,valuable) in c :
             print "name",n,"valuable",valuable
             if valuable != '0' :
@@ -307,29 +306,29 @@ def delete(args) :
 
         print "query plan 2:"
         print common.explain_query(q2, where_dict)
-        c = db.execute( "EXPLAIN QUERY PLAN " + q2, where_dict )
+        c = pdk_db.execute( "EXPLAIN QUERY PLAN " + q2, where_dict )
 
     if count :
-        c = db.execute("SELECT count(*) FROM result_scalar %s" % (where_text,) , where_dict )
+        c = pdk_db.execute("SELECT count(*) FROM result_scalar %s" % (where_text,) , where_dict )
         print "total records",c.fetchone()[0]
 
     if not dont :
         block_last_record()
-        c = db.execute( q1, where_dict )
-        c = db.execute( q2 , where_dict )
-        db.commit()
+        c = pdk_db.execute( q1, where_dict )
+        c = pdk_db.execute( q2 , where_dict )
+        pdk_db.commit()
 
     return 0
         
 def old_delete( name ) :
     print "NAME",name
-    c = db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = ?",  (name,))
+    c = pdk_db.execute("SELECT min(key_id), max(key_id) FROM result_scalar WHERE test_run = :1",  (name,))
     kmin,kmax = c.fetchone() 
     print kmin, kmax
     print "DELETE ",name
-    db.execute("DELETE FROM result_scalar WHERE test_run = ? ", (name,) )
-    db.execute("DELETE FROM distinct_test_run WHERE name = ? ",(name,) )
-    db.commit()
+    pdk_db.execute("DELETE FROM result_scalar WHERE test_run = :1 ", (name,) )
+    pdk_db.execute("DELETE FROM distinct_test_run WHERE name = :1 ",(name,) )
+    pdk_db.commit()
 
     clean_key_id("result_log", kmin, kmax, None)
     clean_key_id("result_tda", kmin, kmax, None)
@@ -337,41 +336,29 @@ def old_delete( name ) :
     print "DONE ",name
 
 def new_delete( name ) :
-    c = db.execute("INSERT INTO delete_queue SELECT key_id FROM result_scalar WHERE test_run = ? ", (name,))
-    c = db.execute("DELETE FROM distinct_test_run WHERE name = ?", (name,))
-    db.commit()
+    c = pdk_db.execute("INSERT INTO delete_queue SELECT key_id FROM result_scalar WHERE test_run = :1 ", (name,))
+    c = pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1", (name,))
+    pdk_db.commit()
 
 def delete_background_step( n = 200 ) :
     start = time.time()
-    db.execute("DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_tda    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_tra    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_log    WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM delete_queue  WHERE key_id IN ( SELECT key_id FROM delete_queue LIMIT ? ) ", (n,))
+    c = pdk_db.execute("SELECT key_id FROM delete_queue LIMIT :1 ",(n,) )
+    keys = tuple( [ x[0] for x in c ] )
+    print "delete ",keys
+    parm = ', '.join( [ ':%d'%(n+1) for n in range(0, len(keys) ) ] )
+    print parm
+    
+    pdk_db.execute("DELETE FROM result_scalar WHERE key_id IN ( %s )" % parm, keys )
+    pdk_db.execute("DELETE FROM result_tda    WHERE key_id IN ( %s )" % parm, keys )
+    pdk_db.execute("DELETE FROM result_tra    WHERE key_id IN ( %s )" % parm, keys )
+    pdk_db.execute("DELETE FROM result_log    WHERE key_id IN ( %s )" % parm, keys )
+    pdk_db.execute("DELETE FROM delete_queue  WHERE key_id IN ( %s )" % parm, keys )
+
     end1 = time.time()
-    db.commit()
+    pdk_db.commit()
+
     end2 = time.time()
     print "step - ",end1-start, end2-start
-
-
-def delete_background_step_test( n = 200 ) :
-    start = time.time()
-    print "LOOK"
-    c = db.execute(" SELECT key_id FROM delete_queue LIMIT ? ", (n,) )
-    for x in c :
-        print x
-    print "DELETE"
-    return
-    db.execute("DELETE FROM result_scalar WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_tda    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_tra    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM result_log    WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
-    db.execute("DELETE FROM delete_queue  WHERE key_id IN ( SELECT key_id FROM delete_queue ORDER BY key_id ASC LIMIT ? ) ", (n,))
-    end1 = time.time()
-    db.commit()
-    end2 = time.time()
-    print "step - ",end1-start, end2-start
-
 
 def delete_background( args ) :
     n = 20000
@@ -387,8 +374,8 @@ def delete_background( args ) :
     if len(args) > 2 :
         sleeptime=int(args[2])
     while n > 0 :
-        db.commit()
-        c=db.execute("SELECT count(*) FROM delete_queue")
+        pdk_db.commit()
+        c=pdk_db.execute("SELECT count(*) FROM delete_queue")
         print c
         c = c.fetchone()
         print c

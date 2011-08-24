@@ -220,7 +220,7 @@ class text_table :
                 num = self.number_of_columns
                 self.number_of_columns = self.number_of_columns + 1
 
-        self.colmap[name] = num
+        self.colmap[name] = int(num)
 
         # make sure the title lists are all long enough
         pad_list(self.titles,      num, '' )

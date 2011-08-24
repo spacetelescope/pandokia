@@ -40,6 +40,15 @@ class name_sequence(object) :
 # then the return is a zero length string.
 #
 def where_dict(list, more_where = None ) :
+    '''
+        where_text, where_dict = pdk_db.where_dict( [
+            ('field', value),
+            ('anotherfield', anothervalue),
+            ], more_where )
+
+        c = pdk_db.execute( "SELECT col FROM tbl %s " % where_text, where_dict)
+    '''
+
     ns = name_sequence()
 
     and_list = [ ]

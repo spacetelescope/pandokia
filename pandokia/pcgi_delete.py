@@ -29,6 +29,19 @@ import pandokia.pcgi
 #   test_run = wild card pattern for test_run
 #
 
+def check_valuable(test_run) :
+    c = pdk_db.execute("SELECT valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
+
+    # this trick discovers valuable=0 even if it is not in the distinct_test_run table
+    valuable = 0
+    for x in c :
+        valuable, = x
+
+    valuable = int(valuable)
+    if valuable > 0 :
+        print "<em>This is a valuable test run - not deleted</em>"
+    return valuable
+
 def delete_are_you_sure(  ) :
 
     form = pandokia.pcgi.form
@@ -37,6 +50,9 @@ def delete_are_you_sure(  ) :
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
+
+    if check_valuable(test_run) :
+        return
 
     print '<a href="%s">Confirm delete:</a> %s'%(common.selflink( { 'test_run' : test_run }, 'delete_run.conf' ), cgi.escape(test_run) )
 
@@ -53,6 +69,9 @@ def delete_confirmed( ) :
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
+
+    if check_valuable(test_run) :
+        return
 
     my_run_prefix = 'user_' + common.current_user()
 
