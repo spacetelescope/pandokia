@@ -35,8 +35,9 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=37
+	set n=41
 	set there=/ssbwebv1/data2/pandokia/c$n
+	find $there -name '*.pyc' -exec rm -f {} ';'
 	python setup.py -q install --home $there
 	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi
 	if ( ! -f /eng/ssb/websites/ssb/pandokia/c$n.cgi ) then
@@ -47,14 +48,22 @@ case "":
 	if ( { grep -q c$n.cgi  /eng/ssb/websites/ssb/index.html }  ) then
 		echo ''
 	else
-		cd /eng/ssb/websites/ssb
-		sed 's?<!--PDK-->?<!--PDK--><a href="pandokia/c'$n'.cgi">c'$n'</a> <br> ?' < index.html > tmp
-		mv -f tmp index.html
+		set id=/eng/ssb/websites/ssb
+		sed 's?<\!--PDK-->?<\!--PDK--><a href="pandokia/c'$n'.cgi">c'$n'</a> <br> ?' < $id/index.html > tmp 
+		cp tmp $id/index.html
+		ls -l $id/index.html
 	endif
 
-	cp stsci/config.py $there/lib/python/pandokia/config.py
+	cat stsci/config.py >> $there/lib/python/pandokia/config.py
+
+	set pass=$there/lib/python/pandokia/alt_password
+	if ( ! -f $pass ) then
+		echo 'Must set password in '$pass
+	endif
 
 	cp  stsci/top_level.html   $there/lib/python/pandokia/
+
+	chgrp -R ssb $there
 
 	breaksw
 

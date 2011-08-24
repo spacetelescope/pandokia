@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, 2011, Association of Universities for Research in Astronomy (AURA) 
 #
 
 #
@@ -13,15 +13,81 @@
 #
 
 ######
-# This version of pandokia only knows how to use sqlite3 as a database.
-# dbdir is the directory where the database files are stored.
-# This directory _and_ the database files must be writeable to
-# the cgi.
+#
+# To select the database to use, import the appropriate database
+# interface code as pdk_db; set db_arg to what pdk_db.open_db()
+# will need to know to access your database
+#
+# The database interface code is named for the dbapi package
+# that talks to that database, but all lower case.
+#
 
-# This line causes the database to be stored with the installed code,
-# but you can put any fully qualified path name here.
-import os.path
-dbdir = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
+def readpass() :
+    # import os.path
+    # d=os.path.dirname(__file__)
+    d = '/ssbwebv1/data2/pandokia/'
+    pf = 'mysql_password'
+    try :
+        f=open(d+pf)
+    except :
+        try :
+            f=open(d+"/alt_password")
+        except :
+            return None
+        s=f.read()
+        f.close()
+        f=open(d+pf,"w")
+        f.write(s)
+        f.close()
+        import os
+        os.chmod(d+pf,0600)
+        os.unlink(d+"/alt_password")
+        f=open(d+pf)
+
+    s=f.read()
+    f.close()
+    return s.strip()
+
+if 0 :
+    # Database: SQLITE
+    #           http://www.sqlite.org/
+    #
+    # sqlite3 - ships with python
+    #           http://docs.python.org/library/sqlite3.html
+    # pysqlite - same driver, developed separately from python distribution
+    #           http://code.google.com/p/pysqlite/
+    import pandokia.db_sqlite as pdk_db
+    import os
+
+    # db_arg is the file name of the database; default here is to store it
+    # in the install dir, but normally you would point this somewhere that
+    # you have a big disk to store your data
+    db_arg = os.path.dirname(os.path.abspath(__file__))
+
+if 0 :
+    # DOES NOT WORK YET
+    # Database: Postgres
+    #           http://www.postgresql.org/
+    # psycopg
+    #           http://initd.org/psycopg/
+    # 
+    import pandokia.db_psycopg2 as pdk_db
+    db_arg = 'dbname=test'
+
+if 0 :
+    # Database: MYSQL
+    #           http://www.mysql.com/
+    # MySQLdb
+    #           http://mysql-python.sourceforge.net/MySQLdb.html
+    import pandokia.db_mysqldb as pdk_db
+
+    # db_arg is a dict of the parameters to pass to connect()
+    db_arg = { 'host' : 'whatever', 
+            'user' : 'whatever', 
+            'passwd' : readpass(),
+            'db' : 'whatever'
+        }
+
 
 ######
 # Who are authorized users:
@@ -37,9 +103,10 @@ dbdir = os.path.dirname(os.path.abspath(__file__)) + '/pandokia_db'
 user_list = None
 
 # which users can see/operate the admin interfaces 
-admin_user_list = ( 'sienkiew' )
+admin_user_list = ( 'sienkiew', )
 
-adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
+# 
+adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>'
 
 
 ######
@@ -50,7 +117,7 @@ adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
 # a dict mapping the host name to the OS name to display
 #
 # a purist would spend a lot of time writing/testing code to
-# store this in the database,
+# store this in the database,  I'm too busy.
 #
 os_info = {
     # this is sample data - you can list your own machines here
@@ -59,17 +126,25 @@ os_info = {
     "arzach":   "RHE 5 / 64",
     "banana":   "Mac x86",
     "basil":    "Solaris 10",
-    "bond":     "Mac Leopard",
-    "cadeau":   "Mac Leopard",
-    "doof":     "Centos 5.3",
+    "blinky":   "UR",
+    "bond":     "Leopard",
+    "cadeau":   "Snow Leopard",
+    "clyde":    "UR",
     "dukat":    "Windows/XP",
-    "ekky":     "Mac x86",
-    "etc-dev1": "RHE4 / 64, ETC",
-    "gaudete":  "RHE 4 / 64",
+    "ekky":     "Leopard",
+    "etcbrady":  "RHE 5 ETC",
+    "etccartier": "RHE 5 ETC",
+    "etcdevens": "RHE 5 ETC",
+    "etcedis":  "RHE 5 ETC",
+    "gaudete":  "RHE 5 / 64",
     "herbert":  "RHE 4 / 32",
+    "inky":     "UR",
+    "jwcalibdev": "RHE 5 / 64",
     "macbert":  "Mac PPC",
-    "motoko":   "RHE 4",
-    "quagga":   "RHE 3",
+    "pinky":    "UR",
+    "quagga":   "RHE 5 ETC",
+    "r3":       "Ubuntu 10",
+    "rhaynes":  "Snow Leopard",
     "ssbwebv1": "RHE 5 / 64",
     "thor":     "RHE 4 / 64",
     "timthe":   "Mac PPC",
@@ -125,9 +200,11 @@ runner_glob = [
 debug = True
 
 #
-# Set this to 'True' to cause the cgi to issue a "server maintenance" page.
+# set server_maintenance to a string to cause the cgi to issue a 
+# "server maintenance" page in response to any transaction.
 # This gives you a chance to do database maintenance without hurting
 # anybody.
+# server_maintenance = 'backing up database'
 server_maintenance = False
 
 #
