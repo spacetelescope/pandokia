@@ -13,16 +13,15 @@ pdk check_expected test_run_type test_run
     expected for type test_run_type; create a Missing record for any
     test that is missing.
 
+pdk clean [ max_records records_per_step sleep_between_steps ]
+    Run the background step that cleans deleted material from the database.
+
 pdk oldclean
-    removes associated records from database if related primary records
-    have been deleted.  You need to do this after 'pdk delete_run' to
-    keep cruft from accumulating, but you don't need to do it right away.
-    It may take some time depending on the size of your database.
+    Removes associated records from database if related primary records
+    have been deleted.  Very slow.
 
 pdk delete_background_step
     run one step of the background cleaner used by the new delete algorithm
-
-pdk delete_background
 
 pdk delete_run test_run
     removes named test run from the database
@@ -46,9 +45,6 @@ pdk import_contact < contact_file
     table to generate the matching patterns, so you may need to 
     'pdk gen_expected' first.
 
-pdk initdb
-    obsolete - see sql scripts in pandokia/sql
-
 pdk notify
     send notification emails about failed tests
 
@@ -59,6 +55,9 @@ pdk ok [ okfiles ]
 
 pdk run
     run tests; use 'pdk run --help' for more detail
+
+pdk runstatus
+    show status of actively running tests
 
 pdk webserver
     start up a development web server.  The root of the server is the
@@ -107,9 +106,8 @@ def run() :
         return x.run(args)
 
     if cmd == 'clean' :
-        print "not implemented any more"
-        return 1
-
+        import pandokia.cleaner
+        return pandokia.cleaner.delete_background(args)
 
     if cmd == 'clean_queries' :
         import pandokia.cleaner
@@ -118,10 +116,6 @@ def run() :
     if cmd == 'delete_background_step' :
         import pandokia.cleaner
         return pandokia.cleaner.delete_background_step()
-
-    if cmd == 'delete_background' :
-        import pandokia.cleaner
-        return pandokia.cleaner.delete_background(args)
 
     if cmd == 'config' :
         import pandokia.config

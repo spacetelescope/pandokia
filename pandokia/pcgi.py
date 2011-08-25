@@ -149,6 +149,11 @@ def run() :
         x.run()
         sys.exit(0)
 
+    if query == "test_history" :
+        import pandokia.pcgi_detail as x
+        x.test_history()
+        sys.exit(0)
+
     if query.startswith("day_report.") :
         import pandokia.pcgi_day_report as x
         if query == "day_report.1" :

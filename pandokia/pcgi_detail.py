@@ -242,6 +242,7 @@ def do_result( key_id ) :
         sys.stdout.write(tb.get_html())
 
         sys.stdout.write("<a href=%s>back to treewalk</a><br>\n"%common.selflink(linkback_dict, linkmode = 'treewalk'))
+        sys.stdout.write("<a href=%s>status history</a><br>\n"%common.selflink(linkback_dict, linkmode = 'test_history'))
 
         c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ) )
         for y in c1 :
@@ -254,3 +255,60 @@ def do_result( key_id ) :
         sys.stdout.write("<br>\n")
 
         sys.stdout.write("<br><hr>\n")
+
+
+
+def test_history( ) :
+
+    sys.stdout.write(common.cgi_header_html)
+    sys.stdout.write(common.page_header())
+
+    form = pandokia.pcgi.form
+
+    test_name = form["test_name"].value
+    context = form["context"].value
+    host = form["host"].value
+    test_run = form["test_run"].value
+    project = form["project"].value
+
+
+    tb = text_table.text_table()
+    tb.set_html_table_attributes("border=1")
+
+    row = 0
+
+    tb.set_value(row, 0, "project")
+    tb.set_value(row, 1, project)
+    row += 1
+
+    tb.set_value(row, 0, "host")
+    tb.set_value(row, 1, host)
+    row += 1
+
+    tb.set_value(row, 0, "context")
+    tb.set_value(row, 1, context)
+    row += 1
+
+    tb.set_value(row, 0, "test_name")
+    tb.set_value(row, 1, test_name)
+    row += 1
+
+    print tb.get_html()
+
+    print "<br>"
+
+    tb = text_table.text_table()
+    tb.set_html_table_attributes("border=1")
+
+    c = pdk_db.execute("SELECT test_run, status, key_id FROM result_scalar WHERE "
+            "test_name = :1 AND context = :2 AND host = :3 AND project = :4 ORDER BY test_run DESC",
+            ( test_name, context, host, project ) )
+
+    row = 0
+    for x in c :
+        test_run, status, key_id = x
+        tb.set_value(row, 0, test_run, link =  common.selflink({ 'key_id' : key_id } , linkmode = 'detail') )
+        tb.set_value(row, 1, status)
+        row = row + 1
+    print tb.get_html()
+
