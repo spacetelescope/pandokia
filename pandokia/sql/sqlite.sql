@@ -34,10 +34,12 @@ CREATE TABLE result_scalar (
 		-- contain a floating point time_t ( time.time() ) in UTC.
 	location VARCHAR,
 		-- where can I find this test that was run
-	attn VARCHAR
+	attn VARCHAR,
 		-- blank or "Y" for "needs attention"
 		-- "N" for "not a problem"
 		-- "R" for "problem resolved"
+        has_okfile CHAR(1)
+                -- 0 or 1 indicating whether this test had a tda_okfile attribute
 	);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 

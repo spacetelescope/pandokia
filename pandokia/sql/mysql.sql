@@ -46,10 +46,12 @@ CREATE TABLE result_scalar (
 	location VARCHAR(1024),
 		-- where can I find this test that was run
 		-- 1024 is a typical MAXPATHLEN
-	attn CHAR(1)
+	attn CHAR(1),
 		-- blank or "Y" for "needs attention"
 		-- "N" for "not a problem"
 		-- "R" for "problem resolved"
+	has_okfile CHAR(1)
+		-- 0 or 1 indicating whether this test had a tda_okfile attribute
 	);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 
