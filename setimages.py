@@ -3,7 +3,7 @@
 def setimages() :
     import os
     import base64
-    f = open( "delta.gif", "rb" )
+    f = open( "papa.gif", "rb" )
     header = f.read()
     f.close()
     header = base64.b64encode(header)
