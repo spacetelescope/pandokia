@@ -359,6 +359,7 @@ def delete_background_step( n = 200 ) :
 
     end2 = time.time()
     print "step - ",end1-start, end2-start
+    return len(keys)
 
 def delete_background( args ) :
     n = 20000
@@ -385,9 +386,11 @@ def delete_background( args ) :
         print "remaining:",remaining
         if remaining <= 0 :
             return
-        delete_background_step( ns )
-        print "sleep"
+        deleted_count = delete_background_step( ns )
+        print "sleep after ",deleted_count
         n = n - ns
-        if n > 0 :
-            time.sleep(sleeptime)
+        if deleted_count < ns :
+            # we ran out - ok to stop now
+            break
+        time.sleep(sleeptime)
 
