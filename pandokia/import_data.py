@@ -16,8 +16,6 @@ database = pandokia.cfg.pdk_db.db_module
 
 exit_status = 0
 
-prefix_re = re.compile("^[^:]*:: ")
-
 line_count = 0
 
 default_record = { }
@@ -56,12 +54,6 @@ def read_record(f) :
             # comment lines allowed, even though we wouldn't normally
             # need them
             continue
-
-        # strip out optional prefixes - special handling for Vicki's 
-        # pysynphot commissioning tests
-        n = prefix_re.match(l)
-        if n :
-            l = l[n.end():]
 
         # end of record marker ?
         if l == "END" :
@@ -185,6 +177,12 @@ class test_result(object):
         self.log        = self._lookup("log","")
         self.start_time = self._lookup("start_time",'')
         self.end_time   = self._lookup("end_time",'')
+
+        # no space in test name
+        if ' ' in self.test_name :
+            self.test_name = self.test_name.replace(' ','_')
+        if '\t' in self.test_name :
+            self.test_name = self.test_name.replace('\t','_')
 
         try :
             if self.start_time != '' :
