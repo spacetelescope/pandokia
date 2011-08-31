@@ -16,7 +16,7 @@ rm -f $tmpfile2
 
 PDK_LOG=$tmpfile2 pdk_stsci_regress_helper > $tmpfile 2>&1
 
-if [ -d $tmpfile2 ]
+if [ -f $tmpfile2 ]
 then
 	cat $tmpfile2 >> $PDK_LOG
 	( echo 'log:'
