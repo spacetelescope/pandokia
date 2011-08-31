@@ -475,7 +475,7 @@ class text_table :
                 else :
                     s.write(r)
                 s.write("</th>")
-            s.write("</tr>")
+            s.write("</tr>\n")
 
         row = 0
         for r in self.rows :
@@ -497,12 +497,16 @@ class text_table :
                         continue
                     if c is None :
                         # an empty cell
-                        s.write( "<td>&nbsp</td>")
+                        s.write( "<td>&nbsp</td>\n")
                         continue
                     if c.html_attributes :
-                        s.write("<td "+c.html_attributes+">")
+                        s.write("<td ")
+                        if not 'valign' in c.html_attributes :
+                            s.write("valign=top ")
+                        s.write(c.html_attributes)
+                        s.write(">")
                     else :
-                        s.write("<td>")
+                        s.write("<td valign=top>")
                     if c.link :
                         s.write("<a href='"+c.link+"'>")
                     if c.html :
@@ -517,7 +521,7 @@ class text_table :
                             s.write(cgi.escape(str(c.text)))
                     if c.link :
                         s.write("</a>")
-                    s.write("</td>")
+                    s.write("</td>\n")
             s.write("</tr>\n")
 
         s.write("</table>")
