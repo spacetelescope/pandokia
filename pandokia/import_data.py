@@ -177,6 +177,7 @@ class test_result(object):
         self.log        = self._lookup("log","")
         self.start_time = self._lookup("start_time",'')
         self.end_time   = self._lookup("end_time",'')
+        self.has_okfile = 'tda__okfile' in dict
 
         # no space in test name
         if ' ' in self.test_name :
@@ -215,10 +216,10 @@ class test_result(object):
 
     def try_insert( self, db ) :
         return cfg.pdk_db.execute(
-                "INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner ) values "
-                " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11 )" ,
+                "INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
+                " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 )" ,
                 ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
-                  self.start_time, self.end_time, self.location, self.attn, self.test_runner ) 
+                  self.start_time, self.end_time, self.location, self.attn, self.test_runner, self.has_okfile ) 
             )
 
     def insert(self, db) :

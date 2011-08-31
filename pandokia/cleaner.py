@@ -388,5 +388,6 @@ def delete_background( args ) :
         delete_background_step( ns )
         print "sleep"
         n = n - ns
-        time.sleep(sleeptime)
+        if n > 0 :
+            time.sleep(sleeptime)
 
