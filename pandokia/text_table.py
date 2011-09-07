@@ -468,7 +468,9 @@ class text_table :
                 if self.is_suppressed(colcount) :
                     continue
                 s.write("<th>")
-                if self.title_links[colcount] :
+                if self.title_html[colcount] :
+                    s.write(self.title_html[colcount])
+                elif self.title_links[colcount] :
                     s.write("<a href='"+self.title_links[colcount]+"'>")
                     s.write(cgi.escape(str(r)))
                     s.write("</a>")
