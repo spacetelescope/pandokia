@@ -202,8 +202,8 @@ def cmp_fits( the_file, reference_file, msg, quiet, **kwargs ) :
     '''
 
     try :
-        # new package name in the next release
-        import stpytools.fitsdiff as fitsdiff
+        # new package name in stsci_python >= 2.12
+        import stsci.tools.fitsdiff as fitsdiff
     except :
         import pytools.fitsdiff as fitsdiff
 
