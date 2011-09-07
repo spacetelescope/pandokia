@@ -163,9 +163,11 @@ CREATE TABLE distinct_test_run (
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
 		-- this test run.
-	record_count INTEGER
+	record_count INTEGER,
 		-- how many records in this test run
 		-- if 0 or NULL, we dont know
+        note VARCHAR(100)
+                -- a brief note about this test run
 	);
 
 

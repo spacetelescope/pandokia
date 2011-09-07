@@ -125,6 +125,14 @@ def run( ) :
             v = 'not valuable'
         print "Test run",test_run," marked as ",v
 
+    elif 'note' in form :
+        text_present = 1
+        v = str(form['note'].value)
+        test_run = str(form['test_run'].value)
+        pdk_db.execute("UPDATE distinct_test_run SET note = :1 WHERE test_run = :2",(v,test_run))
+        pdk_db.commit()
+        print "Note set"
+
     elif 'count_run' in form :
         text_present = 1
         v = str(form['count_run'].value)

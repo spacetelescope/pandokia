@@ -47,7 +47,7 @@ def rpt1(  ) :
 
     # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
     where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
-    sql = "SELECT test_run, valuable, record_count FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
+    sql = "SELECT test_run, valuable, record_count, note FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
     c = pdk_db.execute( sql, where_dict)
 
     table = text_table.text_table()
@@ -56,6 +56,7 @@ def rpt1(  ) :
     table.define_column('tree',     showname='')
     table.define_column('del',      showname='')
     table.define_column('count',    showname='records')
+    table.define_column('note',     showname='note')
 
 
     # query parameters for various links
@@ -72,7 +73,7 @@ def rpt1(  ) :
 
 
     row = 0
-    for x, val, record_count in c :
+    for x, val, record_count, note in c :
         if x is None :
             continue
         tquery["test_run"] = x
@@ -92,6 +93,11 @@ def rpt1(  ) :
                 table.set_value(row, 'del', text='(delete)', html='<font color=gray>(delete)</font>', link=common.selflink(tquery,"delete_run.ays") )
         else :
             table.set_value(row, 'del', text='(valuable)' )
+
+        if note is None :
+            table.set_value(row, 'note', text='')
+        else :
+            table.set_value(row, 'note', text=note)
 
 
         # update the count field 
@@ -201,6 +207,23 @@ def rpt2( ) :
                     header = header + " / latest " + common.self_href( query_dict={  'test_run' : latest } , linkmode='day_report.2', text=latest )
 
             header = header + ' )<p>\n'
+
+        c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
+        note, valuable = c.fetchone()
+        if note is None :
+            note = ''
+        if valuable is None :
+            valuable = 0
+        else :
+            valuable = int(valuable)
+
+        header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" width=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), note, len(note)+20, test_run )
+
+        if valuable :
+            header = header + '<p>valuable '
+        else :
+            header = header + '<p>not valuable '
+        header = header + '(<a href=%s>change</a>)'%(common.selflink( {'test_run':test_run, 'valuable_run': int(not valuable) }, linkmode='action' ))
 
         sys.stdout.write(common.cgi_header_html)
         sys.stdout.write(common.page_header())
