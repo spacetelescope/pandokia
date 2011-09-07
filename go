@@ -35,7 +35,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=42
+	set n=43
 	set there=/ssbwebv1/data2/pandokia/c$n
 	find $there -name '*.pyc' -exec rm -f {} ';'
 	python setup.py -q install --home $there
