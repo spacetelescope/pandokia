@@ -159,6 +159,7 @@ CREATE TABLE distinct_test_run (
 		-- if 0 or NULL, we dont know
         note VARCHAR(100)
                 -- a brief note about this test run
+		-- set first char to '*' to mark read-only
 	);
 
 

@@ -217,7 +217,10 @@ def rpt2( ) :
         else :
             valuable = int(valuable)
 
-        header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" width=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), note, len(note)+20, test_run )
+        if note.startswith('*') :
+            header = header + '<p>\nNote: %s</p>'%( cgi.escape(note) )
+        else :
+            header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), cgi.escape(note), len(note)+20, test_run )
 
         if valuable :
             header = header + '<p>valuable '
