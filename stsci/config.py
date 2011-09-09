@@ -6,9 +6,9 @@
 # See also pwform.html for the weird dance we do to get the password
 # into a file that is only readable by the web server.
 
-pdk_url = "https://ssb.stsci.edu/pandokia/pdk.cgi"
+pdk_url = "https://ssb.stsci.edu/pandokia/pandokia.cgi"
 
-cginame = 'https://ssb.stsci.edu/pandokia/pdk.cgi'
+cginame = 'https://ssb.stsci.edu/pandokia/pandokia.cgi'
 
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
 
