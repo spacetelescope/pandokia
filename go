@@ -3,6 +3,16 @@
 
 rm -rf build
 
+switch (`which python`)
+case /usr/stsci/*:	echo ''
+	breaksw
+default:
+	echo 'not using the right python'
+	which python
+	exit 1
+	breaksw
+endsw
+
 unsetenv PYTHONPATH
 
 switch ( "$1" )
@@ -35,7 +45,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=43
+	set n=44
 	set there=/ssbwebv1/data2/pandokia/c$n
 	find $there -name '*.pyc' -exec rm -f {} ';'
 	python setup.py -q install --home $there
