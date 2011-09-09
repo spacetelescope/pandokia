@@ -102,6 +102,9 @@ def where_dict(list, more_where = None ) :
                     or_list.append( " %s LIKE :%s "%(name,n) )
 
                 elif '*' in v or '?' in v or '[' in v :
+                    print 'content-type: text/plain\n'
+                    print list
+                    print v
                     assert 0, 'GLOB not supported'
                 else :
                     n = ns.next( v )

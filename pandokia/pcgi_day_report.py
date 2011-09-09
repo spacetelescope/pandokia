@@ -174,59 +174,62 @@ def rpt2( ) :
         
         header = "<h1>"+cgi.escape(test_run)+"</h1>\n"
 
-        if test_run.startswith('daily_') :
+        recurring_prefix = common.recurring_test_run(test_run) 
+        if recurring_prefix :
             # 
-            # If we have a daily run, create a special header.
+            # If we have a recurring run, create a special header.
 
-            # show the day of the week, if we can
+            # if it looks like there is a date in it, try to show the day of the week
+            # dates must look like 2011-01-01 and do not occur at the beginning of the name
+            t = re.search('[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])',test_run)
             try :
                 import datetime
-                t = test_run[len('daily_'):]
-                t = t.split('-')
-                t = datetime.date(int(t[0]),int(t[1]),int(t[2]))
+                t = t.group(1).split('-')
+                (year, month, day) = (int(t[0]),int(t[1]),int(t[2]))
+                t = datetime.date(year, month, day)
                 t = t.strftime("%A")
                 header = header+ "<h2>"+str(t)+"</h2>"
             except :
                 pass
 
-            # Include links to the previous / next day's daily run.
-            # It is not worth the cost of looking in the database to make sure the day that
-            # we link to really exists.  It almost always does, and if it doesn't, the user
-            # will find out soon enough.
-            # 
+            # Include links to the previous / next in the sequence
 
-            prev = common.previous_daily( test_run )
-            back = common.self_href( query_dict = {  'test_run' : prev } , linkmode='day_report.2', text=prev )
-            header = header + '( prev ' + back
+            l = [ ]
+            prev = common.run_previous( recurring_prefix, test_run )
+            if prev :
+                l.append( common.self_href( query_dict = {  'test_run' : prev } , linkmode='day_report.2', text=prev ) )
 
-            latest = common.find_test_run('daily_latest') 
-            if test_run != latest :
-                next = common.next_daily( test_run )
-                header = header + " / next " + common.self_href( query_dict={  'test_run' : next } , linkmode='day_report.2', text=next )
-                if next != latest :
-                    header = header + " / latest " + common.self_href( query_dict={  'test_run' : latest } , linkmode='day_report.2', text=latest )
+            next = common.run_next( recurring_prefix, test_run )
+            if next :
+                l.append( common.self_href( query_dict={  'test_run' : next } , linkmode='day_report.2', text=next ) )
 
-            header = header + ' )<p>\n'
+            latest = common.run_latest( recurring_prefix )
+            if latest and ( latest != next ) and ( latest != test_run ) :
+                l.append( common.self_href( query_dict={  'test_run' : latest } , linkmode='day_report.2', text=latest ) )
+
+            header = header + '( %s )' %( ' / '.join(l) )
 
         c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
-        note, valuable = c.fetchone()
-        if note is None :
-            note = ''
-        if valuable is None :
-            valuable = 0
-        else :
-            valuable = int(valuable)
+        x = c.fetchone()
+        if x is not None :
+            note, valuable = x
+            if note is None :
+                note = ''
+            if valuable is None :
+                valuable = 0
+            else :
+                valuable = int(valuable)
 
-        if note.startswith('*') :
-            header = header + '<p>\nNote: %s</p>'%( cgi.escape(note) )
-        else :
-            header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), cgi.escape(note), len(note)+20, test_run )
+            if note.startswith('*') :
+                header = header + '<p>\nNote: %s</p>'%( cgi.escape(note) )
+            else :
+                header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), cgi.escape(note), len(note)+20, test_run )
 
-        if valuable :
-            header = header + '<p>valuable '
-        else :
-            header = header + '<p>not valuable '
-        header = header + '(<a href=%s>change</a>)'%(common.selflink( {'test_run':test_run, 'valuable_run': int(not valuable) }, linkmode='action' ))
+            if valuable :
+                header = header + '<p>valuable '
+            else :
+                header = header + '<p>not valuable '
+            header = header + '(<a href=%s>change</a>)'%(common.selflink( {'test_run':test_run, 'valuable_run': int(not valuable) }, linkmode='action' ))
 
         sys.stdout.write(common.cgi_header_html)
         sys.stdout.write(common.page_header())

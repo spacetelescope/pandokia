@@ -170,15 +170,24 @@ def treewalk ( ) :
     if test_run != "*" :
         lquery = copy.copy(query)
         lquery["test_run"] = "*"
-        test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
+        test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s</h2>\n"
         tmp1 = common.self_href(lquery,"treewalk",remove_arrow)
-        tmp2 = common.previous_daily(test_run)
+        tmp2 = common.run_previous(None,test_run)
+        tmp3 = common.run_next(None,test_run)
+
         if tmp2 is not None :
             lquery["test_run"] = tmp2
             tmp2 = common.self_href(lquery,"treewalk"," (%s)"%tmp2 )
         else :
             tmp2 = ""
-        line = test_run_line % ( "test_run", cgi.escape(test_run), tmp1, tmp2)
+
+        if tmp3 is not None :
+            lquery["test_run"] = tmp3
+            tmp3 = common.self_href(lquery,"treewalk"," (%s)"%tmp3 )
+        else :
+            tmp3 = ""
+
+        line = test_run_line % ( "test_run", cgi.escape(test_run), tmp1, tmp2, tmp3)
         output.write(line)
 
 
@@ -665,7 +674,7 @@ def cmp_form( query, comparing ) :
     del lquery['compare']
  
     # look for input from the compare form
-    lquery['cmp_test_run'] = lquery.get('cmp_test_run', common.previous_daily(lquery['test_run'])  )
+    lquery['cmp_test_run'] = lquery.get('cmp_test_run', common.run_previous(None,lquery['test_run'])  )
     lquery['cmp_context'] = lquery.get('cmp_context', lquery['context'])
     lquery['cmp_host'] = lquery.get('cmp_host', lquery['host'])
 

@@ -68,7 +68,7 @@ def run ( ) :
     if form.has_key("test_name") :
         cmp_run = form["test_name"].value
         if cmp_run == '' :
-            cmp_run = common.previous_daily(test_run)
+            cmp_run = common.run_previous(None,test_run)
             if cmp_run is not None :
                 cmp_run = common.find_test_run(cmp_run)
             else :
@@ -99,26 +99,48 @@ def run ( ) :
     #
 
     if key_id != "" :
-        do_result( key_id )
+        n = do_result( key_id )
     elif qid != "" :
         c1 = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1 ", (qid,) )
         l = [ ] 
         for x in c1 :
             l.append(x[0])
         del c1
+        n = 0
         for key_id in l :
-            do_result(key_id )
+            n = n + do_result(key_id )
     else :
         c1 = pdk_db.execute("SELECT key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 ", ( test_run, project, host, test_name, context ) )
+        n = 0
         for x in c1 :
             (key_id, ) = x
-            do_result( key_id )
-            
+            n = n + do_result( key_id )
+
+    if n == 0 :
+        sys.stdout.write("no tests match\n")
+        d_in =  { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
+        t = next_prev(d_in, test_run)
+        if t != '' :
+            sys.stdout.write(t)
+
+def next_prev( d_in, test_run ) :
+    tmp = ''
+    tmp1 = common.run_previous(None,test_run) 
+    if tmp1 is not None :
+        d_in["test_run"] = tmp1
+        tmp = tmp +  " &nbsp;&nbsp;(<a href=%s>%s</a>)"%(common.selflink(d_in, linkmode = 'detail'), tmp1)
+    tmp2 =  common.run_next(None,test_run)
+    if tmp2 is not None :
+        d_in["test_run"] = tmp2
+        tmp = tmp +  " &nbsp;&nbsp;(<a href=%s>%s</a>)"%(common.selflink(d_in, linkmode = 'detail'), tmp2)
+    return tmp
 
 def do_result( key_id ) :
 
     c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = :1 ", ( key_id, ) )
+    result_count = 0
     for x in c :
+        result_count = result_count + 1
         ( key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner ) = (x)
 
         linkback_dict = { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
@@ -129,13 +151,14 @@ def do_result( key_id ) :
         tb.set_html_table_attributes("border=1")
 
         tb.set_value(row, 0, "test_run")
-        tmp = common.previous_daily(test_run) 
-        if tmp is not None :
-            prevday_dict["test_run"] = tmp
-            tmp = test_run + " &nbsp;&nbsp;(view <a href=%s>%s</a>)"%(common.selflink(prevday_dict, linkmode = 'detail'), tmp)
-            tb.set_value(row, 1, test_run, html= tmp )
+
+        tmp = next_prev( prevday_dict, test_run )
+
+        if tmp != '' :
+            tb.set_value(row, 1, test_run, html= test_run + tmp )
         else :
             tb.set_value(row, 1, test_run)
+
         row += 1
 
         tb.set_value(row, 0, "key_id")
@@ -256,6 +279,8 @@ def do_result( key_id ) :
 
         sys.stdout.write("<br><hr>\n")
 
+    return result_count
+
 
 
 def test_history( ) :
@@ -306,9 +331,11 @@ def test_history( ) :
 
     row = 0
     for x in c :
-        test_run, status, key_id = x
-        tb.set_value(row, 0, test_run, link =  common.selflink({ 'key_id' : key_id } , linkmode = 'detail') )
-        tb.set_value(row, 1, status)
+        r_test_run, status, key_id = x
+        tb.set_value(row, 1, r_test_run, link =  common.selflink({ 'key_id' : key_id } , linkmode = 'detail') )
+        tb.set_value(row, 2, status)
+        if test_run == r_test_run :
+            tb.set_value(row, 0, '->')
         row = row + 1
     print tb.get_html()
 

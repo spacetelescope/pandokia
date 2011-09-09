@@ -258,6 +258,20 @@ default_qid_expire_days = 30
 
 #####
 #
+# when a test name is FOO_xxx, look to see if FOO is in this list;
+# when a test name is FOO_BAR_xxx, look to see if FOO_BAR is in this list.
+# if it is, it is a type of recurrent test and next/previous links
+# make sense.
+
+recurring_prefix = (
+    'daily',
+    'weekly',
+    'monthly',
+    )   
+
+
+#####
+#
 # END OF CONFIGURATION
 #
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"

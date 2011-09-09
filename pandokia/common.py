@@ -130,6 +130,27 @@ def self_href( query_dict, linkmode, text ) :
 #
 def find_test_run( run) :
 
+    if run.endswith('_latest') :
+        prefix = run[0:-len('_latest')]
+        if prefix in cfg.recurring_prefix :
+            return run_latest(prefix)
+
+    if run.endswith('_yesterday') :
+        prefix = run[0:-len('_yesterday')]
+        if prefix in cfg.recurring_prefix :
+            d = datetime.date.today()
+            if d.weekday() == 0 :
+                # if today is monday, find friday
+                d = d - datetime.timedelta(days=3)
+            else :
+                # tuesday - friday, find yesterday
+                d = d - datetime.timedelta(days=1)
+            return "%s_%04d-%02d-%02d"%(prefix,d.year,d.month,d.day)
+
+    return run
+
+    #### abandoning the rest for now
+
     # there are a whole bunch of daily nicknames
 
     if run.startswith('daily_') :
@@ -170,37 +191,38 @@ def find_test_run( run) :
     return run
 
 
-#
-# not fully developed - used so the day_report can go back to the day before
-#
+def run_previous( prefix, test_run ) :
+    if prefix is None :
+        prefix = recurring_test_run(test_run)
+        if prefix is None :
+            return None
+    c = pandokia.cfg.pdk_db.execute("SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run < :2 ORDER BY test_run DESC LIMIT 1",
+        ( prefix+'%', test_run ) )
+    x = c.fetchone()
+    if not x :
+        return None
+    return x[0]
 
-# bug: look for ending with a thing that looks like a date instead of starting with "daily_"
+def run_latest( prefix ) :
+    c = pandokia.cfg.pdk_db.execute("SELECT MAX(test_run) FROM distinct_test_run WHERE test_run LIKE :1 ",
+        ( prefix+'%', ) )
+    x = c.fetchone()
+    if not x :
+        return None
+    return x[0]
 
-def previous_daily( test_run ) :
-    if not test_run.startswith("daily_") :
+def run_next( prefix, test_run ) :
+    if prefix is None :
+        prefix = recurring_test_run(test_run)
+        if prefix is None :
+            return None
+    c = pandokia.cfg.pdk_db.execute("SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run > :2 ORDER BY test_run ASC LIMIT 1",
+        ( prefix+'%', test_run ) )
+    x = c.fetchone()
+    if not x :
         return None
-    n = test_run.split( '_' )
-    n = n[1]
-    n = n.split("-")
-    try :
-        n = datetime.date(int(n[0]),int(n[1]),int(n[2]))
-    except :
-        return None
-    n = n - datetime.timedelta(days=1)
-    return "daily_%04d-%02d-%02d" % ( n.year, n.month, n.day )
-
-def next_daily( test_run ) :
-    if not test_run.startswith("daily_") :
-        return None
-    n = test_run.split( '_' )
-    n = n[1]
-    n = n.split("-")
-    try :
-        n = datetime.date(int(n[0]),int(n[1]),int(n[2]))
-    except :
-        return None
-    n = n + datetime.timedelta(days=1)
-    return "daily_%04d-%02d-%02d" % ( n.year, n.month, n.day )
+    return x[0]
+    
 
 
 #
@@ -564,6 +586,23 @@ def print_stat_dict(stat_summary) :
             print "Nothing to report"
 
 ######
+
+def recurring_test_run(test_run) :
+    l = test_run.split('_')
+    if len(l) > 1 :
+        prefix = l[0]
+        if prefix in cfg.recurring_prefix :
+            return prefix
+    if len(l) > 2 :
+        prefix = '%s_%s'%(l[0],l[1])
+        if prefix in cfg.recurring_prefix :
+            return prefix
+    return None
+
+######
+
+
+
 
 
 B64IMG_FAVICO = 'None'
