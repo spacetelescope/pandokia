@@ -19,27 +19,30 @@ switch ( "$1" )
 
 case iraf:
 	iraf $2
-	set libdir=$PYTHONPATH $2
+        set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
 	python setup.py -q install --install-lib $libdir
-	cp stsci/config.py $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/config.py
+        echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	exit 0
 
 case irafx:
 	irafx $2
-	set libdir=$PYTHONPATH
+        set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
 	python setup.py -q install --install-lib $libdir
-	cp stsci/config.py $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/config.py
+        echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	exit 0
 
 case irafdev:
 	irafdev $2
-	set libdir=$PYTHONPATH
-	python setup.py -q install --install-lib $libdir
+        set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
 	cp stsci/config.py $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/config.py
+        echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	exit 0
