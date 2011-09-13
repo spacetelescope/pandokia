@@ -12,6 +12,13 @@ cginame = 'https://ssb.stsci.edu/pandokia/pandokia.cgi'
 
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
 
+recurring_prefix = (
+    'daily',
+    'weekly',
+    'monthly',
+    'numpy',
+    )
+
 if not 'pdk_db' in globals() :
     # Database: MYSQL
     #           http://www.mysql.com/
