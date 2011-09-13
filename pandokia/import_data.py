@@ -123,7 +123,7 @@ def read_record(f) :
                     print "INVALID INPUT FILE - eof in multi-line",name,line_count
                     exit_status = 1
                     break
-                if l == "\n" :
+                if l == "\n" or l == '\r\n':
                     # blank line marks end
                     break
                 if l[0] != '.' :
