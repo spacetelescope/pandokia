@@ -1,0 +1,7 @@
+. ./shunit2_test_helpers
+
+testEquality()
+{
+  assertEquals 1 2
+}
+
