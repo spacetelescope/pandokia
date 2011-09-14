@@ -34,6 +34,10 @@ try :
     exec( s )
 except ImportError, e :
     sys.stderr.write("Cannot import %s%s:\n%s\n" % ( prefix, runner_name, str(e)) )
+    sys.stderr.write("sys.path=[\n")
+    for x in sys.path :
+        sys.stderr.write('    %s\n'%x)
+    sys.stderr.write(']\n')
     sys.exit(1)
 
 #
