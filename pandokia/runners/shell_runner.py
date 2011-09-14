@@ -25,7 +25,7 @@ if windows :
         f = open(env['PDK_LOG'],"a")
 
         # construct the name the same way that pdk_shell_runner does
-        name = env['PDK_TESTPREFIX'] + '/' + env['PDK_FILE']
+        name = env['PDK_TESTPREFIX'] + env['PDK_FILE']
         if name.endswith('.sh') :
             name = name[:-3]
         elif name.endswith('.csh') :
