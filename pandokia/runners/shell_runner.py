@@ -3,6 +3,9 @@
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
 
+import platform
+windows = platform.system() == 'Windows'
+
 # test runner that runs shell scripts - this is primarily an example of how
 # to add a new test runner, though in principle you could use it for real
 # tests.
@@ -16,9 +19,31 @@
 #
 # 
 
-# returns a command to run the test
-def command( env ) :
-    return 'pdk_shell_runner'
+
+if windows :
+    def run_internally(env) :
+        f = open(env['PDK_LOG'],"a")
+
+        # construct the name the same way that pdk_shell_runner does
+        name = env['PDK_TESTPREFIX'] + '/' + env['PDK_FILE']
+        if name.endswith('.sh') :
+            name = name[:-3]
+        elif name.endswith('.csh') :
+            name = name [:-4]
+        f.write("name=%s\n"%name)
+
+        # log that you can't do that on windows
+        f.write("status=E\nlog=shell_runner not available on Windows\nEND\n\n")
+
+        f.close()
+
+    def command(env) :
+        return None
+
+else :
+    # returns a command to run the test
+    def command( env ) :
+        return 'pdk_shell_runner'
 
 # returns a list of tests in the file
 #

@@ -3,12 +3,33 @@
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
 
+import platform
+windows = platform.system() == 'Windows'
+
 # test runner for IRAF/PyRAF based tests used by STScI OED/SSB group 
 # This is likely of little interest to you.
 
-# returns a command to run the test
-def command( env ) :
-    return 'pdk_stsci_regress'
+if windows :
+    def run_internally(env) :
+        f = open(env['PDK_LOG'],"a")
+
+        # construct the name the same way that shunit2 does
+        name = env['PDK_TESTPREFIX'] + env['PDK_FILE']
+        if name.endswith('.xml') :
+            name = name[:-4]
+        f.write("name=%s\n"%name)
+
+        f.write("status=E\nlog=stsci_regtest not available on Windows\nEND\n\n")
+        f.close()
+
+    def command(env) :
+        return None
+
+else :
+    # returns a command to run the test
+    def command( env ) :
+        return 'pdk_stsci_regress'
+
 
 # returns a list of tests in the file
 # Easy for regtest because there is only one test in the file, and it is named
