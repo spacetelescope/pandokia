@@ -278,6 +278,9 @@ class EnvGetter(object):
         #By default, environment will be merged with os.environ.
         if defdict is None:
             self.defdict=os.environ.copy()
+            # bug: hack: windows sets PROMPT=$P$G which totally hoses up envgetter
+            if 'PROMPT' in self.defdict :
+                del self.defdict['PROMPT']
         else:
             self.defdict=defdict
             
