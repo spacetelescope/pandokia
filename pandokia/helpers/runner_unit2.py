@@ -15,7 +15,7 @@ except ImportError, e :
 
 # These are the versions of unittest2 that I expect this code to work
 # with.  It might work in other versions, but who knows?
-unittest2_versions = ( '0.3.0', '0.4.0', '0.4.2' )
+unittest2_versions = ( '0.3.0', '0.4.0', '0.4.2', '0.5.1' )
 
 
 from pandokia.helpers import pycode
@@ -192,8 +192,10 @@ def main(args) :
 
 
     if no_unittest2 :
-        print "Cannot import unittest2"
+        print "%s Cannot import unittest2"%__file__
         print e
+        for x in sys.path :
+            print "    %s",x
         file_status = 'E'
 
     else :
