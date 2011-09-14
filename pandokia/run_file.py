@@ -6,6 +6,10 @@ import datetime
 
 import pandokia
 
+import platform
+windows = platform.system() == 'Windows'
+
+
 # subprocess is the interface du jour for starting a new process
 import subprocess
 
@@ -162,8 +166,10 @@ def run( dirname, basename, envgetter, runner ) :
         # it to our caller.  Otherwise, we use a file based on the log file name.
         if 'PDK_PROCESS_SLOT' in env :
             summary_file = env['PDK_LOG'] + '.summary'
+            slot_id = env['PDK_PROCESS_SLOT']
         else :
             summary_file = None
+            slot_id = '0'
 
         f=open(env['PDK_LOG'],'a+')
         # 2 == os.SEEK_END, but not in python 2.4
@@ -204,8 +210,26 @@ def run( dirname, basename, envgetter, runner ) :
                 print 'COMMAND :', thiscmd, '(for file %s)'% full_filename, datetime.datetime.now()
                 sys.stdout.flush()
                 sys.stderr.flush()
-                p = subprocess.Popen(thiscmd, shell=True, env = env )
-                ( pid, status ) = os.waitpid(p.pid,0)
+                if windows :
+                    # on Windows, we dare not let the child process have access to the stdout/stderr
+                    # that we are using.  Apparently, the child process closes stderr and it somehow
+                    # ends up closed for us too.  So, stuff it into a temp file and then copy the
+                    # temp file to our stdout/stderr.
+                    f = open("stdout.%s.tmp"%slot_id,"w")
+                    status = subprocess.call(thiscmd, stdout=f, stderr=f, shell=True, env = env )
+                    f.close()
+                    f = open("stdout.%s.tmp"%slot_id,"r")
+                    while 1 :
+                        buffer = f.read()
+                        if buffer == '' :
+                            break
+                        sys.stdout.write(buffer)
+                    f.close()
+                    os.unlink("stdout.%s.tmp"%slot_id)
+                else :
+                    # on unix, just do it
+                    p = subprocess.call(thiscmd, shell=True, env = env )
+
                 # python doesn't just give you the unix status
                 if status & 0xff == 0 :
                     status="exit %d"%(status >> 8)

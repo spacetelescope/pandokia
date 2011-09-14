@@ -64,7 +64,7 @@ def run( dirs, envgetter, max_procs=None ) :
 
     # The basic command to run tests in a directory is
     #   pdk run --dir --environment_already_set $directory
-    cmd = [ 'pdk', 'run', '--dir', '--environment_already_set' ]
+    cmd = [ 'pdkrun', '--dir', '--environment_already_set' ]
 
     # We use multirun to runs up to max_procs concurrent processes.
     # In each process, we run tests in one directory.  We don't

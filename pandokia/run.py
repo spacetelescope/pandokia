@@ -124,17 +124,18 @@ def run(args) :
     os.environ['PDK_TESTRUN'] = test_run
     os.environ['PDK_CONTEXT'] = context
 
+    initialized_status_file = 0
     if not 'PDK_STATUSFILE' in os.environ :
-        initialized_status_file = 1
-        os.environ['PDK_STATUSFILE'] = os.getcwd() + '/pdk_statusfile'
+        status_file_name = os.getcwd() + '/pdk_statusfile'
         import pandokia.run_status
         if parallel is None :
             n_status_records = 1
         else :
             n_status_records =  int(parallel)
-        pandokia.run_status.init_status( file = os.environ['PDK_STATUSFILE'], n_records = n_status_records )
-    else :
-        initialized_status_file = 0
+        f = pandokia.run_status.init_status( file = status_file_name, n_records = n_status_records )
+        if f :
+            os.environ['PDK_STATUSFILE'] = os.getcwd() + '/pdk_statusfile'
+            initialized_status_file = 1
 
     if test_prefix is not None :
         os.environ['PDK_TESTPREFIX'] = test_prefix
@@ -209,9 +210,12 @@ def default_test_run() :
     import datetime
     d = datetime.datetime.now()
     if 'USER' in os.environ :
-        fmt = 'user_' + os.environ['USER'] + '_%Y-%m-%d-%H-%M-%S'
+        user = os.environ['USER']
+    elif 'USERNAME' in os.environ :
+        user = os.environ['USERNAME']
     else :
-        fmt = 'user_%Y-%m-%d-%H-%M'
+        user = 'unknown'
+    fmt = 'user_' + user + '_%Y-%m-%d-%H-%M-%S'
     d = d.strftime( fmt )
     print "DEFAULT TEST RUN",d
     return d

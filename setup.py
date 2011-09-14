@@ -1,9 +1,12 @@
 import distutils.core
+import os
+import os.path
 
-# import platform
+import platform
 # print platform.python_version()
 
-import os
+windows = platform.system() == 'Windows'
+
 
 # bug: take this out (?)
 # os.system("rm -rf build")
@@ -70,12 +73,12 @@ d = distutils.core.setup(
     **args
 )
 
-dir_set = "pdk_dir = '%s' # this was set during install by setup.py\n"
+dir_set = "pdk_dir = r'%s' # this was set during install by setup.py\n"
 
 #
 #
 def fix_script(name) :
-    fname = script_dir + "/" + name
+    fname = os.path.join(script_dir,name)
 
     f=open(fname,"r")
     l = f.readlines()
@@ -83,12 +86,26 @@ def fix_script(name) :
         l[0] = '#!/usr/bin/env python\n'
     for count, line in enumerate(l) :
         if line.startswith("PDK_DIR_HERE") :
-            l[count] = dir_set % lib_dir
+            l[count] = dir_set % lib_dir.replace('\\','/')
     f.close()
 
     f=open(fname,"w")
     f.writelines(l)
     f.close()
+
+    # windows versions - turns out we use these everywhere
+    # to avoid writing a lot of "if windows: x=x+'.py'"
+    f=open(fname+".py","w")
+    f.writelines(l)
+    f.close()
+
+    # make .bat files too, so the commands can have normal names
+    f=open(fname+".bat","w")
+    f.write("@echo off\n%s.py %%*\n" % fname)
+    f.close()
+
+    if not windows :
+        os.chmod(fname + '.py', 0700)
 
 if 'install' in d.command_obj :
     # they did an install

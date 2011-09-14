@@ -8,6 +8,9 @@ import os
 import sys
 import errno
 import time
+import platform
+
+windows = platform.system() == 'Windows'
 
 __all__ = [ 'start', 'done', 'wait', 'wait_all', 'set_max_procs', 'await_process_slot' ]
 
@@ -113,6 +116,7 @@ def start( args, env=None, callback=None, cookie=None, slot=None ) :
         slot = await_process_slot()
     assert process_slot[slot] is None 
 
+    print "START",args
     proc_struct = _run_proc(args, env, slot)
 
     proc_struct.callback = callback
@@ -148,6 +152,12 @@ def done( pid, status ) :
 
     for n, proc_struct in enumerate(process_slot) :
         if not ( proc_struct is None ) and ( proc_struct.pid == pid ) :
+
+            # Do not close our copy of the process stdout until after the process
+            # exits.  I'm not sure if this is really important, but there seems
+            # to be something funny about closing stdout on windows - it looks
+            # like a parent/child process will close it for _everybody_.
+            proc_struct.f_out.close()
             process_slot[n] = None
             f = open( proc_struct.stdout_filename, "r" )
             x=f.read(32768)
@@ -169,33 +179,56 @@ def done( pid, status ) :
             return
     assert False
 
-def wait( ) :
-    """
-    Wait for one child process to exit.
+if windows :
+    # The python version of windows does not seem to have any equivalent of os.wait
+    # but subprocess can ask if a _specific_ process has exited.  Since that is
+    # all we have, poll the processes, with a delay so we don't occupy a whole
+    # processor doing it.
+    #
+    def wait() :
+        while 1 :
+            for x in all_procs :
+                status = all_procs[x].popen_object.poll() 
+                if status is not None :
+                    done( all_procs[x].pid, status)
+                    return
+            time.sleep(0.5)
 
-    If there are no child processes, but we still think there are,
-    assume each of them exited, but the exit code will be None instead
-    of a number.
-    """
-    try :
-        (pid, status) = os.wait()
-    except OSError, e:
-        if e.errno == errno.ECHILD :
-            #
-            # If there are no more child processes, everything must be done.
-            # Call all the callbacks and clear them out of the list.
-            #
-            # You wouldn't think that this code could execute, but if
-            # the user is calling os.wait() somewhere else, we might not
-            # know about every process that exits.  This is the best we
-            # can do.
+    # There is a thread-based approach to this problem at
+    # http://stackoverflow.com/questions/100624/python-on-windows-how-to-wait-for-multiple-child-processes
+    # In principle, that could be adapted here, but I'm not sure
+    # the extra complexity is worth the effort.
 
-            # You can't say 'for x in all_procs' because we will be changing
-            # all_procs during the loop.
-            pending_procs = [ x for x in all_procs ] 
-            for x in pending_procs :
-                done(x, None)
-    done(pid, status)
+else :
+    def wait( ) :
+        """
+        Wait for one child process to exit.
+
+        If there are no child processes, but we still think there are,
+        assume each of them exited, but the exit code will be None instead
+        of a number.
+        """
+        try :
+            (pid, status) = os.wait()
+        except OSError, e:
+            if e.errno == errno.ECHILD :
+                #
+                # If there are no more child processes, everything must be done.
+                # Call all the callbacks and clear them out of the list.
+                #
+                # You wouldn't think that this code could execute, but if
+                # the user is calling os.wait() somewhere else, we might not
+                # know about every process that exits.  This is the best we
+                # can do.
+
+                # You can't say 'for x in all_procs' because we will be changing
+                # all_procs during the loop.
+                pending_procs = [ x for x in all_procs ] 
+                for x in pending_procs :
+                    done(x, None)
+        done(pid, status)
+
+
 
 def wait_all( ) :
     """
@@ -228,7 +261,7 @@ def _run_proc( args, env, slot ) :
     except :
         pass
     f_out = open(output,"w")
-    if 0 :
+    if 1 :
         f_out.write('run_proc: ')
         for x in args :
             f_out.write('%s '%x)
@@ -236,9 +269,14 @@ def _run_proc( args, env, slot ) :
 
     f_out.flush()
 
-    x= subprocess.Popen( args=args, stdout=f_out, stderr=subprocess.STDOUT, bufsize=0, env=env )
+    print args
+    if windows :
+        # on Windows:
+        #   shell=True to make it search the path
+        x= subprocess.Popen( args=args, stdout=f_out, stderr=subprocess.STDOUT, bufsize=-1, env=env, shell=True  )
+    else :
+        x= subprocess.Popen( args=args, stdout=f_out, stderr=subprocess.STDOUT, bufsize=-1, env=env )
 
-    f_out.close()
 
     proc_count = proc_count + 1
 
@@ -247,6 +285,7 @@ def _run_proc( args, env, slot ) :
     rval.slot = slot
     rval.stdout_filename = output
     rval.popen_object = x
+    rval.f_out = f_out
 
     return rval
 
