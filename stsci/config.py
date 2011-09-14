@@ -24,12 +24,18 @@ if not 'pdk_db' in globals() :
     #           http://www.mysql.com/
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
-    import pandokia.db_mysqldb as pdk_db
+    try :
+        import pandokia.db_mysqldb as pdk_db
 
-    # db_arg is a dict of the parameters to pass to connect()
-    db_arg = { 'host' : 'localhost',
-            'user' : 'pandokia',
-            'passwd' : readpass(),
-            'db' : 'pandokia'
-        }
+        # db_arg is a dict of the parameters to pass to connect()
+        db_arg = { 'host' : 'localhost',
+                'user' : 'pandokia',
+                'passwd' : readpass(),
+                'db' : 'pandokia'
+            }
+
+    # on systems where we can't import the database driver, assume
+    # we don't actually have a database and therefore it won't matter.
+    except ImportError :
+        pass
 
