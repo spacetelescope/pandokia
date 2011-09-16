@@ -37,10 +37,12 @@ def Comparison(comparator, testfile, reffile, **kwds):
     cmethod=comparator.lower()
     if cmethod == 'ascii' or cmethod == 'stdout':
         return AsciiComparison(testfile, reffile, **kwds)
+    elif cmethod == 'diff':
+        return DifflibComparison(testfile, reffile, **kwds)
     elif cmethod == 'image' or cmethod == 'table' or cmethod == 'fits':
         return FitsComparison(testfile, reffile, **kwds)
     elif cmethod == 'binary':
-        return BinaryComparison(testfile,reffile,**kwds)
+        return BinaryComparison(testfile, reffile, **kwds)
     else:
         raise ValueError,"Sorry, %s comparator is not supported"%comparator
 
@@ -285,6 +287,53 @@ class AsciiComparison(ComparisonClass):
                     rline=ref[i]
                 if tline != rline:
                     self.diffs.append((tline,rline,i+1))
+
+        if len(self.diffs) != 0:
+            self.failed=True
+        else:
+            self.failed=False
+
+class DifflibComparison(ComparisonClass):
+    """Override methods for difflib comparison. No ignore keywords yet. """
+
+    def __init__(self, testfile, reffile, **kwds):
+        ComparisonClass.__init__(self, testfile, reffile)
+        self.type='diff'
+
+    def writeresults(self, fh):
+        """ just dump every line """
+        if self.failed:
+            fh.write("? unified diff: %s %s\n"%(self.reffile,self.testfile))
+            for line in self.diffs:
+                fh.write("? "+line+"\n")
+                fh.flush()
+
+    def compare(self):
+        """ Use difflib to compare lines """
+        import difflib
+        try :
+            th=open(self.testfile)
+        except :
+            print "ERROR: cannot open test file ",self.testfile
+            print sys.exc_info[1]
+            raise
+
+        try :
+            rh=open(self.reffile)
+        except :
+            print "ERROR: cannot open ref file ",self.reffile
+            print sys.exc_info[1]
+            raise
+
+        test=th.readlines()
+        ref=rh.readlines()
+
+        th.close()
+        rh.close()
+
+        # rstrip as well as use lineterm - sometimes lineterm doesn't work
+        self.diffs = [l.rstrip() for l in \
+                      difflib.unified_diff(ref, test, lineterm='', n=0)]
 
         if len(self.diffs) != 0:
             self.failed=True
