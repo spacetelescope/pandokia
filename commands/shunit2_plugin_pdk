@@ -59,9 +59,16 @@ shunit_plugin_init() {
 	if [ -z "${PDK_LOG:-}" ]
 	then
 		echo 'pandokia plugin activated but no pandokia context present -- faking it for testing' >&2
-		__pdk_file_part='arf'
-		PDK_TESTPREFIX='prefix'
+
+		# name of the file we are processing
+		__pdk_file_part=`basename $__shunit_script .sh`
+
+		# imaginary prefix
+		PDK_TESTPREFIX='prefix/'
+
+		# test log file
 		PDK_LOG=PDK_arf
+
 		export PDK_TESTPREFIX PDK_LOG 
 	else 
 
@@ -148,10 +155,13 @@ shunit_plugin_execute() {
 
         echo 'start_time='$start_time
         echo 'end_time='$end_time
-        echo 'log:'
-        sed 's/^/./' < ${__shunit_tmpDir}/pdk_test_ouput
-        echo ''
-        echo ''
+	if [ -s ${__shunit_tmpDir}/pdk_test_ouput ]
+	then
+		echo 'log:'
+		sed 's/^/./' < ${__shunit_tmpDir}/pdk_test_ouput
+		echo ''
+		echo ''
+	fi
         echo 'END'
         } >> $PDK_LOG
 
