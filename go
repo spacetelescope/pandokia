@@ -20,6 +20,7 @@ switch ( "$1" )
 case iraf:
 	iraf $2
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
+        rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/config.py
         echo CONFIG $libdir/pandokia/config.py
@@ -30,6 +31,7 @@ case iraf:
 case irafx:
 	irafx $2
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
+        rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/config.py
         echo CONFIG $libdir/pandokia/config.py
@@ -40,6 +42,8 @@ case irafx:
 case irafdev:
 	irafdev $2
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
+        rm -rf $libdir/pandokia
+        python setup.py -q install --install-lib $libdir
 	cp stsci/config.py $libdir/pandokia/config.py
         cat stsci/config.py >> $libdir/pandokia/config.py
         echo CONFIG $libdir/pandokia/config.py
@@ -50,7 +54,7 @@ case irafdev:
 case "":
 	set n=44
 	set there=/ssbwebv1/data2/pandokia/c$n
-	find $there -name '*.pyc' -exec rm -f {} ';'
+        rm -rf $there/pandokia
 	python setup.py -q install --home $there
 	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi
 	if ( ! -f /eng/ssb/websites/ssb/pandokia/c$n.cgi ) then
