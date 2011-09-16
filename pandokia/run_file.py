@@ -228,7 +228,7 @@ def run( dirname, basename, envgetter, runner ) :
                     os.unlink("stdout.%s.tmp"%slot_id)
                 else :
                     # on unix, just do it
-                    p = subprocess.call(thiscmd, shell=True, env = env )
+                    status = subprocess.call(thiscmd, shell=True, env = env )
 
                 # python doesn't just give you the unix status
                 if status & 0xff == 0 :
