@@ -32,12 +32,22 @@ command_list = [
                 # needs a place to live.  and it need pandokia.text_table
     'pdk_shell_runner',
     'pdk_shell_runner_helper',
+
     'pdk_filecomp',
+
     'pdk_stsci_regress',
     'pdk_stsci_regress_helper',
     'pdk_stsci_regress_refs',
+
+    # 
     'pdk_gen_contact',
+
+    # run various python modules for test runners
     'pdk_python_runner',
+
+    # plugin for shunit2
+    'shunit2_plugin_pdk',
+
 ]
 
 
