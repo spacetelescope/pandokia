@@ -97,7 +97,7 @@ def pytest_configure(config):
                 location = os.path.abspath(os.path.curdir),
                 test_runner = 'pytest',
                 test_prefix = '')
-        except IOError as e:
+        except IOError, e:
             sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
