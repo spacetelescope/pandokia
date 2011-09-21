@@ -92,7 +92,10 @@ def execute( statement, parameters = [ ], db = None ) :
         pass
     elif isinstance(parameters, list) or isinstance(parameters, tuple) :
         # list/tuple turned into a dict with string indexes
-        parameters = { str(x+1) : parameters[x] for x in range(0,len(parameters)) }
+        tmp = { }
+        for x in range(0,len(parameters)) :
+            tmp[str(x+1)] = parameters[x]
+        parameters = tmp
     elif parameters is None :
         parameters = [ ]
     else :
