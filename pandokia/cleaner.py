@@ -364,7 +364,7 @@ def delete_background_step( n = 200 ) :
 def delete_background( args ) :
     n = 20000
     ns = 200
-    sleeptime=10
+    sleeptime=0
     # max records to delete
     if len(args) > 0 :
         n = int(args[0])
@@ -387,10 +387,11 @@ def delete_background( args ) :
         if remaining <= 0 :
             return
         deleted_count = delete_background_step( ns )
-        print "sleep after ",deleted_count
         n = n - ns
         if deleted_count < ns :
             # we ran out - ok to stop now
             break
-        time.sleep(sleeptime)
+        if sleeptime > 0 :
+            print "sleep after ",deleted_count
+            time.sleep(sleeptime)
 
