@@ -455,11 +455,11 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
             result_table.set_value(rowcount,"stat",status, html="<font color=red>"+str(status)+"</font>", link=this_link)
 
         if show_attr :
-            c3 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1", ( key_id, ) )
+            c3 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1 ORDER BY name ASC", ( key_id, ) )
             load_in_table( tda_table, rowcount, c3, "tda_", sort_link )
             del c3
 
-            c3 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1", ( key_id, ) )
+            c3 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1 ORDER BY name ASC", ( key_id, ) )
             load_in_table( tra_table, rowcount, c3, "tra_", sort_link )
             del c3
 
