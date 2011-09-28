@@ -248,14 +248,14 @@ def do_result( key_id ) :
         tb.set_value(row, 1, location)
         row += 1
 
-        c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1 ", (key_id, ) )
+        c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1 ORDER BY name ASC", (key_id, ) )
         for y in c1 :
             (name, value) = y
             tb.set_value(row, 0, "tda_"+name)
             tb.set_value(row, 1, value)
             row += 1
 
-        c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1 ", (key_id, ) )
+        c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1 ORDER BY name ASC", (key_id, ) )
         for y in c1 :
             (name, value) = y
             tb.set_value(row, 0, "tra_"+name)
