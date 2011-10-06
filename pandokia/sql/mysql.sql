@@ -123,7 +123,11 @@ CREATE INDEX result_tra_index
 
 CREATE TABLE result_log (
 	key_id INTEGER,
-	log BLOB
+	log LONGBLOB
+		-- in mysql, BLOB is 64k, MEDIUMBLOB is 16m,
+		-- and LONGBLOB is 4g.  use LONGBLOB because you
+		-- really don't want the annoyance when you lose the
+		-- last line of the only 16.001 MB log entry in your system.
 	);
 
 
