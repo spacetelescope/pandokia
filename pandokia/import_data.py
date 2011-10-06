@@ -8,11 +8,11 @@ import sys
 import pandokia.common as common
 import pandokia
 
-cfg = pandokia.cfg = pandokia.cfg
+cfg = pandokia.cfg
 
 import cStringIO as StringIO
 
-database = pandokia.cfg.pdk_db.db_module
+database = pandokia.cfg.pdk_db
 
 exit_status = 0
 
@@ -184,6 +184,9 @@ class test_result(object):
             self.test_name = self.test_name.replace(' ','_')
         if '\t' in self.test_name :
             self.test_name = self.test_name.replace('\t','_')
+        # avoid excess / or . at beginning (easy to do by mistake in some runners)
+        while self.test_name.startswith('/') or self.test_name.startswith('.') :
+            self.test_name = self.test_name[1:]
 
         try :
             if self.start_time != '' :
@@ -215,7 +218,7 @@ class test_result(object):
             exit_status = 1
 
     def try_insert( self, db ) :
-        return cfg.pdk_db.execute(
+        return db.execute(
                 "INSERT INTO result_scalar ( test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
                 " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 )" ,
                 ( self.test_run, self.host, self.project, self.test_name, self.context, self.status,
@@ -309,7 +312,6 @@ def run(args, hack_callback = None) :
 
     default_test_runner = ''
     default_context = 'unk'
-    db = cfg.pdk_db.open_db()
     for filename in args :
         if filename.startswith("-") :
             if '=' in filename :
@@ -389,12 +391,12 @@ def run(args, hack_callback = None) :
                 if not hack_callback(rx) :
                     continue
             try :
-                rx.insert(db)
+                rx.insert(cfg.pdk_db)
             except database.IntegrityError:
                 if not quiet :
                     print "warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"]
 
-            db.commit()
+            cfg.pdk_db.commit()
 
         if f != sys.stdin :
             f.close()

@@ -5,11 +5,11 @@
 
 import sys
 import pandokia.common as common
+import pandokia.config
 
 import pandokia
-cfg = pandokia.cfg
 
-db = cfg.pdk_db.open_db()
+pdk_db = pandokia.confi.cfg.pdk_db()
 
 #
 # emit a single field of an output record.  use name=value
@@ -47,7 +47,7 @@ def do_export( output, where_text, where_dict ) :
     sys.stderr.write('begin select\n')
     # 
     sql = ("SELECT key_id, %s FROM result_scalar " % ','.join(fields) ) +where_text
-    c = cfg.pdk_db.execute( sql, where_dict)
+    c = pdk_db.execute( sql, where_dict)
     sys.stderr.write('begin writing\n')
     for record in c :
 
@@ -58,15 +58,15 @@ def do_export( output, where_text, where_dict ) :
                 emit_field(output,name,record[x])
 
         # and now the other tables
-        c1 = cfg.pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
+        c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
         for x in c1 :
             emit_field(output,'tda_'+x[0],x[1])
         
-        c1 = cfg.pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
+        c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
         for x in c1 :
             emit_field(output,'tra_'+x[0],x[1])
 
-        c1 = cfg.pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
+        c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
         x = c1.fetchone()
         if x is not None :
             emit_field(output,'log',x[0])
@@ -100,12 +100,12 @@ def run(args) :
 
     for name in value :
         name = common.find_test_run(value[0])
-        c = cfg.pdk_db.execute('SELECT name FROM distinct_test_run WHERE name LIKE :1 ORDER BY name',(name,))
+        c = pdk_db.execute('SELECT name FROM distinct_test_run WHERE name LIKE :1 ORDER BY name',(name,))
         for test_run in c :
             test_run = test_run[0]
             sys.stderr.write('test_run %s\n'%test_run)
             query_dict['test_run'] = test_run
-            where_text, where_dict = cfg.pdk_db.where_dict([ (x,query_dict[x]) for x in query_dict ] )
+            where_text, where_dict = pdk_db.where_dict([ (x,query_dict[x]) for x in query_dict ] )
 
             do_export(output, where_text, where_dict)
 

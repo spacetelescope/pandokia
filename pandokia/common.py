@@ -204,7 +204,7 @@ def run_previous( prefix, test_run ) :
     return x[0]
 
 def run_latest( prefix ) :
-    c = pandokia.cfg.pdk_db.execute("SELECT MAX(test_run) FROM distinct_test_run WHERE test_run LIKE :1 ",
+    c = cfg.pdk_db.execute("SELECT MAX(test_run) FROM distinct_test_run WHERE test_run LIKE :1 ",
         ( prefix+'%', ) )
     x = c.fetchone()
     if not x :

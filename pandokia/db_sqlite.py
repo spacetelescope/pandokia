@@ -8,24 +8,10 @@
 #
 
 __all__ = [
-    'commit',
     'db_module',
-    'execute',
-    'explain_query',
-    'open_db',
-    'pdk_db_driver',
+    'db_driver',
     'where_dict',
     ]
-
-
-
-# use this when something is so specific to the database that you
-# can't avoid writing per-database code
-pdk_db_driver = 'sqlite'
-
-
-import os
-
 
 #
 # Since we were in a hurry to get it working, we use certain sqlite3
@@ -33,16 +19,17 @@ import os
 #
 # These sqlite features are:
 #
-# PRAGMA synchronous = OFF;
+# PRAGMA synchronous = NORMAL;
 #   FULL = pause to wait for data to get to disk; guards against
 #       db corruption in case of system crash, but slow
 #   NORMAL = pause only at the most critical moments
 #   OFF = hand off writes to the OS and continue; as much as 50
 #       times faster than FULL, but if the OS crashes or you
 #       lose power, the db might get corrupted.
-#   We are not doing many writes in this cgi, and power fail /
-#   os crashes are pretty rare.  If our db gets hosed, we'll
-#   either live without the old data or rebuild it.
+#
+# You would think that OFF would be a good choice because we don't do a
+# lot of writes, but we have a problem once or twice a year that seems to
+# be related to killing an import.
 #
 # db.text_factory = str
 #   cause all strings to be extracted as str instead of unicode.
@@ -62,94 +49,75 @@ except ImportError, e :
     import pysqlite2.dbapi2 as db_module
 
 
-xdb=None
-
-def open_db ( access_str=None ):
-    global xdb
-    if access_str is None :
-        if xdb is not None :
-            return xdb
-        import pandokia.config
-        access_str = pandokia.config.db_arg+"/pdk.db"
-
-    if not os.path.exists(access_str) :
-        print "NO DATABASE FILE",access_str
-
-    xdb = db_module.connect(access_str,timeout=10)
-        # timeout is how long to wait if the db is locked; mostly
-        # only an issue if an import is happening
-
-    xdb.execute("PRAGMA synchronous = OFF;")
-    xdb.text_factory = str;
-
-    # must have case_sensitive_like so LIKE 'arf%' can use the
-    # indexes.  With non-case-sensitive like, any LIKE clause
-    # turns into a linear search of the table.
-    xdb.execute("PRAGMA case_sensitive_like = true;")
-    return xdb
-
-#
-# generic commit so the user doesn't need to grab the db handle
-
-def commit( db = None ) :
-    if db is None :
-        if xdb is None :
-            open_db()
-        db = xdb
-    db.commit()
-
-#
-# explain the query plan using the database-dependent syntax
-#
-def explain_query( text, query_dict ) :
-    f = cStringIO.StringIO()
-    c = execute( 'EXPLAIN QUERY PLAN '+ text, query_dict, xdb )
-    for x in c :
-        f.write(str(x))
-    return f.getvalue()
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+db_driver = 'sqlite'
 
 
-#
-# execute a query in a portable way
-# (this capability not offered by dbapi)
-#
+class PandokiaDB(pandokia.db.where_dict_base) :
 
-def execute( statement, parameters = [ ], db = None ) :
+    IntegrityError = db_module.IntegrityError
+    ProgrammingError = db_module.ProgrammingError
 
-    # choose the default database
-    if db is None :
-        if xdb is None :
-            open_db()
-        db = xdb
+    db = None
 
-    # convert the parameters, as necessary
-    if isinstance(parameters, dict) :
-        # dict does not need to be converted
-        pass
-    elif isinstance(parameters, list) or isinstance(parameters, tuple) :
-        # list/tuple turned into a dict with string indexes
-        tmp = { }
-        for x in range(0,len(parameters)) :
-            tmp[str(x+1)] = parameters[x] 
-        parameters = tmp
-    elif parameters is None :
-        parameters = [ ]
-    else :
-        # no other parameter type is valid
-        raise db_module.ProgrammingError
+    def __init__( self, access_arg ) :
+        self.db_access_arg = access_arg
 
-    # for sqlite3, :xxx is already a valid parameter format, so no change is necessary
+    def open( self ) :
+        self.db = db_module.connect( ** ( self.db_access_arg ) )
+        self.db.execute("PRAGMA synchronous = NORMAL;")
+        self.db.text_factory = str;
 
-    # 
-    c = db.cursor()
-    c.execute( statement, parameters )
+        # must have case_sensitive_like so LIKE 'arf%' can use the
+        # indexes.  With non-case-sensitive like, any LIKE clause
+        # turns into a linear search of the table.
+        self.db.execute("PRAGMA case_sensitive_like = true;")
 
-    return c
+    def commit(self):
+        self.db.commit()
+
+    def rollback(self):
+        self.db.rollback()
+
+    #
+    # explain the query plan using the database-dependent syntax
+    #
+    def explain_query( text, query_dict ) :
+        f = cStringIO.StringIO()
+        c = self.db.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict, xdb )
+        for x in c :
+            f.write(str(x))
+        return f.getvalue()
 
 
-#
-# use the glob-type where_dict
-#
+    #
+    # execute a query in a portable way
+    # (this capability not offered by dbapi)
+    #
+    def execute( statement, parameters = [ ], db = None ) :
 
-from pandokia.db import where_dict
+        # convert the parameters, as necessary
+        if isinstance(parameters, dict) :
+            # dict does not need to be converted
+            pass
+        elif isinstance(parameters, list) or isinstance(parameters, tuple) :
+            # list/tuple turned into a dict with string indexes
+            tmp = { }
+            for x in range(0,len(parameters)) :
+                tmp[str(x+1)] = parameters[x] 
+            parameters = tmp
+        elif parameters is None :
+            parameters = [ ]
+        else :
+            # no other parameter type is valid
+            raise db_module.ProgrammingError
+
+        # for sqlite3, :xxx is already a valid parameter format, so no change is necessary
+
+        # 
+        c = db.cursor()
+        c.execute( statement, parameters )
+
+        return c
 

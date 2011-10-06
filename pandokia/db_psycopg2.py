@@ -3,6 +3,8 @@
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
 
+raise Exception("This driver is obsolete - no postgres support at this time")
+
 #
 # postgres database driver, using pyscopg2
 #

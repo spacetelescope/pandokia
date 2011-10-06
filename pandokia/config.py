@@ -15,12 +15,7 @@
 ######
 #
 # To select the database to use, import the appropriate database
-# interface code as pdk_db; set db_arg to what pdk_db.open_db()
-# will need to know to access your database
-#
-# The database interface code is named for the dbapi package
-# that talks to that database, but all lower case.
-#
+# driver and instantiate a connection to the database.
 
 def readpass() :
     # import os.path
@@ -59,13 +54,17 @@ if 0 :
     #           http://docs.python.org/library/sqlite3.html
     # pysqlite - same driver, developed separately from python distribution
     #           http://code.google.com/p/pysqlite/
-    import pandokia.db_sqlite as pdk_db
+    import pandokia.db_sqlite as dbd
     import os
 
     # db_arg is the file name of the database; default here is to store it
     # in the install dir, but normally you would point this somewhere that
     # you have a big disk to store your data
     db_arg = os.path.dirname(os.path.abspath(__file__))
+
+    # This does not actually open the database unless you try to talk to it
+    pdk_db = dbd.PandokiaDB( db_arg )
+
 
 if 0 :
     # DOES NOT WORK YET
@@ -75,14 +74,14 @@ if 0 :
     #           http://initd.org/psycopg/
     # 
     import pandokia.db_psycopg2 as pdk_db
-    db_arg = 'dbname=test'
+    db_arg = { 'database' : 'test.db', 'timeout' : 30, }
 
 if 0 :
     # Database: MYSQL
     #           http://www.mysql.com/
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
-    import pandokia.db_mysqldb as pdk_db
+    import pandokia.db_mysqldb as dbd
 
     # db_arg is a dict of the parameters to pass to connect()
     db_arg = { 'host' : 'whatever', 
@@ -90,6 +89,9 @@ if 0 :
             'passwd' : readpass(),
             'db' : 'whatever'
         }
+
+    # This does not actually open the database unless you try to talk to it
+    pdk_db = dbd.PandokiaDB( db_arg )
 
 
 ######

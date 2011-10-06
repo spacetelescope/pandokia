@@ -2,21 +2,18 @@
 # pandokia - a test reporting and execution system
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
-
-#
 # mysql database driver
 #
 
 __all__ = [ 
-    'commit',
     'db_module',
-    'execute',
-    'explain_query',
-    'open_db',
-    'pdk_db_driver',
+    'db_driver',
     'where_dict',
     ]
 
+import MySQLdb as db_module
+
+import pandokia.db
 
 # debugging 
 _tty = None
@@ -27,99 +24,84 @@ import os
 
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code
-pdk_db_driver = 'mysqldb'
+db_driver = 'mysqldb'
 
-
-
-import MySQLdb as db_module
 import re
 
-# This is the cached open database connection
-_xdb=None
+class PandokiaDB(pandokia.db.where_dict_base) :
 
-def open_db ( access_arg=None ):
-    global _xdb
-    if access_arg is None :
-        if _xdb is not None :
-            return _xdb
-        import pandokia
-        access_arg = pandokia.cfg.db_arg
+    IntegrityError = db_module.IntegrityError
 
-    _xdb = db_module.connect( **access_arg )
-    return _xdb
+    db = None
 
-#
-# generic commit so the user doesn't need to grab the db handle
+    def __init__( self, access_arg ) :
+        self.db_access_arg = access_arg
 
-def commit( db = None ) :
-    if db is None :
-        if _xdb is None :
-            open_db()
-        db = _xdb
-    db.commit()
+    def open( self ) :
+        self.db = db_module.connect( ** ( self.db_access_arg ) )
 
-#
-# explain the query plan using the database-dependent syntax
-#
-def explain_query( text, query_dict ) :
-    f = StringIO.StringIO()
-    c = execute( 'EXPLAIN EXTENDED '+ text, query_dict, _xdb )
-    for x in c :
-        f.write(str(x))
-    return f.getvalue()
+    def commit(self):
+        self.db.commit()
 
+    def rollback(self):
+        self.db.rollback()
 
-#
-# execute a query in a portable way
-# (this capability not offered by dbapi)
-#
-
-_pat_from = re.compile(':([a-zA-Z0-9_]*)')
-
-_pat_to = '%(\\1)s '
-
-def execute( statement, parameters = [ ], db = None ) :
-
-    # choose the default database
-    if db is None :
-        if _xdb is None :
-            open_db()
-        db = _xdb
-
-    # convert the parameters, as necessary
-    if isinstance(parameters, dict) :
-        # dict does not need to be converted
-        pass
-    elif isinstance(parameters, list) or isinstance(parameters, tuple) :
-        # list/tuple turned into a dict with string indexes
-        tmp = { }
-        for x in range(0,len(parameters)) :
-            tmp[str(x+1)] = parameters[x]
-        parameters = tmp
-    elif parameters is None :
-        parameters = [ ]
-    else :
-        # no other parameter type is valid
-        raise db_module.ProgrammingError
-
-    # for mysql, convert :xxx to %(xxx)s
-    statement = _pat_from.sub(_pat_to, statement)
-
-    # create a cursor, execute the statement
-    c = db.cursor()
-    if _tty is not None and not statement.startswith('EXPLAIN') :
-        _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
-        _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
-        c.execute("SHOW WARNINGS")
+    #
+    # explain the query plan using the database-dependent syntax
+    #
+    def explain_query( self, text, query_dict ) :
+        f = StringIO.StringIO()
+        c = self.execute( 'EXPLAIN EXTENDED '+ text, query_dict, _xdb )
         for x in c :
-            _tty.write(str(x)+"\n")
-        _tty.write("\n\n\n")
-    # print parameters,"<br>"
-    c.execute( statement, parameters )
+            f.write(str(x))
+        return f.getvalue()
 
-    # return the cursor
-    return c
+    #
+    # execute a query in a portable way
+    # (this capability not offered by dbapi)
+    #
 
+    _pat_from = re.compile(':([a-zA-Z0-9_]*)')
 
-from pandokia.db import where_dict
+    _pat_to = '%(\\1)s '
+
+    def execute( self, statement, parameters = [ ], db = None ) :
+        if not self.db :
+            self.open()
+
+        # convert the parameters, as necessary
+        if isinstance(parameters, dict) :
+            # dict does not need to be converted
+            pass
+        elif isinstance(parameters, list) or isinstance(parameters, tuple) :
+            # list/tuple turned into a dict with string indexes
+            tmp = { }
+            for x in range(0,len(parameters)) :
+                tmp[str(x+1)] = parameters[x]
+            parameters = tmp
+        elif parameters is None :
+            parameters = [ ]
+        else :
+            # no other parameter type is valid
+            raise db_module.ProgrammingError
+
+        # for mysql, convert :xxx to %(xxx)s
+        statement = self._pat_from.sub(self._pat_to, statement)
+
+        # create a cursor, execute the statement
+        c = self.db.cursor()
+
+        if ( _tty is not None ) and not ( statement.startswith('EXPLAIN') ) :
+            _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
+            _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
+            c.execute("SHOW WARNINGS")
+            for x in c :
+                _tty.write(str(x)+"\n")
+            _tty.write("\n\n\n")
+
+        # print parameters,"<br>"
+        c.execute( statement, parameters )
+
+        # return the cursor
+        return c
 
