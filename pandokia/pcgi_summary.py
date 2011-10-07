@@ -52,8 +52,8 @@ def run ( ) :
         cmp_run = ''
 
     cmptype = 'c'
-    if form.has_key("submit") :
-        x = form['submit'].value
+    if form.has_key("x_submit") :
+        x = form['x_submit'].value
         if x == 'same' :
             cmptype = 's'
         elif x == 'different' :
@@ -63,7 +63,6 @@ def run ( ) :
     if form.has_key("show_attr") :
         show_attr = int(form["show_attr"].value)
 
-
     # generate a link to click on to sort.  use sort_link+"thing" to sort
     # on thing.  thing must be "+xyz" or "-xyz" to sort on column xyz
     # either ascending or descending.
@@ -71,7 +70,7 @@ def run ( ) :
     sort_query = { }
     for x in form :
         if x != 'sort' and x != 'query' :
-            sort_query[x] = form[x].value
+            sort_query[x] = form.getlist(x) 
     sort_link = common.selflink( sort_query, 'summary' ) + "&sort="
 
     # Sorting is a little weak right now.  We only generate links to sort
@@ -104,26 +103,26 @@ def run ( ) :
         # this cgi a _lot_
         output.write("""
     Compare to:
-    <form action=%s>
+    <form action=%s id=compare_form name=compare_form>
     <input type=hidden name=qid value='%d'>
     <input type=hidden name=show_attr value='%d'>
     <input type=hidden name=query value='summary'>
     <input type=text name=cmp_run value='%s'>
     <br>
-    <input type=submit name=submit value='compare'>
-    <input type=submit name=submit value='same'>
-    <input type=submit name=submit value='different'>
+    <input type=submit name=x_submit value='compare'>
+    <input type=submit name=x_submit value='same'>
+    <input type=submit name=x_submit value='different'>
     </form>
     """ % ( pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run) ) )
 
         # 
         output.write("""
-    <form action=%s>
+    <form action=%s id=attribute_form name=attribute_form>
     <input type=hidden name=qid value=%d>
     <input type=hidden name=show_attr value=1>
     <input type=hidden name=query value=summary>
     <input type=hidden name=cmp_run value='%s'>
-    <input type=submit name=submit value='Add Attributes'>
+    <input type=submit name=x_submit value='Add Attributes'>
     </form>
     """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
 
@@ -193,6 +192,112 @@ def run ( ) :
             output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
 
 
+        # suppressing columns that the user did not ask for
+        column_select_values = form.getlist('S')
+        if len(column_select_values) > 0 :
+            column_select_values = set(column_select_values)
+            for x in result_table.colmap :
+                if x in ( 'line #', 'checkbox' ) :
+                    continue
+                if not x in column_select_values :
+                    result_table.suppress(x)
+        else :
+            column_select_values = set( [ x  for x in result_table.colmap ] )
+
+        # show the table to choose the columns that the user wants to see
+        output.write("""<a href='javascript:toggle_visibility("selectform")'>[<span id='selectform_plus'></span> Column selector]</a>""")
+
+        output.write('<div id=selectform>')
+        output.write('<form action=%s method=get name=colselectform id=colselectform>' % pandokia.pcgi.cginame )
+        for n, x in sorted( [ ( result_table.colmap[x], x) for x in result_table.colmap ] ) :
+            t = result_table.titles[n]
+            if t == '&nbsp;' :
+                continue
+            if t in column_select_values :
+                checked=' checked '
+            else :
+                checked = ''
+            output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
+        for x in form :
+            if x != 'S' :
+                for y in form.getlist(x) :
+                    output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+        output.write('<input type=submit name="col_show" value="Show Checked">')
+        # output.write('<input type=button name="col_hide" value="Hide Checked" onclick="vis_hide()">')
+        output.write('<input type=button name="toggle" value="Toggle" onclick="vis_toggle()">')
+        output.write('<input type=button name="all" value="All" onclick="vis_all(1)">')
+        output.write('<input type=button name="none" value="None" onclick="vis_all(0)">')
+        output.write('''<input type=button name="tda" value="tda" onclick="vis_some('tda_')">''')
+        output.write('''<input type=button name="tra" value="tra" onclick="vis_some('tra_')">''')
+        output.write('''<input type=button name="tra" value="core" onclick="vis_some('')">''')
+        output.write('</form>')
+        output.write('</div>')
+        
+        # javascript to 
+        output.write("""
+<script type="text/javascript">
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block') {
+          e.style.display = 'none';
+          plus = '+';
+       } else {
+          e.style.display = 'block';
+          plus = '-';
+        }
+        e = document.getElementById(id+'_plus');
+        e.innerHTML = plus;
+    }
+    toggle_visibility("selectform");
+    toggle_visibility("selectform");
+
+    function vis_hide() {
+        vis_toggle();
+        f = document.colselectform;
+        // Why doesn't this work?
+        f.submit();
+    }
+
+    // yeah, I know, but I'm in a hurry
+        function vis_toggle()
+            {
+            len = document.colselectform.elements.length;
+            ele = document.colselectform.elements;
+            for (n=0; n<len; n++)
+                ele[n].checked= ! ele[n].checked;
+            }
+
+        function vis_all(value)
+            {
+            len = document.colselectform.elements.length;
+            ele = document.colselectform.elements;
+            for (n=0; n<len; n++)
+                ele[n].checked= value;
+            }
+
+        function vis_some(value)
+            {
+            len = document.colselectform.elements.length;
+            ele = document.colselectform.elements;
+            if ( value == '' ) {
+                for (n=0; n<len; n++) {
+                    if ( ele[n].value.search('t.a_') == 0 )
+                        return;
+                    ele[n].checked= 1
+                    }
+                return;
+                }
+            for (n=0; n<len; n++)
+                if ( ele[n].value.search(value) == 0 )
+                    ele[n].checked= 1
+            }
+
+</script>
+""")
+
+
+
+        # suppressing the columns that are the same for every row
         same_table = suppress_attr_all_same( result_table )
 
         if same_table.get_row_count() > 0 :
@@ -248,9 +353,23 @@ def run ( ) :
     </script>
     ''')
 
+        # show the table, which contains a form
         output.write('''
-        <form action=%s method=post name=testform>
+        <form action=%s method=get name=testform>
         ''' % ( pandokia.pcgi.cginame,) )
+
+
+        # alter the column headers - violates the interface of text_table
+        # for x in result_table.colmap :
+        #     n = result_table.colmap[x]
+        #     t = result_table.titles[n]
+        #     result_table.title_html[n] = '<input type=checkbox name=S value=%s><br>'%t + t
+
+        # show buttons to manipulate columns
+        # output.write('Column selection:')
+        # output.write('<input type=submit name="col_hide" value="Hide">')
+        # output.write('<input type=submit name="col_show_all" value="Show All">')
+        # output.write('<input type=submit name="column_list" value="Show Column List">')
         
         output.write(result_table.get_html(color_rows=5))
         output.write('''
