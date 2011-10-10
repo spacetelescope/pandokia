@@ -732,15 +732,23 @@ class text_table :
     ##  format suitable for pasting into a Trac wiki page
     ##
 
-    def get_trac_wiki(self) :
+    def get_trac_wiki(self, headings=False) :
         """
         string = o.get_trac_wiki()
 
         generate table output suitable for use in a trac wiki
 
         """
-        col_widths = [ ]
+        col_widths = [ 0 for x in self.titles ]
         s = StringIO.StringIO()
+
+
+        if headings :
+            for col, x in enumerate(self.titles) :
+                if self.is_suppressed(col) :
+                    continue
+                col_widths[col] = len(str(x))
+
         for r in self.rows :
             if r and r.list :
                 for x in range(0,len(r.list)) :
@@ -749,6 +757,13 @@ class text_table :
                     l = len(str(r.list[x].text))
                     if col_widths[x] < l :
                         col_widths[x] = l
+
+        if headings :
+            for col, x in enumerate(self.titles) :
+                if self.is_suppressed(col) :
+                    continue
+                s.write("|| %-*s "%(col_widths[col],str(x)))
+            s.write("||\n")
 
         for r in self.rows :
             if r and r.list :
