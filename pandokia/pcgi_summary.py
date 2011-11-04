@@ -20,6 +20,14 @@ import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 
+def form_to_dict( f ) :
+    d = { }
+    for x in f :
+        l = f.getlist(x)
+        if len(l) > 0 :
+            d[x] = l
+    return d
+
 #
 #
 #
@@ -28,7 +36,6 @@ def run ( ) :
 
     global any_attr
 
-    form = pandokia.pcgi.form
     output = sys.stdout
 
     any_attr = { }
@@ -37,14 +44,22 @@ def run ( ) :
     # gather up all the expected parameters
     #
 
-    if form.has_key("qid") :
-        qid = int( form["qid"].value )
-    else :
-        qid = ""
-        
+    input_query = form_to_dict(pandokia.pcgi.form)
 
-    if form.has_key("cmp_run") :
-        cmp_run = form["cmp_run"].value
+    # print "context-type: text/plain\n\n"
+
+    qid = int(input_query["qid"][0])
+    #print qid
+
+    # some fields are the names of submit buttons that we do not look
+    # at and that we do not want to accumulate in the URL
+    for x in ( 'col_show', ) :
+        if x in input_query :
+            del input_query[x]
+
+    #
+    if 'cmp_run' in input_query :
+        cmp_run = input_query["cmp_run"][0]
         if cmp_run == '' :
             cmp_run = 'daily_yesterday'
         cmp_run = common.find_test_run(cmp_run)
@@ -52,25 +67,27 @@ def run ( ) :
         cmp_run = ''
 
     cmptype = 'c'
-    if form.has_key("x_submit") :
-        x = form['x_submit'].value
+
+    if 'x_submit' in input_query :
+        x = input_query['x_submit'][0]
         if x == 'same' :
             cmptype = 's'
         elif x == 'different' :
             cmptype = 'd'
 
     show_attr = 0
-    if form.has_key("show_attr") :
-        show_attr = int(form["show_attr"].value)
+    if "show_attr" in input_query :
+        show_attr = int(input_query["show_attr"][0])
 
     # generate a link to click on to sort.  use sort_link+"thing" to sort
     # on thing.  thing must be "+xyz" or "-xyz" to sort on column xyz
     # either ascending or descending.
     #
     sort_query = { }
-    for x in form :
+    for x in input_query :
         if x != 'sort' and x != 'query' :
-            sort_query[x] = form.getlist(x) 
+            sort_query[x] = input_query[x]
+
     sort_link = common.selflink( sort_query, 'summary' ) + "&sort="
 
     # Sorting is a little weak right now.  We only generate links to sort
@@ -193,8 +210,8 @@ def run ( ) :
 
 
         # suppressing columns that the user did not ask for
-        column_select_values = form.getlist('S')
-        if len(column_select_values) > 0 :
+        if 'S' in input_query :
+            column_select_values = input_query['S']
             column_select_values = set(column_select_values)
             for x in result_table.colmap :
                 if x in ( 'line #', 'checkbox' ) :
@@ -218,9 +235,9 @@ def run ( ) :
             else :
                 checked = ''
             output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
-        for x in form :
+        for x in input_query :
             if x != 'S' :
-                for y in form.getlist(x) :
+                for y in input_query[x] :
                     output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
         output.write('<input type=submit name="col_show" value="Show Checked">')
         # output.write('<input type=button name="col_hide" value="Hide Checked" onclick="vis_hide()">')
@@ -305,13 +322,12 @@ def run ( ) :
             output.write( same_table.get_html() )
             output.write( "</ul><br>" )
 
-        
-        if form.has_key("sort") :
-            sort_order = form["sort"].value
+        if 'sort' in input_query :
+            sort_order = input_query["sort"][0]
         else :
-            sort_order = '+test_name'
+            sort_order = 'Utest_name'
 
-        reverse_val = sort_order.startswith("-")
+        reverse_val = sort_order.startswith("D")
 
         result_table.set_sort_key( sort_order[1:], float )
 
@@ -355,7 +371,7 @@ def run ( ) :
 
         # show the table, which contains a form
         output.write('''
-        <form action=%s method=get name=testform>
+        <form action=%s method=post name=testform>
         ''' % ( pandokia.pcgi.cginame,) )
 
 
@@ -365,12 +381,6 @@ def run ( ) :
         #     t = result_table.titles[n]
         #     result_table.title_html[n] = '<input type=checkbox name=S value=%s><br>'%t + t
 
-        # show buttons to manipulate columns
-        # output.write('Column selection:')
-        # output.write('<input type=submit name="col_hide" value="Hide">')
-        # output.write('<input type=submit name="col_show_all" value="Show All">')
-        # output.write('<input type=submit name="column_list" value="Show Column List">')
-        
         output.write(result_table.get_html(color_rows=5))
         output.write('''
         <input type=hidden name=query value='action'>
@@ -410,7 +420,7 @@ def run ( ) :
     if pandokia.pcgi.output_format == 'csv' :
         # CSV OUTPUT
         result_table.suppress('checkbox')
-        if 'suppress_same' in form :
+        if 'suppress_same' in input_query :
             suppress_attr_all_same( result_table )
         print "content-type: text/plain\n\n"
         print result_table.get_csv(headings=1)
@@ -419,7 +429,7 @@ def run ( ) :
         # RST OUTPUT
         result_table.suppress('checkbox')
         print "content-type: text/plain\n\n"
-        if 'suppress_same' in form :
+        if 'suppress_same' in input_query :
             suppress_attr_all_same( result_table )
         print result_table.get_rst(headings=1)
 
@@ -427,7 +437,7 @@ def run ( ) :
         # AWK OUTPUT
         result_table.suppress('checkbox')
         print "content-type: text/plain\n\n"
-        if 'suppress_same' in form :
+        if 'suppress_same' in input_query :
             suppress_attr_all_same( result_table )
         print result_table.get_awk(headings=1)
 
@@ -436,7 +446,8 @@ def load_in_table( tt, row, cursor, prefix, sort_link ) :
     for x in cursor :
         ( name, value ) = x
         name = prefix + name
-        tt.define_column(name,link=sort_link+"+"+name)
+        # bug: only sorts up - would like it to be up/down depending on what it was last.
+        tt.define_column(name,link=sort_link+"U"+name)
         tt.set_value(row, name, value)
         any_attr[name]=1
 
@@ -485,18 +496,18 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     result_table.define_column("line #", showname='&nbsp;')
     result_table.define_column("runner")
     result_table.define_column("checkbox",  showname='&nbsp;')
-    result_table.define_column("attn",      link=sort_link+"+attn")
-    result_table.define_column("test_run",  link=sort_link+"+test_run")
-    result_table.define_column("project",   link=sort_link+"+project")
-    result_table.define_column("host",      link=sort_link+"+host")
-    result_table.define_column("context",      link=sort_link+"+context")
-    result_table.define_column("test_name", link=sort_link+"+test_name")
-    result_table.define_column("contact",   link=sort_link+"+contact")
+    result_table.define_column("attn",      link=sort_link+"Uattn")
+    result_table.define_column("test_run",  link=sort_link+"Utest_run")
+    result_table.define_column("project",   link=sort_link+"Uproject")
+    result_table.define_column("host",      link=sort_link+"Uhost")
+    result_table.define_column("context",   link=sort_link+"Ucontext")
+    result_table.define_column("test_name", link=sort_link+"Utest_name")
+    result_table.define_column("contact",   link=sort_link+"Ucontact")
     if cmp_run != "" :
-        result_table.define_column("diff",  link=sort_link+"+diff")
-        result_table.define_column("other", link=sort_link+"+other")
+        result_table.define_column("diff",  link=sort_link+"Udiff")
+        result_table.define_column("other", link=sort_link+"Uother")
 
-    result_table.define_column("stat",      link=sort_link+"+stat")
+    result_table.define_column("stat",      link=sort_link+"Ustat")
 
     # these are used to suppress a column when all the results are the same
     all_test_run = { }

@@ -32,6 +32,8 @@ def run( ) :
     text_present = 0
 
     output.write(common.cgi_header_html)
+    output.write('...')
+    output.flush()
 
     # don't issue the redirect for internet explorer
     if 'MSIE' in os.environ['HTTP_USER_AGENT'] :
@@ -70,7 +72,7 @@ def run( ) :
         pdk_db.commit()
 
     elif 'action_keep' in form :
-        qid = copy_qid(pdk_db,qid)
+        qid = copy_qid(qid)
         c = pdk_db.execute('SELECT key_id FROM query WHERE qid = :1 ', (qid,))
         for key_id, in c :
             if not str(key_id) in form :
