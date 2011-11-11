@@ -14,7 +14,7 @@ tmpfile2=pdk.runner.2.tmp
 rm -f $tmpfile
 rm -f $tmpfile2
 
-PDK_LOG=$tmpfile2 pdk_stsci_regress_helper > $tmpfile 2>&1
+PDK_LOG=$tmpfile2 pdk_stsci_regress_helper $PDK_FILE > $tmpfile 2>&1
 
 if [ -f $tmpfile2 ]
 then
