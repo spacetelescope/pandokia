@@ -165,7 +165,7 @@ the system:
  - A :download:`daily report <screen1.html>` in tabular form
  - An :download:`intermediate report <screen2.html>` from a tree-navigation
  - A :download:`single test result <screen3.html>`
- - A set of failing tests that have :download:`attributes in common<screen4.html`
+ - A set of failing tests that have :download:`attributes in common <screen4.html>`
 
 
 

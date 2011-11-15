@@ -16,6 +16,9 @@ Test definitions
 Each test exists in a separate XML file.  The file format is defined in the
 Pandokia source code in stsci_regtest/TEST_FORMAT.xml 
 
+regtest automatically generates the data needed to make okifiable tests.
+
+
 Test Execution
 -------------------------------------------------------------------------------
 

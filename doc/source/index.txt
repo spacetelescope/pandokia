@@ -27,6 +27,7 @@ Contents:
    demo.txt
    faq.txt
    programming.txt
+   environment.txt
 
 Indices and tables
 ==================

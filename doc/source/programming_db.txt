@@ -38,7 +38,7 @@ cursor = db_execute( statement, parameters, db=None )
 	(parameters is a dict)
 
 	statement contains an instance of :AAA for each named parameter.
-	The parameter name is [a-ZA-Z0-9_]+
+	The parameter name is \[a-ZA-Z0-9_]+
 
 	If parameters is a dict, it will be used as-is.
 
@@ -80,7 +80,7 @@ General Usage
 	cursor = pdk_db.execute( query, parameters )
 
 
-Always fully specify the columns to retrieve; never use "SELECT *".
+Always fully specify the columns to retrieve; never use "SELECT \*".
 
 Use :1, :2, ... for parameters when you have only a fixed set of parameters.
 
