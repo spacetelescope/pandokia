@@ -233,7 +233,6 @@ def run( dirname, basename, envgetter, runner ) :
                 else :
                     # on unix, just do it
                     def yow() :
-                        print "YOW"
                         os.setpgrp()
 
                     p = subprocess.Popen( thiscmd, shell=True, env = env, preexec_fn=yow )
@@ -338,7 +337,8 @@ timeout_proc_kills = 0
 # An exception to raise to abort Popen.wait().
 #
 # at this time, you don't actually catch this exception anywhere -
-# it crashes the whole program
+# it crashes the whole program.  It is an old-style class to make
+# it less likely that somebody might catch it with "except Exception".
 class timeout_not_going_away:
     pass
 
@@ -355,12 +355,12 @@ def proc_timeout_start(timeout, p) :
 # Kill the process group, but no error if it does not exist.  (In case
 # it exited before we got here.)
 def killpg_maybe( pid, signal ) :
+    print "killpg -%d %d"%(signal,pid)
     try :
         os.killpg( pid, signal )
     except OSError, e:
         if e.errno != errno.ESRCH :
             raise
-
 
 #
 # callback that happens when it is time to kill the process
