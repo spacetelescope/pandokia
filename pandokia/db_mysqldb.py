@@ -105,3 +105,19 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # return the cursor
         return c
 
+    ## how much table space is this database using
+    ## not portable to other DB
+    def table_usage( self ) :
+        '''sum of sizes from SHOW TABLE STATUS'''
+        if not self.db :
+            self.open()
+        c = self.db.cursor()
+        c.execute("show table status")
+        tables = 0
+        indexes = 0
+        for x in c :
+            tables = tables + x[6]
+            indexes = indexes + x[8]
+
+        return tables + indexes
+
