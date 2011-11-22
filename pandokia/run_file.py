@@ -333,6 +333,9 @@ timeout_proc = None
 # sigkill, then we give up waiting
 timeout_proc_kills = 0
 
+# remember the duration so we can say how long it was when it expires
+timeout_duration = None
+
 
 # An exception to raise to abort Popen.wait().
 #
@@ -346,9 +349,10 @@ class timeout_not_going_away:
 ## start the timeout for the child process
 ##
 def proc_timeout_start(timeout, p) :
-    global timeout_proc, timeout_proc_kills
+    global timeout_proc, timeout_proc_kills, timeout_duration
     timeout_proc = p
     timeout_proc_kills = 0
+    timeout_duration = timeout
     signal.signal(signal.SIGALRM, proc_timeout_callback)
     signal.alarm(int(timeout))
 
@@ -375,7 +379,7 @@ def proc_timeout_callback(sig, stack):
             pid = timeout_proc.pid
             print "PID=%d"%pid
             if timeout_proc_kills == 0 :
-                print "timeout expired - terminate"
+                print "timeout expired - terminate after %s"%str(timeout_duration)
                 killpg_maybe( pid, signal.SIGTERM )
             elif timeout_proc_kills == 1 :
                 print "timeout expired again - kill"
