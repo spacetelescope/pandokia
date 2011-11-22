@@ -29,6 +29,28 @@ from pyraf.iraf import fitsio
 #       you use os.chdir()
 #
 
+#######
+# trap SIGTERM and throw a signal - this may cause us to make a better
+# report if we get killed something outside the process (e.g. pdkrun
+# detecting a timeout.)
+class pdk_stsci_regtest_killed(Exception):
+    pass
+
+killed = False
+
+def killed_func(sig,stk):
+    global killed 
+    killed = True
+    print "KILLED"
+    open("/dev/tty","w").write("\n---KILLED---\n")
+    raise pdk_stsci_regtest_killed
+
+import signal
+signal.signal(signal.SIGTERM, killed_func)
+
+#######
+
+
 import pdk_report
 pdkr = pdk_report.report()
 
@@ -137,6 +159,8 @@ class Regress:
             for x in config["attributes"] :
                 pdkr.set_tda(x,value)
 
+        crash = False
+
         try :
             if 'title' in config :
                 pdkr.set_tda('title',config["title"])
@@ -153,6 +177,8 @@ class Regress:
 
             # Run any pre-execution commands in the configuration file
             if config.has_key ("pre-exec"):
+                print ".begin pre-exec"
+                sys.stdout.flush()
 
                 for code in config["pre-exec"]:
 
@@ -160,26 +186,28 @@ class Regress:
                         efile = open (code[1:], 'r')
                         try:
                             exec efile
-                        except StandardError, e:
+                        except Exception, e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
                             self.writelog ("?", "Couldn't run pre-execution file",
                                            code[1:])
-                            efile.close()
-                            return
+                            crash=True
                         efile.close()
 
                     else:
                         try:
                             exec code
-                        except StandardError, e:
+                        except Exception, e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
                             self.writelog ("?", "Couldn't run pre-execution code",
                                            code)
-                            return
+                            crash=True
+
+                print ".end pre-exec"
+                sys.stdout.flush()
 
 
             # Run the task with the specified parameter file
@@ -187,7 +215,7 @@ class Regress:
             # implemented the test in python.  Now that we are using nose,
             # that is less important, but we have it for compatibility with
             # old tests.
-            if config.has_key("taskname") and config['taskname'].strip() != '' :
+            if ( not killed ) and ( not crash ) and ( config.has_key("taskname") and config['taskname'].strip() != '' ) :
 
                 msg = "Executing task: %s" % (config["taskname"])
                 self.writelog (".", msg, "")
@@ -234,11 +262,11 @@ class Regress:
                             sys.stdout=open(out["fname"],'w')
                     try:
                         err=eval("%s('%s')"%(config['taskname'],config['pfile']))
-                    except StandardError, e:
+                    except Exception, e:
                         xstr=traceback.format_exc()
                         self.writelog("?","EXCEPTION: " + str(e))
                         self.writelog("?", xstr)
-                        err=1
+                        err=None
                     sys.stdout=sys.__stdout__
 
                 if not err:
@@ -247,13 +275,16 @@ class Regress:
                 else :
                     self.writelog ("?", "Error running regression test (%s)"%repr(err),
                                config["title"])
-                    return
+                    crash = 1
 
             # end: if config.has_key("taskname") and config['taskname'].strip() != '' :
 
-
             # Run any post-execution commands in the configuration file
-            if config.has_key ("post-exec"):
+            # This happens whether earlier stuff worked or not
+            if ( not killed ) and ( config.has_key ("post-exec") ):
+
+                print ".begin post-exec"
+                sys.stdout.flush()
 
                 for code in config["post-exec"]:
 
@@ -267,8 +298,7 @@ class Regress:
                             self.writelog ("?", xstr)
                             self.writelog ("?", "Couldn't run post-execution file",
                                            code[1:])
-                            efile.close()
-                            return
+                            crash=True
                         efile.close()
 
                     else:
@@ -280,10 +310,21 @@ class Regress:
                             self.writelog ("?", xstr)
                             self.writelog ("?", "Couldn't run post-execution code",
                                            code)
-                            return
+                            crash=True
 
-            if 1 :
+                print ".begin post-exec"
+                sys.stdout.flush()
 
+            try :
+                os.unlink(okfile)
+            except :
+                pass
+
+            if ( killed ) or ( crash ) :
+                error = 1
+                ok = 0
+
+            else :
                 # Compare the output files
 
                 # Assume everything is ok unless one of the comparisons says otherwise.
@@ -353,21 +394,6 @@ class Regress:
                         if pair.failed:
                             ok=0
 
-                # Write final message on success of entire test
-                if not error :
-                    if ok:
-                        pdkr.set("status","P")
-                        self.writelog (".", "Regression test completed successfully",
-                                       config["title"])
-                    else:
-                        pdkr.set("status","F")
-                        self.writelog ("!", "Regression test failed",
-                                       config["title"])
-                else :
-                        pdkr.set("status","E")
-                        self.writelog ("!", "Regression test ERROR",
-                                       config["title"])
-
                 if ok :
                     # delete temp files used by comparison; if pair.failed is set,
                     # then cleanup() only deletes temp files.  if pair.failed is false,
@@ -384,16 +410,26 @@ class Regress:
 
                     pdkr.set_tda("_okfile", okfile)
 
-                    try :
-                        os.unlink(okfile)
-                    except :
-                        pass
-
                     f=open(okfile,"w")
                     f.write('# %s\n'%file)
                     for output in config["output"]:
                         f.write("%s %s\n"%(output['fname'],output['reference'] ))
                     f.close()
+
+            # Write final message on success of entire test
+            if not error :
+                if ok:
+                    pdkr.set("status","P")
+                    self.writelog (".", "Regression test completed successfully",
+                                   config["title"])
+                else:
+                    pdkr.set("status","F")
+                    self.writelog ("!", "Regression test failed",
+                                   config["title"])
+            else :
+                    pdkr.set("status","E")
+                    self.writelog ("!", "Regression test ERROR",
+                                   config["title"])
 
         except Exception, e :
             # there should be no exception to catch.  If we get one, we want to
