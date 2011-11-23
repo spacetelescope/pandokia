@@ -261,6 +261,11 @@ def run( dirname, basename, envgetter, runner ) :
                 print "COMMAND EXIT:",status,datetime.datetime.now()
 
         else :
+            # BUG: no timeout! - fortunately, this is a minor issue
+            # because we don't currently have anything that uses
+            # run_internally() except to cough out errors about
+            # unsupported runners on Windows
+
             # There is no command, so we run it by calling a function.
             # This runs the test in the same python interpreter that 
             # this file is executing in, which is normally not
