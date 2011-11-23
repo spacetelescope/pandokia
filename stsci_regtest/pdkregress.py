@@ -312,7 +312,7 @@ class Regress:
                                            code)
                             crash=True
 
-                print ".begin post-exec"
+                print ".end post-exec"
                 sys.stdout.flush()
 
             try :
