@@ -18,6 +18,16 @@ sys.dont_write_bytecode = True
 # local debug flag
 debug = False
 
+# stack of currently running test names (because they nest)
+# pandokia.helpers.runner_minipyt.currently_running_test_name[-1] is the
+# test that is currently running.  minipyt does not run tests in multiple
+# threads, so use of this global is safe.
+
+currently_running_test_name = [ None ]
+
+# scalar for the current file name
+currently_running_file_name = None
+
 #
 if debug :
     debug_fd = open("/dev/tty","w")
@@ -84,7 +94,17 @@ def sort_test_list(l, test_order) :
 
 # Generate the report record for a single test.
 def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
+
+    # write the report
     rpt.report( name, status, start_time, end_time, tra, tda, log )
+
+    # we only generate the report at the end of running the test
+    popped = currently_running_test_name.pop()
+    # print "POPPED",popped
+    if name != popped :
+        raise Exception('Ending the wrong test - internal error %s != %s'%(name,popped))
+
+    # do they need rows of dots on their screen?
     if dots_mode :
         if status == 'P' :
             dots_file.write('.')
@@ -107,6 +127,9 @@ def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
 ####
 
 def run_test_function(rpt, mod, name, ob) :
+
+    currently_running_test_name.append(name)
+    # print "PUSHED",name
 
     if debug :
         debug_fd.write("run_test_function: %s\n"% ( name ) )
@@ -225,6 +248,12 @@ def locate_test_methods( ob, test_order ) :
 #### TEST METHOD
 
 def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
+
+    full_test_name = name + '.' + f_name
+
+    currently_running_test_name.append(full_test_name)
+    # print "PUSHED X",full_test_name
+
     pycode.snarf_stdout()
 
     fn_start_time = time.time()
@@ -236,7 +265,7 @@ def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
     exception_str = None
 
     if getattr( f_ob, '__disable__', False ) :
-        status = 'D'
+        fn_status = 'D'
 
     else :
         # call the test method
@@ -288,12 +317,15 @@ def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
     if exception_str is not None :
         tra['exception'] = exception_str
 
-    gen_report( rpt, name + '.' + f_name, fn_status, fn_start_time, fn_end_time, tda, tra, fn_log )
+    gen_report( rpt, full_test_name, fn_status, fn_start_time, fn_end_time, tda, tra, fn_log )
 
 
 #### run the tests in a single instance of a test object
 
 def run_test_class_single( rpt, mod, name, ob, test_order ) :
+
+    currently_running_test_name.append(name)
+    # print "PUSHED",name
 
     pycode.snarf_stdout()
     class_start_time = time.time()
@@ -369,6 +401,9 @@ def run_test_class_single( rpt, mod, name, ob, test_order ) :
 #### run tests, fresh object for each test
 
 def run_test_class_multiple( rpt, mod, name, ob, test_order ) :
+
+    currently_running_test_name.append(name)
+    # print "PUSHED",name
 
     pycode.snarf_stdout()
     class_start_time = time.time()
@@ -449,7 +484,10 @@ def run_test_class_multiple( rpt, mod, name, ob, test_order ) :
 def run_test_class( rpt, mod, name, ob, test_order ) :
 
     if getattr(ob, '__disable__', False ) :
-        gen_report( rpt, name, 'D' )
+        # have to push the name so we can pop it in gen_report()
+        currently_running_test_name.append(name)
+        # print "PUSHED",name
+        gen_report( rpt, name, 'D', None, None, { }, { }, None )
         return  # bug: find the test names and report status=D
 
     new_object_every_time = not getattr(ob,'minipyt_shared',0)
@@ -482,6 +520,9 @@ def run_test_class( rpt, mod, name, ob, test_order ) :
 
 def process_file( filename, test_name = None, test_args = None ) :
 
+    global currently_running_file_name
+    currently_running_file_name = filename
+
     if debug :
         debug_fd.write("begin process_file\n")
         debug_fd.write("file: %s\n" % filename)
@@ -495,7 +536,6 @@ def process_file( filename, test_name = None, test_args = None ) :
         dots_file.write('File: %s\n'%filename)
         dots_file.flush()
 
-
     # the module name is the basename of the file, without the extension
     module_name = os.path.basename(filename)
     module_name = os.path.splitext(module_name)[0]
@@ -503,6 +543,10 @@ def process_file( filename, test_name = None, test_args = None ) :
     # pandokia log entry object - writes the pandokia reports
     if debug :
         debug_fd.write( "test_args %s\n"%test_args)
+
+    # we have no name for the top level of the file - bummer
+    currently_running_test_name.append(None)
+    # print "PUSHED",None
 
     if test_name is not None :
         rpt = pycode.reporter( test_name )

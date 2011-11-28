@@ -51,7 +51,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=48
+	set n=49
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/pandokia
 	python setup.py -q install --home $there

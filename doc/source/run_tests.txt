@@ -136,15 +136,21 @@ Except as noted, all of the options can be used with any of the variations of
   Default value is a generated string including the user name and the
   time to the nearest minute. 
 
-The following environment variables are reserved for internal use by
-pandokia:
+PDK_TIMEOUT
 
-.. code-block:: python
+  This is the max number of seconds that a test runner can run.  If set,
+  individual test processes will be killed when the exceed this age.
+  You would normally set this in a pdk_environment file, so it can
+  be applied differently to different directories.
 
-	PDK_CONTEXT 
-	PDK_FILE 
-	PDK_TESTPREFIX 
-	PDK_PROCESS_SLOT 
+  This applies to all the tests in a single file.  If you want to place
+  a limit on the duration of a specific test, that is up to the test
+  runner.  As of this writing (2011-11), no test runners have per-test
+  timeouts.
+
+All other environment variables with names beginning PDK\_ are reserved
+for internal use by pandokia.
+
 
 
 Creating a Test Tree

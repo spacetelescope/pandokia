@@ -28,7 +28,8 @@ if windows :
 else :
     # returns a command to run the test
     def command( env ) :
-        return 'pdk_stsci_regress'
+        # arg is not used, but shows up in ps
+        return 'pdk_stsci_regress %s'%env['PDK_FILE']
 
 
 # returns a list of tests in the file

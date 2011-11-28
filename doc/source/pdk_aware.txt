@@ -254,3 +254,9 @@ for it as if they were functions. This class pre-defines the tda and tra
 dictionaries in its setUp.
 
 
+
+ok-ify tests
+-------------
+
+section here about the TDA _okfile and what to put in an okfile
+

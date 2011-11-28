@@ -3,6 +3,7 @@ import os.path
 import sys
 import fnmatch
 import datetime
+import signal
 
 import pandokia
 
@@ -203,7 +204,8 @@ def run( dirname, basename, envgetter, runner ) :
 
         if cmd is not None :
             # run the command -- To understand how we do it, see
-            # "Replacing os.system()" in the docs for the subprocess module.
+            # "Replacing os.system()" in the docs for the subprocess module,
+            # then consider the source code for subprocess.call()
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
@@ -216,7 +218,9 @@ def run( dirname, basename, envgetter, runner ) :
                     # ends up closed for us too.  So, stuff it into a temp file and then copy the
                     # temp file to our stdout/stderr.
                     f = open("stdout.%s.tmp"%slot_id,"w")
-                    status = subprocess.call(thiscmd, stdout=f, stderr=f, shell=True, env = env )
+                    p = subprocess.Popen( thiscmd, stdout=f, stderr=f, shell=True, env = env, creationflags = subprocess.CREATE_NEW_PROCESS_GROUP )
+                    # bug: implement timeouts
+                    status = p.wait()
                     f.close()
                     f = open("stdout.%s.tmp"%slot_id,"r")
                     while 1 :
@@ -228,24 +232,40 @@ def run( dirname, basename, envgetter, runner ) :
                     os.unlink("stdout.%s.tmp"%slot_id)
                 else :
                     # on unix, just do it
-                    status = subprocess.call(thiscmd, shell=True, env = env )
+                    def yow() :
+                        os.setpgrp()
 
-                # python doesn't just give you the unix status
-                if status & 0xff == 0 :
+                    p = subprocess.Popen( thiscmd, shell=True, env = env, preexec_fn=yow )
+                    if 'PDK_TIMEOUT' in env :
+                        proc_timeout_start(env['PDK_TIMEOUT'], p)
+                        status = p.wait()
+                        proc_timeout_terminate()
+                        if timeout_proc_kills > 0 :
+                            # we tried to kill it for taking too long -
+                            # report an error even if it managed to exit 0
+                            return_status = 1
+                    else :
+                        status = p.wait()
+
+                # subprocess gives you weird status values
+                if status > 0 :
                     status="exit %d"%(status >> 8)
                     if status != 0 :
                         return_status = 1
                 else :
                     return_status = 1
-                    if status & 0x80 :
-                        status="signal %d, core dumped" % ( status & 0x7f )
-                    else :
-                        status="signal %d" % ( status & 0x7f )
+                    status="signal %d" % ( - status )
+                    # subprocess does not tell you if there was a core
+                    # dump, but there is nothing we can do about it.
+
                 print "COMMAND EXIT:",status,datetime.datetime.now()
 
-                
-
         else :
+            # BUG: no timeout! - fortunately, this is a minor issue
+            # because we don't currently have anything that uses
+            # run_internally() except to cough out errors about
+            # unsupported runners on Windows
+
             # There is no command, so we run it by calling a function.
             # This runs the test in the same python interpreter that 
             # this file is executing in, which is normally not
@@ -301,4 +321,87 @@ def run( dirname, basename, envgetter, runner ) :
 
     return ( return_status, stat_summary )
 
+
+##########
+#
+# various functions relating to killing a child process that takes
+# too long.
+#
+# We can only be running one child at a time in this file, so the
+# accounting is pretty easy.
+#
+
+# the process we are waiting for.
+timeout_proc = None
+
+# how many times we tried to kill it.  first kill is sigterm, second is
+# sigkill, then we give up waiting
+timeout_proc_kills = 0
+
+# remember the duration so we can say how long it was when it expires
+timeout_duration = None
+
+
+# An exception to raise to abort Popen.wait().
+#
+# at this time, you don't actually catch this exception anywhere -
+# it crashes the whole program.  It is an old-style class to make
+# it less likely that somebody might catch it with "except Exception".
+class timeout_not_going_away:
+    pass
+
+## 
+## start the timeout for the child process
+##
+def proc_timeout_start(timeout, p) :
+    global timeout_proc, timeout_proc_kills, timeout_duration
+    timeout_proc = p
+    timeout_proc_kills = 0
+    timeout_duration = timeout
+    signal.signal(signal.SIGALRM, proc_timeout_callback)
+    signal.alarm(int(timeout))
+
+# Kill the process group, but no error if it does not exist.  (In case
+# it exited before we got here.)
+def killpg_maybe( pid, signal ) :
+    print "killpg -%d %d"%(signal,pid)
+    try :
+        os.killpg( pid, signal )
+    except OSError, e:
+        if e.errno != errno.ESRCH :
+            raise
+
+#
+# callback that happens when it is time to kill the process
+#
+
+def proc_timeout_callback(sig, stack):
+    global timeout_proc_kills
+    if timeout_proc :
+        if windows :
+            raise "not implemented on windows"
+        else :
+            pid = timeout_proc.pid
+            print "PID=%d"%pid
+            if timeout_proc_kills == 0 :
+                print "timeout expired - terminate after %s"%str(timeout_duration)
+                killpg_maybe( pid, signal.SIGTERM )
+            elif timeout_proc_kills == 1 :
+                print "timeout expired again - kill"
+                killpg_maybe( pid, signal.SIGKILL )
+            elif timeout_proc_kills == 2 :
+                print "timeout expired yet again - now what?"
+                raise timeout_not_going_away()
+
+        timeout_proc_kills += 1
+        signal.alarm(5)
+
+
+##
+## cancel the timeout for the current child process
+##
+
+def proc_timeout_terminate() :
+    signal.alarm(0)
+    timeout_proc = None
 
