@@ -217,6 +217,7 @@ class reporter(object) :
 # capture stdout/stderr for later
 #
 
+# intentionally not using cStringIO
 import StringIO
 import sys
 
@@ -249,4 +250,10 @@ def end_snarf_stdout( tagname=None ) :
 
     return s
 
+def peek_snarfed_stdout() :
+    'returns current text of snarfed stdout, non-destructively'
+    if isinstance(sys.stdout, StringIO.StringIO ) :
+        return sys.stdout.getvalue()
+    else :
+        return None
 
