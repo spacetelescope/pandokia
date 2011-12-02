@@ -42,7 +42,6 @@ def killed_func(sig,stk):
     global killed 
     killed = True
     print "KILLED"
-    open("/dev/tty","w").write("\n---KILLED---\n")
     raise pdk_stsci_regtest_killed
 
 import signal
