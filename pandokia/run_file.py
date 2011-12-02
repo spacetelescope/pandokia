@@ -115,7 +115,6 @@ def get_prefix( envgetter, dirname ) :
 
     if 'PDK_TESTPREFIX' in os.environ :
         e = os.environ['PDK_TESTPREFIX'] 
-        print "HERE",e
         if not ( e.endswith('/') or e.endswith('.') ) :
             e += '/'
         prefix = e + prefix
