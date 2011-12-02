@@ -261,6 +261,10 @@ else :
         if not 'PDK_STATUSFILE' in os.environ :
             return
 
+        # If we don't want one for some reason
+        if os.environ['PDK_STATUSFILE'] == 'none' :
+            return
+
         # find what slot we are in
         if slot is None :
             if 'PDK_PROCESS_SLOT' in os.environ :
