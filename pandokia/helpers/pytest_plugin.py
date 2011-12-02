@@ -1,6 +1,7 @@
 """
 Adds a plugin for capturing test output from py.test
 """
+tty=open("/dev/tty","w")
 
 import os, time, datetime, sys, re, types
 
@@ -9,24 +10,33 @@ import py.test
 import pytest
 from _pytest import runner
 from _pytest import unittest
+import _pytest
 
-from StringIO import StringIO as p_StringO    #for stdout capturing
-from cStringIO import OutputType as c_StringO
 import traceback
 import platform
+import signal
+
+class struct :
+    pass
 
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
 
 state = {}
 
+enabled = False
+
+##########
+
 def pdktimestamp(tt):
-    """Formats the time in the format PDK wants.
+    """Formats the time in the human readable format that pandokia accepts.
     Input is a timestamp from time.time()"""
     x=datetime.datetime.fromtimestamp(tt)
     ans="%s.%03d"%(x.strftime("%Y-%m-%d %H:%M:%S"),
                    (x.microsecond/1000))
     return ans
+
+##########
 
 def cleanname(name):
     """Removes any object id strings from the test name. These
@@ -35,13 +45,16 @@ def cleanname(name):
     newname=re.sub(pat,'>',name)
     return newname
 
+##########
+# This callback happens before the command line options are parsed.
+
 def pytest_addoption(parser):
     env = os.environ
     group = parser.getgroup("pandokia", "Pandokia options")
     group.addoption(
         "--pdk", action="store_true", dest="pdk_enabled",
         default=env.get('PDK', False),
-        help="Generate PDK-compatible log file")
+        help="Enable the Pandokia plugin (this will generate a PDK-compatible log file)")
     group.addoption(
         "--pdklog",action="store",dest="pdklog",
         default=env.get('PDK_LOG',None),
@@ -63,11 +76,25 @@ def pytest_addoption(parser):
         default=env.get("PDK_CONTEXT","default"),
         help="Context name to write to PDK-compatible log file [PDK_CONTEXT]")
 
-# Called before any tests are run
-def pytest_configure(config):
-    if config.getvalue('pdk_enabled'):
-        state['enabled'] = True
+##########
+#
+# This callback initializes the plugin.  It happens before any tests are executed.
 
+def pytest_configure(config):
+    global enabled
+    if config.getvalue('pdk_enabled'):
+        enabled = True
+
+        # We use our own output capture in place of the default capture
+        # manager.  See the comment near the CaptureManager class below.
+
+        # If capturemanager is not registered, we may be pretty messed up - is this a problem?
+        # assert config.pluginmanager.isregistered( None, 'capturemanager' )
+
+        # Kick out py.test's capture manager.
+        config.pluginmanager.unregister( None, 'capturemanager' )
+
+        # Collect the regular set of pandokia parameters, complete with defaults.
         if config.getvalue('pdklog') is not None:
             state['pdklogfile'] = config.getvalue('pdklog')
         else:
@@ -82,6 +109,7 @@ def pytest_configure(config):
         if '.' in hostname:
             hostname = hostname.split('.', 1)[0]
 
+        # Open the log file.
         try:
             sd = not 'PDK_FILE' in os.environ
             state['report'] = pandokia.helpers.pycode.reporter(
@@ -97,17 +125,116 @@ def pytest_configure(config):
                 location = os.path.abspath(os.path.curdir),
                 test_runner = 'pytest',
                 test_prefix = '')
+
         except IOError, e:
             sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
     else:
-        state['enabled'] = False
+        # If the user did not ask for our plugin, remember to not do anything much.
+        enabled = False
 
-def pytest_runtest_call(item):
-    if state['enabled']:
-        item.start_time = time.time()
-    item.runtest()
+##########
+#
+
+# current_timeout is a global used by the signal handler;  we store
+# the timeout duration here so that the exception can say how long the
+# timeout was
+current_timeout = None
+
+# an exception to raise when a test takes too long
+class TimeoutError:
+    '''An exception for this plugin to use internally for timeouts.
+
+    This is an old-style class so that user code can't catch it with
+        except Exception, e:
+            ...
+    '''
+    def __init__(self, timeout) :
+        self.timeout = timeout
+    def __str__(self) :
+        return "time out after %s seconds"%self.timeout
+
+# A signal handler for the alarm.  Remove the signal handler and raise
+# the exception to indicate a timeout.
+def timeout_expired_callback(signum, stk) :
+    signal.signal(signal.SIGALRM, signal.SIG_DFL)
+    raise TimeoutError(current_timeout)
+
+##########
+# before each test setup (?)
+# before makereport setup
+#
+
+def pytest_runtest_setup(item):
+    if not enabled :
+        return
+
+    ## a pandokia-specific place to store our data
+    item.pandokia = struct()
+
+    tty.write("runtest_setup\n")
+
+    ## compute the name of this test, save it for when we need it:
+
+    # the name of the test is the name of the file the test is in ...
+    filename = item.location[0]
+    if filename.endswith('.py') :
+        filename = filename[:-3]
+
+    # + the name of the class/method/function/whatever
+    name = filename + '/' + cleanname(item.location[2])
+
+    # + whatever prefix was handed in to us by pdkrun
+    if state['pdktestprefix'] != '':
+        if not state['pdktestprefix'].endswith('/'):
+            name = '%s/%s' % (state['pdktestprefix'], name)
+        else:
+            name = '%s%s' % (state['pdktestprefix'], name)
+
+    # remember the name for later
+    item.pandokia.name = name
+
+    ## grab the stdout/stderr
+    pandokia.helpers.pycode.snarf_stdout()
+    item.pandokia.start_time = time.time()
+
+    ## set up a timeout, if necessary
+    if 'timeout' in item.keywords :
+        item.pandokia.timeout = int( item.keywords['timeout'].args[0] )
+    else :
+        # may someday implement a default
+        item.pandokia.timeout = None
+
+    if item.pandokia.timeout :
+        if sys.platform != 'win32' :
+            # I need to have timeout_expired_callback be the same function
+            # all the time (so we can recognize it), but I need it to know
+            # information to show in the exception.  Since it is called
+            # by the signal callback, the only way to get the information
+            # to it is a global variable.
+            global current_timeout
+            current_timeout = item.pandokia.timeout
+
+            # set the signal handler
+            prev = signal.signal(signal.SIGALRM, timeout_expired_callback)
+            if prev != signal.SIG_DFL :
+                # if somebody else installed a handler for SIGALRM,
+                # then we broke it.  This test cannot work reliably with
+                # a timeout.
+                signal.signal(signal.SIGALRM, signal.SIG_DFL)
+                raise Exception('Timeout declared but somebody already '
+                    'installed a signal handler for SIGLARM (%s)' % prev )
+
+            # set the alarm
+            signal.alarm(item.pandokia.timeout)
+        else :
+            print "Warning: Test timeouts not implemented on Windows"
+
+    ## done pytest_runtest_setup
+
+
+##########
 
 def find_txa(test):
     """Find the TDA and TRA dictionaries, which will be in different
@@ -115,6 +242,7 @@ def find_txa(test):
     """
     if isinstance(test, py.test.Function):
         if isinstance(test.obj, types.MethodType):
+            # I wonder what this is about?
             try:
                 tda = test.obj.im_self.tda
             except AttributeError:
@@ -124,7 +252,10 @@ def find_txa(test):
                 tra = test.obj.im_self.tra
             except AttributeError:
                 tra = dict()
+
         elif isinstance(test.obj, types.FunctionType):
+            # if the test is just a function, it is in the global
+            # namespace of the module that the function is defined in.
             try:
                 tda = test.obj.func_globals['tda']
             except KeyError:
@@ -136,6 +267,7 @@ def find_txa(test):
                 tra = dict()
 
     elif isinstance(test, unittest.UnitTestCase):
+        # if the test is in a class, the tda/tra dicts are attributes of that class
         try:
             tda = test.tda
         except AttributeError:
@@ -145,59 +277,177 @@ def find_txa(test):
         except AttributeError:
             tra = dict()
 
+    elif isinstance(test, _pytest.doctest.DoctestModule) :
+        # A doctest cannot have attributes.
+        tda = { }
+        tra = { }
+
     else:
+        # If there is any unrecognized type of test, then the plugin
+        # does not know how to deal with it.
         tda = dict()
         tra = {'warning':'Unknown test type: tda/tra not found'}
+
+        # I'm making it an error to not recognize the test type; comment
+        # out this line if that is a problem.
         raise TypeError("Unknown test type, %s"%type(test.test))
 
     return tda, tra            
-    
+
+##########
+# make available a funcarg:  A function parameter named pdk_test_name
+# will contain the name that Pandokia knows this test by.
+def pytest_funcarg__pdk_test_name( request ) :
+    if not enabled :
+        return None
+    tty.write("FUNCARG TEST NAME ")
+    return request._pyfuncitem.pandokia.name
+
+##########
+#
+# called at various times in the execution of a single test
+#
+
 def pytest_runtest_makereport(__multicall__, item, call):
-    item.end_time = time.time()
+    tty.write("runtest_makereport when=%s\n"%call.when)
     
+    # don't know what this is about, but it seems to be important.
     report = __multicall__.execute()
 
-    if state['enabled'] and call.when == 'call':
-        exc = report.longrepr
-        name = cleanname(report.location[2])
-        if state['pdktestprefix'] != '':
-            if not state['pdktestprefix'].endswith('/'):
-                name = '%s/%s' % (state['pdktestprefix'], name)
-            else:
-                name = '%s%s' % (state['pdktestprefix'], name)
+    ## if not --pdk, skip all the rest
+    if not enabled :
+        tty.write("NOT ENABLED\n")
+        return report
 
-        tda, tra = find_txa(item)
-        
-        log = ''
-        if item.outerr[0]:
-            log += 'STDOUT:\n%s\n' % item.outerr[0]
-        if item.outerr[1]:
-            log += 'STDERR:\n%s\n' % item.outerr[1]
-        
+    # we are called 3 times for each test, with different data available
+    # at each invocation.  This if statement lists those times in order.
+
+    if call.when == 'setup' :
+        # nothing to do at setup
+        pass
+
+    elif call.when == 'call':
+        # this is called after the test function was called:
+
+        ## default to no exception (we may detect one shortly)
+        item.pandokia.exception = None
+
+        ## pick up attributes
+        item.pandokia.tda, item.pandokia.tra = find_txa(item)
+
+        ## convert the pyetc status to a pandokia status
         if report.outcome == 'passed':
-            status = 'P'
-            log = '\n\n'.join([x for x in item.outerr if x])
+            item.pandokia.status = 'P'
         elif report.outcome == 'skipped':
-            status = 'S'
+            item.pandokia.status = 'D'
         else:
             if not isinstance(call.excinfo, py.code.ExceptionInfo):
-                status = 'E'
+                item.pandokia.status = 'E'
             else:
                 if call.excinfo.errisinstance(AssertionError):
-                    status = 'F'
+                    item.pandokia.status = 'F'
                 else:
-                    status = 'E'
-                    tra['Exception'] = call.excinfo.exconly()
-            log += 'EXCEPTION:\n%s\n' % str(report.longrepr)
-        
+                    item.pandokia.status = 'E'
+                    item.pandokia.tra['Exception'] = call.excinfo.exconly()
+            item.pandokia.exception = 'EXCEPTION:\n%s\n' % str(report.longrepr)
+
+        # all that material is saved in item.pandokia, which will be
+        # available when we get called with call.when == 'teardown'
+
+    elif call.when == 'teardown' :
+        # after the test and the teardown function are finished running:
+
+        ## shut off the timeout 
+        more_log = ''
+
+        tty.write("TEARDOWN BEFORE TIMEOUT\n")
+        if item.pandokia.timeout :
+            tty.write("CLEAR ALARM FOR TIMEOUT\n")
+            signal.alarm(0)
+            signal_handler = signal.signal(signal.SIGALRM, signal.SIG_DFL) 
+            if signal_handler != timeout_expired_callback :
+                item.pandokia.status = 'E'
+                more_log = ( '\nERROR: This function had a timeout, but '
+                    'something changed the SIGALRM handler (to %s)' % 
+                        ( str(signal_handler) )
+                    )
+        else :
+            tty.write("NO TIMEOUT TO CLEAR\n")
+
+
+        ## Now we are finally finished; note the time.
+        item.pandokia.end_time = time.time()
+
+        ## pick up the logged stdout
+        log = pandokia.helpers.pycode.end_snarf_stdout()
+
+        ## add any exception report to the stdout log
+        if item.pandokia.exception :
+            log +=  item.pandokia.exception 
+
+        ## add any errors detected in this function
+        if more_log :
+            log += more_log
+
+        ## write the PDK_LOG record
         state['report'].report(
-            test_name = name,
-            status = status,
-            start_time = pdktimestamp(item.start_time),
-            end_time = pdktimestamp(item.end_time),
-            tda = tda,
-            tra = tra,
-            log = log)
-            
+            test_name = item.pandokia.name,
+            status = item.pandokia.status,
+            start_time = pdktimestamp(item.pandokia.start_time),
+            end_time = pdktimestamp(item.pandokia.end_time),
+            tda = item.pandokia.tda,
+            tra = item.pandokia.tra,
+            log = log,
+            )
+
+    else :
+        # if there is some other time we are called, have an error --
+        # py.test is no longer implementing the interface that we expect,
+        # so we have to do some updates.
+        raise Exception('pandokia plugin does not expect call.when = %s' % str(call.when) )
+
+    # always return the report object
     return report
-    
+
+
+# py.test comes with a capture manager, but it does not reliably contain
+# the captured stdout.  (I think this is because it offers destructive
+# reads.)  Since I can't get the stdout/stderr that I want, I evict
+# the default capture manager completely and inject this one as my own.
+#
+# I expect this breaks anybody who expects capsys/capfd to work as
+# documented, at least until I figure out what is supposed to be going on
+# with all that.
+
+# This object implements the same hooks as the default capture manager.
+class CaptureManager(object):
+
+    def __init__( self, method='default' ) :
+        # not implementing parameter "method" right now
+        pass
+
+### bug: somewhere in here, you have to call the function that shows all the funcargs values to stdout
+
+    @pytest.mark.tryfirst
+    def pytest_runtest_setup(self, item):
+        pass
+
+    @pytest.mark.tryfirst
+    def pytest_runtest_call(self, item):
+        pass
+
+    @pytest.mark.tryfirst
+    def pytest_runtest_teardown(self, item):
+        pass
+
+    def pytest_keyboard_interrupt(self, excinfo):
+        # bug: ???
+        return
+        if hasattr(self, '_capturing'):
+            self.suspendcapture()
+
+    @pytest.mark.tryfirst
+    def pytest_runtest_makereport(self, __multicall__, item, call):
+        rep = __multicall__.execute()
+        return rep
+

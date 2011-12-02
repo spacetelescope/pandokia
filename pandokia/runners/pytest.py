@@ -8,18 +8,20 @@
 
 import os
 
+# what importable module contains our py.test plugin?  It would be nice
+# if we could insert this into os.environ['PYTEST_PLUGINS'] but it is
+# already too late because envgetter has already cached the original 
+# values from os.environ
+# plugin = 'pandokia.helpers.pytest_plugin'
+
 # return command string to run the test pdkpytest is our own command
 # to run pytest with the pdk plugin.  This command loads the plugin by
 # passing it to pytest.main.  With this, we don't have to use setuptools
 # to install our pytest plugin.
-#
-# The pdkpytest command is in the commands/ directory.
 
 def command( env ) :
-    return 'pdkpytest --pdk --doctest-modules %(PDK_FILE)s' % env
-
-
-
+    # return 'py.test -p %s --pdk --doctest-modules %s' % ( plugin, env['PDK_FILE'] ) 
+    return 'pdkpytest --pdk --doctest-modules %s' % ( env['PDK_FILE'] ) 
 
 # return a list of tests that are in the file.  we use this
 # to report disabled tests.
