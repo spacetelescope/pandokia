@@ -10,10 +10,11 @@ Test Runners
 
 	runner_minipyt.txt
 	runner_nose.txt
-	runner_snout.txt
+	runner_pytest.txt
 	runner_regtest.txt
 	runner_shell_runner.txt
 	runner_shunit2.txt
+	runner_snout.txt
 	runner_snout.txt
 	runner_unit2.txt
 
