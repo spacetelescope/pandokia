@@ -1,3 +1,5 @@
+.. index:: single: environment
+
 Environment variables
 ---------------------
 
@@ -69,6 +71,8 @@ PDK_TESTRUN
 
    As input to a runner: The name of the test_run to be reported for the
    tests to be run.
+
+.. index:: single: timeout
 
 PDK_TIMEOUT
 

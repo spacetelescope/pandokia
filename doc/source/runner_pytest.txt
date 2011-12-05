@@ -1,3 +1,5 @@
+.. index:: single: runners; py.test
+
 ===============================================================================
 pytest - using py.test to run your tests
 ===============================================================================
@@ -51,6 +53,8 @@ You can also mix py.test, nose, and other test runners::
 	c*.py	minipyt
 	d*.py	pytest
 
+.. index:: single: timeout; py.test
+
 Test timeouts
 -------------------------------------------------------------------------------
 
@@ -73,6 +77,8 @@ identify the signal handling function.
 Timeouts are not implemented on Windows.
 
 If the Pandokia plugin is not enabled, the timeout markup has no effect.
+
+This feature is independent of PDK_TIMEOUT.
 
 Knowing your test name
 ------------------------------------------------------------------------------

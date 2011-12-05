@@ -32,6 +32,8 @@ Step Two: Environment, notification, and disabling
 To take advantage of more of Pandokia's features, add some special
 files to your test tree.
 
+.. index: single: environment variables
+
 Customizing the environment
 ...........................
 
@@ -99,6 +101,7 @@ that contains only the following::
 and this value will override the value of $doors for tests in the
 jupiter directory only (and any subdirectories it may have).
 
+.. index:: running tests; disabling tests
 
 Disabling tests
 ...............
@@ -111,6 +114,7 @@ test-driven development mode, to disable tests that you know will
 fail because you haven't fixed the bug or written the code for them
 yet.
 
+.. index:: single: email
 
 Email notifications
 ...................
@@ -176,6 +180,7 @@ The contact names are also shown in the summary report available in the
 browsable report, which can be useful information for a release
 manager or someone assigning help desk calls.
 
+.. index: running tests; attributes
 
 Step 3: Add attributes to your tests
 ------------------------------------

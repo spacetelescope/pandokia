@@ -1,3 +1,6 @@
+.. index::
+	single: running tests
+
 ================================================================================
 Using Pandokia To Run Tests
 ================================================================================
@@ -24,6 +27,9 @@ Using Pandokia To Run Tests
         own Test-Runner for whatever testing systems you have.
 
 .. contents::
+
+.. index::
+	single: running tests; overview
 
 Simple Overview
 --------------------------------------------------------------------------------
@@ -87,21 +93,25 @@ The file is disabled if the same base file name exists with the
 extension ".disable".  That is, if your test is test_xyz.py and there
 is also a file test_xyz.disable, then the tests in test_xyz.py will
 not be executed.  The test report will contains status=D (for
-disabled) for each test in that file. (It is possible that some
-Test-Runners do not know how to report the names of disabled tests.
-The *nose* Test-Runner included in the Pandokia distribution does.)
+disabled) for each test in that file. 
+
+Some Test-Runners do not know how to report the names of disabled
+tests.  The *nose* and *py.test* Test-Runners included in the
+Pandokia distribution do.
 
 If the file name looks like a test and it is not disabled, the test is
 executed by the same code that implements ``pdk run *filename*``.
 
 
-pdk run *file*
+pdk run *filename*
 --------------------------------------------------------------------------------
 
-When you give the name of a specific file, pdk run executes the
+When you explicitly give the name of a specific file, pdk run executes the
 tests in that file.  It runs the tests even if the .disable file
 exists.
 
+.. index::
+	single: running tests; environment variables
 
 pdk run arguments and environment variables
 --------------------------------------------------------------------------------
@@ -117,6 +127,8 @@ Except as noted, all of the options can be used with any of the variations of
    The series of test results will be written into this file, for
    subsequent import into the database. 
    Default value is "PDK_DEFAULT.LOG."+test_run
+
+.. index:: single: running tests; parallel
 
 --parallel or PDK_PARALLEL 
 
@@ -136,17 +148,23 @@ Except as noted, all of the options can be used with any of the variations of
   Default value is a generated string including the user name and the
   time to the nearest minute. 
 
+
+.. index:: single: timeout
+
 PDK_TIMEOUT
 
-  This is the max number of seconds that a test runner can run.  If set,
-  individual test processes will be killed when the exceed this age.
-  You would normally set this in a pdk_environment file, so it can
-  be applied differently to different directories.
+  This environment variable sets the max number of seconds that a
+  test runner can run.  If set, individual test processes will be
+  killed when they exceed this age.  
 
-  This applies to all the tests in a single file.  If you want to place
-  a limit on the duration of a specific test, that is up to the test
-  runner.  As of this writing (2011-11), no test runners have per-test
-  timeouts.
+  This timeout applies to all the tests in a single file, not the
+  individual tests.  If you need timeouts for specific tests, you
+  must use a test runner that implements per-test timeouts (such
+  as py.test with the Pandokia plugin) or implement a timeout feature
+  in your test code (possibly using a library such as *fixtures*).
+
+  Our normal use is to set PDK_TIMEOUT in a pdk_environment file.
+  We have different timeouts in different directories.
 
 All other environment variables with names beginning PDK\_ are reserved
 for internal use by pandokia.
@@ -155,6 +173,7 @@ for internal use by pandokia.
 
 Creating a Test Tree
 --------------------------------------------------------------------------------
+
 Pandokia will preserve the hierarchy of your test tree as part of the
 test name. You can populate the directory tree with files containing
 tests in any organization that makes sense for your project. 
@@ -166,11 +185,15 @@ account when creating the tree.
 Place an empty file named pandokia_top at the top of the directory
 tree.
 
+.. index:: single: files
+
 Overhead files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 pandokia_top
   This is an empty file marking the top of the directory tree.
+
+.. index:: single: environment
 
 pdk_environment
   This is an INI-style file that may be used to customize the environment
@@ -196,13 +219,6 @@ pdk_contacts
   results for tests contained in this directory. The run command does
   not read this file; see database.txt, "Importing Contacts" for more
   detail. 
-
-\*.snout
-  This file may be used to specify a list of installed packages or
-  modules for which tests can be run in the installed directory. In
-  general we expect these to be doctests, but this is not a
-  requirement. Nose will be used as the test runner for tests found in
-  these directories. 
 
 Writing a nose test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
