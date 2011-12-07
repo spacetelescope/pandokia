@@ -1,33 +1,43 @@
 """
-Adds a plugin for capturing test output from py.test
+a plugin for capturing test output from py.test
 """
 
+# debugging
 class tty:
-    def write(s) :
+    def write(self, s) :
         pass
+tty = tty()
 # tty=open("/dev/tty","w")
 
+###
+
 import os, time, datetime, sys, re, types
-
-import py.code
-import py.test
-import pytest
-from _pytest import runner
-from _pytest import unittest
-import _pytest
-
 import traceback
 import platform
 import signal
 
-class struct :
-    pass
+import py.code
+import py.test
+import pytest
+# from _pytest import runner
+# from _pytest import unittest
+import _pytest
+
+# I know this plugin doesn't work in py.test 2.1
+if tuple(pytest.__version__.split('.')) < (2,2,0) :
+    raise Exception("The py.test plugin for Pandokia requires at least py.test 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
 
+# basically a C struct
+class data_item :
+    pass
+
+# contains various state information set by command line or whatever
 state = {}
 
+# flag for whether we should do anything at all.  we check this a lot.
 enabled = False
 
 ##########
@@ -126,7 +136,7 @@ def pytest_configure(config):
                 context = state['pdkcontext'],
 
                 # this is wrong for location, but it is less wrong than nothing at all
-                location = os.path.abspath(os.path.curdir),
+                location = None,
                 test_runner = 'pytest',
                 test_prefix = '')
 
@@ -175,7 +185,7 @@ def pytest_runtest_setup(item):
         return
 
     ## a pandokia-specific place to store our data
-    item.pandokia = struct()
+    item.pandokia = data_item()
 
     tty.write("runtest_setup\n")
 
@@ -270,7 +280,7 @@ def find_txa(test):
             except KeyError:
                 tra = dict()
 
-    elif isinstance(test, unittest.UnitTestCase):
+    elif isinstance(test, _pytest.unittest.UnitTestCase):
         # if the test is in a class, the tda/tra dicts are attributes of that class
         try:
             tda = test.tda
@@ -407,7 +417,7 @@ def pytest_runtest_makereport(__multicall__, item, call):
     else :
         # if there is some other time we are called, have an error --
         # py.test is no longer implementing the interface that we expect,
-        # so we have to do some updates.
+        # so we have to fix this code.
         raise Exception('pandokia plugin does not expect call.when = %s' % str(call.when) )
 
     # always return the report object
