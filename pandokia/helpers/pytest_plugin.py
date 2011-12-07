@@ -1,7 +1,11 @@
 """
 Adds a plugin for capturing test output from py.test
 """
-tty=open("/dev/tty","w")
+
+class tty:
+    def write(s) :
+        pass
+# tty=open("/dev/tty","w")
 
 import os, time, datetime, sys, re, types
 
