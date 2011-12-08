@@ -184,12 +184,11 @@ This clears the screen and shows three columns of information ::
   - date/time of last update to that process slot
   - file name of tests executing in that process slot
 
-The information is recorded in a file named `pdk_statusfile`.  You
-can change the name of this file with the environment variable
-PDK_STATUSFILE.  
+The information is recorded in a file named `pdk_statusfile`.
 
 If you set PDK_STATUSFILE to 'none', pdkrun will not record the
-status and the runstatus command will not work.
+status and the runstatus command will not work.  (Later, this will
+be a way to say the name of the file to use.)
 
 **not implemented on Windows**
 
