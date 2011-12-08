@@ -41,7 +41,7 @@ There are three ways to run tests with the Pandokia Meta-Runner:
 
         pdk run -r directory
 
-        pdk run -recursive directory
+        pdk run --recursive directory
 
  - If you want to run all the tests in a specific directory, you can give a list of specific directory names ::
 
@@ -51,8 +51,8 @@ There are three ways to run tests with the Pandokia Meta-Runner:
 
         pdk run xyz*.py
 
-All of these cases create or append to a Pandokia Log File, which contains the results from
-all the tests.  
+All of these cases create or append to a Pandokia log file, which contains the results from
+all the tests.
 
 There is also a command "pdkrun" that you can use in place of "pdk run".  It exists principally so that I can type::
 
@@ -169,7 +169,29 @@ PDK_TIMEOUT
 All other environment variables with names beginning PDK\_ are reserved
 for internal use by pandokia.
 
+Monitoring the running tests
+--------------------------------------------------------------------------------
 
+pdkrun can run multiple processes concurrently.  To see a report
+of what is currently running, you can enter this command in the
+directory where you started the tests ::
+
+	pdk runstatus
+
+This clears the screen and shows three columns of information ::
+
+  - the process "slot"
+  - date/time of last update to that process slot
+  - file name of tests executing in that process slot
+
+The information is recorded in a file named `pdk_statusfile`.  You
+can change the name of this file with the environment variable
+PDK_STATUSFILE.  
+
+If you set PDK_STATUSFILE to 'none', pdkrun will not record the
+status and the runstatus command will not work.
+
+**not implemented on Windows**
 
 Creating a Test Tree
 --------------------------------------------------------------------------------
