@@ -102,9 +102,13 @@ else :
 
     class status_block(object):
 
-        def __init__( self, file ) :
+        def __init__( self, file, mode ) :
             import mmap
-            f=open(file,'r+b')
+
+            if mode == 'w' :
+                f=open(file,'r+b')
+            else :
+                f=open(file,'rb')
 
             # first line is header to recognize the data file
             n = f.readline()   
@@ -132,13 +136,18 @@ else :
 
             # how big is the whole file
             file_size = self.record_size * self.n_records + self.header_size 
+
+            if mode == 'w' :
+                prot = mmap.PROT_READ | mmap.PROT_WRITE
+            else :
+                prot = mmap.PROT_READ
             
             # map it into a shared memory block
             self.mem = mmap.mmap(
                 fileno = f.fileno(),
                 length = file_size,
                 flags = mmap.MAP_SHARED,
-                prot = mmap.PROT_READ | mmap.PROT_WRITE
+                prot = prot,
                 )
 
             self.header_timestamp = self.mem[0:8]
@@ -275,7 +284,7 @@ else :
         # lazy attach to the status file
         global mem
         if mem is None :
-            mem = status_block( os.environ['PDK_STATUSFILE'] )
+            mem = status_block( os.environ['PDK_STATUSFILE'], 'w' )
             mem.set_my_record(slot)
 
         # stuff the value into the data block
@@ -297,7 +306,7 @@ else :
             while not os.path.exists(filename) :
                 time.sleep(1)
 
-        m = status_block(filename)
+        m = status_block(filename, 'r')
 
         times = { }
 
@@ -308,7 +317,7 @@ else :
                 sys.stdout.write('\033[H\033[J')
 
             if m.header_changed() :
-                m = status_block(filename)
+                m = status_block(filename, 'r')
                 done_waiting = not waiting_for_start
 
             any = 0
