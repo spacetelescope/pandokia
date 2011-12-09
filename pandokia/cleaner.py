@@ -340,6 +340,18 @@ def new_delete( name ) :
     c = pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1", (name,))
     pdk_db.commit()
 
+def delete_by_query( where_str, where_dict ) :
+    print "DELETE BY QUERY<br>"
+    print where_str,"<br>"
+    print where_dict,"<br>"
+    print "working...<br>"
+    sys.stdout.flush()
+    c = pdk_db.execute("INSERT INTO delete_queue SELECT key_id FROM result_scalar %s"%where_str, where_dict)
+    c = pdk_db.execute("DELETE FROM result_scalar %s"%where_str, where_dict)
+    pdk_db.commit()
+    print "done"
+    sys.stdout.flush()
+
 def delete_background_step( n = 200 ) :
     start = time.time()
     c = pdk_db.execute("SELECT key_id FROM delete_queue LIMIT :1 ",(n,) )
@@ -375,7 +387,6 @@ def delete_background( args ) :
     if len(args) > 2 :
         sleeptime=int(args[2])
     while n > 0 :
-        pdk_db.commit()
         c=pdk_db.execute("SELECT count(*) FROM delete_queue")
         print c
         c = c.fetchone()
@@ -394,4 +405,7 @@ def delete_background( args ) :
         if sleeptime > 0 :
             print "sleep after ",deleted_count
             time.sleep(sleeptime)
+        # commit each time through the loop
+        pdk_db.commit()
 
+    pdk_db.commit()

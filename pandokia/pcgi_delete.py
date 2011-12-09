@@ -21,13 +21,6 @@ pdk_db = pandokia.cfg.pdk_db
 import pandokia.pcgi
 
 ######
-#
-# day_report.1
-#   show a list of test_run values that we can make a day_report for
-#
-# CGI parameters:
-#   test_run = wild card pattern for test_run
-#
 
 def check_valuable(test_run) :
     c = pdk_db.execute("SELECT valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
@@ -45,32 +38,59 @@ def check_valuable(test_run) :
 def delete_are_you_sure(  ) :
 
     form = pandokia.pcgi.form
-
     test_run = form["test_run"].value
+    project  = form.getfirst('project','*')
+    context  = form.getfirst('context','*')
+    host     = form.getfirst('host','*')
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
 
     if check_valuable(test_run) :
+        print "There should not be a link that comes here"
         return
 
-    print '<a href="%s">Confirm delete:</a> %s'%(common.selflink( { 'test_run' : test_run }, 'delete_run.conf' ), cgi.escape(test_run) )
+    print "Delete data for:<br>"
+    tt = text_table.text_table()
+    tt.set_html_table_attributes("border=1")
+    tt.set_value(0,0,'test_run')
+    tt.set_value(0,1,test_run)
+    tt.set_value(1,0,'project')
+    tt.set_value(1,1,project)
+    tt.set_value(2,0,'host')
+    tt.set_value(2,1,host)
+    tt.set_value(3,0,'context')
+    tt.set_value(3,1,context)
+    print tt.get_html()
+    print "<br>"
 
-    c = pdk_db.execute('SELECT count(*) FROM result_scalar WHERE test_run = :1', (test_run,) )
+    where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ),  ('project', project), ('context', context), ('host', host) ] )
+
+    print where_str,"<br>"
+    print where_dict,"<br>"
+    c = pdk_db.execute('SELECT count(*) FROM result_scalar %s'%where_str, where_dict)
     (x,) = c.fetchone()
-    print x, "records"
+    print x, "records<br>"
+
+    print '<a href="%s">Confirm delete</a>'%common.selflink( { 'test_run' : test_run,
+        'project' : project, 'context' : context, 'host' : host }, 'delete_run.conf' )
 
 
 def delete_confirmed( ) :
 
     form = pandokia.pcgi.form
-
     test_run = form["test_run"].value
+    project  = form.getfirst('project','*')
+    context  = form.getfirst('context','*')
+    host     = form.getfirst('host','*')
+
+    where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ),  ('project', project), ('context', context), ('host', host) ] )
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
 
     if check_valuable(test_run) :
+        print "There should not be a link that comes here"
         return
 
     my_run_prefix = 'user_' + common.current_user()
@@ -90,8 +110,11 @@ def delete_confirmed( ) :
         # delete_run is chatty, so we <pre> around it
         print "<pre>"
 
-        # delete_run expects sys.argv[1:], so we pass a list
-        cleaner.delete_run( [ test_run ] )
+        cleaner.delete_by_query( where_str, where_dict )
 
         print "</pre>"
 
+        if project == '*' and context == '*' and host == '*' :
+            print "delete from index"
+            pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(test_run,))
+            pdk_db.commit()

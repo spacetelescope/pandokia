@@ -166,8 +166,19 @@ def rpt2( ) :
     if form.has_key("context") :
        context = form.getlist("context")
 
+    c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
+    x = c.fetchone()
+    if x is not None :
+        test_run_note, test_run_valuable = x
+        if test_run_note is None :
+            test_run_note = ''
+        if test_run_valuable is None :
+            test_run_valuable = 0
+        else :
+            test_run_valuable = int(test_run_valuable)
+
     # create the actual table
-    [ table, projects ] = gen_daily_table( test_run, projects, context, host )
+    [ table, projects ] = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable )
 
 # # # # # # # # # # 
     if pandokia.pcgi.output_format == 'html' :
@@ -209,27 +220,17 @@ def rpt2( ) :
 
             header = header + '( %s )' %( ' / '.join(l) )
 
-        c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
-        x = c.fetchone()
-        if x is not None :
-            note, valuable = x
-            if note is None :
-                note = ''
-            if valuable is None :
-                valuable = 0
+        if 1 :
+            if test_run_note.startswith('*') :
+                header = header + '<p>\nNote: %s</p>'%( cgi.escape(test_run_note) )
             else :
-                valuable = int(valuable)
+                header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), cgi.escape(test_run_note), len(test_run_note)+20, test_run )
 
-            if note.startswith('*') :
-                header = header + '<p>\nNote: %s</p>'%( cgi.escape(note) )
-            else :
-                header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>'%( common.get_cgi_name(), cgi.escape(note), len(note)+20, test_run )
-
-            if valuable :
+            if test_run_valuable :
                 header = header + '<p>valuable '
             else :
                 header = header + '<p>not valuable '
-            header = header + '(<a href=%s>change</a>)'%(common.selflink( {'test_run':test_run, 'valuable_run': int(not valuable) }, linkmode='action' ))
+            header = header + '(<a href=%s>change</a>)'%(common.selflink( {'test_run':test_run, 'valuable_run': int(not test_run_valuable) }, linkmode='action' ))
 
         sys.stdout.write(common.cgi_header_html)
         sys.stdout.write(common.page_header())
@@ -243,10 +244,22 @@ def rpt2( ) :
 #   #   #   #   #   #   #   #   #   #
 
 
-def gen_daily_table( test_run, projects, query_context, query_host ) :
+def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 ) :
 
     # convert special names, e.g. daily_latest to the name of the latest daily_*
     test_run = common.find_test_run(test_run)
+
+    # 
+    show_delete = not valuable
+    if show_delete :
+        my_run_prefix = 'user_' + common.current_user()
+        if test_run.startswith(my_run_prefix) :
+            del_text = '(del)'
+        else :
+            if common.current_user() in common.cfg.admin_user_list :
+                del_text = '<font color=gray>(del)</font>'
+            else :
+                show_delete = False
 
     # this is the skeleton of the cgi queries for various links
     query = { "test_run" : test_run }
@@ -270,7 +283,10 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     table.define_column("total")
     for x in status_types :
         table.define_column(x)
+    table.define_column("del")
     table.define_column("note")
+
+    n_cols = 3 + len(status_types) + 2
 
 #   #   #   #   #   #   #   #   #   #
     # loop across hosts
@@ -280,12 +296,12 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
     for status in status_types :
         all_sum[status] = 0
 
-    n_cols = 3
 
     hc_where, hc_where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
     c = pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
     for project, host, context in c :
 
+        ## make a new project section of the table
         if project != prev_project :
 
             table.set_value(row,0,"")
@@ -302,7 +318,6 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
 
             # the heading for a project subsection of the table
             table.set_value(row, 0, text=project, html="<hr><big><strong><b>"+project+"</b></strong></big>", link=link)
-            n_cols = 3 + len(status_types) + 1
             table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
             row += 1
 
@@ -318,10 +333,17 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
                 project_sum[status] = 0
 
             project_sum_row = row
+
+            # delete entire project from the test run
+            if show_delete :
+                table.set_value(row, 'del', 
+                    html=del_text, link=delete_link( { 'test_run' : test_run , 'project' :  project }, show_delete ) )
+
             row += 1
 
             prev_host = None
 
+        # a new host/contest line
         query["host"] = host
 
         link = common.selflink(query_dict = query, linkmode="treewalk" )
@@ -333,6 +355,12 @@ def gen_daily_table( test_run, projects, query_context, query_host ) :
         query['context'] = context
         link=common.selflink(query_dict = query, linkmode="treewalk" )
         del query['context']
+
+        # delete entire project from the test run
+        if show_delete :
+            table.set_value(row, 'del', 
+                html=del_text, link=delete_link( { 'test_run' : test_run , 'project' :  project,
+                    'host' : host, 'context' : context }, show_delete ) )
 
         table.set_value(row,1,    text=context,        link = link)
         table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
@@ -422,4 +450,12 @@ def insert_col_headings( table, row, link ) :
         table.set_value(row, x, text=xn, link = xl )
         table.set_html_cell_attributes(row, x, 'align="right"' )
     table.set_value(row, "note", text="" )  # no heading for this one
+
+
+#
+#
+#
+def delete_link( argdict, mode ) :
+    l = common.selflink(argdict,"delete_run.ays")
+    return l
 
