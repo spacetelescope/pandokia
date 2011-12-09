@@ -145,8 +145,15 @@ def run( ) :
     elif 'count_run' in form :
         text_present = 1
         v = str(form['count_run'].value)
-        pdk_db.execute("UPDATE distinct_test_run SET record_count = ( SELECT COUNT(*) FROM result_scalar WHERE test_run = :1 ) WHERE test_run = :2 ",
-            (v,v) )
+        c = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE test_run = :1",(v,))
+        x = c.fetchone()
+        count = x[0]
+        if count == 0 :
+            print "zero test results - record deleted"
+            pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(v,))
+        else :
+            print "updated - count = ",count
+            pdk_db.execute("UPDATE distinct_test_run SET record_count = :1 WHERE test_run = :2 ", (count,v) )
         pdk_db.commit()
 
     elif 'edit_comment' in form :
