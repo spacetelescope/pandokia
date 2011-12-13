@@ -50,8 +50,10 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # explain the query plan using the database-dependent syntax
     #
     def explain_query( self, text, query_dict ) :
+        if not self.db :
+            self.open()
         f = StringIO.StringIO()
-        c = self.execute( 'EXPLAIN EXTENDED '+ text, query_dict, _xdb )
+        c = self.execute( 'EXPLAIN EXTENDED '+ text, query_dict )
         for x in c :
             f.write(str(x))
         return f.getvalue()
