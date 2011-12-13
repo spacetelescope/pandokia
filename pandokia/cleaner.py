@@ -374,7 +374,7 @@ def delete_background_step( n = 200 ) :
     return len(keys)
 
 def delete_background( args ) :
-    n = 20000
+    n = 1000000000 # default to max of 1 billion records; lazy way to say "infinite"
     ns = 200
     sleeptime=0
     # max records to delete
