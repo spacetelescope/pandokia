@@ -16,15 +16,12 @@ pdk check_expected test_run_type test_run
 pdk clean [ max_records records_per_step sleep_between_steps ]
     Run the background step that cleans deleted material from the database.
 
-pdk oldclean
-    Removes associated records from database if related primary records
-    have been deleted.  Very slow.
+pdk clean_queries
+    delete old qids
 
-pdk delete_background_step
-    run one step of the background cleaner used by the new delete algorithm
-
-pdk delete_run test_run
-    removes named test run from the database
+pdk delete -test_run xx -project xx -context xx -host xx -status xx
+        -n -wild -count
+    delete records from the database
 
 pdk export test_run_pattern [ -h host ] [ -p project ] [ -c context ] 
     export records from the database in pandokia import format
@@ -113,10 +110,6 @@ def run() :
         import pandokia.cleaner
         return pandokia.cleaner.clean_queries()
 
-    if cmd == 'delete_background_step' :
-        import pandokia.cleaner
-        return pandokia.cleaner.delete_background_step()
-
     if cmd == 'config' :
         import pandokia.config
         f= pandokia.config.__file__
@@ -125,17 +118,9 @@ def run() :
         print f
         return 0
 
-    if cmd == 'delete_run' :
-        import pandokia.cleaner
-        return pandokia.cleaner.delete_run(args)
-
     if cmd == 'delete' :
         import pandokia.cleaner
         return pandokia.cleaner.delete(args)
-
-    if cmd == 'oldclean' :
-        import pandokia.cleaner
-        return pandokia.cleaner.clean_db(args)
 
     if cmd == 'dump_table' :
         import pandokia.db
