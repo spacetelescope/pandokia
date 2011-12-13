@@ -12,6 +12,7 @@ import time
 
 import pandokia.text_table as text_table
 import urllib
+import pandokia.cleaner as cleaner
 
 import pandokia
 import pandokia.common as common
@@ -21,19 +22,6 @@ pdk_db = pandokia.cfg.pdk_db
 import pandokia.pcgi
 
 ######
-
-def check_valuable(test_run) :
-    c = pdk_db.execute("SELECT valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
-
-    # this trick discovers valuable=0 even if it is not in the distinct_test_run table
-    valuable = 0
-    for x in c :
-        valuable, = x
-
-    valuable = int(valuable)
-    if valuable > 0 :
-        print "<em>This is a valuable test run - not deleted</em>"
-    return valuable
 
 def delete_are_you_sure(  ) :
 
@@ -46,8 +34,8 @@ def delete_are_you_sure(  ) :
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
 
-    if check_valuable(test_run) :
-        print "There should not be a link that comes here"
+    if pandokia.cleaner.check_valuable(test_run) :
+        print "valuable test run - There should not be a link that comes here"
         return
 
     print "Delete data for:<br>"
@@ -84,13 +72,14 @@ def delete_confirmed( ) :
     context  = form.getfirst('context','*')
     host     = form.getfirst('host','*')
 
+
     where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ),  ('project', project), ('context', context), ('host', host) ] )
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
 
-    if check_valuable(test_run) :
-        print "There should not be a link that comes here"
+    if pandokia.cleaner.check_valuable(test_run) :
+        print "valuable test run - There should not be a link that comes here"
         return
 
     my_run_prefix = 'user_' + common.current_user()
@@ -105,14 +94,22 @@ def delete_confirmed( ) :
         print "Deleteing..."
         sys.stdout.flush()
 
-        import pandokia.cleaner as cleaner
+        # make a dummy record, so we know that we can never delete the
+        # last record created.
+        pandokia.cleaner.block_last_record()
 
         # delete_run is chatty, so we <pre> around it
         print "<pre>"
 
+        print "working..."
+        sys.stdout.flush()
+
         cleaner.delete_by_query( where_str, where_dict )
 
+        print "done."
+
         print "</pre>"
+        sys.stdout.flush()
 
         if project == '*' and context == '*' and host == '*' :
             print "delete from index"
