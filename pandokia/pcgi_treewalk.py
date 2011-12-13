@@ -262,14 +262,17 @@ def treewalk ( ) :
 
     prefixes = collect_prefixes( query )
 
-    table = collect_table( prefixes, query )
+    # create the table to display; if comparing, we want a link for
+    # every table cell; this is because we don't know later which cells
+    # we will need to have a link on
+    table = collect_table( prefixes, query, comparing )
 
     if comparing :
         query_2 = query.copy()
         query_2['test_run'] = cmp_test_run
         query_2['host'] = cmp_host
         query_2['context'] = cmp_context
-        t2 = collect_table( prefixes, query_2 )
+        t2 = collect_table( prefixes, query_2, 1 )
     
         # This part is very delicate.  We know that both tables
         # have the same dimensions because the parameters that we
@@ -297,9 +300,16 @@ def treewalk ( ) :
                 except ValueError :
                     continue
 
+                # suppress the link in this cell, but only if both
+                # parts of the comparison are zero.  If they are equal,
+                # you still might follow the link and see something.
+                if c1v == 0 and c2v == 0 :
+                    c1.link = None
+
+                # compute the difference and poke the value directly back
+                # into the table cell; this preserves the html attributes
+                # and such
                 diff = c1v - c2v
-                # poke the new string directly back into the table cell;
-                # this preserves the html attributes and such
                 if debug_cmp :
                     c1.text="%d - %d = %+d"%(c1v,c2v,diff)
                 else :
@@ -579,10 +589,13 @@ def collect_prefixes( query ) :
     return prefixes
 
 
-def collect_table( prefixes, query ) :
+def collect_table( prefixes, query, always_link ) :
     #
     # make the actual table to display
     #
+    # always_link=true means to always create an html link in the table
+    #    cell that contains a record count
+    # always_link=false means to suppress the link if the record count is 0
 
     status = query['status']
 
@@ -645,7 +658,10 @@ def collect_table( prefixes, query ) :
                 else :
                     (count_col[x],) = datum
                 lquery['status'] = x
-                table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
+                if not always_link and count_col[x] == 0 :
+                    table.set_value(rownum,x,      text='0' )
+                else :
+                    table.set_value(rownum,x,      text=count_col[x],    link=common.selflink(lquery, linkmode) )
                 table.set_html_cell_attributes(rownum, x, 'align="right"' )
                 count = count + count_col[x]
                 total_count = total_count + count_col[x]
