@@ -15,8 +15,8 @@
 #
 #   pdk_attribute tda_thing 1
 #
-# The actual implementation is to gather them into a temp file, then
-# merge that information at the end.
+# Attributes are not multi-line values; newlines are deleted if necessary.
+#
 
 pdk_attribute() {
 	# skip the disk I/O if we are not running in a pandokia context
@@ -25,22 +25,31 @@ pdk_attribute() {
 		case "$1"
 		in
 		t[dr]a_*)
-			echo "$1=$2" | tr -d '\n' >> $PDK_LOG
+			( echo "$1=$2" | tr -d '\n' ; echo '' ) >> $PDK_LOG
 			;;
 		*)
 			# have to do something for this case; might as well
 			# assume a TRA
-			echo "tra_$1=$2" | tr -d '\n' >> $PDK_LOG
+			( echo "tra_$1=$2" | tr -d '\n' ; echo '' ) >> $PDK_LOG
 			;;
 		esac
 	fi
+}
+
+pdk_tda() {
+	pdk_attribute tda_"$1" "$2"
+}
+
+pdk_tra() {
+	pdk_attribute tra_"$1" "$2"
 }
 
 # declare that the test result is Error.  shunit2 does not have this
 # natively, so we call it fail for shunit2 and then change the status
 # to E for pandokia.
 pdk_error() {
- 	_shunit_assertFail
+	echo "PDK_ERROR called"
+ 	_shunit_assertFail "$*"
 
 	# E is the most severe status, so we don't need to guard against
 	# moving to a lower status.
