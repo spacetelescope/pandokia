@@ -675,11 +675,11 @@ def collect_table( prefixes, query, always_link ) :
         rownum = rownum + 1
     
     table.set_value(total_row,"count",     text=total_count )
-    table.set_html_cell_attributes(total_row, 'count', 'align="right"' )
+    table.set_html_cell_attributes(total_row, 'count', 'align="right" style="font-weight:bold"' )
     for x in common.cfg.statuses :
         if ( status == '*') or ( x in status ) :
             table.set_value(total_row,x,      text=total_col[x] )
-            table.set_html_cell_attributes(total_row, x, 'align="right"' )
+            table.set_html_cell_attributes(total_row, x, 'align="right" style="font-weight:bold"' )
 
     return table
 
