@@ -1,0 +1,62 @@
+Index: source/2.1/src/shunit2_test.sh
+===================================================================
+--- source/2.1/src/shunit2_test.sh	(revision 337)
++++ source/2.1/src/shunit2_test.sh	(working copy)
+@@ -91,6 +91,20 @@
+ # run tests
+ #
+ 
++if [ ! -z "${PDK_TESTPREFIX:-}" ]
++then
++  # running in the context of pandokia - we are going to insert the name
++  # of the shell being tested and the suite name into the test name.
++  # In the main loop below, we alter PDK_TESTPREFIX to include this information,
++  # so remember the unaltered value.
++  orig_pdk_testprefix="$PDK_TESTPREFIX"
++
++  # also, hide the name of this file (shunit_test.sh), so it does not appear
++  # in the test name.
++  PDK_FILE=''
++  export PDK_FILE
++fi
++
+ for shell in ${shells}; do
+   echo
+ 
+@@ -105,9 +119,12 @@
+ #------------------------------------------------------------------------------
+ # Running the test suite with ${shell}
+ #
++# tests=${tests}
++#
+ EOF
+ 
+   SHUNIT_SHELL=${shell}  # pass shell onto tests
++
+   shell_name=`basename ${shell}`
+   shell_version=`versions_shellVersion "${shell}"`
+ 
+@@ -117,8 +134,23 @@
+   # execute the tests
+   for suite in ${tests}; do
+     suiteName=`expr "${suite}" : "${PREFIX}\(.*\).sh"`
++
++    if [ ! -z "${orig_pdk_testprefix:-}" ]
++    then
++      # if we are running in the context of pandokia, insert the shell name
++      # and the suite name into the prefix, so it will be part of the test
++      # name in pandokia reports.  Recall the PDK_TESTPREFIX already ends
++      # with a slash should end with a slash after we change it
++      PDK_TESTPREFIX="${orig_pdk_testprefix}${shell_name}/`basename ${suite} .sh`"
++      export PDK_TESTPREFIX
++    fi
++
+     echo
+     echo "--- Executing the '${suiteName}' test suite ---"
+     ( exec ${shell} ./${suite} 2>&1; )
+   done
++echo '# Done'
++echo '#------------------------------------------------------------------------------'
++
+ done
++

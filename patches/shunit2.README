@@ -1,0 +1,33 @@
+Download shunit2 2.1.6 from
+	http://code.google.com/p/shunit2/downloads/detail?name=shunit2-2.1.6.tgz
+or 
+	http://stsdas.stsci.edu/shunit2
+
+use the patch file shunit2.patch
+
+Extract the tar file and apply the patch :
+
+        tar xf shunit2-2.1.6.tgz
+        cd shunit2-2.1.6/src/
+        patch -p0 < ../../shunit2.patch
+
+Copy the resulting shunit2 script to some place on your PATH.  
+
+The resulting shunit2 is identified by SHUNIT_VERSION='2.1.6plugin'
+
+If you distribute the patched script, be sure to put a comment at the
+top as required by section 2(b) of LGPL.
+
+You can run the shunit2 self-tests with the command
+        ./shunit2_test.sh
+
+This patch was submitted to the shunit2 bug tracker at 
+http://code.google.com/p/shunit2/issues/detail?id=31
+
+shunit2_plugin_example is an example plugin.
+
+../commands/shunit2_plugin_pdk is the actual plugin used by pandokia.
+
+shunit2_test.patch is a patch that may fix the shunit2 tests to work
+with pandokia; not tested recently, just checked in so we don't lose it.
+
