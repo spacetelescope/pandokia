@@ -400,10 +400,10 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
 
         for status in status_types :
             table.set_value(project_sum_row, status, project_sum[status] )
-            table.set_html_cell_attributes(project_sum_row, status, 'align="right"' )
+            table.set_html_cell_attributes(project_sum_row, status, 'align="right" style="font-weight:bold"' )
 
         table.set_value(project_sum_row, 'total', project_sum['total'] )
-        table.set_html_cell_attributes(project_sum_row, 'total', 'align="right"' )
+        table.set_html_cell_attributes(project_sum_row, 'total', 'align="right" style="font-weight:bold"' )
 
         # insert this blank line between projects - keeps the headings away from the previous row
         table.set_value(row,0,"")
