@@ -38,14 +38,14 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pandokia'
-copyright = u'2009-2010, Association of Universities for Research in Astronomy'
+copyright = u'2009-2011, Association of Universities for Research in Astronomy'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '1.0'
+version = '1.2'
 # The full version, including alpha/beta/rc tags.
 release = '1.0'
 
@@ -58,6 +58,8 @@ release = '1.0'
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%B %d, %Y'
+
+today=''    # keep it from saying the day?
 
 # List of documents that shouldn't be included in the build.
 #unused_docs = []

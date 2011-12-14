@@ -1,7 +1,7 @@
 .. index:: single: runners; shell (sh, bash, csh, etc)
 
 ===============================================================================
-shell_runner - tests written as shell scripts
+shell_runner - sh/bash/csh/whatever - tests written as shell scripts
 ===============================================================================
 
 :abstract:

@@ -1,7 +1,7 @@
 .. index:: single: runners; unittest2
 
 ===============================================================================
-unit2 - python unittest2 tests
+unit2 - python unittest2 (0.5.1)
 ===============================================================================
 
 :abstract:
@@ -13,6 +13,11 @@ unit2 - python unittest2 tests
 overview
 -------------------------------------------------------------------------------
 
-write this
+This runner was written to try interfacing with unittest2.  It seems
+to work, but in the end we did not find unittest2 attractive enough
+to be worth using.  (We have nose and py.test)
 
-http://pypi.python.org/pypi/unittest2
+This is still here in case it is useful.
+
+You can find unittest2 at http://pypi.python.org/pypi/unittest2
+
