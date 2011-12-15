@@ -16,3 +16,10 @@ __version__ = "1.0"
 # multiple configurations; that would go here.
 import pandokia.config as cfg
 
+#
+# some constants that need to be somewhere
+
+# time_t of an event that never expires; make this bigger if you are
+# still using this in 2030.
+never_expires = 0x7fffffff
+

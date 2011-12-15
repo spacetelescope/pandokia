@@ -252,6 +252,8 @@ def treewalk ( ) :
     show_all_line = common.self_href(lquery, 'treewalk.linkout', t) + ' - '
     lquery['add_attributes'] = 1
     show_all_line += common.self_href(lquery, 'treewalk.linkout', 'with attributes')
+    lquery['add_attributes'] = 2
+    show_all_line += ' - ' + common.self_href(lquery, 'treewalk.linkout', 'attributes selector')
     output.write(show_all_line)
     output.write("<br>")
 
@@ -418,47 +420,17 @@ def linkout( ) :
 
     form = pandokia.pcgi.form
 
-    if form.has_key("test_name") :
-        test_name = form["test_name"].value
-    else :
-        test_name = "*"
-        
-    if form.has_key("context") :
-        context = form["context"].value
-    else :
-        context = "*"
-        
-    if form.has_key("host") :
-        host = form["host"].value
-    else :
-        host = "*"
+    context = get_form(form,'context',  '*')
+    host    = get_form(form,'host',     '*')
+    test_run= get_form(form,'test_run', '*')
+    project = get_form(form,'project',  '*')
+    status  = get_form(form,'status',   '*')
+    attn    = get_form(form,'attn',     '*')
+    oldqid  = get_form(form,'qid',      None)
+    test_name=get_form(form,'test_name','*')
 
-    if form.has_key("test_run") :
-        test_run = form["test_run"].value
-    else :
-        test_run = "*"
     # handle special names of test runs
     test_run = common.find_test_run(test_run)
-
-    if form.has_key("project") :
-        project = form["project"].value
-    else :
-        project = "*"
-
-    if form.has_key("status") :
-        status = form["status"].value
-    else :
-        status = "*"
-
-    if form.has_key("attn") :
-        attn = form["attn"].value
-    else :
-        attn = '*'
-
-    if form.has_key("qid") :
-        oldqid = int( form["qid"].value )
-    else :
-        oldqid = None
 
     # create a new qid - this is the identity of a list of test results
 
@@ -512,7 +484,7 @@ def linkout( ) :
     if form.has_key('add_attributes') :
         x = int(form['add_attributes'].value)
         if x :
-            url += '&show_attr=1'
+            url += ('&show_attr=%d'%x)
 
     if not no_redirect :
         output.write(

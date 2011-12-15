@@ -20,6 +20,8 @@ import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 
+output = sys.stdout
+
 def form_to_dict( f ) :
     d = { }
     for x in f :
@@ -28,15 +30,70 @@ def form_to_dict( f ) :
             d[x] = l
     return d
 
+##########
+# Write the qid identification block that appears at the top of the display
 #
+
+def qid_block( qid ) :
+    c = pdk_db.execute("SELECT expires, username, notes FROM query_id WHERE qid = :1", (qid,))
+    x = c.fetchone()
+
+    if x is not None :
+        expires = x[0]
+        claimant = x[1]
+        if claimant == '' :
+            claimant = None
+        notes = x[2]
+    else :
+        expires = None
+        claimant = None
+        notes = ''
+
+    output.write('<h3>QID = %d</h3>'%int(qid))
+    if expires ==  pandokia.never_expires :
+        output.write('<b>never expires</b>')
+    else :
+        if expires is not None :
+            expires = float(expires)
+            e = time.localtime(expires)
+            output.write('expires %4d-%02d-%02d'%(e.tm_year, e.tm_mon, e.tm_mday))
+        else :
+            output.write('expires someday')
+
+        qdict = { "qid" : qid, "valuable_qid" : 1  }
+        output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+        output.write( "never expire</a> )" )
+
+    qdict = { "qid" : qid, "valuable_qid" : 0  }
+    output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+    output.write( "normal expire</a> )" )
+
+    output.write(', ')
+    qdict = { "qid" : qid, "claim_qid" : 1  }
+
+    if claimant != None :
+        output.write( "owner %s\n" % claimant )
+    else :
+        output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+        output.write( "Claim this qid</a> ) <br>" )
+
+    if notes is None :
+        notes = 'None'
+
+    qdict = { "qid" : qid, "edit_comment" : 1  }
+    output.write( "<br><a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
+    output.write('Comment:</a><br><pre>%s</pre>\n'%cgi.escape(notes))
+
+        
+
+##########
 #
+# The main summary report
 #
 
 def run ( ) :
 
     global any_attr
-
-    output = sys.stdout
 
     any_attr = { }
 
@@ -53,7 +110,7 @@ def run ( ) :
 
     # some fields are the names of submit buttons that we do not look
     # at and that we do not want to accumulate in the URL
-    for x in ( 'col_show', ) :
+    for x in ( 'x', ) :
         if x in input_query :
             del input_query[x]
 
@@ -79,6 +136,9 @@ def run ( ) :
     if "show_attr" in input_query :
         show_attr = int(input_query["show_attr"][0])
 
+        if show_attr == 2 :
+            return column_selector(input_query)
+
     # generate a link to click on to sort.  use sort_link+"thing" to sort
     # on thing.  thing must be "+xyz" or "-xyz" to sort on column xyz
     # either ascending or descending.
@@ -97,7 +157,7 @@ def run ( ) :
 
 
     # generate the table - used to be written inline here
-    result_table, all_test_run, all_project, all_host, all_context, rowcount, different, expires, claimant, notes = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
+    result_table, all_test_run, all_project, all_host, all_context, rowcount, different = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
 
     if pandokia.pcgi.output_format == 'html' :
         # HTML OUTPUT
@@ -143,49 +203,21 @@ def run ( ) :
     </form>
     """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
 
-        output.write('<h3>QID = %d</h3>'%int(qid))
-        if expires == 0 :
-            output.write('<b>never expires</b>')
-        else :
-            if expires is not None :
-                expires = float(expires)
-                e = time.localtime(expires)
-                output.write('expires %4d-%02d-%02d'%(e.tm_year, e.tm_mon, e.tm_mday))
-            else :
-                output.write('expires someday')
-
-            qdict = { "qid" : qid, "valuable_qid" : 1  }
-            output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
-            output.write( "never expire</a> )" )
-
-        qdict = { "qid" : qid, "valuable_qid" : 0  }
-        output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
-        output.write( "normal expire</a> )" )
-
-        output.write(', ')
-        qdict = { "qid" : qid, "claim_qid" : 1  }
-
-        if claimant != None :
-            output.write( "owner %s\n" % claimant )
-        else :
-            output.write( " ( <a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
-            output.write( "Claim this qid</a> ) <br>" )
-
-        if notes is None :
-            notes = 'None'
-
-        qdict = { "qid" : qid, "edit_comment" : 1  }
-        output.write( "<br><a href='"+common.selflink(qdict, linkmode = "action")+"'>" )
-        output.write('Comment:</a><br><pre>%s</pre>\n'%cgi.escape(notes))
-
+        qid_block( qid )
         
+        # the link to jump in to the tree walker using this qid
         qdict = { "qid" : qid }
-        output.write( "<a href='"+common.selflink(qdict, linkmode = "treewalk")+"'>" )
-        output.write( "tree walk this qid </a>, " )
+        output.write( "<a href='%s'>tree walk this qid </a>, " % common.selflink(qdict, linkmode = "treewalk") )
 
+        # the link to do and/or on qids
         qdict = { "qid" : qid }
-        output.write( "<a href='"+common.selflink(qdict, linkmode = "qid_op")+"'>" )
-        output.write( "edit this qid </a><br>" )
+        output.write( "<a href='%s'>edit this qid </a>, " % common.selflink(qdict, linkmode = "qid_op") )
+
+        # the link to the column selector
+        iq = input_query.copy()
+        iq['show_attr'] = 2
+        del iq['query']
+        output.write( '<a href="%s">Column Selector</a>'%common.selflink(iq, linkmode = "summary") )
 
         # suppose you have 
         #   d = { 'A' : 1 }
@@ -221,101 +253,9 @@ def run ( ) :
         else :
             column_select_values = set( [ x  for x in result_table.colmap ] )
 
-        # show the table to choose the columns that the user wants to see
-        output.write("""<a href='javascript:toggle_visibility("selectform")'>[<span id='selectform_plus'></span> Column selector]</a>""")
-
-        output.write('<div id=selectform>')
-        output.write('<form action=%s method=get name=colselectform id=colselectform>' % pandokia.pcgi.cginame )
-        for n, x in sorted( [ ( result_table.colmap[x], x) for x in result_table.colmap ] ) :
-            t = result_table.titles[n]
-            if t == '&nbsp;' :
-                continue
-            if t in column_select_values :
-                checked=' checked '
-            else :
-                checked = ''
-            output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
-        for x in input_query :
-            if x != 'S' :
-                for y in input_query[x] :
-                    output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
-        output.write('<input type=submit name="col_show" value="Show Checked">')
-        # output.write('<input type=button name="col_hide" value="Hide Checked" onclick="vis_hide()">')
-        output.write('<input type=button name="toggle" value="Toggle" onclick="vis_toggle()">')
-        output.write('<input type=button name="all" value="All" onclick="vis_all(1)">')
-        output.write('<input type=button name="none" value="None" onclick="vis_all(0)">')
-        output.write('''<input type=button name="tda" value="tda" onclick="vis_some('tda_')">''')
-        output.write('''<input type=button name="tra" value="tra" onclick="vis_some('tra_')">''')
-        output.write('''<input type=button name="tra" value="core" onclick="vis_some('')">''')
-        output.write('</form>')
-        output.write('</div>')
-        
-        # javascript to 
-        output.write("""
-<script type="text/javascript">
-    function toggle_visibility(id) {
-       var e = document.getElementById(id);
-       if(e.style.display == 'block') {
-          e.style.display = 'none';
-          plus = '+';
-       } else {
-          e.style.display = 'block';
-          plus = '-';
-        }
-        e = document.getElementById(id+'_plus');
-        e.innerHTML = plus;
-    }
-    toggle_visibility("selectform");
-    toggle_visibility("selectform");
-
-    function vis_hide() {
-        vis_toggle();
-        f = document.colselectform;
-        // Why doesn't this work?
-        f.submit();
-    }
-
-    // yeah, I know, but I'm in a hurry
-        function vis_toggle()
-            {
-            len = document.colselectform.elements.length;
-            ele = document.colselectform.elements;
-            for (n=0; n<len; n++)
-                ele[n].checked= ! ele[n].checked;
-            }
-
-        function vis_all(value)
-            {
-            len = document.colselectform.elements.length;
-            ele = document.colselectform.elements;
-            for (n=0; n<len; n++)
-                ele[n].checked= value;
-            }
-
-        function vis_some(value)
-            {
-            len = document.colselectform.elements.length;
-            ele = document.colselectform.elements;
-            if ( value == '' ) {
-                for (n=0; n<len; n++) {
-                    if ( ele[n].value.search('t.a_') == 0 )
-                        return;
-                    ele[n].checked= 1
-                    }
-                return;
-                }
-            for (n=0; n<len; n++)
-                if ( ele[n].value.search(value) == 0 )
-                    ele[n].checked= 1
-            }
-
-</script>
-""")
-
-
 
         # suppressing the columns that are the same for every row
-        same_table = suppress_attr_all_same( result_table )
+        same_table = suppress_attr_all_same( result_table, column_select_values )
 
         if same_table.get_row_count() > 0 :
             output.write( "<ul><b>attributes same for all rows:</b>" )
@@ -442,6 +382,11 @@ def run ( ) :
         print result_table.get_awk(headings=1)
 
 
+##########
+#
+# code to generate the table
+#
+
 def load_in_table( tt, row, cursor, prefix, sort_link ) :
     for x in cursor :
         ( name, value ) = x
@@ -453,8 +398,9 @@ def load_in_table( tt, row, cursor, prefix, sort_link ) :
 
 def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
 
-    #if cmp_run != '' :
-    #    output.write("<h3>Compare to: "+cgi.escape(cmp_run)+"</h3>")
+    #
+    # this query finds all the test results that are an interesting part of this request
+    #
 
     result_table=text_table.text_table()
     result_table.set_html_table_attributes("border=1")
@@ -465,32 +411,16 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     tra_table = text_table.text_table()
     tra_table.set_html_table_attributes("border=1")
 
-    #
-    # this query finds all the test results that are an interesting part of this request
-    #
-
-    c = pdk_db.execute("SELECT expires, username, notes FROM query_id WHERE qid = :1", (qid,))
-    x = c.fetchone()
-
-    if x is not None :
-        expires = x[0]
-        claimant = x[1]
-        if claimant == '' :
-            claimant = None
-        notes = x[2]
-    else :
-        expires = None
-        claimant = None
-        notes = ''
-
+    # note when we last touched this qid
     now = time.time()
     pdk_db.execute("UPDATE query_id SET time = :1 WHERE qid = :2", (now, qid) )
-    if expires > 0 and expires < now + ( 30 * 86400 ) :
-        expires = now + ( 30 * 86400 )
-        pdk_db.execute("UPDATE query_id SET expires = :1 WHERE qid = :2", (expires, qid) )
 
+    # bump the expiration maybe
+    expires = now + ( pandokia.cfg.default_qid_expire_days * 86400 )
+    pdk_db.execute("UPDATE query_id SET expires = :1 WHERE qid = :2 AND :1 > query_id.expires", (expires, qid) )
     pdk_db.commit()
 
+    #
     c = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1", (qid,) )
 
     result_table.define_column("line #", showname='&nbsp;')
@@ -602,9 +532,9 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         result_table.join(tda_table)
         result_table.join(tra_table)
 
-    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different, expires, claimant, notes
+    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different
 
-def suppress_attr_all_same( result_table ) :
+def suppress_attr_all_same( result_table, column_select_values = set( { } ) ) :
 
         # try to suppress attribute columns where all the data values are the same
         global any_attr
@@ -618,6 +548,8 @@ def suppress_attr_all_same( result_table ) :
         rowcount = result_table.get_row_count()
 
         for x in any_attr :
+            if not x in column_select_values :
+                continue
             all_same = 1
             txt = result_table._row_col_cell(0,x).text
             for y in range(1, rowcount) :
@@ -633,3 +565,121 @@ def suppress_attr_all_same( result_table ) :
                 result_table.suppress(x)
 
         return same_table
+
+##########
+#
+# the column selector
+#
+
+column_selector_buttons = '''
+        <input type=button name="x" value="All" onclick="vis_all(1)">
+        <input type=button name="x" value="None" onclick="vis_all(0)">
+        <input type=button name="x" value="tda" onclick="vis_some('tda_')">
+        <input type=button name="x" value="tra" onclick="vis_some('tra_')">
+        <input type=button name="x" value="core" onclick="vis_some('')">
+        <input type=button name="x" value="Toggle" onclick="vis_toggle()">
+        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        <input type=submit name="x" value="Show Checked">
+        <br>
+'''
+
+## Column Selector
+
+def column_selector(input_query) :
+
+    qid = int(input_query["qid"][0])
+    print "content-type: text/html\n\n"
+
+    # page header
+    print common.page_header()
+    print "<h1>Column Selector</h1>"
+    qid_block(qid)
+
+    # these columns are common to every test
+    l0 = [ 'runner', 'attn', 'test_run', 'project', 'host', 'context', 'test_name', 'contact', 'diff', 'other', 'stat' ]
+
+    # make diff, other only required when compare ?
+    # compare totally loses the column selections
+
+    # get the names of the attributes
+    c = pdk_db.execute("SELECT DISTINCT result_tda.name FROM result_tda, query WHERE query.qid = :1 AND query.key_id = result_tda.key_id", { '1' : qid })
+    l1 = [ 'tda_' + x for x, in c ]
+
+    c = pdk_db.execute("SELECT DISTINCT result_tra.name FROM result_tra, query WHERE query.qid = :1 AND query.key_id = result_tra.key_id", { '1' : qid })
+    l2 = [ 'tra_' + x for x, in c ]
+
+    #  all the column names
+    col_list = l0 + sorted(l1) + sorted(l2)
+
+    # list of the column names that are initially checked
+    column_select_values = [ 'test_name', 'stat' ]
+    if 'S' in input_query :
+        column_select_values += input_query['S']
+    column_select_values = set( column_select_values )
+
+    # buttons at the top of the form
+    output.write('<form action=%s method=get name=colselectform id=colselectform>' % pandokia.pcgi.cginame )
+    output.write(column_selector_buttons)
+
+    # show each check box
+    for t in col_list :
+        if t in column_select_values :
+            checked=' checked '
+        else :
+            checked = ''
+        output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
+
+    # all the other parameters that got us here go as hiddens
+    for x in input_query :
+        if x != 'S' :
+            if x == 'show_attr' :
+                output.write('<input type=hidden name=show_attr value=1>')
+            else :
+                for y in input_query[x] :
+                    output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+
+    # buttons at the bottom of the form
+    output.write(column_selector_buttons)
+    output.write('</form>')
+
+    # javascript for all the buttons
+    output.write("""
+<script type="text/javascript">
+
+    function vis_toggle()
+        {
+        len = document.colselectform.S.length;
+        ele = document.colselectform.S;
+        for (n=0; n<len; n++)
+            ele[n].checked= ! ele[n].checked;
+        }
+
+    function vis_all(value)
+        {
+        len = document.colselectform.S.length;
+        ele = document.colselectform.S;
+        for (n=0; n<len; n++)
+            ele[n].checked= value;
+        ele[6].checked=1;   // test_name
+        }
+
+    function vis_some(value)
+        {
+        len = document.colselectform.S.length;
+        ele = document.colselectform.S;
+        if ( value == '' ) {
+            for (n=0; n<len; n++) {
+                if ( ele[n].value.search('t.a_') == 0 )
+                    return;
+                ele[n].checked= 1
+                }
+            return;
+            }
+        for (n=0; n<len; n++)
+            if ( ele[n].value.search(value) == 0 )
+                ele[n].checked= 1
+        }
+
+</script>
+""")
+

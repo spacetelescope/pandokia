@@ -116,9 +116,9 @@ def run( ) :
     elif 'valuable_qid' in form :
         v = int(form['valuable_qid'].value)
         if v :
-            expire = 0
+            expire = pandokia.never_expires
         else :
-            expire = time.time() + 30 * 86400
+            expire = time.time() + pandokia.cfg.default_qid_expire_days * 86400
         pdk_db.execute("UPDATE query_id SET username = :1, expires = :2 WHERE qid = :3",(common.current_user(), expire, qid))
         pdk_db.commit()
 
