@@ -159,6 +159,20 @@ def run ( ) :
     # generate the table - used to be written inline here
     result_table, all_test_run, all_project, all_host, all_context, rowcount, different = get_table( qid, sort_link, cmp_run, cmptype, show_attr )
 
+    # suppressing columns that the user did not ask for
+    if 'S' in input_query :
+        column_select_values = input_query['S']
+        column_select_values = set(column_select_values)
+        for x in result_table.colmap :
+            if x in ( 'line #', 'checkbox' ) :
+                continue
+            if not x in column_select_values :
+                result_table.suppress(x)
+    else :
+        column_select_values = set( [ x  for x in result_table.colmap ] )
+
+    ## select output format
+
     if pandokia.pcgi.output_format == 'html' :
         # HTML OUTPUT
 
@@ -207,17 +221,29 @@ def run ( ) :
         
         # the link to jump in to the tree walker using this qid
         qdict = { "qid" : qid }
-        output.write( "<a href='%s'>tree walk this qid </a>, " % common.selflink(qdict, linkmode = "treewalk") )
+        output.write( "<a href='%s'>Tree walk this QID </a>, " % common.selflink(qdict, linkmode = "treewalk") )
 
         # the link to do and/or on qids
         qdict = { "qid" : qid }
-        output.write( "<a href='%s'>edit this qid </a>, " % common.selflink(qdict, linkmode = "qid_op") )
+        output.write( "<a href='%s'>Edit this QID </a>, " % common.selflink(qdict, linkmode = "qid_op") )
 
         # the link to the column selector
-        iq = input_query.copy()
-        iq['show_attr'] = 2
-        del iq['query']
-        output.write( '<a href="%s">Column Selector</a>'%common.selflink(iq, linkmode = "summary") )
+        qdict = input_query.copy()
+        qdict['show_attr'] = 2
+        del qdict['query']
+        output.write( '<a href="%s">Column Selector</a>'%common.selflink(qdict, linkmode = "summary") )
+
+        # offer other output formats
+        output.write("<br>Other formats: ")
+        qdict = input_query.copy()
+        del qdict['query']
+        qdict['format']='csv'
+        output.write( "<a href='%s'>CSV</a> " % common.selflink(qdict, linkmode = "summary") )
+        qdict['format']='rst'
+        output.write( "<a href='%s'>RST</a> " % common.selflink(qdict, linkmode = "summary") )
+        qdict['format']='awk'
+        output.write( "<a href='%s'>TAB</a> " % common.selflink(qdict, linkmode = "summary") )
+        output.write("<br>\n")
 
         # suppose you have 
         #   d = { 'A' : 1 }
@@ -240,18 +266,6 @@ def run ( ) :
             result_table.suppress("context")
             output.write("<h3>context: "+cgi.escape([tmp for tmp in all_context][0])+"</h3>")
 
-
-        # suppressing columns that the user did not ask for
-        if 'S' in input_query :
-            column_select_values = input_query['S']
-            column_select_values = set(column_select_values)
-            for x in result_table.colmap :
-                if x in ( 'line #', 'checkbox' ) :
-                    continue
-                if not x in column_select_values :
-                    result_table.suppress(x)
-        else :
-            column_select_values = set( [ x  for x in result_table.colmap ] )
 
 
         # suppressing the columns that are the same for every row
@@ -357,28 +371,25 @@ def run ( ) :
 
         # end HTML
 
-    if pandokia.pcgi.output_format == 'csv' :
+    elif pandokia.pcgi.output_format == 'csv' :
         # CSV OUTPUT
         result_table.suppress('checkbox')
-        if 'suppress_same' in input_query :
-            suppress_attr_all_same( result_table )
+        result_table.suppress('line #')
         print "content-type: text/plain\n\n"
         print result_table.get_csv(headings=1)
 
-    if pandokia.pcgi.output_format == 'rst' :
+    elif pandokia.pcgi.output_format == 'rst' :
         # RST OUTPUT
         result_table.suppress('checkbox')
+        result_table.suppress('line #')
         print "content-type: text/plain\n\n"
-        if 'suppress_same' in input_query :
-            suppress_attr_all_same( result_table )
         print result_table.get_rst(headings=1)
 
-    if pandokia.pcgi.output_format == 'awk' :
+    elif pandokia.pcgi.output_format == 'awk' :
         # AWK OUTPUT
         result_table.suppress('checkbox')
+        result_table.suppress('line #')
         print "content-type: text/plain\n\n"
-        if 'suppress_same' in input_query :
-            suppress_attr_all_same( result_table )
         print result_table.get_awk(headings=1)
 
 
@@ -579,9 +590,14 @@ column_selector_buttons = '''
         <input type=button name="x" value="core" onclick="vis_some('')">
         <input type=button name="x" value="Toggle" onclick="vis_toggle()">
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-        <input type=submit name="x" value="Show Checked">
+        <button type=submit name="format" value="html">Display</button>
+        <button type=submit name="format" value="csv">CSV</button>
+        <button type=submit name="format" value="rst">RST</button>
+        <button type=submit name="format" value="awk">TAB</button>
         <br>
 '''
+
+exclude_cgi_params_from_selector = set( ( 'S', 'show_attr', 'format' ) )
 
 ## Column Selector
 
@@ -629,14 +645,13 @@ def column_selector(input_query) :
             checked = ''
         output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
 
+
     # all the other parameters that got us here go as hiddens
     for x in input_query :
-        if x != 'S' :
-            if x == 'show_attr' :
-                output.write('<input type=hidden name=show_attr value=1>')
-            else :
-                for y in input_query[x] :
-                    output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+        if not x in exclude_cgi_params_from_selector :
+            for y in input_query[x] :
+                output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+    output.write('<input type=hidden name=show_attr value=1>')
 
     # buttons at the bottom of the form
     output.write(column_selector_buttons)
