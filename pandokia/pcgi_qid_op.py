@@ -133,7 +133,7 @@ def qid_list( ) :
     qdict = input_query.copy()
     del qdict['query']
 
-    c = pdk_db.execute("SELECT qid, expires, username, notes FROM query_id WHERE expires = :1 OR username <> '' OR notes <> ''",(pandokia.never_expires,))
+    c = pdk_db.execute("SELECT qid, expires, username, notes FROM query_id WHERE expires = :1 OR username <> '' OR notes <> '' ORDER BY qid DESC",(pandokia.never_expires,))
     row = 0
     for x in c :
 
