@@ -112,3 +112,54 @@ def run( ) :
     output.write('<input type=submit name=remove value="Remove tests that are also in other QID by key"> <br>\n')
     output.write('</form>')
 
+
+def qid_list( ) :
+    import datetime
+
+    print "content-type: text/html\n"
+    print common.page_header()
+
+    print "<h1>Interesting QID</h1>"
+
+    input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
+
+    t = text_table.text_table()
+    t.define_column("QID")
+    t.define_column("Expires")
+    t.define_column("User")
+    t.define_column("Notes")
+    t.set_html_table_attributes("border=1")
+
+    qdict = input_query.copy()
+    del qdict['query']
+
+    c = pdk_db.execute("SELECT qid, expires, username, notes FROM query_id WHERE expires = :1 OR username <> '' OR notes <> ''",(pandokia.never_expires,))
+    row = 0
+    for x in c :
+
+        v = int(x[0])
+        qdict['qid']=v
+        t.set_value(row,0,v,html='<a href="%s">%s</a>'%( common.selflink(qdict, linkmode = "summary"), v ) )
+
+        try :
+            v = int(x[1])
+            if v == pandokia.never_expires :
+                v = 'never'
+            else :
+                v = str(datetime.date.fromtimestamp(v))
+        except :
+            v= '?'
+        t.set_value(row,1,v)
+
+        v = str(x[2])
+        t.set_value(row,2,v,html=cgi.escape(v))
+
+        if x[3] is None :
+            v = ''
+        else :
+            v = str(x[3])
+        t.set_value(row,3,v,html='<pre>'+cgi.escape(v)+'</pre>')
+
+        row = row + 1
+
+    print t.get_html()

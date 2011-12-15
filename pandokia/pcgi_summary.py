@@ -22,14 +22,6 @@ pdk_db = pandokia.cfg.pdk_db
 
 output = sys.stdout
 
-def form_to_dict( f ) :
-    d = { }
-    for x in f :
-        l = f.getlist(x)
-        if len(l) > 0 :
-            d[x] = l
-    return d
-
 ##########
 # Write the qid identification block that appears at the top of the display
 #
@@ -101,7 +93,7 @@ def run ( ) :
     # gather up all the expected parameters
     #
 
-    input_query = form_to_dict(pandokia.pcgi.form)
+    input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
     # print "context-type: text/plain\n\n"
 

@@ -22,6 +22,20 @@ import pandokia.common as common
 cfg = pandokia.cfg
 
 
+##########
+#
+
+def form_to_dict( f ) :
+    d = { }
+    for x in f :
+        l = f.getlist(x)
+        if len(l) > 0 :
+            d[x] = l
+    return d
+
+
+##########
+#
 
 def run() :
 
@@ -129,9 +143,9 @@ def run() :
         x.run()
         sys.exit(0)
 
-    if query == "vview" :
-        import pandokia.vview
-        pandokia.vview.testwalk()
+    if query == 'qid_list' :
+        import pandokia.pcgi_qid_op as x
+        x.qid_list()
         sys.exit(0)
 
     if query == "treewalk.linkout" :
