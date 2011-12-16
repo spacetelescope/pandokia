@@ -123,17 +123,33 @@ def qid_list( ) :
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
+    order_by = 'qid'
+    order_dir = 'asc'
+    if 'order_by' in input_query :
+        x = input_query['order_by'][0]
+        if x in ( 'qid', 'expires', 'username', 'notes' ):
+            order_by = x
+    if 'order_dir' in input_query :
+        x = input_query['order_dir'][0]
+        if x in ( 'asc', 'desc' ) :
+            order_dir = x
+
+    def sl(s) :
+        d = 'asc' 
+        if order_dir == 'asc' :
+            d = 'desc'
+        return common.selflink( { 'order_by' : s, 'order_dir' : d }, linkmode='qid_list' )
+
     t = text_table.text_table()
-    t.define_column("QID")
-    t.define_column("Expires")
-    t.define_column("User")
-    t.define_column("Notes")
+    t.define_column("QID",      html='<a href=%s>QID</a>'%sl('qid') )
+    t.define_column("Expires",  html='<a href=%s>expires</a>'%sl('expires') )
+    t.define_column("User",     html='<a href=%s>username</a>'%sl('username') )
+    t.define_column("Notes",    html='<a href=%s>notes</a>'%sl('notes') )
     t.set_html_table_attributes("border=1")
 
-    qdict = input_query.copy()
-    del qdict['query']
+    qdict = { }
 
-    c = pdk_db.execute("SELECT qid, expires, username, notes FROM query_id WHERE expires = :1 OR username <> '' OR notes <> '' ORDER BY qid DESC",(pandokia.never_expires,))
+    c = pdk_db.execute("SELECT qid, expires, username, notes FROM query_id WHERE expires = :1 OR username <> '' OR notes <> '' ORDER BY %s %s"%(order_by,order_dir),(pandokia.never_expires,))
     row = 0
     for x in c :
 
