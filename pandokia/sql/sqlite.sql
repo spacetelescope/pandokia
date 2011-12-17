@@ -1,4 +1,7 @@
 pragma auto_vacuum = 2 ;
+-- auto_vacuum=2 is "incremental auto_vacuum".  The database doesn't
+-- do a little vacuuming on each commit (as it would for 1), but
+-- you can use "pragma incremental_vacuum" to force it to vacuum now.j
 
 -- result_scalar:
 --	each row represents a single test result
@@ -34,7 +37,7 @@ CREATE TABLE result_scalar (
 		-- contain a floating point time_t ( time.time() ) in UTC.
 	location VARCHAR,
 		-- where can I find this test that was run
-	attn VARCHAR,
+	attn CHAR(1),
 		-- blank or "Y" for "needs attention"
 		-- "N" for "not a problem"
 		-- "R" for "problem resolved"
@@ -57,6 +60,10 @@ CREATE INDEX result_scalar_project
 CREATE INDEX result_scalar_test_name 
 	ON result_scalar ( test_name );
 
+-- this particular query is used to look up each line of the day_report
+CREATE INDEX result_scalar_day_report
+        ON result_scalar ( context, status, host, project, test_run ) ;
+
 -- result_tda:
 --	one row for each Test Definition Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -73,9 +80,6 @@ CREATE INDEX result_tda_key_id
 CREATE INDEX result_tda_index 
 	ON result_tda(name) ;
 
-CREATE INDEX result_tda_full
-	ON result_tda ( key_id, name, value);
-
 -- result_tra:
 --	one row for each Test Result Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -91,10 +95,6 @@ CREATE INDEX result_tra_key_id
 
 CREATE INDEX result_tra_index 
 	ON result_tra(name) ;
-
-CREATE INDEX result_tra_full
-	ON result_tra ( key_id, name, value ) ;
-
 
 -- result_log:
 --	one row for each test: separate because logs might be big; also

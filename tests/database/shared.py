@@ -25,21 +25,21 @@ def t000_create() :
     dbx.execute('create index test_table_index on test_table ( a )')
 
 @minipyt.test
-def t001_insert():
+def t004_insert():
     print "insert"
     for x in data_set :
         dbx.execute( 'insert into test_table ( a, b, c ) values ( :1, :2, :3 )', x)
     dbx.commit()
 
 @minipyt.test
-def t002_select_1():
+def t005_select_1():
     c = dbx.execute( 'select a, b, c from test_table where a = :1 and b = :2', ( 'a', 'b' ))
     l = [ x for x in c ]
     print 'result',l
     assert l == [ ( 'a', 'b', 1 ) ]
 
 @minipyt.test
-def t002_select_2():
+def t005_select_2():
     c = dbx.execute( 'select a, b, c from test_table order by a asc, b asc, c asc', None )
     l = [ x for x in c ]
     print 'result',l

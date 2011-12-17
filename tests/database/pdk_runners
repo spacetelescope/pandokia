@@ -1,4 +1,5 @@
-shared.py	none
+shared*.py	none
 csv_t.py	none
-clean.sh	none
+d_open.py	none
 *.py		minipyt
+clean.sh	none

@@ -178,49 +178,55 @@ class where_dict_base(object) :
         if isinstance(fname,str) :
             f.close()
 
+    #
+    # run a big sequence of SQL commands
+    #
+    def sql_commands(self, s) :
+        # s is a single string, maybe with newlines
+
+        import re
+        comment = re.compile('--.*$')
+
+        # tear out comments 
+        s = s.split('\n')
+        s = [ comment.sub('',x).rstrip() for x in s ]
+
+        c = ''
+        line = 0
+        for x in s :
+            line = line + 1
+            if x == '' :
+                continue
+            c = c + x + '\n'
+            if c.endswith(';\n') :
+                print "line",line
+                print c
+                self.execute(c)
+                c = ''
+
+        self.commit()
+
+
 def cmd_dump_table( args ) :
     import sys
     for x in args :
         pandokia.config.pdk_db.table_to_csv( x,sys.stdout )
 
-#
-# run a big sequence of SQL commands
-#
-
-def sql_commands(s) :
+def sql_files( files ) :
+    import os.path
     import pandokia.config
     pdk_db = pandokia.config.pdk_db
 
-    import re
-    comment = re.compile('--.*$')
+    if len(files) > 0 :
 
-    s = s.split('\n')
-    s = [ comment.sub('',x).rstrip() for x in s ]
-
-    c = ''
-    line = 0
-    for x in s :
-        line = line + 1
-        if x == '' :
-            continue
-        c = c + x + '\n'
-        if c.endswith(';\n') :
-            print "line",line
-            print c
-            pdk_db.execute(c)
-            c = ''
-
-    pdk_db.commit()
-
-def sql_files( files ) :
-    import os.path
-
-    dir = os.path.dirname(__file__) + "/sql/"
-
-    for x in files :
-        try :
-            f = open(x)
-        except IOError:
-            f = open(dir+x)
-        sql_commands(f.read())
-        f.close()
+        dir = os.path.dirname(__file__) + "/sql/"
+        for x in files :
+            try :
+                f = open(x)
+            except IOError:
+                f = open(dir+x)
+            pdk_db.sql_commands(f.read())
+            f.close()
+    else :
+        import sys
+        pdk_db.sql_commands(sys.stdin.read())

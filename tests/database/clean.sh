@@ -1,2 +1,2 @@
 rm -f PDK*
-rm -f test.db
+rm -f db_sqlite

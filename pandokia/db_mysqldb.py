@@ -8,7 +8,7 @@
 __all__ = [ 
     'db_module',
     'db_driver',
-    'where_dict',
+    'PandokiaDB',
     ]
 
 import MySQLdb as db_module

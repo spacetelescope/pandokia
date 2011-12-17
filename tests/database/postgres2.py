@@ -1,5 +1,5 @@
 import d_open
-dbx = d_open.mysql(0)
+dbx = d_open.postgres(0)
 
 minipyt_test_order = 'alpha'
 

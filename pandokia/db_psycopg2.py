@@ -2,120 +2,159 @@
 # pandokia - a test reporting and execution system
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
-
-raise Exception("This driver is obsolete - no postgres support at this time")
-
+# psycopg database driver
 #
-# postgres database driver, using pyscopg2
-#
-# postgres support is not ready yet - the pandokia code assumes
-# that cursor.lastrowid contains the value just created by an
-# auto-increment field; postgres does not do this.  We need a
-# more portable way to handle auto-increments for postgres support.
-# 
+# This is almost exactly the mysql driver, but with a few things changed
+# for postgres.
 
-__all__ = [
-    'commit',
+__all__ = [ 
     'db_module',
-    'execute',
-    'explain_query',
-    'open_db',
-    'pdk_db_driver',
-    'where_dict',
+    'db_driver',
+    'PandokiaDB',
     ]
 
-
-# use this when something is so specific to the database that you
-# can't avoid writing per-database code
-pdk_db_driver = 'psycopg2'
-
-import os
-
-######
-#--#--# DB
 import psycopg2 as db_module
 import re
 
-xdb=None
+import pandokia.db
 
-def open_db ( access_arg=None ):
-    global xdb
-    if access_arg is None :
-        if xdb is not None :
-            return xdb
-        import pandokia
-        access_arg = pandokia.cfg.db_arg
+# debugging 
+_tty = None
+# _tty = open("/dev/tty","w")
 
-    xdb = db_module.connect(access_arg)
-    return xdb
+import cStringIO as StringIO
+import os
 
-#
-# generic commit so the user doesn't need to grab the db handle
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+db_driver = 'psycopg2'
 
-def commit( db = None ) :
-    if db is None :
-        if xdb is None :
-            open_db()
-        db = xdb
-    db.commit()
+import re
 
-#
-# explain the query plan using the database-dependent syntax
-#
-def explain_query( text, query_dict ) :
-    f = cStringIO.StringIO()
-    c = execute( 'EXPLAIN '+ text, query_dict, xdb )
-    for x in c :
-        f.write(str(x))
-    return f.getvalue()
+class PandokiaDB(pandokia.db.where_dict_base) :
+
+    IntegrityError = db_module.IntegrityError
+    ProgrammingError = db_module.ProgrammingError
+
+    db = None
+
+    def __init__( self, access_arg ) :
+        self.db_access_arg = access_arg
+
+    def open( self ) :
+        self.db = db_module.connect( ** ( self.db_access_arg ) )
+
+    def commit(self):
+        self.db.commit()
+
+    def rollback(self):
+        self.db.rollback()
+
+    #
+    # explain the query plan using the database-dependent syntax
+    #
+    def explain_query( self, text, query_dict=None ) :
+        if not self.db :
+            self.open()
+        f = StringIO.StringIO()
+        c = self.execute( 'EXPLAIN '+ text, query_dict )
+        for x in c :
+            f.write(str(x))
+        return f.getvalue()
+
+    #
+    # execute a query in a portable way
+    # (this capability not offered by dbapi)
+    #
+
+    _pat_from = re.compile(':([a-zA-Z0-9_]*)')
+
+    _pat_to = '%(\\1)s '
+
+    def execute( self, statement, parameters = [ ] ) :
+        if not self.db :
+            self.open()
+
+        # convert the parameters, as necessary
+        if isinstance(parameters, dict) :
+            # dict does not need to be converted
+            pass
+        elif isinstance(parameters, list) or isinstance(parameters, tuple) :
+            # list/tuple turned into a dict with string indexes
+            tmp = { }
+            for x in range(0,len(parameters)) :
+                tmp[str(x+1)] = parameters[x]
+            parameters = tmp
+        elif parameters is None :
+            parameters = [ ]
+        else :
+            # no other parameter type is valid
+            raise self.ProgrammingError
+
+        # for mysql, convert :xxx to %(xxx)s
+        statement = self._pat_from.sub(self._pat_to, statement)
+
+        # create a cursor, execute the statement
+        c = self.db.cursor()
+
+        # print parameters,"<br>"
+        c.execute( statement, parameters )
+
+        # return the cursor
+        return c
+
+    ## how much table space is this database using
+    ## not portable to other DB
+    def table_usage( self ) :
+        c = self.execute("SELECT pg_database_size( :1 )", ( self.db_access_arg['database'], ) )
+        return c.fetchone()[0]
+
+    # 
+    def next( self, sequence_name ) :
+        if not self.db :
+            self.open()
+        c = self.db.cursor()
+        c.execute("select nextval('%s')"%sequence_name)
+        return c.fetchone()[0]
 
 
-#
-# execute a query in a portable way
-# (this capability not offered by dbapi)
-#
+'''
+Ubuntu:
 
-pat_from = ':([a-zA-Z0-9_]*)'
+sudo apt-get install postgresql-client
+    gets a client
 
-pat_to = '%(\\1)s '
+sudo apt-get install python-psycopg2
+    gets the python client
 
-def execute( statement, parameters = [ ], db = None ) :
+sudo apt-get install postgresql
+    gets a server
 
-    # choose the default database
-    if db is None :
-        if xdb is None :
-            open_db()
-        db = xdb
+sudo -u postgres psql postgres
+    \password postgres
+    ...enter a password...
+        sets password for postgres user
 
-    # convert the parameters, as necessary
-    if isinstance(parameters, dict) :
-        # dict does not need to be converted
-        pass
-    elif isinstance(parameters, list) or isinstance(parameters, tuple) :
-        # list/tuple turned into a dict with string indexes
-        tmp = { }
-        for x in range(0,len(parameters)) :
-            tmp[str(x+1)] = parameters[x]
-        parameters = tmp
+    create database pandokia;
+    create user mark;
+    grant all on database pandokia to mark ;
 
-    elif parameters is None :
-        parameters = [ ]
-    else :
-        # no other parameter type is valid
-        raise sqlite3.ProgrammingError
+/etc/postgresql
+    config
 
-    # for psycopg2, convert :xxx to %(xxx)s
-    statement = re.sub(pat_from, pat_to, statement)
+/var/lib/postgresql/8.4/main
+    data?
 
-    # create a cursor, execute the statement
-    c = db.cursor()
-    # print "QUERY:",statement,"<br>"
-    # print parameters,"<br>"
-    c.execute( statement, parameters )
-
-    # return the cursor
-    return c
+psql pandokia
+    start the interactive client on the pandokia database
 
 
-from pandokia.db import where_dict
+psql
+    \d
+        like show tables
+    \l
+        like show databases
+    \d tablename
+        like describe tablename
 
+'''

@@ -7,13 +7,15 @@
 -- yet implemented.
 --
 
+-- postgres does not have auto-increment, so we use an explicit sequence
+-- for the key_id in result_scalar.
+CREATE SEQUENCE sequence_key_id ;
 
 -- result_scalar:
 --	each row represents a single test result
 
 CREATE TABLE result_scalar (
-	key_id 		SERIAL,
-		PRIMARY KEY ( key_id ),
+	key_id 		INTEGER,
 		-- primary key is assigned by database; this is a
 		-- unique identifier
 	test_run 	VARCHAR,
@@ -66,6 +68,10 @@ CREATE INDEX result_scalar_project
 CREATE INDEX result_scalar_test_name 
 	ON result_scalar ( test_name );
 
+-- this particular query is used to look up each line of the day_report
+CREATE INDEX result_scalar_day_report
+        ON result_scalar ( context, status, host, project, test_run ) ;
+
 -- result_tda:
 --	one row for each Test Definition Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -82,9 +88,6 @@ CREATE INDEX result_tda_key_id
 CREATE INDEX result_tda_index 
 	ON result_tda(name) ;
 
-CREATE INDEX result_tda_full
-	ON result_tda ( key_id, name, value);
-
 -- result_tra:
 --	one row for each Test Result Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -100,10 +103,6 @@ CREATE INDEX result_tra_key_id
 
 CREATE INDEX result_tra_index 
 	ON result_tra(name) ;
-
-CREATE INDEX result_tra_full
-	ON result_tra ( key_id, name, value ) ;
-
 
 -- result_log:
 --	one row for each test: separate because logs might be big; also
@@ -186,7 +185,7 @@ CREATE UNIQUE INDEX user_prefs_username_index
 CREATE TABLE user_email_pref (
 	username VARCHAR,
 	project VARCHAR,
-	format VARCHAR,
+	format CHAR(1),
 		-- format is one of:
 		-- 'n' = none; send no email about this project
 		-- 's' = send only a summary of what happened in this project
@@ -200,9 +199,10 @@ CREATE TABLE user_email_pref (
 --	qid is integer primary key to generate unique query numbers
 --	time is used to know when we can purge the record
 
+CREATE SEQUENCE sequence_qid;
+
 CREATE TABLE query_id (
-	qid 		SERIAL,
-		PRIMARY KEY ( qid ), 	-- unique number of query
+	qid 	INTEGER,		-- unique number of query
 	time	VARCHAR,		-- time_t a cgi last touched this query
 	expires	INTEGER,		-- time_t when it is ok to delete this query
 	username VARCHAR,		-- who claimed this qid

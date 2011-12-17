@@ -435,9 +435,17 @@ def linkout( ) :
     # create a new qid - this is the identity of a list of test results
 
     now = time.time()
+    expire = now+common.cfg.default_qid_expire_days*86400
 
-    c = pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ",(now,now+common.cfg.default_qid_expire_days*86400))
-    newqid = c.lastrowid
+    if pdk_db.next :
+        newqid = pdk_db.next('sequence_qid')
+        c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ", 
+            ( newqid, now, expire ) )
+    else :
+        c = pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ", 
+            ( newqid, now, expire ) )
+        newqid = c.lastrowid
+
     print "content-type: text/plain\n"
     print "QID ",newqid
     pdk_db.commit()
@@ -621,9 +629,10 @@ def collect_table( prefixes, query, always_link ) :
                 lquery['status'] = x
                 where_text, where_dict = query_to_where_tuple( lquery, ( 'test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn' ), more_where )
                 if not have_qid :
-                    c = pdk_db.execute("SELECT count(*) FROM result_scalar %s ORDER BY test_name" % where_text, where_dict )
+                    ss = ''
                 else :
-                    c = pdk_db.execute("SELECT count(*) FROM result_scalar, query %s ORDER BY test_name" % where_text, where_dict )
+                    ss = ', query'
+                c = pdk_db.execute("SELECT count(*) FROM result_scalar%s %s" % (ss, where_text), where_dict )
                 datum = c.fetchone()
                 if datum is None :
                     count_col[x] = 0

@@ -66,15 +66,14 @@ if 0 :
     pdk_db = dbd.PandokiaDB( db_arg )
 
 
-if 0 :
-    # DOES NOT WORK YET
+if 1 :
     # Database: Postgres
     #           http://www.postgresql.org/
     # psycopg
     #           http://initd.org/psycopg/
     # 
-    import pandokia.db_psycopg2 as pdk_db
-    db_arg = { 'database' : 'test.db', 'timeout' : 30, }
+    import pandokia.db_psycopg2 as dbd
+    pdk_db = dbd.PandokiaDB( { 'database' : 'pandokia', } )
 
 if 0 :
     # Database: MYSQL
@@ -108,7 +107,7 @@ if 0 :
 user_list = None
 
 # which users can see/operate the admin interfaces 
-admin_user_list = ( 'sienkiew', )
+admin_user_list = ( 'sienkiew', 'Nobody', )
 
 # 
 adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>'

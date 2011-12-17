@@ -10,7 +10,7 @@
 __all__ = [
     'db_module',
     'db_driver',
-    'where_dict',
+    'PandokiaDB',
     ]
 
 # system imports
@@ -94,9 +94,11 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     #
     # explain the query plan using the database-dependent syntax
     #
-    def explain_query( self, text, query_dict ) :
+    def explain_query( self, text, query_dict=None ) :
+        print "TEXT",text
+        print "DICT", query_dict
         f = cStringIO.StringIO()
-        c = self.db.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
+        c = self.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
         for x in c :
             f.write(str(x))
         return f.getvalue()
@@ -136,3 +138,6 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # how much disk space is used
     def table_usage( self ) :
         return os.path.getsize(self.db_access_arg)
+
+    # sqlite has no "next" function - it has implicit sequences and lastrowid
+    next = None

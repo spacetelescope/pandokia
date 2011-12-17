@@ -91,10 +91,6 @@ CREATE INDEX result_tda_key_id
 CREATE INDEX result_tda_index 
 	ON result_tda(name) ;
 
--- not in mysql...
--- CREATE INDEX result_tda_full
---	ON result_tda ( key_id, name, value);
-
 -- result_tra:
 --	one row for each Test Result Attribute
 --	rows belong to records in result_scalar with matching key_id
@@ -110,11 +106,6 @@ CREATE INDEX result_tra_key_id
 
 CREATE INDEX result_tra_index 
 	ON result_tra(name) ;
-
--- not in mysql...
--- CREATE INDEX result_tra_full
--- 	ON result_tra ( key_id, name, value ) ;
-
 
 -- result_log:
 --	one row for each test: separate because logs might be big; also

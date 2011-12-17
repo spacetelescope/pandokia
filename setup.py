@@ -72,8 +72,7 @@ args = {
     'platforms':        ['Posix', 'MacOS X'],
     'scripts' :         [ "commands/"+x for x in command_list ],
     'packages':         package_list,
-    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg' ],
-                        'pandokia' : [ 'sql/*.sql' ]  },
+    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql' ]  },
 }
 
 #
