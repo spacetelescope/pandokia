@@ -11,8 +11,9 @@ import re
 import types
 
 re_funky_chars = re.compile('[^ -~]')   
-# used to remove control characters.  Yes, it works on strings with \0
-# in them.
+# used to remove control characters. Not space (32) through tilde (127).
+# Yes, it works on strings with \0 in them.
+# Should we do iso-8859 or just wait to support unicode?
 
 re_star_x_star = re.compile('^\*[^*]*\*$')
 
@@ -29,6 +30,7 @@ class name_sequence(object) :
         self.dict[n] = v
         return n
 
+# bug: change this name
 class where_dict_base(object) :
 
     '''
@@ -76,7 +78,7 @@ class where_dict_base(object) :
                 # print "VALUE", name, value
                 or_list = [ ]
                 for v in value :
-                    if v is None :
+                    if v is None or v == '*' or v == '%' :
                         # Our convention is that None matches anything,
                         # so if one of the possible values is None, then this
                         # field will always match
@@ -143,42 +145,43 @@ class where_dict_base(object) :
         return res, ns.dict
 
 
-#
-# extract a table as a csv file
-# used for testing
-#
+    #
+    # extract a table as a csv file
+    # used for testing
+    #
 
-def table_to_csv( tablename, fname, where='', cols=None ) :
-    import pandokia
-    pdk_db = pandokia.cfg.pdk_db
+    def table_to_csv( self, tablename, fname, where='', cols=None ) :
 
-    if cols is None :
-        c = pdk_db.execute('SELECT * FROM %s LIMIT 1'%tablename )
-        cols = [ x[0] for x in c.description ]
+        if cols is None :
+            c = self.execute('SELECT * FROM %s LIMIT 1'%tablename )
+            cols = [ x[0] for x in c.description ]
 
-    colstr = ','.join(cols)
-    
-    import csv
+        colstr = ','.join(cols)
+        
+        import csv
 
-    if isinstance(fname,str) :
-        f = open(fname,"wb")
-    else :
-        f = fname
+        if isinstance(fname,str) :
+            f = open(fname,"wb")
+        else :
+            f = fname
 
-    cc = csv.writer(f)
-    cc.writerow( cols )
+        cc = csv.writer(f)
+        cc.writerow( cols )
 
-    c = pdk_db.execute('select %s from %s %s order by %s asc '%(colstr, tablename, where, colstr) )
-    for x in c :
-        cc.writerow( [ y for y in x ] )
+        print colstr
 
-    if isinstance(fname,str) :
-        f.close()
+        print "ORDER",colstr
+        c = self.execute('select %s from %s %s order by %s'%(colstr, tablename, where, colstr) )
+        for x in c :
+            cc.writerow( [ y for y in x ] )
+
+        if isinstance(fname,str) :
+            f.close()
 
 def cmd_dump_table( args ) :
     import sys
     for x in args :
-        table_to_csv( x,sys.stdout )
+        pandokia.config.pdk_db.table_to_csv( x,sys.stdout )
 
 #
 # run a big sequence of SQL commands

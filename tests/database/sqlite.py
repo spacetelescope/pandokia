@@ -1,16 +1,23 @@
-import sqlite3
 import os
 
 import pandokia.db_sqlite as dbx
 
-try : os.unlink('test.db')
-except : pass
+try :
+    os.unlink('sqlite.db')
+except OSError :
+    pass
 
-open('test.db','w').close()
+dbx = dbx.PandokiaDB('sqlite.db')
 
-dbx.open_db('test.db')
+dbx.execute('drop table if exists test_table')
 
 import shared
+shared.dbx = dbx
+
 from shared import *
 
-shared.dbx = dbx
+import csv_t
+csv_t.dbx = dbx
+
+from csv_t import *
+

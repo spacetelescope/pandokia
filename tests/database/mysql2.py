@@ -12,14 +12,8 @@ dbx = dbx.PandokiaDB( {
     'db' : dbname   
     } )
 
-dbx.execute('drop table if exists test_table')
-
-import shared
-shared.dbx = dbx
-
-from shared import *
-
 import csv_t
 csv_t.dbx = dbx
 
 from csv_t import *
+

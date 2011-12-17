@@ -13,6 +13,21 @@ __all__ = [
     'where_dict',
     ]
 
+# system imports
+import os
+import cStringIO
+
+# need some common code
+import pandokia.db
+
+# The database engine is named "sqlite3" if it was installed with
+# python, or "pyqslite2" if it was installed separately.
+try :
+    import sqlite3 as db_module
+except ImportError :
+    import pysqlite2.dbapi2 as db_module
+
+
 #
 # Since we were in a hurry to get it working, we use certain sqlite3
 # features:
@@ -27,7 +42,7 @@ __all__ = [
 #       times faster than FULL, but if the OS crashes or you
 #       lose power, the db might get corrupted.
 #
-# You would think that OFF would be a good choice because we don't do a
+# You would think that OFF might be a good choice because we don't do a
 # lot of writes, but we have a problem once or twice a year that seems to
 # be related to killing an import.
 #
@@ -41,18 +56,13 @@ __all__ = [
 #
 
 
-# The database engine is named "sqlite3" if it was installed with
-# python, or "pyqslite2" if it was installed separately.
-try :
-    import sqlite3 as db_module
-except ImportError, e :
-    import pysqlite2.dbapi2 as db_module
-
-
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code
 db_driver = 'sqlite'
 
+#
+# The database interface object
+#
 
 class PandokiaDB(pandokia.db.where_dict_base) :
 
@@ -62,10 +72,11 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     db = None
 
     def __init__( self, access_arg ) :
+        access_arg = os.path.abspath( access_arg )
         self.db_access_arg = access_arg
 
     def open( self ) :
-        self.db = db_module.connect( ** ( self.db_access_arg ) )
+        self.db = db_module.connect( self.db_access_arg )
         self.db.execute("PRAGMA synchronous = NORMAL;")
         self.db.text_factory = str;
 
@@ -83,19 +94,20 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     #
     # explain the query plan using the database-dependent syntax
     #
-    def explain_query( text, query_dict ) :
+    def explain_query( self, text, query_dict ) :
         f = cStringIO.StringIO()
-        c = self.db.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict, xdb )
+        c = self.db.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
         for x in c :
             f.write(str(x))
         return f.getvalue()
-
 
     #
     # execute a query in a portable way
     # (this capability not offered by dbapi)
     #
-    def execute( statement, parameters = [ ], db = None ) :
+    def execute( self, statement, parameters = [ ], db = None ) :
+        if not self.db :
+            self.open()
 
         # convert the parameters, as necessary
         if isinstance(parameters, dict) :
@@ -111,13 +123,16 @@ class PandokiaDB(pandokia.db.where_dict_base) :
             parameters = [ ]
         else :
             # no other parameter type is valid
-            raise db_module.ProgrammingError
+            raise self.ProgrammingError
 
         # for sqlite3, :xxx is already a valid parameter format, so no change is necessary
 
         # 
-        c = db.cursor()
+        c = self.db.cursor()
         c.execute( statement, parameters )
 
         return c
 
+    # how much disk space is used
+    def table_usage( self ) :
+        return os.path.getsize(self.db_access_arg)

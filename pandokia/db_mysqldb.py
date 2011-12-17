@@ -31,6 +31,7 @@ import re
 class PandokiaDB(pandokia.db.where_dict_base) :
 
     IntegrityError = db_module.IntegrityError
+    ProgrammingError = db_module.ProgrammingError
 
     db = None
 
@@ -85,7 +86,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
             parameters = [ ]
         else :
             # no other parameter type is valid
-            raise db_module.ProgrammingError
+            raise self.ProgrammingError
 
         # for mysql, convert :xxx to %(xxx)s
         statement = self._pat_from.sub(self._pat_to, statement)
