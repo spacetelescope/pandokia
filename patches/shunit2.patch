@@ -242,7 +242,7 @@ Index: shunit2
  else
 +
 +  # see if they specified a plugin
-+  if [ "$1" == "--plugin" ]
++  if [ "$1" = "--plugin" ]
 +  then
 +    # note the plugin name for anything that may want to know about it later
 +    SHUNIT_PLUGIN=$2
