@@ -1,0 +1,57 @@
+.. index:: single: runners; fctx
+
+===============================================================================
+fctx - C unit testing
+===============================================================================
+
+:abstract:
+
+	Pandokia can use fctx 1.6.1 to test code written in C.
+
+.. contents::
+
+Overview
+-------------------------------------------------------------------------------
+
+FCTX is a C unit test framework, available from http://fctx.wildbearsoftware.com/
+
+The Pandokia interface is implemented as a "custom logger".  To make
+your tests Pandokia-capable, you need to include pandokia_fct.h and use
+CL_FCT_BGN and CL_FCT_END to bracket your program instead of FCT_BGN
+and FCT_END.
+
+Here is a simple example: ::
+
+	#include "pandokia_fct.h"
+
+	CL_FCT_BGN()
+	{
+		FCT_QTEST_BGN(test_name_1)
+		{
+			printf("This test will pass\n");
+			fct_chk(1);	// pass
+		}
+		FCT_QTEST_END();
+
+		FCT_QTEST_BGN(test_name_2)
+		{
+			printf("This test will fail\n");
+			fct_chk(0);	// fail
+		}
+	y 	FCT_QTEST_END();
+
+	}
+	CL_FCT_END()
+
+You can manually invoke the pandokia logger with "./a.out --logger pdk"
+
+
+Capture of stdout/stderr
+-----------------------------------------------------------------------------
+
+This test runner will capture stdout/stderr of your tests, but the 
+underlying fctx implementation has a bug.  It directs stdout/stderr
+into a pipe, then reads the pipe back *in the same process* to 
+collect the output for logging.  If your test prints more output
+that fits in a pipe, the test will deadlock writing to the pipe.
+

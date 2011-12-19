@@ -72,7 +72,7 @@ args = {
     'platforms':        ['Posix', 'MacOS X'],
     'scripts' :         [ "commands/"+x for x in command_list ],
     'packages':         package_list,
-    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql' ]  },
+    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql', 'runners/maker/*'  ]  },
 }
 
 #
@@ -126,5 +126,8 @@ if 'install' in d.command_obj :
         fix_script(x)
     print 'set path = ( %s $path )' % script_dir
     print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
+    print 'PATH=%s:$PATH'%script_dir
+    print "PYTHONPATH=%s:$PYTHONPATH"%lib_dir
+    print "export PATH PYTHONPATH"
 else :
     print "no install"
