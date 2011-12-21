@@ -124,10 +124,13 @@ if 'install' in d.command_obj :
     print 'python  went to', lib_dir
     for x in command_list :
         fix_script(x)
+    print ''
     print 'set path = ( %s $path )' % script_dir
     print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
+    print ''
     print 'PATH=%s:$PATH'%script_dir
     print "PYTHONPATH=%s:$PYTHONPATH"%lib_dir
     print "export PATH PYTHONPATH"
+    print ''
 else :
     print "no install"
