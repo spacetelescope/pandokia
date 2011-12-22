@@ -22,33 +22,28 @@ package_list = [
 # These are all commands that the user can type.  We will susbstitute strings
 # in them so that they will find the pandokia we are installing even if it is
 # not on PYTHONPATH, _even_ if there is _another_ pandokia on pythonpath.
-command_list = [
-    'pdk', 
-    'pdknose',
-    'pdkpytest',
-    'pdkrun',
-    'tbconv',   # this doesn't really belong in pandokia, but
-                # I plan to use it for the documentation and it
-                # needs a place to live.  and it need pandokia.text_table
-    'pdk_shell_runner',
-    'pdk_shell_runner_helper',
+python_commands = [ 
+    'pdk',                      # pandokia entry point
+    'pdk_filecomp',             # helper file comparisons for use in shell scripts
+    'pdk_python_runner',        # exec test runner from python module
+    'pdk_stsci_regress_helper', # part of regtest runner
+    'pdk_stsci_regress_refs',   # ?
+    'pdknose',                  # run nose with pdk plugin
+    'pdkpytest',                # run py.test with pdk plugin
+    'pdkrun',                   # like "pdk run"
+    'tbconv',                   # table conversion; not really part of testing
+     ]
 
-    'pdk_filecomp',
+shell_commands = [ 
+    'pdk_gen_contact',          # create contact list for pdk import_contact
+    'pdk_run_helper.sh',        # helper for shell scripts using "run" runner
+    'pdk_shell_runner',         # run a shell script as a test, use exit code as status
+    'pdk_shell_runner_helper',  # tools to use in shell_runner scripts
+    'pdk_stsci_regress',        # regtest runner
+    'shunit2_plugin_pdk',       # pandokia plugin for shunit2
+    ]
 
-    'pdk_stsci_regress',
-    'pdk_stsci_regress_helper',
-    'pdk_stsci_regress_refs',
-
-    # 
-    'pdk_gen_contact',
-
-    # run various python modules for test runners
-    'pdk_python_runner',
-
-    # plugin for shunit2
-    'shunit2_plugin_pdk',
-
-]
+command_list = python_commands + shell_commands
 
 
 #
@@ -122,12 +117,15 @@ if 'install' in d.command_obj :
     lib_dir    = d.command_obj['install'].install_lib
     print 'scripts went to', script_dir
     print 'python  went to', lib_dir
-    for x in command_list :
+    for x in python_commands :
         fix_script(x)
+    print ''
     print 'set path = ( %s $path )' % script_dir
     print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
+    print ''
     print 'PATH=%s:$PATH'%script_dir
     print "PYTHONPATH=%s:$PYTHONPATH"%lib_dir
     print "export PATH PYTHONPATH"
+    print ''
 else :
     print "no install"

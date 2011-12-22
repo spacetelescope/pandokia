@@ -66,7 +66,7 @@ if 0 :
     pdk_db = dbd.PandokiaDB( db_arg )
 
 
-if 1 :
+if 0 :
     # Database: Postgres
     #           http://www.postgresql.org/
     # psycopg

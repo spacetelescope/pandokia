@@ -145,3 +145,21 @@ function csh_diff {
 
 	exit $teststatus
 }
+
+# usage:
+#	test_attr tda value
+#	test_attr tra value
+
+test_attr() {
+        case "$1"
+        in
+        t[dr]a_*)
+                echo $1=$2 >> $PDK_LOG
+                ;;
+        *)
+                echo bad attribute type passed to test_attr: $1
+                teststatus=128
+                ;;
+        esac
+}
+
