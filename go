@@ -4,8 +4,11 @@ echo $path
 
 rm -rf build
 
-switch (`which python`)
-case /usr/stsci/*:	echo ''
+set which_python=`which python`
+switch ( $which_python )
+case /usr/stsci/*:
+	echo ''
+	set python_bin=`dirname $which_python`
 	breaksw
 default:
 	echo 'not using the right python'
@@ -27,6 +30,8 @@ case iraf:
         echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
+	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
 case irafx:
@@ -38,6 +43,8 @@ case irafx:
         echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
+	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
 case irafdev:
@@ -49,6 +56,8 @@ case irafdev:
         echo CONFIG $libdir/pandokia/config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
+	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
 case "":
@@ -56,6 +65,10 @@ case "":
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/pandokia
 	python setup.py -q install --home $there
+
+	cp  /eng/ssb/web/shunit/shunit2 $there/bin
+	cp /eng/ssb/web/shunit/shunit2_test_helpers $there/bin
+
 	rm -f /eng/ssb/websites/ssb/pandokia/$n.cgi
 	if ( ! -f /eng/ssb/websites/ssb/pandokia/c$n.cgi ) then
 		echo make link
