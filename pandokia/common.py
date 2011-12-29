@@ -601,6 +601,21 @@ def recurring_test_run(test_run) :
 
 ######
 
+hostinfo_cache = { }
+def hostinfo( name ) :
+    if not name in hostinfo_cache :
+        c = cfg.pdk_db.execute("SELECT hostname, os, description FROM hostinfo where hostname = :1",(name,))
+        x = c.fetchone()
+        if x is None :
+            x = (name, '?', '?')
+        else :
+            # converting db object to a tuple
+            x = (x[0],x[1],x[2])
+        hostinfo_cache[name] = x
+        return x
+    return hostinfo_cache[name]
+
+######
 
 
 

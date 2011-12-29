@@ -216,12 +216,22 @@ def run() :
         print "done"
         sys.exit(0)
 
+    if query == 'hostinfo' :
+        import pandokia.pcgi_misc as x
+        x.hostinfo()
+        sys.exit(0)
 
+    if query == 'set_hostinfo' :
+        import pandokia.pcgi_misc as x
+        x.set_hostinfo()
+        sys.exit(0)
+
+
+    error_1201()
     #
     # You can't get here by following links, so you must have typed in the
     # url directly.  In that case, you are messing with us and you get no
     # friendly response.
-    sys.stdout.write("content-type: text/html\n\n\n<font color=red><blink>1201</blink></font>\n")
     
     if cfg.debug or ( common.current_user() in common.cfg.admin_user_list ) :
         print "YOU ARE ADMIN, DEBUG FOLLOWS"
@@ -231,3 +241,7 @@ def run() :
                     print x, y,"<br>"
             else :
                 print x, form[x],"<br>"
+
+#
+def error_1201() :
+    sys.stdout.write("content-type: text/html\n\n\n<font color=red><blink>1201</blink></font>\n")

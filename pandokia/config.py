@@ -115,49 +115,6 @@ adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>'
 
 ######
 #
-# os type for each host
-#
-
-# a dict mapping the host name to the OS name to display
-#
-# a purist would spend a lot of time writing/testing code to
-# store this in the database,  I'm too busy.
-#
-os_info = {
-    # this is sample data - you can list your own machines here
-    # or you can leave this blank.
-
-    "arzach":   "RHE 5 / 64",
-    "banana":   "Mac x86",
-    "basil":    "Solaris 10",
-    "blinky":   "UR",
-    "bond":     "Leopard",
-    "cadeau":   "Snow Leopard",
-    "clyde":    "UR",
-    "dukat":    "Windows/XP",
-    "ekky":     "Leopard",
-    "etcbrady":  "RHE 5 ETC",
-    "etccartier": "RHE 5 ETC",
-    "etcdevens": "RHE 5 ETC",
-    "etcedis":  "RHE 5 ETC",
-    "gaudete":  "RHE 5 / 64",
-    "herbert":  "RHE 4 / 32",
-    "inky":     "UR",
-    "jwcalibdev": "RHE 5 / 64",
-    "macbert":  "Mac PPC",
-    "pinky":    "UR",
-    "quagga":   "RHE 5 ETC",
-    "r3":       "Ubuntu 10",
-    "rhaynes":  "Snow Leopard",
-    "ssbwebv1": "RHE 5 / 64",
-    "thor":     "RHE 4 / 64",
-    "timthe":   "Mac PPC",
-    "tufnel":   "Solaris pipeline",
-
-    }
-
-######
-#
 # What is the URL for this pandokia instance?  This link is included
 # in email notices.
 #

@@ -10,3 +10,4 @@
 	drop table if exists  query_id ;			
 	drop table if exists  query ;			
 	drop table if exists  delete_queue ;						
+	drop table if exists  hostinfo ;

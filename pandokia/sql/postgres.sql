@@ -238,3 +238,15 @@ CREATE INDEX query_index
 CREATE TABLE delete_queue (
 	key_id INTEGER
 	);
+
+-- hostinfo:
+--      descriptions of various hosts
+CREATE TABLE hostinfo (
+        hostname        VARCHAR(64),
+        os              VARCHAR(64),
+        description     VARCHAR(10240)
+        );
+
+CREATE INDEX hostinfo_index
+        ON hostinfo ( hostname );
+

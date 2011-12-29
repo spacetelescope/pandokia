@@ -355,6 +355,7 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
         query['context'] = context
         link=common.selflink(query_dict = query, linkmode="treewalk" )
         del query['context']
+        table.set_value(row,1,    text=context,        link = link)
 
         # delete entire project from the test run
         if show_delete :
@@ -362,8 +363,10 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
                 html=del_text, link=delete_link( { 'test_run' : test_run , 'project' :  project,
                     'host' : host, 'context' : context }, show_delete ) )
 
-        table.set_value(row,1,    text=context,        link = link)
-        table.set_value(row,2,    text=pandokia.cfg.os_info.get(host,'?') )
+        # show the host info
+        hinfo=pandokia.common.hostinfo(host)
+        table.set_value(row,2, text=hinfo[1], link = common.selflink( query_dict = {'host':host}, linkmode='hostinfo' ) )
+
         total_results = 0
         missing_count = 0
         for status in status_types :
