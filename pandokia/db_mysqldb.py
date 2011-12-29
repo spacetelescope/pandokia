@@ -124,3 +124,5 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
         return tables + indexes
 
+    # mysql does not use database sequences because it can do auto-increments fields
+    next = None
