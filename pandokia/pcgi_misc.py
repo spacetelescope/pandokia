@@ -39,7 +39,7 @@ def hostinfo( ) :
         print '<input type=text cols=%d name=os value="%s">'%(cols,cgi.escape(os,True))
 
         l = [ len(s) for s in description.split('\n') ]
-        cols = len(l)
+        cols = max(l)
         if cols < 40 :
             cols = 40
         rows = len(l)
