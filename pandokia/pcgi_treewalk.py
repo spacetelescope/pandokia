@@ -443,7 +443,7 @@ def linkout( ) :
             ( newqid, now, expire ) )
     else :
         c = pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ", 
-            ( newqid, now, expire ) )
+            ( now, expire ) )
         newqid = c.lastrowid
 
     print "content-type: text/plain\n"
