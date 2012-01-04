@@ -26,8 +26,11 @@ test_start() {
 	echo "test_name=$base_test_name"/$1
 	echo "start_time="`date "$datefmt"`
 	) >> $PDK_LOG
-	okfile=$base_test_name.$pdk_test_name.okfile
-	teststatus=0
+	# pdk_okfile and pdk_okfile_dir will be created by init_okfile
+	# if it is used within the test
+	pdk_pokfile=okfile/$base_test_name.$pdk_test_name.okfile
+	pdk_okfile_dir=okfile
+	pdk_teststatus=0
 	exec > $pdk_tmpfile 2>&1
 }
 
@@ -38,22 +41,22 @@ test_status() {
 		:
 		;;
 	F)	
-		if [ $teststatus -eq 0 ]
+		if [ $pdk_teststatus -eq 0 ]
 		then
-			teststatus=1
+			pdk_teststatus=1
 		fi
 		;;
 	E)
-		teststatus=128
+		pdk_teststatus=128
 		;;
 	[0-9]*)
-		if [ $teststatus -lt $1 ]
+		if [ $pdk_teststatus -lt $1 ]
 		then
-			teststatus=$1
+			pdk_teststatus=$1
 		fi
 		;;
 	*)
-		teststatus=128
+		pdk_teststatus=128
 		echo invalid test status parameter:
 		echo $1
 		;;
@@ -62,11 +65,11 @@ test_status() {
 
 test_end() {
 
-	if [ $teststatus -ge 128 ]
+	if [ $pdk_teststatus -ge 128 ]
 	then
 		stat=E
 	else
-		if [ $teststatus -gt 0 ]
+		if [ $pdk_teststatus -gt 0 ]
 		then
 			stat=F
 		else

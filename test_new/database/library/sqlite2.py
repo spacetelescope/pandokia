@@ -4,7 +4,8 @@ import pandokia.db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 
-dbx = dbx.PandokiaDB('sqlite.db')
+import d_open
+dbx = d_open.sqlite(0)
 
 import csv_t
 csv_t.dbx = dbx

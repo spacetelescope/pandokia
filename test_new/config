@@ -1,0 +1,49 @@
+#!python
+import os
+
+cfg = {
+
+##########
+#
+# low-level database tests
+#
+
+#
+# mysql database:
+#   create user 'pandokia_test'@'localhost' identified by 'xyzzy' ;
+#   create database test_pandokia;
+'test_database_mysqldb_enable' : True,
+'test_database_mysqldb' :
+	{
+		'host' : 'localhost',
+		'user' : 'pandokia_test',
+		'passwd' : 'xyzzy',
+		'db' : 	 'test_pandokia',
+	},
+
+#
+# sqlite database:
+#   the parameter is the file name
+'test_database_sqlite_enable' : True,
+'test_database_sqlite' : os.environ['PDK_TOP']+'/sqlite.db',
+
+#
+# postgres, using psycopg2
+#
+'test_database_psycopg2_enable' : False,
+'test_database_psycopg2' :
+	{
+		'host' : 'localhost',
+		'user' : 'pandokia_test',
+		'password' : 'x',
+		'database' : 'pandokia_test'
+	},
+
+##########
+#
+# database for high level - get authentication from low-level database tests
+#
+'test_database' : 'mysql',
+
+}
+

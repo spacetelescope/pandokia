@@ -5,7 +5,6 @@
 
 import sys
 import pandokia.common as common
-import pandokia.config
 
 import pandokia
 

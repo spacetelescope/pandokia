@@ -23,9 +23,9 @@ import sys
 import os
 import pandokia.common
 
-import pandokia.config
+import pandokia
 
-pdk_db = pandokia.config.pdk_db
+pdk_db = pandokia.cfg.pdk_db
 
 ##########
 #

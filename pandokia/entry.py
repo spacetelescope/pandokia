@@ -111,8 +111,8 @@ def run() :
         return pandokia.cleaner.clean_queries()
 
     if cmd == 'config' :
-        import pandokia.config
-        f= pandokia.config.__file__
+        import pandokia
+        f= pandokia.cfg.__file__
         if f.endswith(".pyc") or f.endswith(".pyo") :
             f = f[:-1]
         print f
@@ -200,5 +200,10 @@ def run() :
         import pandokia.webserver
         return pandokia.webserver.run(args)
 
-    sys.stderr.write("command %s not known\n'"%cmd)
+    if cmd == 'maker' :
+        import pandokia.runners as x
+        print os.path.join( os.path.dirname(x.__file__), 'maker' )
+        return 0
+
+    sys.stderr.write("command %s not known\n"%cmd)
     return 1

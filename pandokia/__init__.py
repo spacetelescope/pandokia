@@ -10,11 +10,17 @@ describe pandokia.helpers, pandokia.runners
 describe pandokia a little
 """
 
-__version__ = "1.0"
+import os
+
+__version__ = "1.2rc2"
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
-import pandokia.config as cfg
+if 'PDK_CONFIG' in os.environ :
+    import pandokia.helpers.importer as i
+    cfg = i.importer( 'pandokia.config', os.environ['PDK_CONFIG'] )
+else :
+    import pandokia.default_config as cfg
 
 #
 # some constants that need to be somewhere

@@ -4,7 +4,7 @@
 #
 
 import cgi
-import pandokia.config
+import pandokia
 import os.path
 
 import pandokia
@@ -49,7 +49,7 @@ def flagok( client, key_id, user) :
         # os.path.join ignores the directory if the filename is full qualified
         flagok_file = os.path.join(os.path.dirname(location),flagok_file)
 
-    flagfile = pandokia.config.flagok_file % host
+    flagfile = pandokia.cfg.flagok_file % host
     print "OK",cgi.escape(test_name),cgi.escape(flagok_file),flagfile,"<br>"
 
     if not flagfile in fdarray :

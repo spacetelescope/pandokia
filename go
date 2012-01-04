@@ -26,8 +26,8 @@ case iraf:
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
-        cat stsci/config.py >> $libdir/pandokia/config.py
-        echo CONFIG $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/default_config.py
+        echo CONFIG $libdir/pandokia/default_config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
@@ -39,8 +39,8 @@ case irafx:
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
-        cat stsci/config.py >> $libdir/pandokia/config.py
-        echo CONFIG $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/default_config.py
+        echo CONFIG $libdir/pandokia/default_config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
@@ -52,8 +52,8 @@ case irafdev:
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
         python setup.py -q install --install-lib $libdir
-        cat stsci/config.py >> $libdir/pandokia/config.py
-        echo CONFIG $libdir/pandokia/config.py
+        cat stsci/config.py >> $libdir/pandokia/default_config.py
+        echo CONFIG $libdir/pandokia/default_config.py
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
@@ -61,7 +61,7 @@ case irafdev:
 	exit 0
 
 case "":
-	set n=51
+	set n=52
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/pandokia
 	python setup.py -q install --home $there
@@ -84,7 +84,7 @@ case "":
 		ls -l $id/index.html
 	endif
 
-	cat stsci/config.py >> $there/lib/python/pandokia/config.py
+	cat stsci/config.py >> $there/lib/python/pandokia/default_config.py
 
 	set pass=$there/lib/python/pandokia/alt_password
 	if ( ! -f $pass ) then

@@ -109,10 +109,6 @@ user_list = None
 # which users can see/operate the admin interfaces 
 admin_user_list = ( 'sienkiew', 'Nobody', )
 
-# 
-adminlink = '<br> <a href=CGINAME?query=admin>Admin</a> <br>'
-
-
 ######
 #
 # What is the URL for this pandokia instance?  This link is included

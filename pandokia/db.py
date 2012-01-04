@@ -209,13 +209,14 @@ class where_dict_base(object) :
 
 def cmd_dump_table( args ) :
     import sys
+    import pandokia
     for x in args :
-        pandokia.config.pdk_db.table_to_csv( x,sys.stdout )
+        pandokia.cfg.pdk_db.table_to_csv( x,sys.stdout )
 
 def sql_files( files ) :
     import os.path
-    import pandokia.config
-    pdk_db = pandokia.config.pdk_db
+    import pandokia
+    pdk_db = pandokia.cfg.pdk_db
 
     if len(files) > 0 :
 

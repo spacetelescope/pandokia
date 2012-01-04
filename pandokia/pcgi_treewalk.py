@@ -13,7 +13,7 @@ import os
 import urllib
 
 import pandokia
-pdk_db = pandokia.config.pdk_db
+pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi

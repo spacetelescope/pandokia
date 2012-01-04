@@ -17,7 +17,8 @@ import pandokia.helpers.minipyt as minipyt
 
 @minipyt.test
 def t020_sequence() :
-    dbx.execute("create table foo ( n integer primary key, s varchar );")
+    dbx.execute("drop table if exists foo")
+    dbx.execute("create table foo ( n integer auto_increment, primary key ( n ), s varchar(10) )")
     c = dbx.execute("insert into foo ( s ) values ( 'x' )")
     assert c.lastrowid == 1
     c = dbx.execute("insert into foo ( s ) values ( 'x' )")

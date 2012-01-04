@@ -65,9 +65,9 @@ def set_hostinfo() :
     description = input_query['description'][0]
     host = input_query['host'][0]
 
-    pandokia.config.pdk_db.execute("DELETE FROM hostinfo WHERE hostname = :1",(host,))
-    pandokia.config.pdk_db.execute("INSERT INTO hostinfo ( os, description, hostname ) VALUES ( :1, :2, :3 )",(os, description, host))
-    pandokia.config.pdk_db.commit()
+    pandokia.cfg.pdk_db.execute("DELETE FROM hostinfo WHERE hostname = :1",(host,))
+    pandokia.cfg.pdk_db.execute("INSERT INTO hostinfo ( os, description, hostname ) VALUES ( :1, :2, :3 )",(os, description, host))
+    pandokia.cfg.pdk_db.commit()
 
     print (os, description, host)
 

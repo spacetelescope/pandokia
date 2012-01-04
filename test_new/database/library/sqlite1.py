@@ -1,15 +1,12 @@
 import os
 
+import d_open
+
 import pandokia.db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 
-try :
-    os.unlink('sqlite.db')
-except OSError :
-    pass
-
-dbx = dbx.PandokiaDB('sqlite.db')
+dbx = d_open.sqlite(1)
 
 dbx.execute('drop table if exists test_table')
 

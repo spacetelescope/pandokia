@@ -10,6 +10,7 @@ send the email.
 
 TEST = True
 
+import pandokia
 import pandokia.common #should do try/except too
 
 sqlite3 = pandokia.common.get_db_module()
@@ -175,7 +176,7 @@ Test Run %s
 For more detail see %s?query=day_report.2&test_run=%s
 
 %s
-''' % ( testrun, pandokia.common.cfg.pdk_url, testrun, hdr )
+''' % ( testrun, pandokia.cfg.pdk_url, testrun, hdr )
 
 
     outname='pdk_%s_eml.txt'%addy

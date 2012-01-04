@@ -39,7 +39,6 @@
 #warning "FCTX version is not one that pandokia.h is tested with."
 #endif
 
-
 #include <sys/time.h>
 
 /*
@@ -51,6 +50,8 @@ struct _pandokia_logger
 	char *pdk_log_name;
 	FILE *pdk_log;
 	char *pdk_prefix;
+	char *pdk_file;
+	char *pdk_basename;
 };
 
 
@@ -140,6 +141,18 @@ pandokia_skip (fct_logger_i * li, fct_logger_evt_t const *e)
 		l->pdk_prefix, fct_test__name (e->test));
 }
 
+
+/*
+* pandokia_logger_object serves two purposes:
+* 
+* - a flag that indicates we are running in pandokia
+* - a shortcut to the actual pandokia data
+* 
+* Otherwise, you would have to walk some fairly complicated data
+* structures inside fctx to get to this single instance.
+*/
+struct _pandokia_logger *pandokia_logger_object = NULL;
+
 /*
 * creates/initializes a logger record - once before any test runs
 */
@@ -174,6 +187,18 @@ pandokia_logger (void)
 	if (! l->pdk_prefix)
 		l->pdk_prefix="";
 
+	/* shortcut to the object for pandokia-aware code */
+	pandokia_logger_object = l;
+
+	l->pdk_file = getenv("PDK_FILE");
+	if (l->pdk_file == NULL)
+		{
+		l->pdk_file="";
+		}
+
+	l->pdk_basename = strdup(l->pdk_file);
+	{ char *s = strrchr(l->pdk_basename,'.'); if (s) *s=0; }
+	
 	return (fct_logger_i *) l;
 }
 
@@ -227,5 +252,101 @@ static fct_logger_types_t custlogs[] =
 #define CL_FCT_BGN() FCT_BGN() {  fctlog_install(custlogs); pandokia_intercept_logger();
 
 #define CL_FCT_END() } FCT_END()
+
+/*
+*
+* Here is our support for okfiles
+*/
+
+FILE *pandokia_okfile_fp = NULL;		/* open okfile */
+char const *pandokia_current_test = NULL;	/* name of the last test we saw */
+
+
+#define pandokia_okfile( filename ) pandokia_okfile_real( fctkern_ptr__, filename )
+	/*
+	* fctkern_ptr__ is a critical data structure; unfortunately,
+	* it is also a local variable hidden inside main, so we use this
+	* macro to sneak it into our function.
+	*/
+
+pandokia_okfile_real( fctkern_t *fctkern_ptr__, char *filename)
+{
+	char *okfile_name;
+	/*
+	* if the last test name we saw is not EQ to the one we seem to
+	* be working on now, then we are on a new test and it is time
+	* to open a new okfile.
+  	*/
+	if ( fctkern_ptr__->ns.curr_test_name != pandokia_current_test )
+		{
+		int n;
+		pandokia_current_test = fctkern_ptr__->ns.curr_test_name;
+
+		if ( pandokia_okfile_fp )
+			fclose(pandokia_okfile_fp);
+
+		/*
+		* generate the okfile name
+		* 	pdk_basename is basename(PDK_FILE)
+		*	pandokia_current_test is the name of the test we are currently running
+		*	20 is clearly more bytes than we need for the constant part
+		*/
+ 		n = strlen(pandokia_logger_object->pdk_basename) + strlen(pandokia_current_test) + 20;
+		okfile_name = malloc(n);	/* leaked */
+		snprintf(okfile_name,n,
+			"%s.%s.okfile",
+			pandokia_logger_object->pdk_basename,
+			pandokia_current_test
+			);
+
+		pandokia_okfile_fp=fopen(okfile_name,"w");
+
+		/*
+		* log the TDA about the okfile
+		*/
+		pandokia_attr("tda","_okfile",okfile_name);
+		
+		}
+
+	/*
+	* okfile is lines of the form
+	*	output_file reference_file \n
+	* relative to the directory the okfile is in.
+	*/
+	fprintf(pandokia_okfile_fp, "%s ref/%s\n", filename, filename );
+	fflush(pandokia_okfile_fp);
+}
+
+/*
+* attributes
+*/
+pandokia_attr(char *kind, char *name, char *value)
+{
+	if ( pandokia_logger_object )
+		{
+		char *s;
+		FILE *f;
+		f = pandokia_logger_object->pdk_log;
+		fprintf(f,"%s_%s=",kind,name);
+		for (s=value; *s; s++)
+			if ( *s != '\n' )
+				fputc(*s,f);
+		fputc('\n',f);
+		}
+}
+
+pandokia_attr_double(char *kind, char *name, double value)
+{
+	if ( pandokia_logger_object )
+		fprintf(pandokia_logger_object->pdk_log,
+			"%s_%s=%f\n",kind,name,value);
+}
+
+pandokia_attr_int(char *kind, char *name, int value)
+{
+	if ( pandokia_logger_object )
+		fprintf(pandokia_logger_object->pdk_log,
+			"%s_%s=%d\n",kind,name,value);
+}
 
 #endif

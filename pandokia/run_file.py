@@ -18,10 +18,18 @@ import pandokia.common as common
 
 from pandokia.run_status import pdkrun_status
 
+import pandokia.runners
+
 #
 # find the file name patterns that associate a file name with a test runner
 #
 runner_glob_cache = { }
+
+runner_glob = pandokia.runners.runner_glob
+try :
+    runner_glob = runner_glob + pandokia.cfg.runner_glob
+except AttributeError :
+    pass
 
 def read_runner_glob ( dirname ) :
     # Find the list of file patterns and test runners that apply
@@ -43,7 +51,7 @@ def read_runner_glob ( dirname ) :
         # bug: no error handling - should distinguish file not found
         # (IOError) from permission denied (IOError) or not-a-file
         # (IOError)
-        return pandokia.cfg.runner_glob
+        return runner_glob
 
     # read pairs from file
     # bug: no real error handling here
@@ -60,7 +68,7 @@ def read_runner_glob ( dirname ) :
     f.close()
 
     # the list we find in the file goes in front of the defaults from the config
-    l = l + pandokia.cfg.runner_glob
+    l = l + runner_glob
     runner_glob_cache[dirname] = l
     return l
 
@@ -156,7 +164,10 @@ def run( dirname, basename, envgetter, runner ) :
 
         env['PDK_TESTPREFIX'] = get_prefix( envgetter, dirname )
 
+        env['PDK_TOP'] = envgetter.gettop()
+
         runner_mod = get_runner_mod(runner)
+
         env['PDK_FILE'] = basename
 
         env['PDK_LOG'] = pdk_log_name(env) 

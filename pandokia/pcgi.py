@@ -112,15 +112,15 @@ def run() :
         f = os.path.dirname(os.path.abspath(__file__)) + '/top_level.html'
         header = common.page_header()
         f=open(f,"r")
-        for x in f :
-            if common.current_user() in common.cfg.admin_user_list :
-                x = re.sub("ADMINLINK", common.cfg.adminlink, x)
-            else :
-                x = re.sub("ADMINLINK",'', x)
-            x = re.sub("CGINAME",cginame, x)
-            x = re.sub("PAGEHEADER",header, x)
-            sys.stdout.write(x)
+        x = f.read()
         f.close()
+        if common.current_user() in common.cfg.admin_user_list :
+            x = re.sub("ADMINLINK", '<br> <a href=CGINAME?query=admin>Admin</a> <br>', x)
+        else :
+            x = re.sub("ADMINLINK",'', x)
+        x = re.sub("CGINAME",cginame, x)
+        x = re.sub("PAGEHEADER",header, x)
+        sys.stdout.write(x)
         sys.exit(0)
 
     ######
