@@ -283,7 +283,6 @@ def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
             fn_status = 'P'
 
         except AssertionError :
-            exception_str = get_exception_str()
             fn_status = 'F'
             traceback.print_exc()
 
@@ -366,7 +365,6 @@ def run_test_class_single( rpt, mod, name, ob, test_order ) :
 
     # exceptions that came out of handling the class, but not one of the test methods
     except AssertionError :
-        exception_str = get_exception_str()
         class_status = 'F'
         traceback.print_exc()
 
@@ -440,7 +438,6 @@ def run_test_class_multiple( rpt, mod, name, ob, test_order ) :
 
         # exceptions that came out of handling the class, but not one of the test methods
         except AssertionError :
-            exception_str = get_exception_str()
             class_status = 'F'
             traceback.print_exc()
 
