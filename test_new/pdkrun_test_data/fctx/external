@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# run an external pdk-aware test program that was compiled with fctx.
+#
+# The test will be named after this shell script, not the external program.
+
+exec ../external/fctx
