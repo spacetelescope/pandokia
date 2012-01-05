@@ -125,9 +125,10 @@ pdk_url = "https://www.example.com/pandokia/pdk.cgi"
 #
 
 exclude_dirs = [
-    '.svn',
-    '.subversion',
-    'CVS',
+    '.svn',         # subversion
+    '.subversion',  # subversion
+    'CVS',          # CVS
+    '__pycache__',  # py.test
 ]
 
 ######
