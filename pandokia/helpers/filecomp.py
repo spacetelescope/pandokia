@@ -591,3 +591,45 @@ def ensure_dir(name) :
         os.makedirs(name)
     except :
         pass
+
+
+###
+### checking age of files
+###
+
+import os
+import time
+
+def file_age(f) :
+    st = os.stat( f )
+    return time.time() - st.st_mtime
+
+def file_age_ref( other=None, days=0, hours=0 ) :
+    if other is None :
+        ref = ( days * 86400 + hours * 3600 )
+    else :
+        ref = file_age(other)
+    return ref
+
+def t_to_s( sec ) :
+    days = int(sec) / 86400
+    sec = sec - days * 86400
+    hours = int(sec) / 3600
+    sec = sec - hours * 3600
+    min = int(sec) / 60
+    sec = sec - min * 60
+    sec = sec - hours * 3600
+    return '%d days %d:%02d:%02d'%(days,hours,min,sec)
+
+def assert_file_older( f, other=None, days=0, hours=0 ) :
+    f_age = file_age(f)
+    ref_age = file_age_ref( other, days, hours )
+    print "XX",f_age, ref_age
+    if f_age < ref_age :
+        assert False, 'file %s is %s older'%(f,t_to_s(ref_age - f_age))
+
+def assert_file_newer( f, other=None, days=0, hours=0 ) :
+    f_age = file_age(f)
+    ref_age = file_age_ref( other, days, hours )
+    if f_age > ref_age :
+        assert False, 'file %s is %s newer'%(f,t_to_s(f_age - ref_age))
