@@ -253,7 +253,7 @@ def treewalk ( ) :
     lquery['add_attributes'] = 1
     show_all_line += common.self_href(lquery, 'treewalk.linkout', 'with attributes')
     lquery['add_attributes'] = 2
-    show_all_line += ' - ' + common.self_href(lquery, 'treewalk.linkout', 'attributes selector')
+    show_all_line += ' - ' + common.self_href(lquery, 'treewalk.linkout', 'Column Selector')
     output.write(show_all_line)
     output.write("<br>")
 
