@@ -51,3 +51,45 @@ tests
 tools
 	various tools useful to the developers
 
+databases
+	list of databases considered
+
+delta.gif
+	nautical signal flag - maneuvering with difficulty
+	use as icon for experimental versions
+
+doc
+	sphinx documentation
+
+go
+go_everywhere
+	install scripts used at stsci
+
+junit_notes
+	notes from attempting to reverse-engineer the junit/xml format
+	as written by nose and py.test; may want an importer that reads
+	it someday.  (No, I can't find any useful documentation online.
+	It all assumes you are an xml expert.)
+
+pandokia
+	the python package 
+
+pandokia_top
+	
+papa.gif
+	nautical signal flag - get on board; we're leaving
+
+patches
+sample_data
+sample_tests
+setimages.py
+setup.py
+stsci
+stsci_regtest
+stsci_regtest_tests
+test_db
+test_new
+tests
+tmp
+tools
+xyz.shunit2
