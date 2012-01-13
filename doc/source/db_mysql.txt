@@ -17,31 +17,3 @@ Deleting the Pandokia Tables
 	source pandokia/sql/drops.sql
 
 
-Migrating from sqlite
-................................................................................
-
-
-.. :
-
-	sqlite> select max(key_id) from result_scalar ;
-
-	sqlite> select max(qid) from query_id ;
-
-	mysql> insert into result_scalar ( key_id ) values ( 50000000 );
-
-	mysql> insert into query_id ( qid ) values ( 10000 ) ;
-
-
-	sqlite> 
-
-	.output file.sql
-
-	.mode insert user_email_pref
-	select * from user_email_pref;
-
-	.mode insert user_prefs
-	select * from user_prefs ;
-
-	.mode insert expected
-	select * from expected ;
-

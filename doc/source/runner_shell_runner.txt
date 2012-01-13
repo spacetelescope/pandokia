@@ -1,15 +1,15 @@
 .. index:: single: runners; shell (sh, bash, csh, etc)
 
 ===============================================================================
-shell_runner - sh/bash/csh/whatever - tests written as shell scripts
+shell_runner (various languages) - shell scripts or simple programs
 ===============================================================================
 
 :abstract:
 
-	``shell_runner`` executes a shell script that contains a
-	single test.  The exit status of the script is the test result.
-	For ``sh``, there are helper functions to compare files and
-	report test attributes.
+	``shell_runner`` executes a shell script or simple program
+	that contains a single test.  The exit status of the script
+	is the test result.  For ``sh``, there are helper functions
+	to compare files and report test attributes.
 
 .. contents::
 

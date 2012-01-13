@@ -1,16 +1,15 @@
 .. index:: single: runners; STScI Regtests
 
 ===============================================================================
-regtest - an STScI legacy system for IRAF packages
+regtest (IRAF/Pyraf) - an STScI legacy system for IRAF packages
 ===============================================================================
 
-:abstract:
+Overview
+-------------------------------------------------------------------------------
 
-	``regtest`` tests IRAF tasks.  It is a legacy system in use
-	at STScI.  It is so specialized that it is unlikely to be useful
-	to you.
-
-.. contents::
+``regtest`` tests IRAF tasks.  It is derived from a legacy system,
+and is still in use at STScI.  It is so specialized that it is
+unlikely to be useful to you.
 
 Test definitions
 -------------------------------------------------------------------------------
@@ -19,7 +18,6 @@ Each test exists in a separate XML file.  The file format is defined in the
 Pandokia source code in stsci_regtest/TEST_FORMAT.xml 
 
 regtest automatically generates the data needed to make okifiable tests.
-
 
 Test Execution
 -------------------------------------------------------------------------------

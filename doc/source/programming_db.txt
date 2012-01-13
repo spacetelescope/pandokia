@@ -36,7 +36,7 @@ cursor = pdk_db.execute( statement, parameters )
 	perform a database action with named parameters
 
 	statement contains an instance of :AAA for each named parameter.
-	The parameter name is \[a-ZA-Z0-9_]+
+	The parameter name has to match the regular expression pattern [a-zA-Z0-9\_]+
 
 	If parameters is a dict, it will be used as-is.
 
@@ -130,7 +130,7 @@ The value may contain '%' to cause a LIKE expression.  The '_'
 character does NOT create a LIKE expression because it is too common
 in our data values.
 
-There is no good way to search for literals containing *, %, [, or ?
+There is no good way to search for literals containing \*, %, [, or ?
 
 Example: ::
 

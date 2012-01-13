@@ -1,7 +1,7 @@
 .. index:: single: runners; shunit2
 
 ===============================================================================
-shunit2 - bourne shell - an xUnit test framework for shell scripts
+shunit2 (bourne shell) - an xUnit test framework for shell scripts
 ===============================================================================
 
 Overview

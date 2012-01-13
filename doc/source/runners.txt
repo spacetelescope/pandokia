@@ -15,4 +15,6 @@ Test Runners
 	runner_shell_runner.txt
 	runner_shunit2.txt
 	runner_fctx.txt
+	runner_maker.txt
+	runner_run.txt
 	runner_regtest.txt

@@ -1,7 +1,7 @@
 .. index:: single: runners; minipyt
 
 ===============================================================================
-minipyt - a simple but reliable test runner
+minipyt (Python) - a simple but reliable test runner
 ===============================================================================
 
 :abstract:
