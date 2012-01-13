@@ -49,7 +49,16 @@ case irafx:
 
 case irafdev:
 	irafdev $2
-        set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
+        set libdir=`sh -c 'echo $PYTHONPATH'  | tr ':' '\n' | grep -v stsci_python | tail -1 `
+
+        if ( X$libdir == X ) then
+                echo libdir blank - derive from python version
+                set version=`python -V |& awk '{ print $2 }' `
+                echo V=$version
+                set libdir='/usr/stsci/pyssgdev/'$version
+        endif
+        echo LIBDIR IS $libdir
+
         rm -rf $libdir/pandokia
         python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/default_config.py
