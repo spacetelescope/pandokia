@@ -11,6 +11,3 @@ fct.h
 pandokia_fct.h
 	Pandokia custom logger for fctx.  See comments at the top for
 	how to write pandokia-capable tests.
-
-test_basic.c
-test_short.c

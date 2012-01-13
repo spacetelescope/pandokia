@@ -1,3 +1,6 @@
+Notes on junit/xml output produce by various libraries; collected in case we want to read junit/xml data someday.
+
+----------------------------------------------------------------------
 py.test junit/xml output
 
 Not using an XML library.
@@ -50,7 +53,7 @@ no data if it passes
 	pytest_internal_error, %s is the exception
 
 
----
+----------------------------------------------------------------------
 
 nose --with-xunit 
 	writes nosetests.xml

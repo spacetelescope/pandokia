@@ -13,7 +13,7 @@ commands
 	commands that you type to invoke pandokia
 
 doc
-	documentation here, including some example tests
+	documentation here
 
 pandokia
 	the pandokia python module
@@ -23,10 +23,6 @@ pandokia_top
 	for environment files; This is not the root of a test tree, but
 	if we leave pandokia_top out of a subdirectory, this will limit
 	the top of the tree.
-
-sample_data
-	a set of pandokia report files that you can import into
-	your database for a simple demo
 
 setup.py
 	standard distutils-based installer
@@ -48,13 +44,7 @@ tests
 	that tests the pandokia system; the irony of that is not
 	lost on us. )
 
-tools
-	various tools useful to the developers
-
-databases
-	list of databases considered
-
-delta.gif
+delta.png
 	nautical signal flag - maneuvering with difficulty
 	use as icon for experimental versions
 
@@ -65,31 +55,45 @@ go
 go_everywhere
 	install scripts used at stsci
 
-junit_notes
-	notes from attempting to reverse-engineer the junit/xml format
-	as written by nose and py.test; may want an importer that reads
-	it someday.  (No, I can't find any useful documentation online.
-	It all assumes you are an xml expert.)
-
 pandokia
 	the python package 
 
 pandokia_top
 	
-papa.gif
+papa.png
 	nautical signal flag - get on board; we're leaving
+	use as icon for pre-release
+
+sienna.png
+	Vicki's cat Sienna
+	The original image was a BMP, then converted to a PNG
+
+sienna.jpg
+	sienna.png converted to jpeg to reduce the size
+	used as the usual icon
 
 patches
-sample_data
-sample_tests
+	patches to some GPL software that I would have just included in
+	Pandokia if it wasn't covered under GPL
+
 setimages.py
-setup.py
+	inserts image data into pandokia/common.py ; this will be the
+	logo at the top of the web pages.  Note that the HTML will
+	claim it to be PNG.
+
 stsci
+	STScI-specific configuration; I keep it here so I don't need a
+	separate repository.
+
 stsci_regtest
 stsci_regtest_tests
+	support for a legacy system that I can't afford to replace yet
+
 test_db
+	draft of some database tests
+
 test_new
+	new test directory; under development
+
 tests
-tmp
-tools
-xyz.shunit2
+	old test directory

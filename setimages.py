@@ -1,12 +1,18 @@
+import sys
 #
 #
-def setimages() :
+def setimages( filename ) :
     import os
     import base64
-    f = open( "papa.gif", "rb" )
+    f = open( filename, "rb" )
     header = f.read()
     f.close()
     header = base64.b64encode(header)
+
+    if filename.endswith('.png') :
+        format = 'png'
+    elif filename.endswith('.jpg') :
+        format = 'jpeg'
 
     # f = open( os.path.dirname(__file__) + "pandokia/favicon.ico", "rb" )
     # favico = f.read()
@@ -24,6 +30,9 @@ def setimages() :
             f.write(x)
     f.write("B64IMG_FAVICO = '%s'\n"%favico)
     f.write("B64IMG_HEADER = '%s'\n"%header)
+    f.write("B64IMG_FORMAT = '%s'\n"%format)
     f.close()
 
-setimages()
+if __name__ == '__main__' :
+    setimages( sys.argv[1] )
+

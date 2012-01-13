@@ -1,4 +1,0 @@
-This is a set of tests that we run to produce a sample database.  The
-results from these tests do not indicate whether pandokia works or 
-not -- the results are loaded into a database, which is then examined
-for correctness.

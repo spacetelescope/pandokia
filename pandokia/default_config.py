@@ -57,11 +57,23 @@ if 0 :
     import pandokia.db_sqlite as dbd
     import os
 
-    # db_arg is the file name of the database; default here is to store it
-    # in the install dir, but normally you would point this somewhere that
-    # you have a big disk to store your data
-    db_arg = os.path.dirname(os.path.abspath(__file__))
+    # Uncomment one of these lines to set a value for db_arg.
+    #
+    # db_arg = "/some/place/
+    # db_arg = os.path.dirname(os.path.abspath(__file__))
 
+    # db_arg is the fully qualified name of the directory where the
+    # sqlite3 database files will be stored.  This directory must
+    # be writable to
+    #        - the uid that runs CGI programs
+    #        - anyone who will import data from the command line
+    #        - anyone who will administer the database
+    #
+    # You must create this directory yourself and ensure that it
+    # has the correct permissions.
+
+    # Create an access object for the databae.
+    #
     # This does not actually open the database unless you try to talk to it
     pdk_db = dbd.PandokiaDB( db_arg )
 
@@ -114,7 +126,6 @@ admin_user_list = ( 'sienkiew', 'Nobody', )
 # What is the URL for this pandokia instance?  This link is included
 # in email notices.
 #
-# This should be the URL of the CGI, but if you .
 pdk_url = "https://www.example.com/pandokia/pdk.cgi"
 
 

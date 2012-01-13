@@ -14,7 +14,7 @@ shunit_plugin_argv() {
 
   if [ $# -gt 1 ]
   then
-    if [ "$1" == "--file" ]
+    if [ "$1" = "--file" ]
     then
       shunit_plugin_output_file=$2
       shunit_plugin_argv_return='shift; shift'

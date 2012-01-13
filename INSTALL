@@ -1,16 +1,13 @@
 Installing Pandokia
 --
 
-Pandokia has only been tested with Python 2.5.
-
 Pandokia operates in two major modes:
 
 TEST-ONLY refers to a machine that will run tests.
 
 SERVER refers to a machine that runs the pandokia web application.  If
-  you install the necessary third part softare, this machine can also
+  you install the necessary third party softare, this machine can also
   run tests.
-
 
 The outline is:
 
@@ -20,65 +17,106 @@ The outline is:
 	- initialize the database	[SERVER only]
 	- configure web server 		[SERVER only]
 
-Install Third-Party Software
+
+Third-Party Software to run tests
 --
 
-Pandokia requires this third-party software:
+Pandokia has native ability to run tests in Python, shell scripts,
+and in any program that can indicate pass/fail with an exit status.
+It can also use tests written for various test frameworks, if you have
+those frameworks installed.
 
-nose
-	[TEST-ONLY machine]
+It is not necessary to install these first (Pandokia will find them at
+run time), but you may find it helpful to have some of :
 
-	nose 0.11 is required on machines that will run tests.  You
-	can download it from:
+	nose
+		For running tests in Python that are based on nose.
 
-	http://somethingaboutorange.com/mrl/projects/nose/0.11.1/
+		http://somethingaboutorange.com/mrl/projects/nose/
+		http://pypi.python.org/pypi/nose/
 
-	As presently configured, the pandokia plugin does not work in nose
-        0.10.
+	py.test
+		For running tests in Python that are based on py.test.
 
-sqlite3
-	[SERVER machine]
+		http://www.pytest.org
+		http://pypi.python.org/pypi/pytest/
 
-	sqlite3 is required on the web server.  Pandokia does not
-	currently work with any other databases.
+	FCTX
+		For running tests in C.  The bare minimum necessary to
+		compile and execute tests is included with Pandokia,
+		but there is also quite good documentation and example
+		code available.
 
-	Pandokia was developed against version 3.6.10. The notify 
-        functionality has been demonstrated to fail against version 3.1.3. 
-        We have not determined the version dependency in detail; we
-        recommend you use 3.6.10. 
+		http://fctx.wildbearsoftware.com/
 
-	The sqlite3 python package is included with the python
-	source code, but the python package is only installed if
-	you have the sqlite3 libraries on your system.
+	shunit2, as modified to work with pandokia
+		For running tests in bourne shell and relates shells
+		such as bash.  As of this writing, the stock shunit2
+		does not work with Pandokia, but a patched version is
+		available.
 
-	$ python
-	>>> import sqlite3
+		http://stsdas.stsci.edu/shunit/
 
-	If you get an error, you do not have sqlite support in your
-	python interpreter.  You need to get it from somewhere.
+		You can find the original patches in the pandokia source
+		code in the directory patches/
 
-	- Many linux distributions have a sqlite package and sqlite
-	  support in their python distribution.
+	unittest2
+		For running tests in Python that are based on unittest2.
+		The Pandokia support for this is not extensively tested,
+		but it seems to work.
 
-	- You can install the library from sqlite.org and re-compile
-	  your python interpreter.
+		http://pypi.python.org/pypi/unittest2
 
-	- In principle, you can install the library from sqlite.org
-	  and then re-build only the sqlite3 python module, but I
-	  never tried this.
 
-	- You can use the "pysqlite2" package available from 
-	  pypi.python.org
 
-a web server
-	[SERVER machine]
+For a server machine, you will need a web server and a database system.
 
-	Web server software is required on the web server.  Any
-	server that can run a CGI will do.
+Pandokia is a single CGI script that should (in principle) work with
+any CGI-capable web server.  Not surprisingly, we use Apache.  There is
+a baby web server included; you can use it to try out pandokia, but I
+really wouldn't recommend it for production use.
 
-	We use Apache.  There is a baby web server included; you
-	can use it to try out pandokia, but I really wouldn't
-	recommend it for production use.
+
+For database systems, there is support for:
+
+	sqlite3
+		The sqlite3 python package is included with the python
+		source code, but the python package is only installed if
+		you have the sqlite3 libraries on your system.
+
+		$ python
+		>>> import sqlite3
+
+		If you get an error, you do not have sqlite support in your
+		python interpreter.  You need to get it from somewhere.
+
+		- Many linux distributions have a sqlite package and sqlite
+		  support in their python distribution.
+
+		- You can install the library from sqlite.org and re-compile
+		  your python interpreter.
+
+		- In principle, you can install the library from sqlite.org
+		  and then re-build only the sqlite3 python module, but I
+		  never tried this.
+
+		- You can use the "pysqlite2" package available from 
+		  pypi.python.org
+
+	mysql
+		Support for mysql requires the MySQLdb python package.
+
+		http://mysql-python.sourceforge.net/
+
+	postgres
+		Support for postgres requires the psycopg2 python package.
+
+		http://initd.org/psycopg/
+
+		There are some minimal notes on setting up pandokia
+		with postgres on Ubuntu at the end of the file
+		pandokia/db_psycopg2.py
+
 
 Run setup.py
 --
@@ -110,16 +148,8 @@ to find the location of the configuration file.  Edit it for your
 specific site.  The defaults are suitable for most of the values,
 but you will want to change these for your site:
 
-dbdir
-	This is the fully qualified name of the directory where the
-	sqlite3 database files will be stored.  This directory must
-	be writable to 
-		- the uid that runs CGI programs
-		- anyone who will import data from the command line
-		- anyone who will administer the database
-
-	You must create this directory yourself and ensure that it
-	has the correct permissions.
+- Select the database driver you want to use.  Enter the relevant access
+  information.
 
 user_list
 	This is a list of user names that are allowed access to the
@@ -128,15 +158,13 @@ user_list
 
 	This feature is not well-tested.
 
-os_info
-	This is a list of machine names and brief descriptions of
-	each.  The information is only used for display on some reports, with
-	a default for unknown machines.
+admin_user_list
+	Admin users have some extended access, such as the ability to
+	delete test runs belonging to other users.
 
 pdk_url
 	This is the URL provided in the email reports as a shortcut
-        for users to access the browsable reports. It isn't used
-        for anything else at this time.
+        for users to access the browsable reports.
 
 exclude_dirs
         Directories with these names are ignored when looking for tests.
@@ -154,11 +182,12 @@ Initialize the Database
 
 You only need a database on a SERVER machine.
 
-This release of pandokia uses two databases.  Type these commands
-to initialize them both:
 
-	pdk initdb db
-	pdk initdb qdb
+
+.... tbd ....
+
+
+
 
 
 Configure Web Server
