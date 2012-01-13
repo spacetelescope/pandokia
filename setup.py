@@ -56,9 +56,15 @@ use_usr_bin_env = [
     'pdk_python_runner',
 ]
 
+f=open("pandokia/__init__.py","r")
+for x in f :
+    if x.startswith('__version__') :
+        exec(x)
+f.close()
+
 args = {
     'name' :            'pandokia',
-    'version' :         '1.0',
+    'version' :         __version__,
     'description' :     'Pandokia - a test management and reporting system',
     'author' :          'Mark Sienkiewicz, Vicki Laidler',
     'author_email':     'help@stsci.edu',
