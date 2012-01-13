@@ -8,7 +8,6 @@ set which_python=`which python`
 switch ( $which_python )
 case /usr/stsci/*:
 	echo ''
-	set python_bin=`dirname $which_python`
 	breaksw
 default:
 	echo 'not using the right python'
@@ -23,6 +22,7 @@ switch ( "$1" )
 
 case iraf:
 	iraf $2
+	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
@@ -36,6 +36,7 @@ case iraf:
 
 case irafx:
 	irafx $2
+	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
 	python setup.py -q install --install-lib $libdir
@@ -49,6 +50,7 @@ case irafx:
 
 case irafdev:
 	irafdev $2
+	set python_bin=`dirname $which_python`
         set libdir=`sh -c 'echo $PYTHONPATH'  | tr ':' '\n' | grep -v stsci_python | tail -1 `
 
         if ( X$libdir == X ) then
