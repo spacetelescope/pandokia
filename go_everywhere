@@ -8,7 +8,7 @@ then
 fi
 echo ok
 
-for x in arzach bond cadeau herbert ssb thor 
+for x in arzach banana bond cadeau herbert thor ssb
 do
 	echo XXXXX
 	echo $x
