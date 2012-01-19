@@ -144,6 +144,17 @@ class Regress:
 
     def runtest (self, file, pdkr ):
 
+        okfile = file
+        if okfile.endswith(".xml") :
+            okfile = okfile[:-4]
+        okfile = okfile + ".okfile"
+        okfile = os.path.join(os.getcwd(),okfile)
+
+        try :
+            os.unlink(okfile)
+        except OSError :
+            pass
+
         # Read the configuration file
         try:
             config = configuration.regtest_read (file)
@@ -314,11 +325,6 @@ class Regress:
                 print ".end post-exec"
                 sys.stdout.flush()
 
-            try :
-                os.unlink(okfile)
-            except :
-                pass
-
             if ( killed ) or ( crash ) :
                 error = 1
                 ok = 0
@@ -401,12 +407,6 @@ class Regress:
                         pair.cleanup()
 
                 if 1 :
-                    okfile = file
-                    if okfile.endswith(".xml") :
-                        okfile = okfile[:-4]
-                    okfile = okfile + ".okfile"
-                    okfile = os.path.join(os.getcwd(),okfile)
-
                     pdkr.set_tda("_okfile", okfile)
 
                     f=open(okfile,"w")
