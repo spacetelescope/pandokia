@@ -106,12 +106,12 @@ def delete_confirmed( ) :
 
         cleaner.delete_by_query( where_str, where_dict )
 
-        print "done."
-
-        print "</pre>"
-        sys.stdout.flush()
-
         if project == '*' and context == '*' and host == '*' :
             print "delete from index"
             pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(test_run,))
             pdk_db.commit()
+
+        print "done."
+
+        print "</pre>"
+        sys.stdout.flush()
