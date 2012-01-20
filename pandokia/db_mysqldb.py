@@ -42,16 +42,20 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db = db_module.connect( ** ( self.db_access_arg ) )
 
     def commit(self):
+        if self.db is None :
+            return
         self.db.commit()
 
     def rollback(self):
+        if self.db is None :
+            return
         self.db.rollback()
 
     #
     # explain the query plan using the database-dependent syntax
     #
     def explain_query( self, text, query_dict ) :
-        if not self.db :
+        if self.db is None :
             self.open()
         f = StringIO.StringIO()
         c = self.execute( 'EXPLAIN EXTENDED '+ text, query_dict )
@@ -69,7 +73,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     _pat_to = '%(\\1)s '
 
     def execute( self, statement, parameters = [ ], db = None ) :
-        if not self.db :
+        if self.db is None :
             self.open()
 
         # convert the parameters, as necessary
@@ -112,7 +116,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     ## not portable to other DB
     def table_usage( self ) :
         '''sum of sizes from SHOW TABLE STATUS'''
-        if not self.db :
+        if self.db is None :
             self.open()
         c = self.db.cursor()
         c.execute("show table status")

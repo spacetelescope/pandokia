@@ -86,9 +86,13 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db.execute("PRAGMA case_sensitive_like = true;")
 
     def commit(self):
+        if self.db is None :
+            return
         self.db.commit()
 
     def rollback(self):
+        if self.db is None :
+            return
         self.db.rollback()
 
     #
@@ -108,7 +112,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # (this capability not offered by dbapi)
     #
     def execute( self, statement, parameters = [ ], db = None ) :
-        if not self.db :
+        if self.db is None :
             self.open()
 
         # convert the parameters, as necessary

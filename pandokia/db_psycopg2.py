@@ -45,16 +45,20 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db = db_module.connect( ** ( self.db_access_arg ) )
 
     def commit(self):
+        if self.db is None :
+            return
         self.db.commit()
 
     def rollback(self):
+        if self.db is None :
+            return
         self.db.rollback()
 
     #
     # explain the query plan using the database-dependent syntax
     #
     def explain_query( self, text, query_dict=None ) :
-        if not self.db :
+        if self.db is None :
             self.open()
         f = StringIO.StringIO()
         c = self.execute( 'EXPLAIN '+ text, query_dict )
@@ -72,7 +76,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     _pat_to = '%(\\1)s '
 
     def execute( self, statement, parameters = [ ] ) :
-        if not self.db :
+        if self.db is None :
             self.open()
 
         # convert the parameters, as necessary
@@ -111,7 +115,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     # 
     def next( self, sequence_name ) :
-        if not self.db :
+        if self.db is None :
             self.open()
         c = self.db.cursor()
         c.execute("select nextval('%s')"%sequence_name)
@@ -133,7 +137,7 @@ sudo apt-get install postgresql
 sudo -u postgres psql postgres
     \password postgres
     ...enter a password...
-        sets password for postgres user
+        sets password for postgres database user
 
     create database pandokia;
     create user mark;
