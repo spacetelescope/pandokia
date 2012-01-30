@@ -175,7 +175,23 @@ class where_dict_base(object) :
         for x in c :
             cc.writerow( [ y for y in x ] )
 
+        if not isinstance(fname,str) :
+            f.close()
+
+    def query_to_csv( self, query, fname ) :
+        import csv
         if isinstance(fname,str) :
+            f = open(fname,"wb")
+        else :
+            f = fname
+
+        cc = csv.writer(f)
+
+        c = self.execute(query)
+        for x in c :
+            cc.writerow( [ y for y in x ] )
+
+        if not isinstance(fname,str) :
             f.close()
 
     #

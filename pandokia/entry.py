@@ -205,5 +205,10 @@ def run() :
         print os.path.join( os.path.dirname(x.__file__), 'maker' )
         return 0
 
+    if cmd == 'query' :
+        import pandokia
+        pandokia.cfg.pdk_db.query_to_csv( args[0], sys.stdout )
+        return 0
+
     sys.stderr.write("command %s not known\n"%cmd)
     return 1
