@@ -22,6 +22,7 @@ switch ( "$1" )
 
 case iraf:
 	iraf $2
+	set which_python=`which python`
 	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
@@ -31,11 +32,13 @@ case iraf:
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	ls -ld $python_bin/shunit2
 	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
 case irafx:
 	irafx $2
+	set which_python=`which python`
 	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
         rm -rf $libdir/pandokia
@@ -45,14 +48,15 @@ case irafx:
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	ls -ld $python_bin/shunit2
 	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
 case irafdev:
 	irafdev $2
+	set which_python=`which python`
 	set python_bin=`dirname $which_python`
         set libdir=`sh -c 'echo $PYTHONPATH'  | tr ':' '\n' | grep -v stsci_python | tail -1 `
-
         if ( X$libdir == X ) then
                 echo libdir blank - derive from python version
                 set version=`python -V |& awk '{ print $2 }' `
@@ -60,7 +64,6 @@ case irafdev:
                 set libdir='/usr/stsci/pyssgdev/'$version
         endif
         echo LIBDIR IS $libdir
-
         rm -rf $libdir/pandokia
         python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/default_config.py
@@ -68,6 +71,7 @@ case irafdev:
 	# no top_level.html needed
 	cp  stsci/top_level.html   $libdir/pandokia/top_level.html
 	cp  /eng/ssb/web/shunit/shunit2 $python_bin
+	ls -ld $python_bin/shunit2
 	cp /eng/ssb/web/shunit/shunit2_test_helpers $python_bin
 	exit 0
 
