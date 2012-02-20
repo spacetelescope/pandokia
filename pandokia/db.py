@@ -7,6 +7,7 @@
 # database functions common to multiple database engines
 #
 
+import sys
 import re
 import types
 
@@ -165,7 +166,7 @@ class where_dict_base(object) :
         else :
             f = fname
 
-        cc = csv.writer(f)
+        cc = csv.writer(f,lineterminator='\n')
         cc.writerow( cols )
 
         print colstr
@@ -185,7 +186,7 @@ class where_dict_base(object) :
         else :
             f = fname
 
-        cc = csv.writer(f)
+        cc = csv.writer(f,lineterminator='\n')
 
         c = self.execute(query)
         for x in c :
@@ -227,7 +228,7 @@ def cmd_dump_table( args ) :
     import sys
     import pandokia
     for x in args :
-        pandokia.cfg.pdk_db.table_to_csv( x,sys.stdout )
+        pandokia.cfg.pdk_db.table_to_csv( x,sys.stdout, )
 
 def sql_files( files ) :
     import os.path
