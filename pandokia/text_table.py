@@ -397,7 +397,12 @@ class text_table :
 
         if col in self.colmap :
             col = self.colmap[col]
-        col = int(col)
+
+        try :
+            col = int(col)
+        except ValueError :
+            self.define_column(col)
+            col = self.colmap[col]
 
         while len(this_row) <= col :
             this_row.append(text_table_cell())
