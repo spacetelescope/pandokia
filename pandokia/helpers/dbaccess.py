@@ -24,7 +24,7 @@ def load_key_id( key_id ) :
 # then look up values in the other tables by the extracted key_id
 #
 
-def load_part_2( result_scalar_tuple ) :
+def load_part_2( result_scalar_tuple, ignore_log=False ) :
     out = { }
 
     # crack the result into named fields in the dict
@@ -46,18 +46,27 @@ def load_part_2( result_scalar_tuple ) :
     # collect values from the other tables: tda
     c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
     for x in c1 :
-        out['tda_'+x[0]] = x[1]
+        try :
+            v = float(x[1])
+        except :
+            v = x[1]
+        out['tda_'+x[0]] = v
 
     # collect values from the other tables: tra
     c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
     for x in c1 :
-        out['tra_'+x[0]] = x[1]
+        try :
+            v = float(x[1])
+        except :
+            v = x[1]
+        out['tra_'+x[0]] = v
 
-    # collect values from the other tables: log
-    c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
-    x = c1.fetchone()
-    if x is not None :
-        out['log'] = x[0]
+    if not ignore_log :
+        # collect values from the other tables: log
+        c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
+        x = c1.fetchone()
+        if x is not None :
+            out['log'] = x[0]
 
     return out
 
@@ -73,7 +82,7 @@ default_context = '*'
 default_host = '*'
 default_test_name = '*'
 
-def load_identity( test_run = None, project = None, context = None, host = None, test_name = None ) :
+def load_identity( test_run = None, project = None, context = None, host = None, test_name = None, ignore_log=False ) :
 
     # turn unspecified values into the defaults
     if test_run is None :
@@ -91,25 +100,35 @@ def load_identity( test_run = None, project = None, context = None, host = None,
     test_run = pandokia.common.find_test_run(test_run)
 
     # build the list of things we want to select on
-    select = [ 
-        ( 'test_run', test_run ), 
+    select = [
+        ( 'test_run', test_run ),
         ( 'project', project ),
-        ( 'context', context), 
-        ( 'host', host), 
-        ( 'test_name', test_name), 
+        ( 'context', context ),
+        ( 'host', host ),
+        ( 'test_name', test_name ),
         ] 
 
     # convert the list to sql and make the query
-    hc_where, hc_where_dict = pandokia.common.where_tuple( select )
+    hc_where, hc_where_dict = pdk_db.where_dict ( select )
 
     c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " + hc_where, hc_where_dict )
 
     l = [ ]
     for x in c :
-        l.append( load_part_2( x ) )
+        l.append( load_part_2( x, ignore_log ) )
 
     return l
 
+##########
+
+def load_qid( qid ) :
+    l = [ ]
+    c = pdk_db.execute('SELECT key_id FROM query WHERE qid = ?', (qid,))
+    for x in c :
+        key_id = x['key_id']
+        x = load_one( key_id )
+        l.append(x)
+    return l
 
 ##########
 #
@@ -122,7 +141,8 @@ def unique_fields( list_of_dict ) :
         d.update(x)
     l1=['key_id','test_run','project','host','context','test_name','status','test_runner','start_time','end_time','location','attn']
     for x in l1 :
-        del d[x]
+        if x in d :
+            del d[x]
     l2 = d.keys()
     l2.sort()
     return l1 + l2
@@ -143,12 +163,16 @@ def make_table( list_of_dict, order_of_columns = [ ] ) :
     import pandokia.text_table
     t = pandokia.text_table.text_table()
 
+    if len(order_of_columns) == 0 :
+        order_of_columns = sorted( [ x for x in unique_fields( list_of_dict ) ] )
+
     for x in order_of_columns :
         t.define_column(x)
 
     for x in list_of_dict :
         row = t.get_row_count()
-        for y in x :
-            t.set_value(row, y, x[y])
+        for y in order_of_columns :
+            if y in x :
+                t.set_value(row, y, x[y])
 
     return t
