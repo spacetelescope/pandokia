@@ -3,6 +3,8 @@ pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.common
 
+import time
+
 
 ##########
 #
@@ -10,7 +12,6 @@ import pandokia.common
 #
 
 def load_key_id( key_id ) :
-
 
     # select every column of result_scalar 
     c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar WHERE key_id = :1", (key_id,) )
@@ -123,10 +124,9 @@ def load_identity( test_run = None, project = None, context = None, host = None,
 
 def load_qid( qid ) :
     l = [ ]
-    c = pdk_db.execute('SELECT key_id FROM query WHERE qid = ?', (qid,))
-    for x in c :
-        key_id = x['key_id']
-        x = load_one( key_id )
+    c = pdk_db.execute('SELECT key_id FROM query WHERE qid = :1', (qid,))
+    for key_id,  in c :
+        x = load_key_id( key_id )
         l.append(x)
     return l
 
@@ -176,3 +176,37 @@ def make_table( list_of_dict, order_of_columns = [ ] ) :
                 t.set_value(row, y, x[y])
 
     return t
+
+##########
+#
+# make a qid out of the list of dictionaries or a list of keys
+
+def make_qid( tests=None, key_ids=None ) :
+    key_id_list = [ ]
+    if tests :
+        key_id_list = [ x['key_id'] for x in tests if ( 'key_id' in x ) ]
+    if key_ids :
+        key_id_list = key_id_list + key_ids
+
+    # create a new qid - this is the identity of a list of test results
+
+    now = time.time()
+    expire = now + ( 30 * 86400 )
+    if pdk_db.next :
+        newqid = pdk_db.next('sequence_qid')
+        c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ",
+            ( newqid, now, expire ) )
+    else :
+        c = pdk_db.execute("INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ",
+            ( now, expire ) )
+        newqid = c.lastrowid
+
+    # Enter the test results into the qdb.
+    
+    for key_id in key_id_list :
+        pdk_db.execute("INSERT INTO query ( qid, key_id ) VALUES ( :1, :2 ) ", (newqid, key_id ) )
+    pdk_db.commit()
+
+    return newqid
+
+
