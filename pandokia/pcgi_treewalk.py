@@ -452,7 +452,7 @@ def linkout( ) :
 
     if oldqid is not None :
         print "WITH QID=",oldqid
-        more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % oldqid
+        more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(oldqid)
     else :
         more_where = None
 
