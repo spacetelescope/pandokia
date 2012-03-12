@@ -51,9 +51,9 @@ to the option.  Only the last instance of the option counts:
 
 The value '=+' means that the option may occur more than once and we want a list
 of all the values given
-    # myprog -f f1 -f f2 
-    if '-f' in opt :
-        for x in opt['-f'] :
+    # myprog -mf f1 -mf f2 
+    if '-mf' in opt :
+        for x in opt['-mf'] :
             print "another",x
 
 A value beginning with '-' is an alias for another option.  In this
