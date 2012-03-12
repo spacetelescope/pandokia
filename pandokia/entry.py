@@ -30,6 +30,8 @@ pdk gen_expected test_run_type test_run
     declares that all the tests seen in the named test_run are expected
     in runs of type test_run_type
 
+pdk email
+
 pdk getenv
     get environment that would be used
 
@@ -41,9 +43,6 @@ pdk import_contact < contact_file
     then builds new contact table entries.  This uses the 'expected'
     table to generate the matching patterns, so you may need to 
     'pdk gen_expected' first.
-
-pdk notify
-    send notification emails about failed tests
 
 pdk ok [ okfiles ]
     Tests that use reference files can leave behind 'okfiles' when
@@ -161,12 +160,6 @@ def run() :
     if cmd == 'import_contact' :
         import pandokia.import_contact as x
         return x.run()
-
-    if cmd == 'notify':
-        print "COMMAND OBSOLETE"
-        return 1
-        import pandokia.contact_notify
-        return pandokia.contact_notify.run(args)
 
     if cmd == 'ok' or cmd == 'okify' :
         import pandokia.ok
