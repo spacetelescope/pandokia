@@ -142,12 +142,18 @@ def file_disabled(dirname, basename) :
         disable_name = basename[:n]
     else :
         disable_name = basename
-    f = dirname+"/"+disable_name+".disable"
+    f = dirname+'/'+disable_name
     try :
-        os.stat(f)
+        os.stat(f + '.disable' )
         return True
     except OSError :
-        return False
+        pass
+    try :
+        os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
+        return True
+    except OSError :
+        pass
+    return False
 
 #
 # write a test report for a list of disabled tests.

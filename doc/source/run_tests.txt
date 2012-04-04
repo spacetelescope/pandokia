@@ -90,10 +90,18 @@ regular file (not directories or device files) in that directory with
 a set of glob patterns that identify tests.
 
 The file is disabled if the same base file name exists with the
-extension ".disable".  That is, if your test is test_xyz.py and there
-is also a file test_xyz.disable, then the tests in test_xyz.py will
-not be executed.  The test report will contains status=D (for
-disabled) for each test in that file. 
+extension ".disable" or ".$PDK_CONTEXT.disable".
+
+For example, if your test is test_xyz.py, it will be disabled if
+
+- there is a file test_xyz.disable
+
+- there is a file test_xyz.foo.disable and the currently running context is "foo"
+
+- there is a file test_xyz.default.disable and the currently running context is "default"
+
+If the Test-Runner knows how to report disabled tests, report will
+contains status=D (for disabled) for each test in that file.
 
 Some Test-Runners do not know how to report the names of disabled
 tests.  The *nose* and *py.test* Test-Runners included in the
