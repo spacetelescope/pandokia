@@ -168,14 +168,19 @@ def rpt2( ) :
 
     c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
     x = c.fetchone()
-    if x is not None :
-        test_run_note, test_run_valuable = x
-        if test_run_note is None :
-            test_run_note = ''
-        if test_run_valuable is None :
-            test_run_valuable = 0
-        else :
-            test_run_valuable = int(test_run_valuable)
+    if x is None :
+        sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write(common.page_header())
+        sys.stdout.write('No such test run')
+        return
+
+    test_run_note, test_run_valuable = x
+    if test_run_note is None :
+        test_run_note = ''
+    if test_run_valuable is None :
+        test_run_valuable = 0
+    else :
+        test_run_valuable = int(test_run_valuable)
 
     # create the actual table
     [ table, projects ] = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable )
