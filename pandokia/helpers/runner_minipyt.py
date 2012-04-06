@@ -92,6 +92,21 @@ def sort_test_list(l, test_order) :
     if debug:
         debug_fd.write("sorted test list: %s\n" % str([ name for (name,value) in l]))
 
+def show_dot(status, name, log) :
+    if status == 'P' :
+        dots_file.write('.')
+    else :
+        if dots_mode == 'N' :
+            dots_file.write(' %s: %s\n'%(name,status) )
+        elif dots_mode == 'S' :
+            dots_file.write(status)
+        elif dots_mode == 'O' :
+            dots_file.write('-'*70)
+            dots_file.write('\n%s: %s\n'%(name,status) )
+            dots_file.write(log)
+            dots_file.write('\n')
+    dots_file.flush()
+
 # Generate the report record for a single test.
 def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
 
@@ -106,21 +121,9 @@ def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
 
     # do they need rows of dots on their screen?
     if dots_mode :
-        if status == 'P' :
-            dots_file.write('.')
-        else :
-            if dots_mode == 'N' :
-                if name is None :
-                    name = rpt.test_prefix
-                dots_file.write(' %s: %s\n'%(name,status) )
-            elif dots_mode == 'S' :
-                dots_file.write(status)
-            elif dots_mode == 'O' :
-                dots_file.write('-'*70)
-                dots_file.write('\n%s: %s\n'%(name,status) )
-                dots_file.write(log)
-                dots_file.write('\n')
-        dots_file.flush()
+        if name is None :
+            name = rpt.test_prefix
+        show_dot(status, name, log)
 
 ####
 #### actually run a test function
@@ -550,6 +553,9 @@ def process_file( filename, test_name = None, test_args = None ) :
     else :
         rpt = pycode.reporter( filename )
 
+    # the pycode context managers can make use of this.
+    pycode.cached_rpt = rpt
+
     # gather up the stdout from processing the whole file.    individual
     # tests will suck up their own stdout, so it will not end up in
     # this log.
@@ -659,14 +665,17 @@ def process_file( filename, test_name = None, test_args = None ) :
                 run_test_class( rpt, module, name, ob, test_order )
 
         # look for a pycode function - call it if necessary
+        #
+        # pycode functions are obsolete, but we're keeping this until 
+        # we get rid of a few more tests that still use it.
         pycode_fn = None
         try :
             pycode_fn = module.pycode
         except AttributeError :
             pass
 
-        if pycode_fn :
-            print 'pycode test detected'
+        if callable(pycode_fn) :
+            print 'old-style pycode test detected'
             pycode_fn(1, rpt=rpt)
 
         print 'tests completed'
@@ -718,6 +727,9 @@ def process_file( filename, test_name = None, test_args = None ) :
     gen_report( rpt, None, file_status, file_start_time, file_end_time, tda, tra, log )
 
     rpt.close()
+
+    # now that we have closed it, we can't allow anyone else to use it.
+    pycode.cached_rpt = None
 
     if dots_mode :
         dots_file.write('\n')
