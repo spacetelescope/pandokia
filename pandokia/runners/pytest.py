@@ -20,8 +20,8 @@ import os
 # to install our pytest plugin.
 
 def command( env ) :
-    # return 'py.test -p %s --pdk --doctest-modules %s' % ( plugin, env['PDK_FILE'] ) 
-    return 'pdkpytest --pdk --doctest-modules %s' % ( env['PDK_FILE'] ) 
+    # return 'py.test -p %s --pdk %s' % ( plugin, env['PDK_FILE'] ) 
+    return 'pdkpytest --pdk %s' % ( env['PDK_FILE'] ) 
 
 # return a list of tests that are in the file.  we use this
 # to report disabled tests.
