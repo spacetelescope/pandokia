@@ -7,11 +7,12 @@ class tty:
     def write(self, s) :
         pass
 tty = tty()
-# tty=open("/dev/tty","w")
+tty=open("/dev/tty","w")
 
 ###
 
 import os, time, datetime, sys, re, types
+import os.path
 import traceback
 import platform
 import signal
@@ -180,6 +181,41 @@ def timeout_expired_callback(signum, stk) :
 # before makereport setup
 #
 
+try :
+    import stsci.tools.tester
+    def in_tester() :
+        tty.write("USING TESTER %s\n" % stsci.tools.tester.pytools_tester_active )
+        return stsci.tools.tester.pytools_tester_active
+except ImportError :
+    def in_tester() :
+        tty.write("NOT USING TESTER\n")
+        return False
+
+cached_trimmed_dirs = { }
+
+def trim_filename( name ) :
+    org_name = name
+    l = [ ]
+    tty.write("trim_filename %s\n"%name)
+    while len(name) > 0 :
+        d, f = os.path.split(name)
+        l.append(f)
+        tty.write("trim_filename step %s %s\n"%(d,f))
+        name = d
+
+    try :
+        n = l.index('tests')
+    except ValueError :
+        return org_name
+
+    if n >= 0 :
+        l = l[0:n]
+
+    l.reverse()
+    tty.write("ARF: %s\n"%l)
+    return os.path.join( *l )
+
+
 def pytest_runtest_setup(item):
     if not enabled :
         return
@@ -196,8 +232,23 @@ def pytest_runtest_setup(item):
     if filename.endswith('.py') :
         filename = filename[:-3]
 
+    if in_tester() :
+        tty.write( "IN TESTER\n" )
+        # we are NOT running in the context of pdkrun, so the file
+	    # name may contain various kinds of junk that we want to
+	    # exclude.
+        try :
+            filename = trim_filename( filename )
+        except Exception, e :
+            tty.write("EXCEPTION " + str( e)+"\n")
+    else :
+        tty.write( "NOT IN TESTER\n" )
+
+    tty.write("HERE\n\n\n");
+
     # + the name of the class/method/function/whatever
     name = filename + '/' + cleanname(item.location[2])
+    tty.write("NAME: %s\n      %s\n"%(filename, name))
 
     # + whatever prefix was handed in to us by pdkrun
     if state['pdktestprefix'] != '':
@@ -213,7 +264,7 @@ def pytest_runtest_setup(item):
     pandokia.helpers.pycode.snarf_stdout()
     item.pandokia.start_time = time.time()
 
-    ## set up a timeout, if necessary
+    ## set up a timeout, if necessary )
     if 'timeout' in item.keywords :
         item.pandokia.timeout = int( item.keywords['timeout'].args[0] )
     else :
@@ -337,14 +388,18 @@ def pytest_runtest_makereport(__multicall__, item, call):
     # at each invocation.  This if statement lists those times in order.
 
     if call.when == 'setup' :
-        # nothing to do at setup
-        pass
+        ## default to no exception (we may detect one shortly)
+        item.pandokia.exception = None
+
+        ## if we don't make it to the 'call' when, there was an
+	    ## error in the setup.  Make an empty record that gets us
+	    ## through the report.
+        item.pandokia.status = None
+        item.pandokia.tda = { }
+        item.pandokia.tra = { }
 
     elif call.when == 'call':
         # this is called after the test function was called:
-
-        ## default to no exception (we may detect one shortly)
-        item.pandokia.exception = None
 
         ## pick up attributes
         item.pandokia.tda, item.pandokia.tra = find_txa(item)
@@ -369,12 +424,29 @@ def pytest_runtest_makereport(__multicall__, item, call):
         # available when we get called with call.when == 'teardown'
 
     elif call.when == 'teardown' :
+
         # after the test and the teardown function are finished running:
+
+        ## If there is an exception in the test setup, when='call'
+	    ## never happens.  This part dances around that issue.
+
+        # no status implies not pass/skipped/fail, leaving E
+        if item.pandokia.status is None :
+            item.pandokia.status = 'E'
+
+        # if py.test tells us an exception code for the teardown
+        # and we do not already have one from earlier, save it up
+        if isinstance(call.excinfo, py.code.ExceptionInfo):
+            item.pandokia.status = 'E'
+            if item.pandokia.exception is None :
+                item.pandokia.tra['Exception'] = call.excinfo.exconly()
+                item.pandokia.exception = 'EXCEPTION:\n%s\n' % str(report.longrepr)
 
         ## shut off the timeout 
         more_log = ''
 
         tty.write("TEARDOWN BEFORE TIMEOUT\n")
+
         if item.pandokia.timeout :
             tty.write("CLEAR ALARM FOR TIMEOUT\n")
             signal.alarm(0)
