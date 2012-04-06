@@ -13,7 +13,8 @@ class FromUnit(unittest.TestCase):
         self.failIf(True)
 
 class TestFromClass(object):
-    def setUp(self):
+    @classmethod 
+    def setup_class(self):
         self.tda=dict(a=1)
 
     def testpass(self):
@@ -24,21 +25,17 @@ class TestFromClass(object):
         self.tra=dict(c=3)
         assert False
 
-
 class TestClassSetup(object):
 
     @classmethod
-    def setUpClass(cls):
-        """Always overridden by the child cases, but let's put some
-        real values in here to test with"""
+    def setup_class(cls):
         cls.setup2()
-        
+
     @classmethod
     def setup2(cls):
-        #Do the common setup here.
         cls.tda=dict(a=1,b=2)
         cls.tra=dict()
-        
+
     def testpass(self):
         self.tra['c']=3
         assert True
@@ -46,4 +43,52 @@ class TestClassSetup(object):
     def testfail(self):
         self.tra['d']=4
         assert False
+
+class TestSetupErrors(object):
+
+    @classmethod
+    def setup_class(cls):
+        raise Exception("Exception from setup")
+
+    def testpass(self):
+        self.tra['c']=3
+        assert True
+
+class TestSetupFirstTestErrors(object):
+
+    @classmethod
+    def setup_class(cls):
+        pass
+
+    def test1(self) :
+        raise Exception("Exception from test1")
+
+    def test2(self):
+        pass
+
+
+class TestSetupSecondTestErrors(object):
+
+    @classmethod
+    def setup_class(cls):
+        pass
+
+    def test1(self) :
+        pass
+
+    def test2(self):
+        raise Exception("Exception from test1")
+
+class TestTeardownErrors(object):
+
+    @classmethod
+    def setup_class(cls):
+        pass
+
+    def testpass(self):
+        pass
+
+    @classmethod
+    def teardown_class(cls):
+        raise Exception("Exception from teardown")
 
