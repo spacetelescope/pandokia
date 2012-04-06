@@ -15,9 +15,7 @@ overview
 
 This runner was written to try interfacing with unittest2.  It seems
 to work, but in the end we did not find unittest2 attractive enough
-to be worth using.  (We have nose and py.test)
-
-This is still here in case it is useful.
+to be worth using.  We have py.test and nose.
 
 You can find unittest2 at http://pypi.python.org/pypi/unittest2
 

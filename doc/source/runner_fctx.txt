@@ -11,12 +11,12 @@ fctx (C) - C unit testing
 Overview
 -------------------------------------------------------------------------------
 
-FCTX is a C unit test framework, available from http://fctx.wildbearsoftware.com/
+FCTX is a C unit test framework.  It comes from http://fctx.wildbearsoftware.com/ but everything you need to compile and run tests is included with Pandokia.
 
-The Pandokia interface is implemented as a "custom logger".  To make
-your tests Pandokia-capable, you need to include pandokia_fct.h and use
-CL_FCT_BGN and CL_FCT_END to bracket your program instead of FCT_BGN
-and FCT_END.
+In FCTX terms, the Pandokia interface is implemented as a "custom
+logger".  To make your tests Pandokia-capable, you need to include
+pandokia_fct.h and use CL_FCT_BGN and CL_FCT_END to bracket your
+program instead of FCT_BGN and FCT_END.
 
 Here is a simple example: ::
 
@@ -40,6 +40,10 @@ Here is a simple example: ::
 
 	}
 	CL_FCT_END()
+
+This example is minimal.  You can also use the more advanced features, such
+as fixtures, suites, conditional tests, and advanced checks.  See the FCTX
+documentation for details.
 
 
 Compiling the test program
@@ -65,17 +69,18 @@ it to see output in the FCTX format. ::
 
 	./mytest
 
-If the test program sees the environment variable PDK_FILE, it will
-assume it is being run by pandokia and take over the logging function.
+If the test program sees the environment variable PDK_FILE, the
+Pandokia logger will assume it is being run by pandokia and take
+over the logging function.
 
-Otherwise, you can ask it to make pandokia output by specifying
+You can explicitly ask it to make pandokia output by specifying
 "--logger pdk". ::
 
 	./mytest --logger pdk
 
 The pandokia plugin does not accept any command line parameters;
-it takes values from the environment, or uses defaults.  The default
-pandokia log file is named "PDK_LOG".
+it takes values from the environment, or it uses defaults.  The
+default pandokia log file is named "PDK_LOG".
 
 Using with the "run" test runner
 -----------------------------------------------------------------------------
@@ -93,7 +98,7 @@ xyzzy.fctx: ::
 	#!/bin/sh
 	# This file must be here and executable for pandokia to know about
 	# the test, but it just runs the actual test program.
-	exec /install/dir/mytest
+	/install/dir/mytest
 
 The names of the tests will be prefixed with the base name of the
 file that pandokia finds, not the name of the executable that
