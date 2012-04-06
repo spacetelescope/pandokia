@@ -5,6 +5,8 @@ def setup():
     tra['b']=2
 
 def testpass():
+    # this is a buggy test, not a buggy plugin.  tda is a global, so it
+    # is not cleared before the next test.
     tda['c']=3
     print "passing"
     assert True

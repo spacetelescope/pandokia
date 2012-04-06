@@ -41,6 +41,7 @@ class TestClassSetup(object):
         assert True
 
     def testfail(self):
+        # tra_c is getting reported in this test; I do not know if this is a bug or not.
         self.tra['d']=4
         assert False
 
@@ -77,7 +78,7 @@ class TestSetupSecondTestErrors(object):
         pass
 
     def test2(self):
-        raise Exception("Exception from test1")
+        raise Exception("Exception from test2")
 
 class TestTeardownErrors(object):
 
