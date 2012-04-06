@@ -476,6 +476,9 @@ def pytest_runtest_makereport(__multicall__, item, call):
             log += more_log
 
         ## write the PDK_LOG record
+        if '[doctest]' in item.pandokia.name :
+            item.pandokia.name = 'BUG-TEST NAME WITH BRACKETS'
+
         state['report'].report(
             test_name = item.pandokia.name,
             status = item.pandokia.status,
