@@ -7,12 +7,13 @@ minipyt (Python) - a simple but reliable test runner
 :abstract:
 
 	minipyt (mini python test) runs tests written in python.
-	The tests can be either test functions or test classes.  For test
-	classes, you can have one instance for each test method or you
-	can have a single instance shared by all test methods.
+	The tests can be either functions, classes, or simple code
+	sequences managed by the "with" statement.  For test classes,
+	you can have one instance for each test method or you can
+	have a single instance shared by all test methods.
 
 	A major advantage of minipyt is that any test file __always__
-	report a test result of some kind, no matter what kinds of
+	reports a test result of some kind, no matter what kinds of
 	errors occur in that file.  Even a python file that fails to
 	import because of syntax errors will report at least one record.
 	This differs from nose and py.test because the plugin
@@ -40,17 +41,13 @@ xyz.py will have a test name of "xyz".  The status value reported is:
 
 	- Fail means that AssertionError was raised during the import.
 
-This behaviour is intended primarily to detect and report errors in
-test files.  Because of the plugin architecture of nose and py.test,
-there are certain kinds of problems that the plugins cannot detect/report.
-
 For pure python, minipyt will always report at least one test record
 for each file, no matter how badly the import goes.  ( If the test uses
 a C extension that core dumps the python interpreter, there is still a
 possibility to lose the test report. )
 
-As a side effect of this architecture, it is possible to consider a python
-file to be a single test.  The simplest minipyt test that passes is::
+It is possible to consider a python file to be a single test.  The
+simplest minipyt test that passes is::
 
 	assert True
 
@@ -66,8 +63,8 @@ dictionaries module_tda and module_tra.
 Recognizing Tests
 -------------------------------------------------------------------------------
 
-In the namespace of the imported module, these things are recognized
-as tests:
+After the import (which may execute a test directly), these things
+in the namespace of the imported module are recognized as tests:
 
 	- functions that have names beginning or ending with "test",
 	  that are not decorated with ``pandokia.helpers.minipyt.nottest``
@@ -88,9 +85,11 @@ want to order the tests by name, set the global variable::
 
 	minipyt_test_order = 'name'
 
-in your test module.  Sorting by line number is unreliable for decorated
-functions because the line number used for the sort may be the line
-number of some part of the decorator, not the line number of your code.
+in your test module.  
+
+Sorting by line number is unreliable for decorated functions because
+the line number used for the sort may be the line number of some
+part of the decorator, not the line number of your code.
 
 Executing Test Functions 
 -------------------------------------------------------------------------------
@@ -137,7 +136,6 @@ connecting to a database.
 		call obj.setUp()
 		call test method
 		call obj.tearDown()
-		
 
 	- call obj.classTearDown()
 
@@ -192,6 +190,74 @@ test to report the status Error.
 
 The names setUp and tearDown are compatible with nose.  The
 nose.tools.with_setup decorator has no effect on class methods.
+
+
+Executing tests in sequential code ("with" statement)
+-------------------------------------------------------------------------------
+
+When python imports a file, the code in that file is executed.
+minipyt can report that as a single test, or you can use "with"
+statements to divide it into multiple tests.
+
+This file contains two tests named "foo" and "bar":
+
+::
+
+	import pandokia.helpers.pycode as pycode
+
+	with pycode.test( 'foo' ) as t:
+		pass
+
+	with pycode.test( 'bar' ) as t:
+		assert False
+
+You can set attributes on the test by assigning to the tda or tra
+dicts in the context manager:
+
+::
+
+	with pycode.test( 'baz' ) as t:
+		t.tda['yes'] = 1
+		t.tra['no']  = 0 
+		assert 2 + 2 = 4
+
+Tests that are defined in "with" statements can be nested:
+
+::
+
+	with pycode.test( 'foo' ) :
+		# this test is named "foo"
+		print "set up in foo"
+		with pycode.test( 'bar' ) :
+			# this test is named "foo.bar"
+			print "bar"
+			assert 2 + 2 = 5
+			print "if we got here, not in room 101"
+		print "more output in test foo"
+
+Tests that are defined in "with" statements may be used inside test functions:
+
+::
+
+	def test_plover() :
+	    # this test is named "plover"
+	    print "just a plover"
+	    with pycode.test( 'egg' ) :
+		# this test is named "plover.egg"
+		print "An emerald the size of a plover's egg"
+		with pycode.test( 'hatch' ) :
+			# this test is named "plover.egg.hatch"
+			assert 1
+	    print "that laid an egg"
+
+
+The real power of this feature is in dynamically defining tests:
+
+::
+
+	for x in some_list :
+		with pycode.test( str(x) ) :
+			assert f(x)
 
 
 Special Features
