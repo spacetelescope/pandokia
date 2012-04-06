@@ -49,7 +49,7 @@ def list( env ) :
     # run the command to collect the names
     # pandokia log goes to tmpfile - it is ok to used a fixed name because we
     # know that only one process can be running tests in a single directory.
-    s='pdkpytest --pdk --doctest-modules --pdklog='+tmpfile+' --collectonly %(PDK_FILE)s' % env
+    s='pdkpytest --pdk --pdklog='+tmpfile+' --collectonly %(PDK_FILE)s' % env
 
     pandokia.helpers.filecomp.command(s, env)
 
