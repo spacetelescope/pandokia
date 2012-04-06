@@ -2,7 +2,6 @@ import os
 import pandokia.lib
 import datetime
 import traceback
-import runner_minipyt as runner_minipyt
 
 ###
 ### reporter object
@@ -298,6 +297,7 @@ name_stack = [ ]
 # up, that's their problem.)
 cached_rpt = None
 
+
 # A generic class, for reasons explained below.
 class _pycode_with(object) :
     """
@@ -326,6 +326,16 @@ class _pycode_with(object) :
 
     # This is used by the init of the subclasses.
     def fmt(self, name, rpt, tda, tra ) :
+
+        # importing runner_minipyt here to break an import loop.
+        # runner_minipyt imports pycode, so we only do the import here when
+        # we really need it.  This is after the pycode import is finished.
+        global runner_minipyt
+        try :
+            runner_minipyt
+        except NameError :
+            import runner_minipyt as m
+            runner_minipyt = m
 
         # name is just our base name.  
         self.name = name
