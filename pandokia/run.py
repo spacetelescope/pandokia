@@ -23,30 +23,29 @@ directoryname
     If you do not specify any files/directories, the default
     command is "pdkrun -r ."
 
--r
---recursive
+-r / --recursive
     search subdirectories
 
 --log file
     write the PDK report log into this file
 
-    default is "PDK_DEFAULT.LOG."+test_run
+    Default is "PDK_DEFAULT.LOG."+test_run
 
 --parallel N
     run up to N tests concurrently ( but it can run at most one
     test at a time in any single directory )
 
-    default is 1
+    Default is 1
 
 --project NAME
     use NAME for the project name in reports
-    
-    default is "default"
+
+    Default is "default"
 
 --test_run NAME
     use NAME for the test_run in reports
 
-    default is a generated string including the user name and the
+    Default is a generated string including the user name and the
     time to the nearest minute
 
 Defaults can also be set by environment variables.
