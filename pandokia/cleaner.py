@@ -60,21 +60,36 @@ def check_valuable(test_run) :
 # implementation of "pdk clean"
 #
 
-def delete_background_step( n = 200 ) :
+def delete_background_step( n = 200, verbose=False ) :
+    verbose=1
     start = time.time()
+    if verbose :
+        print "select"
     c = pdk_db.execute("SELECT key_id FROM delete_queue LIMIT :1 ",(n,) )
     keys = tuple( [ x[0] for x in c ] )
     # print "delete ",keys
     parm = ', '.join( [ ':%d'%(n+1) for n in range(0, len(keys) ) ] )
     # print parm
     
+    if verbose :
+        print "result_scalar"
     pdk_db.execute("DELETE FROM result_scalar WHERE key_id IN ( %s )" % parm, keys )
+    if verbose :
+        print "result_tda"
     pdk_db.execute("DELETE FROM result_tda    WHERE key_id IN ( %s )" % parm, keys )
+    if verbose :
+        print "result_tra"
     pdk_db.execute("DELETE FROM result_tra    WHERE key_id IN ( %s )" % parm, keys )
+    if verbose :
+        print "result_log"
     pdk_db.execute("DELETE FROM result_log    WHERE key_id IN ( %s )" % parm, keys )
+    if verbose :
+        print "delete_queue"
     pdk_db.execute("DELETE FROM delete_queue  WHERE key_id IN ( %s )" % parm, keys )
 
     end1 = time.time()
+    if verbose :
+        print "commit"
     pdk_db.commit()
 
     end2 = time.time()
