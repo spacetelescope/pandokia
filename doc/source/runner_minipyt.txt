@@ -192,7 +192,7 @@ The names setUp and tearDown are compatible with nose.  The
 nose.tools.with_setup decorator has no effect on class methods.
 
 
-Executing tests in sequential code ("with" statement)
+Linear Execution in Sequential Code ("with" statement)
 -------------------------------------------------------------------------------
 
 When python imports a file, the code in that file is executed.
@@ -251,13 +251,46 @@ Tests that are defined in "with" statements may be used inside test functions:
 	    print "that laid an egg"
 
 
-The real power of this feature is in dynamically defining tests:
+A powerful use of this feature is in dynamically defining tests:
 
 ::
 
-	for x in some_list :
+	for x, y  in some_list :
 		with pycode.test( str(x) ) :
-			assert f(x)
+			assert f(x,y)
+
+
+why not py.test parameterized test or nose generators?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If those methods are more convenient, you should use them.  Here are some
+features that can be an advantage of this approach:
+
+ - the simplicity of linearly executing procedural code:  There are
+   no callbacks, no implicit ordering, no out-of-order setup/teardown
+   functions.  
+
+ - you choose the test name; in a parameterized test or a generator,
+   all the parameters to the test function are included in the test
+   name, even when they are not all relevant.  The pandokia plugings
+   for pytest/nose cannot know which parameter values may be excluded
+   from the name, so they include them all.
+
+ - easy setup/teardown
+
+   ::
+
+	with test('group') :
+		db = sqlite3.connect('test.db')
+		with test('first') :
+			...
+		with test('second') :
+			...
+		db.close()
+
+ - arbitrarily deep nesting:  By nesting "with test()" statements, you
+   can build aribitrarily deep test hierarchies, if it is suitable for your
+   application.
 
 
 Special Features
