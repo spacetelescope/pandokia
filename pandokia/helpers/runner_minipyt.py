@@ -110,7 +110,7 @@ def show_dot(status, name, log) :
 # Generate the report record for a single test.
 def gen_report( rpt, name, status, start_time, end_time, tda, tra, log ) :
 
-    # write the report
+    # write the report (yes, tra first)
     rpt.report( name, status, start_time, end_time, tra, tda, log )
 
     # we only generate the report at the end of running the test
@@ -183,7 +183,7 @@ def run_test_function(rpt, mod, name, ob) :
     log = pycode.end_snarf_stdout()
 
     # write a report the the pandokia log file
-    gen_report( rpt, name, status, start_time, end_time, mod.tra, mod.tda, log )
+    gen_report( rpt, name, status, start_time, end_time, mod.tda, mod.tra, log )
     
 
 ####

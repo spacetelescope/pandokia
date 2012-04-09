@@ -1,7 +1,10 @@
 import os
 import pandokia.helpers.test_in_db as test_in_db
 
-test_in_db.query['test_name'] = 'pdkrun_test_data/pytest/*'
+
+test_in_db.query['test_name'] = 'pdkrun_test_data/helpers/*'
+
+print "QUERY",test_in_db.query
 
 expected_results = [
     #  test_name,
@@ -25,6 +28,6 @@ expected_results = [
 		{ 'status' : 'P' } ),
 	( 'pdkrun_test_data/helpers/file_age.day_older_f',
 		{ 'status' : 'F' } ),
+]
 
 test_in_db.perform_db_tests( test_in_db.query , expected_results )
-

@@ -3,9 +3,6 @@ import time
 import pandokia.helpers.minipyt as mph
 import pandokia.helpers.filecomp as fc
 
-
-dmg_dir='/grp/software/osx/Intel/StandardScience'
-
 now = time.time()
 
 @mph.nottest

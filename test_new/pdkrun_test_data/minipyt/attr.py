@@ -8,26 +8,34 @@ class shared(object) :
 
     minipyt_shared = True
 
+    n = 0
+
     def __init__( self ) :
         print "init works"
 
     def classSetUp( self ): 
         print "classSetUp"
         self.class_tda['classSetUp'] = 'class setup'
-        
+        self.class_tra['classSetUp'] = 'class setup'
+
     def setUp( self ) :
         print "setUp"
         self.class_tda['setUp'] = 'setup'
+        self.class_tra['setUp'] = 'setup'
 
     def test_1( self ) :
         print "test_1"
         self.tda['test'] = 'test_1'
         self.tra['test'] = 'test_1'
+        self.n = self.n + 1
+        self.tra['n'] = self.n
 
     def test_2( self ) :
         print "test_2"
-        self.tda['test'] = 'test_2'
-        self.tra['test'] = 'test_2'
+        self.tda['test2'] = 'test_2'
+        self.tra['test2'] = 'test_2'
+        self.n = self.n + 1
+        self.tra['n'] = self.n
 
     def tearDown( self ):
         print "tearDown"
@@ -44,26 +52,34 @@ class not_shared(object) :
 
     minipyt_shared = False
 
+    n = 0
+
     def __init__( self ) :
         print "init works"
 
     def classSetUp( self ): 
         print "classSetUp"
         self.class_tda['classSetUp'] = 'class setup'
-        
+        self.class_tra['classSetUp'] = 'class setup'
+
     def setUp( self ) :
         print "setUp"
         self.class_tda['setUp'] = 'setup'
+        self.class_tra['setUp'] = 'setup'
 
     def test_1( self ) :
         print "test_1"
         self.tda['test'] = 'test_1'
         self.tra['test'] = 'test_1'
+        self.n = self.n + 1
+        self.tra['n'] = self.n
 
     def test_2( self ) :
         print "test_2"
         self.tda['test'] = 'test_2'
         self.tra['test'] = 'test_2'
+        self.n = self.n + 1
+        self.tra['n'] = self.n
 
     def tearDown( self ):
         print "tearDown"
@@ -71,7 +87,7 @@ class not_shared(object) :
 
     def classTearDown( self ):
         print "class tearDown"
-        self.class_tda['classTearDown'] = 'class teardown'
+        # class teardown cannot set attributes on class if the class is not shared
 
 class class_setup_exception(object) :
 
@@ -86,7 +102,7 @@ class class_setup_exception(object) :
         print "classSetUp"
         self.class_tda['classSetUp'] = 'class setup'
         raise Exception('ARF')
-        
+
     def setUp( self ) :
         print "setUp"
         self.class_tda['setUp'] = 'setup'
@@ -122,7 +138,7 @@ class setup_exception(object) :
     def classSetUp( self ): 
         print "classSetUp"
         self.class_tda['classSetUp'] = 'class setup'
-        
+
     def setUp( self ) :
         print "setUp"
         self.class_tda['setUp'] = 'setup'
@@ -135,8 +151,8 @@ class setup_exception(object) :
 
     def test_2( self ) :
         print "test_2"
-        self.tda['test'] = 'test_2'
-        self.tra['test'] = 'test_2'
+        self.tda['test2'] = 'test_2'
+        self.tra['test2'] = 'test_2'
 
     def tearDown( self ):
         print "tearDown"
