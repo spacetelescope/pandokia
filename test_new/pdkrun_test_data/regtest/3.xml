@@ -4,7 +4,9 @@
 <pre-exec>
 <command>
 print "testfiles 3 ok"
-open("test_3.out","w").close()
+f=open("test_3.out","w")
+f.write("hello\n")
+f.close()
 </command>
 </pre-exec>
 <output>
