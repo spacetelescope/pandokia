@@ -56,6 +56,18 @@ struct _pandokia_logger
 
 
 /*
+*
+*/
+void
+log_name( struct _pandokia_logger *l, fct_logger_evt_t const *e )
+{
+	fprintf (l->pdk_log, "test_name=");
+	if (l->pdk_prefix[0])
+		fprintf (l->pdk_log, "%s", l->pdk_prefix);
+	fprintf (l->pdk_log, "%s.%s\n", l->pdk_basename, fct_test__name (e->test));
+}
+
+/*
 * happens before the start of the test:
 */
 void
@@ -63,8 +75,14 @@ pandokia_test_start (fct_logger_i *li, fct_logger_evt_t const *e)
 {
 	struct timeval t;
 	struct _pandokia_logger *l = (struct _pandokia_logger *)li;
+	char *d;
 	/* log test name */
-	fprintf (l->pdk_log, "name=%s%s\n", l->pdk_prefix, fct_test__name (e->test));
+	log_name( l, e );
+	/* location of the test -- well, close enough to get started finding it anyway */
+	d = getenv("PDK_DIRECTORY");
+	if (!d)
+		d="";
+	fprintf (l->pdk_log, "location=%s/%s\n", d, l->pdk_file );
 	/* log start time */
 	gettimeofday (&t, NULL);
 	fprintf (l->pdk_log, "start_time=%ld.%06d\n", (long) t.tv_sec,
@@ -137,8 +155,8 @@ void
 pandokia_skip (fct_logger_i * li, fct_logger_evt_t const *e)
 {
 	struct _pandokia_logger *l = (struct _pandokia_logger *)li;
-	fprintf (l->pdk_log, "name=%s%s\nstatus=D\nEND\n\n", 
-		l->pdk_prefix, fct_test__name (e->test));
+	log_name(l, e);
+	fprintf (l->pdk_log, "status=D\nEND\n\n" );
 }
 
 
@@ -183,20 +201,23 @@ pandokia_logger (void)
 	fprintf(l->pdk_log,"\n\n");
 
 	/* collect prefix to put on test names */
-	l->pdk_prefix = getenv("PDK_PREFIX");
+	l->pdk_prefix = getenv("PDK_TESTPREFIX");
 	if (! l->pdk_prefix)
 		l->pdk_prefix="";
 
 	/* shortcut to the object for pandokia-aware code */
 	pandokia_logger_object = l;
 
+	/* the name of the file that pandokia ran */
 	l->pdk_file = getenv("PDK_FILE");
 	if (l->pdk_file == NULL)
 		{
 		l->pdk_file="";
 		}
 
-	l->pdk_basename = strdup(l->pdk_file);
+	/* basename of the file that pandokia ran. */
+	l->pdk_basename = strdup(l->pdk_file);	/* leaked */
+	assert( l->pdk_basename );
 	{ char *s = strrchr(l->pdk_basename,'.'); if (s) *s=0; }
 	
 	return (fct_logger_i *) l;
@@ -271,7 +292,6 @@ char const *pandokia_current_test = NULL;	/* name of the last test we saw */
 
 pandokia_okfile_real( fctkern_t *fctkern_ptr__, char *filename)
 {
-	char *okfile_name;
 	/*
 	* if the last test name we saw is not EQ to the one we seem to
 	* be working on now, then we are on a new test and it is time
@@ -280,6 +300,7 @@ pandokia_okfile_real( fctkern_t *fctkern_ptr__, char *filename)
 	if ( fctkern_ptr__->ns.curr_test_name != pandokia_current_test )
 		{
 		int n;
+		char *okfile_name;
 		pandokia_current_test = fctkern_ptr__->ns.curr_test_name;
 
 		if ( pandokia_okfile_fp )
@@ -305,6 +326,9 @@ pandokia_okfile_real( fctkern_t *fctkern_ptr__, char *filename)
 		* log the TDA about the okfile
 		*/
 		pandokia_attr("tda","_okfile",okfile_name);
+
+		/* */
+		free( okfile_name );
 		
 		}
 
