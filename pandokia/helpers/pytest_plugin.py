@@ -7,7 +7,7 @@ class tty:
     def write(self, s) :
         pass
 tty = tty()
-tty=open("/dev/tty","w")
+#tty=open("/dev/tty","w")
 
 ###
 
@@ -97,7 +97,7 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     global enabled
-    if config.getvalue('pdk_enabled'):
+    if config.getvalue('pdk_enabled') or ( 'PDK_LOG' in os.environ ) :
         enabled = True
 
         # We use our own output capture in place of the default capture
