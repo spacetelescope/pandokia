@@ -404,7 +404,7 @@ def proc_timeout_callback(sig, stack):
                 raise timeout_not_going_away()
 
         timeout_proc_kills += 1
-        signal.alarm(5)
+        signal.alarm(10)
 
 
 ##
