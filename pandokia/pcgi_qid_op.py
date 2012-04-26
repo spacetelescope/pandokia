@@ -78,8 +78,13 @@ def run( ) :
         change = 1
 
     if 'remove' in form :
-        pdk_db.execute("DELETE FROM query WHERE ( query.qid = %d ) AND ( query.key_id IN ( SELECT query.key_id FROM query WHERE qid = %d )) "
-            % ( qid, other_qid ) )
+        # mysql doesn't like it if you 
+        #       DELETE FROM query WHERE ... IN ( SELECT ... FROM query )
+        pdk_db.execute("CREATE TEMPORARY TABLE IF NOT EXISTS temporary_xyzzy ( key_id INTEGER )")
+        pdk_db.execute("INSERT INTO temporary_xyzzy ( key_id ) SELECT key_id FROM query WHERE qid = %d " % other_qid )
+        pdk_db.execute("DELETE FROM query WHERE ( qid = %d ) AND ( key_id IN ( SELECT key_id FROM temporary_xyzzy ) ) "
+            % ( qid, ) )
+        pdk_db.execute("DELETE FROM temporary_xyzzy")
         pdk_db.commit()
         change = 1
 

@@ -5,7 +5,11 @@
 -- These permissions should be sufficient for the application to run
 -- but not necessarily for database maintenance:
 --
--- GRANT DELETE, INSERT, SELECT, UPDATE, SHOW VIEW ON TABLE pandokia.* TO 'pandokia' ;
+-- GRANT DELETE, INSERT, SELECT, UPDATE, SHOW VIEW, 
+--	CREATE TEMPORARY TABLES 
+--	ON pandokia.* 
+--	TO 'pandokia'@'%.stsci.edu' 
+--	IDENTIFIED BY PASSWORD PASSWORD('....') ;
 --
 
 -- result_scalar:
