@@ -342,6 +342,10 @@ class _pycode_with(object) :
 
         # Remember the report object we were created with.
         if rpt is None :
+            global cached_rpt
+            if not cached_rpt :
+                # this happens if we are running without a test runner
+                cached_rpt = reporter( None, filename='PDK_LOG' ) 
             self.rpt = cached_rpt
         else :
             self.rpt = rpt
