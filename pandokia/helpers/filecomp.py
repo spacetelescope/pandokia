@@ -408,7 +408,17 @@ def cmp_diff( fromfile, tofile, msg, quiet, **kwds ) :
     diff = difflib.unified_diff(fromlines, tolines, fromfile, tofile,
                                     fromdate, todate, n=n)
 
-    sys.stdout.writelines(diff)
+    diff = list(diff)
+    if len(diff) :
+        if not quiet :
+            if msg :
+                sys.stdout.write(msg)
+            sys.stdout.writelines(diff)
+            sys.stdout.write('========\n')
+        return False
+    else :
+        return True
+    
 
 
 ###
