@@ -44,6 +44,7 @@ import os
 import re
 import sys
 import subprocess
+import difflib
 
 
 ###
@@ -387,6 +388,30 @@ def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
     return False
 
 ###
+### 
+###
+
+def cmp_diff( fromfile, tofile, msg, quiet, **kwds ) :
+
+    if '-C' in kwds :
+        n = kwds['-C']
+    else :
+        n = 3
+
+    # The rest is basically "A command-line interface to difflib" from
+    # the python docs for difflib.
+    fromdate = time.ctime(os.stat(fromfile).st_mtime)
+    todate = time.ctime(os.stat(tofile).st_mtime)
+    fromlines = open(fromfile, 'U').readlines()
+    tolines = open(tofile, 'U').readlines()
+
+    diff = difflib.unified_diff(fromlines, tolines, fromfile, tofile,
+                                    fromdate, todate, n=n)
+
+    sys.stdout.writelines(diff)
+
+
+###
 ### end of format-specific file comparison functions
 ###
 
@@ -399,6 +424,7 @@ file_comparators = {
     'binary':       cmp_binary,
     'fits':         cmp_fits,
     'text':         cmp_text,
+    'diff':         cmp_diff,
 }
 
 ###
