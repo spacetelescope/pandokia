@@ -200,8 +200,11 @@ def run() :
 
     if cmd == 'query' :
         import pandokia
-        pandokia.cfg.pdk_db.query_to_csv( args[0], sys.stdout )
-        return 0
+        return pandokia.cfg.pdk_db.query_to_csv( args[0], sys.stdout )
+
+    if cmd == 'recount' :
+        import pandokia.cleaner
+        return pandokia.cleaner.recount( args )
 
     sys.stderr.write("command %s not known\n"%cmd)
     return 1

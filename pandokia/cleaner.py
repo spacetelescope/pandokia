@@ -357,8 +357,10 @@ def delete(args) :
     dont = 0
 
     if len(args) != 0 :
-        print 'pdk delete does not take any non-flag arguments - you must have typed the command wrong'
-        return 1
+        if not '-test_run' in opt :
+            opt['-test_run'] = args
+        else :
+            print "error: -test_run and non-option args used together"
 
     wild = opt['-wild']
     del opt['-wild']
@@ -401,4 +403,43 @@ def delete(args) :
 
     delete_by_query( where_str, where_dict )
 
+    recount( opt['-test_run'], verbose=0 )
+
     return 0
+
+##########
+#
+# count the number of records in each test run
+#
+
+def recount( args, verbose=1 ) :
+    if len(args) == 0 :
+        args = [ '*' ]
+
+    for test_run in args :
+        test_run = pandokia.common.find_test_run( test_run )
+        where_text, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
+        c = pdk_db.execute("SELECT test_run FROM distinct_test_run " + where_text, where_dict )
+        found = 0
+        for test_run, in c :
+            found = 1
+            if verbose :
+                print test_run, 
+            n = recount_test_run( test_run )
+            if verbose :
+                print n
+        if not found :
+            if verbose :
+                print "no test run found matching",test_run
+
+def recount_test_run( test_run ) :
+    c = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE test_run = :1",(test_run,))
+    x = c.fetchone()
+    count = x[0]
+    if count == 0 :
+        pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(test_run,))
+    else :
+        pdk_db.execute("UPDATE distinct_test_run SET record_count = :1 WHERE test_run = :2 ", (count,test_run) )
+    pdk_db.commit()
+    return count
+
