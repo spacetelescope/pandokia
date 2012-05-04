@@ -8,5 +8,5 @@ Programming in Pandokia
 
 .. toctree::
 
-	programming_db.txt
+	programming_db.rst
 

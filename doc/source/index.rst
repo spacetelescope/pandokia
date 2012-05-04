@@ -15,19 +15,19 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   intro.txt
-   pdk_aware.txt
-   run_tests.txt
-   file_format.txt
-   report_fields.txt
-   runners.txt
-   adding_runners.txt
-   database.txt
-   vocabulary.txt
-   demo.txt
-   faq.txt
-   programming.txt
-   environment.txt
+   intro.rst
+   pdk_aware.rst
+   run_tests.rst
+   file_format.rst
+   report_fields.rst
+   runners.rst
+   adding_runners.rst
+   database.rst
+   vocabulary.rst
+   demo.rst
+   faq.rst
+   programming.rst
+   environment.rst
 
 Indices and tables
 ==================

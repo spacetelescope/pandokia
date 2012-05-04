@@ -67,7 +67,7 @@ Assertions in shunit2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The shunit2 distribution contains documentation of various assertions
-in doc/shunit2.txt and at 
+in doc/shunit2.rst and at 
 http://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html
 
 There is significant difference of interest to python programmers:

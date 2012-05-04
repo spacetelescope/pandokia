@@ -8,13 +8,13 @@ Test Runners
 
 .. toctree::
 
-	runner_pytest.txt
-	runner_nose.txt
-	runner_minipyt.txt
-	runner_unit2.txt
-	runner_shell_runner.txt
-	runner_shunit2.txt
-	runner_fctx.txt
-	runner_maker.txt
-	runner_run.txt
-	runner_regtest.txt
+	runner_pytest.rst
+	runner_nose.rst
+	runner_minipyt.rst
+	runner_unit2.rst
+	runner_shell_runner.rst
+	runner_shunit2.rst
+	runner_fctx.rst
+	runner_maker.rst
+	runner_run.rst
+	runner_regtest.rst

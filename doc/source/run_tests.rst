@@ -23,7 +23,7 @@ Using Pandokia To Run Tests
         software.  For example, the "nose" Test-Runner uses nose 0.11
         (along with a nose plugin) to run tests.
 
-        See adding_runners.txt for documentation on implementing your
+        See adding_runners.rst for documentation on implementing your
         own Test-Runner for whatever testing systems you have.
 
 .. contents::
@@ -246,7 +246,7 @@ pdk_contacts
   This file may be used to specify the username or email address of
   individuals (one per line) who should be notified about anomalous
   results for tests contained in this directory. The run command does
-  not read this file; see database.txt, "Importing Contacts" for more
+  not read this file; see database.rst, "Importing Contacts" for more
   detail. 
 
 Writing a nose test
