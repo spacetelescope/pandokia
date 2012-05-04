@@ -87,3 +87,10 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+installdest=/eng/ssb/web/pandokia_docs_new/
+
+install: 	html
+	rm -rf $(installdest)
+	mkdir $(installdest)
+	cd build/html; cp -r . $(installdest)
