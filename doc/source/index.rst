@@ -13,21 +13,22 @@ This is the development version of the pandokia documentation.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   intro.rst
-   pdk_aware.rst
-   run_tests.rst
-   file_format.rst
-   report_fields.rst
-   runners.rst
-   adding_runners.rst
-   database.rst
-   vocabulary.rst
-   demo.rst
-   faq.rst
-   programming.rst
-   environment.rst
+    intro.rst
+    pdk_aware.rst
+    run_tests.rst
+    file_format.rst
+    report_fields.rst
+    runners.rst
+    helpers.rst
+    adding_runners.rst
+    database.rst
+    vocabulary.rst
+    demo.rst
+    faq.rst
+    programming.rst
+    environment.rst
 
 Indices and tables
 ==================
