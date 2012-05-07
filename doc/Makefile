@@ -29,6 +29,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm version.txt
 
 html:	version.txt
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
