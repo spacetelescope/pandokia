@@ -46,22 +46,22 @@ Basic Example
 For use with Pandokia, write a shell script that has function
 names starting with "test".  For example, ::
 
-	test_one_equals_one()
-	{
-		echo 'this one passes'
-		assertEquals 1 1
-	}
+    test_one_equals_one()
+    {
+        echo 'this one passes'
+        assertEquals 1 1
+    }
 
-	test_two_equals_one()
-	{
-		echo 'this one fails'
-		assertEquals 2 1
-	}
+    test_two_equals_one()
+    {
+        echo 'this one fails'
+        assertEquals 2 1
+    }
 
 Save this test with a file name that ends xyz.shunit2 and run
 pandokia on it: ::
 
-	pdkrun xyz.shunit2
+    pdkrun xyz.shunit2
 
 Assertions in shunit2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,22 +77,22 @@ This means that you can have arbitrarily many assertions in a single
 test function.  The result of that test will be Fail if *any* of
 the assertions fail. ::
 
-	test_foo()
-	{
-		# this test fails because of the second assertion
-		assertEqual 1 1
-		assertEqual 2 1
-		assertEqual 3 3
-		echo 'test_foo finished'
-	}
+    test_foo()
+    {
+        # this test fails because of the second assertion
+        assertEqual 1 1
+        assertEqual 2 1
+        assertEqual 3 3
+        echo 'test_foo finished'
+    }
 
 You can also explicitly declare a test to
 fail with the "fail" function: ::
 
-	test_bar()
-	{
-		fail "this test always fails"
-	}
+    test_bar()
+    {
+        fail "this test always fails"
+    }
 
 
 Erroring Tests
@@ -104,10 +104,10 @@ it does not natively have the concept of Error.
 If you want to report a status of Error to the Pandokia system, you
 can call the special function pdk_error: ::
 
-	test_baz()
-	{
-		pdk_error "this test errors"
-	}
+    test_baz()
+    {
+        pdk_error "this test errors"
+    }
 
 
 Pandokia Attributes
@@ -115,11 +115,11 @@ Pandokia Attributes
 
 You can report tda/tra attributes with the pdk_tda or pdk_tra functions: ::
 
-	test_with_attr()
-	{
-		pdk_tda one 1
-		x=`ls | wc`
-		pdk_tra filecount $x
-		pdk_tra foo
-	}
+    test_with_attr()
+    {
+        pdk_tda one 1
+        x=`ls | wc`
+        pdk_tra filecount $x
+        pdk_tra foo
+    }
 

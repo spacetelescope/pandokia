@@ -6,11 +6,11 @@ run (various languages) - run an external program, for testing compiled code
 
 :abstract:
 
-	Test frameworks for compiled languages usually require you
-	to compile a special test program.  To use one of these,
-	you can have your build system (make, Ant, whatever) compile
-	and install some number of test programs, then use this
-	pandokia runner to execute them.
+    Test frameworks for compiled languages usually require you
+    to compile a special test program.  To use one of these,
+    you can have your build system (make, Ant, whatever) compile
+    and install some number of test programs, then use this
+    pandokia runner to execute them.
 
 .. contents::
 
@@ -40,33 +40,33 @@ a shell script that performs the test.
 For shell scripts, there is a library named "pdk_run_helper.sh".  The basic
 outline is: ::
 
-	. pdk_run_helper.sh
+    . pdk_run_helper.sh
 
-	# begin a test named "P".
-	test_start P
-		# do some stuff here
-		echo this is test P
-		# report a test status - you can do this as many times as
-		# you like; the resulting status will be the worst case that
-		# was reported
-		test_status P
-	# end of test
-	test_end
+    # begin a test named "P".
+    test_start P
+        # do some stuff here
+        echo this is test P
+        # report a test status - you can do this as many times as
+        # you like; the resulting status will be the worst case that
+        # was reported
+        test_status P
+    # end of test
+    test_end
 
-	test_start this_one_fails
-		# how to set an attribute
-		test_attr tda_this yes
-		test_attr tra_that no
-		# determine test status
-		if false
-		then
-			test_status P
-		else
-			test_status F
-		fi
-	test_end
+    test_start this_one_fails
+        # how to set an attribute
+        test_attr tda_this yes
+        test_attr tra_that no
+        # determine test status
+        if false
+        then
+            test_status P
+        else
+            test_status F
+        fi
+    test_end
 
-	# call this at the end to remove temp files
-	cleanup
+    # call this at the end to remove temp files
+    cleanup
 
 

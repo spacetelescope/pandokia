@@ -6,7 +6,7 @@ unit2 (Python) - unittest2
 
 :abstract:
 
-	Runs tests with the Python unittest2 0.5.1 package.
+    Runs tests with the Python unittest2 0.5.1 package.
 
 .. contents::
 

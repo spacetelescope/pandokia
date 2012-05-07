@@ -1,12 +1,13 @@
 ================================================================================
-Programming in Pandokia
+Helper Functions and Useful Patterns
 ================================================================================
 
 :abstract:
 
-    This is stuff you want to know if you are working on the Pandokia software.
+    Pandokia provides some helper functions to make it easier to 
 
 .. toctree::
 
-    programming_db.rst
+    helper_json.rst
+    helper_exml.rst
 

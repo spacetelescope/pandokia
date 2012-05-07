@@ -6,19 +6,19 @@ minipyt (Python) - a simple but reliable test runner
 
 :abstract:
 
-	minipyt (mini python test) runs tests written in python.
-	The tests can be either functions, classes, or simple code
-	sequences managed by the "with" statement.  For test classes,
-	you can have one instance for each test method or you can
-	have a single instance shared by all test methods.
+    minipyt (mini python test) runs tests written in python.
+    The tests can be either functions, classes, or simple code
+    sequences managed by the "with" statement.  For test classes,
+    you can have one instance for each test method or you can
+    have a single instance shared by all test methods.
 
-	A major advantage of minipyt is that any test file __always__
-	reports a test result of some kind, no matter what kinds of
-	errors occur in that file.  Even a python file that fails to
-	import because of syntax errors will report at least one record.
-	This differs from nose and py.test because the plugin
-	architecture of those systems is not able to report certain
-	kinds of errors.
+    A major advantage of minipyt is that any test file __always__
+    reports a test result of some kind, no matter what kinds of
+    errors occur in that file.  Even a python file that fails to
+    import because of syntax errors will report at least one record.
+    This differs from nose and py.test because the plugin
+    architecture of those systems is not able to report certain
+    kinds of errors.
 
 
 .. contents::
@@ -32,14 +32,14 @@ then running those tests.
 There is a test record for the act of importing the file.  For example,
 xyz.py will have a test name of "xyz".  The status value reported is:
 
-	- Pass means that minipyt was able to import the file and
-	  examine it for tests.  If the file executed any code during
-	  the import, it succeeded
+    - Pass means that minipyt was able to import the file and
+      examine it for tests.  If the file executed any code during
+      the import, it succeeded
 
-	- Error means that an exception was raised while importing
-	  the file or examining it for tests.
+    - Error means that an exception was raised while importing
+      the file or examining it for tests.
 
-	- Fail means that AssertionError was raised during the import.
+    - Fail means that AssertionError was raised during the import.
 
 For pure python, minipyt will always report at least one test record
 for each file, no matter how badly the import goes.  ( If the test uses
@@ -49,11 +49,11 @@ possibility to lose the test report. )
 It is possible to consider a python file to be a single test.  The
 simplest minipyt test that passes is::
 
-	assert True
+    assert True
 
 and the simplest test that fails is::
 
-	assert False
+    assert False
 
 In these examples, the name of the test matches the name of the file.
 
@@ -66,24 +66,24 @@ Recognizing Tests
 After the import (which may execute a test directly), these things
 in the namespace of the imported module are recognized as tests:
 
-	- functions that have names beginning or ending with "test",
-	  that are not decorated with ``pandokia.helpers.minipyt.nottest``
-	  or ``nose.tools.nottest``
+    - functions that have names beginning or ending with "test",
+      that are not decorated with ``pandokia.helpers.minipyt.nottest``
+      or ``nose.tools.nottest``
 
-	- classes that have names beginning or ending with "test"
-	  that are not decorated with ``pandokia.helpers.minipyt.nottest``
-	  or ``nose.tools.nottest``
+    - classes that have names beginning or ending with "test"
+      that are not decorated with ``pandokia.helpers.minipyt.nottest``
+      or ``nose.tools.nottest``
 
-	- functions decorated with ``pandokia.helpers.minipyt.test``
-	  or ``nose.tools.istest``
+    - functions decorated with ``pandokia.helpers.minipyt.test``
+      or ``nose.tools.istest``
 
-	- classes decorated with ``pandokia.helpers.minipyt.test``
-	  or ``nose.tools.istest``
+    - classes decorated with ``pandokia.helpers.minipyt.test``
+      or ``nose.tools.istest``
 
 By default, tests are executed in order by line number.  If you
 want to order the tests by name, set the global variable::
 
-	minipyt_test_order = 'name'
+    minipyt_test_order = 'name'
 
 in your test module.  
 
@@ -127,17 +127,17 @@ connecting to a database.
 
 ::
 
-	- create object
+    - create object
 
-	- call obj.classSetUp()
+    - call obj.classSetUp()
 
-	- for each test method
+    - for each test method
 
-		call obj.setUp()
-		call test method
-		call obj.tearDown()
+        call obj.setUp()
+        call test method
+        call obj.tearDown()
 
-	- call obj.classTearDown()
+    - call obj.classTearDown()
 
 obj.class_tda and obj.class_tra are attributes that belong to the class.
 
@@ -154,19 +154,19 @@ to other test frameworks such as nose, py.test, and unittest.
 
 ::
 
-	- for each test method
+    - for each test method
 
-		create obj
+        create obj
 
-		call obj.classSetUp()
+        call obj.classSetUp()
 
-		call obj.setUp()
+        call obj.setUp()
 
-		call test method
+        call test method
 
-		call obj.tearDown()
+        call obj.tearDown()
 
-		call obj.classTearDown()
+        call obj.classTearDown()
 
 
 obj.class_tda and obj.class_tra are attributes that belong to the class.
@@ -203,61 +203,61 @@ This file contains two tests named "foo" and "bar":
 
 ::
 
-	import pandokia.helpers.pycode as pycode
+    import pandokia.helpers.pycode as pycode
 
-	with pycode.test( 'foo' ) as t:
-		pass
+    with pycode.test( 'foo' ) as t:
+        pass
 
-	with pycode.test( 'bar' ) as t:
-		assert False
+    with pycode.test( 'bar' ) as t:
+        assert False
 
 You can set attributes on the test by assigning to the tda or tra
 dicts in the context manager:
 
 ::
 
-	with pycode.test( 'baz' ) as t:
-		t.tda['yes'] = 1
-		t.tra['no']  = 0 
-		assert 2 + 2 = 4
+    with pycode.test( 'baz' ) as t:
+        t.tda['yes'] = 1
+        t.tra['no']  = 0 
+        assert 2 + 2 = 4
 
 Tests that are defined in "with" statements can be nested:
 
 ::
 
-	with pycode.test( 'foo' ) :
-		# this test is named "foo"
-		print "set up in foo"
-		with pycode.test( 'bar' ) :
-			# this test is named "foo.bar"
-			print "bar"
-			assert 2 + 2 = 5
-			print "if we got here, not in room 101"
-		print "more output in test foo"
+    with pycode.test( 'foo' ) :
+        # this test is named "foo"
+        print "set up in foo"
+        with pycode.test( 'bar' ) :
+            # this test is named "foo.bar"
+            print "bar"
+            assert 2 + 2 = 5
+            print "if we got here, not in room 101"
+        print "more output in test foo"
 
 Tests that are defined in "with" statements may be used inside test functions:
 
 ::
 
-	def test_plover() :
-	    # this test is named "plover"
-	    print "just a plover"
-	    with pycode.test( 'egg' ) :
-		# this test is named "plover.egg"
-		print "An emerald the size of a plover's egg"
-		with pycode.test( 'hatch' ) :
-			# this test is named "plover.egg.hatch"
-			assert 1
-	    print "that laid an egg"
+    def test_plover() :
+        # this test is named "plover"
+        print "just a plover"
+        with pycode.test( 'egg' ) :
+        # this test is named "plover.egg"
+        print "An emerald the size of a plover's egg"
+        with pycode.test( 'hatch' ) :
+            # this test is named "plover.egg.hatch"
+            assert 1
+        print "that laid an egg"
 
 
 A powerful use of this feature is in dynamically defining tests:
 
 ::
 
-	for x, y  in some_list :
-		with pycode.test( str(x) ) :
-			assert f(x,y)
+    for x, y  in some_list :
+        with pycode.test( str(x) ) :
+            assert f(x,y)
 
 
 why not py.test parameterized test or nose generators?
@@ -280,13 +280,13 @@ features that can be an advantage of this approach:
 
    ::
 
-	with test('group') :
-		db = sqlite3.connect('test.db')
-		with test('first') :
-			...
-		with test('second') :
-			...
-		db.close()
+    with test('group') :
+        db = sqlite3.connect('test.db')
+        with test('first') :
+            ...
+        with test('second') :
+            ...
+        db.close()
 
  - arbitrarily deep nesting:  By nesting "with test()" statements, you
    can build aribitrarily deep test hierarchies, if it is suitable for your
@@ -302,31 +302,31 @@ dots
 minipyt is normally silent when it runs tests.  If you want it to print dots,
 you can
 
-	- set the environment variable PDK_DOTS
+    - set the environment variable PDK_DOTS
 
-	- set the module variable minipyt_dots_mode
+    - set the module variable minipyt_dots_mode
 
 to one of these values:
 
-	- a zero-length string gives the default behaviour
+    - a zero-length string gives the default behaviour
 
-	- 'S' shows a dot for each passing test and the status for any
-	  non-passing test
-	  
-	- 'N' shows a dot for each passing test and the test name and
-	  status for any non-passing test
+    - 'S' shows a dot for each passing test and the status for any
+      non-passing test
+      
+    - 'N' shows a dot for each passing test and the test name and
+      status for any non-passing test
 
-	- 'O show a dot for each passing test and the test name, status, and
-	  output for any non-passing test
+    - 'O show a dot for each passing test and the test name, status, and
+      output for any non-passing test
 
 If you specify both the environment variable and the module variable, the
 module variable takes precedence.::
 
-	# no dots
-	minipyt_dots = ''
+    # no dots
+    minipyt_dots = ''
 
-	# show dots
-	minipyt_dots = 'S'
+    # show dots
+    minipyt_dots = 'S'
 
 
 prevent using nose by mistake
@@ -335,8 +335,8 @@ prevent using nose by mistake
 nose should recognize and execute most minipyt tests, but you can explicitly
 prevent using a test file with nose by::
 
-	import pandokia.helpers.minipyt as mph
-	mph.noseguard()
+    import pandokia.helpers.minipyt as mph
+    mph.noseguard()
 
 ``noseguard()`` raises an exception if 'nose' is in sys.modules.
 
@@ -361,15 +361,15 @@ minipyt
 
 These decorators are available in pandokia.helpers.minipyt:
 
-	- ``test``
+    - ``test``
 
-		marks a function or class as a test, even if the name
-		does not otherwise look like a test
+        marks a function or class as a test, even if the name
+        does not otherwise look like a test
 
-	- ``nottest``
+    - ``nottest``
 
-		marks a function or class as not a test, even if the
-		name looks like it should be a test
+        marks a function or class as not a test, even if the
+        name looks like it should be a test
 
 All work on both functions, classes, and methods.
 
@@ -378,22 +378,22 @@ nose
 
 Many nose decorators work in minipyt tests.::
 
-	import nose.tools
+    import nose.tools
 
-	@nose.tools.raises(IOError)
-	def test_mine() :
-		...
+    @nose.tools.raises(IOError)
+    def test_mine() :
+        ...
 
 These decorators are known to work:
 
-	- ``nose.tools.raises``
+    - ``nose.tools.raises``
 
-	- ``nose.tools.timed``
+    - ``nose.tools.timed``
 
-	- ``nose.tools.with_setup`` (on test functions only, not class
-	  methods)
+    - ``nose.tools.with_setup`` (on test functions only, not class
+      methods)
 
-	- ``nose.tools.nottest``
+    - ``nose.tools.nottest``
 
-	- ``nose.tools.istest``
+    - ``nose.tools.istest``
 

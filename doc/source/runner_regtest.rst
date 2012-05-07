@@ -25,10 +25,10 @@ Test Execution
 This runner uses PyRAF to execute IRAF tasks.  Before executing the tasks
 under test, it loads these IRAF packages::
 
-	fitsio
-	images
-	stsdas
-	tables
+    fitsio
+    images
+    stsdas
+    tables
 
 In the test definition, it lists one or more output files.  Each output file
 is compared to a reference file.  If all match (within the parameters of the

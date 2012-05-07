@@ -6,10 +6,10 @@ shell_runner (various languages) - shell scripts or simple programs
 
 :abstract:
 
-	``shell_runner`` executes a shell script or simple program
-	that contains a single test.  The exit status of the script
-	is the test result.  For ``sh``, there are helper functions
-	to compare files and report test attributes.
+    ``shell_runner`` executes a shell script or simple program
+    that contains a single test.  The exit status of the script
+    is the test result.  For ``sh``, there are helper functions
+    to compare files and report test attributes.
 
 .. contents::
 
@@ -21,12 +21,12 @@ of the test is the name the test file with the extension removed.
 
 The exit status of the script is the status of the test:
 
-	- exit code 0 is Pass
+    - exit code 0 is Pass
 
-	- exit code 1-127 is Fail
+    - exit code 1-127 is Fail
 
-	- exit code 128-255 is Error (this range of exit codes is normally
-	  associated with a process that exits due to an un-trapped signal.)
+    - exit code 128-255 is Error (this range of exit codes is normally
+      associated with a process that exits due to an un-trapped signal.)
 
 The entire stdout and stderr of the script are captured and reported in
 the test result.
@@ -42,16 +42,16 @@ Special helper functions are available in sh, bash, and compatible shells:
 
 Your script can create an output file and compare it to a reference file.::
 
-	init_okfile
+    init_okfile
 
-	testfile cmp  $file
-	testfile diff $file
+    testfile cmp  $file
+    testfile diff $file
 
-	exit $teststatus
+    exit $teststatus
 
 Your script can report attributes::
 
-	bug: not implemented
+    bug: not implemented
 
 csh
 -------------------------------------------------------------------------------

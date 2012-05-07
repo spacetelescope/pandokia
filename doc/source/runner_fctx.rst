@@ -6,7 +6,7 @@ fctx (C) - C unit testing
 
 :abstract:
 
-	Pandokia can use fctx 1.6.1 to test code written in C.
+    Pandokia can use fctx 1.6.1 to test code written in C.
 
 Overview
 -------------------------------------------------------------------------------
@@ -20,26 +20,26 @@ program instead of FCT_BGN and FCT_END.
 
 Here is a simple example: ::
 
-	#include "pandokia_fct.h"
+    #include "pandokia_fct.h"
 
-	CL_FCT_BGN()
-	{
-		FCT_QTEST_BGN(test_name_1)
-		{
-			printf("This test will pass\n");
-			fct_chk(1);	// pass
-		}
-		FCT_QTEST_END();
+    CL_FCT_BGN()
+    {
+        FCT_QTEST_BGN(test_name_1)
+        {
+            printf("This test will pass\n");
+            fct_chk(1);    // pass
+        }
+        FCT_QTEST_END();
 
-		FCT_QTEST_BGN(test_name_2)
-		{
-			printf("This test will fail\n");
-			fct_chk(0);	// fail
-		}
-	 	FCT_QTEST_END();
+        FCT_QTEST_BGN(test_name_2)
+        {
+            printf("This test will fail\n");
+            fct_chk(0);    // fail
+        }
+         FCT_QTEST_END();
 
-	}
-	CL_FCT_END()
+    }
+    CL_FCT_END()
 
 This example is minimal.  You can also use the more advanced features, such
 as fixtures, suites, conditional tests, and advanced checks.  See the FCTX
@@ -53,13 +53,13 @@ The files fct.h (the fctx test framework) and pandokia_fct.h (the
 pandokia logger) are included in the pandokia distribution.  The
 command ::
 
-	pdk maker
+    pdk maker
 
 will say the name of the directory where you can find the files.
 So, for example, if you paste the example code above into mytest.c,
 you can compile it with: ::
 
-	cc -o mytest -I`pdk maker` mytest.c 
+    cc -o mytest -I`pdk maker` mytest.c 
 
 Running the test program outside Pandokia
 -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ Running the test program outside Pandokia
 A compiled test program is a normal FCTX test.  You can just run
 it to see output in the FCTX format. ::
 
-	./mytest
+    ./mytest
 
 If the test program sees the environment variable PDK_FILE, the
 Pandokia logger will assume it is being run by pandokia and take
@@ -76,7 +76,7 @@ over the logging function.
 You can explicitly ask it to make pandokia output by specifying
 "--logger pdk". ::
 
-	./mytest --logger pdk
+    ./mytest --logger pdk
 
 The pandokia plugin does not accept any command line parameters;
 it takes values from the environment, or it uses defaults.  The
@@ -91,14 +91,14 @@ then define the test something like this:
 
 pdk_runners: ::
 
-	*.fctx	run
+    *.fctx    run
 
 xyzzy.fctx: ::
 
-	#!/bin/sh
-	# This file must be here and executable for pandokia to know about
-	# the test, but it just runs the actual test program.
-	/install/dir/mytest
+    #!/bin/sh
+    # This file must be here and executable for pandokia to know about
+    # the test, but it just runs the actual test program.
+    /install/dir/mytest
 
 The names of the tests will be prefixed with the base name of the
 file that pandokia finds, not the name of the executable that
@@ -115,15 +115,15 @@ for you.
 
 pdk_runners: ::
 
-	*.c	maker
+    *.c    maker
 
 mytest.c: ::
 
-	/*
-	* $ cc -o mytest -I`pdk maker` mytest.c
-	* $ ./mytest
-	*/
-	... rest of the C code for your test ...
+    /*
+    * $ cc -o mytest -I`pdk maker` mytest.c
+    * $ ./mytest
+    */
+    ... rest of the C code for your test ...
 
 
 Capture of stdout/stderr

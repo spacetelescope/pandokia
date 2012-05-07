@@ -4,31 +4,31 @@ What are the contents of a test result?
 There is one test_result each time we run a specific test.
 The fields can be categorized as follows::
 
-	Type: This set of fields identifies a type of test::
-		project
-		test_runner
-		test_name
+    Type: This set of fields identifies a type of test::
+        project
+        test_runner
+        test_name
 
-	Identity: this set of fields identifies a single test_result record::
-		test_run
-		host
-		project
-		test_name
+    Identity: this set of fields identifies a single test_result record::
+        test_run
+        host
+        project
+        test_name
 
-	Required: This set of fields is required::
-		test_run
-		project
-		test_name
-		status
+    Required: This set of fields is required::
+        test_run
+        project
+        test_name
+        status
 
         Optional: All other recognized fields::
-	       location     (of the test file)
-	       test_runner  (used to run the test)
-	       log          (stdout/stderr logs)
-	       start_time
-	       end_time
-	       tda_*
-	       tra_* 
+           location     (of the test file)
+           test_runner  (used to run the test)
+           log          (stdout/stderr logs)
+           start_time
+           end_time
+           tda_*
+           tra_* 
 
 An unrecognized field will not cause an error, but will not be
 imported into the database.
@@ -78,23 +78,23 @@ result.
 Other than the identity, there is only one required field:
 
 - status tells us what happened with the test
-	P = passed
-		the test observed whatever it expected
-	F = fail
-		we ran the test, but it failed
-	E = error
-		For some reason, we could not complete the test.
-		We distinguish this from Fail because an error
-		indicates a problem with the test, not a problem
-		with the software being tested.
-	D = disabled
-		We asked not to run the test.  We report this
-		so that the test is not Missing.
-	M = missing
-		We did not receive a report, but expected one.
-		You don't normally report Missing in a test result
-		file, but this condition can be detected later in
-		the database.
+    P = passed
+        the test observed whatever it expected
+    F = fail
+        we ran the test, but it failed
+    E = error
+        For some reason, we could not complete the test.
+        We distinguish this from Fail because an error
+        indicates a problem with the test, not a problem
+        with the software being tested.
+    D = disabled
+        We asked not to run the test.  We report this
+        so that the test is not Missing.
+    M = missing
+        We did not receive a report, but expected one.
+        You don't normally report Missing in a test result
+        file, but this condition can be detected later in
+        the database.
 
 There are various optional fields:
 
@@ -111,14 +111,14 @@ There are various optional fields:
 
   Two formats are supported for these timestamps::
 
-	- time_t (seconds since 1970)
-	  may be floating point for fractions of a second
+    - time_t (seconds since 1970)
+      may be floating point for fractions of a second
 
-	- YYYY-MM-DD HH:MM:SS.sss
-	  The output from 
-	     date '+%Y-%m-%d %H:%M:%S'
-	  matches this format.  All times in this format are assumed
-	  to be local time.
+    - YYYY-MM-DD HH:MM:SS.sss
+      The output from 
+         date '+%Y-%m-%d %H:%M:%S'
+      matches this format.  All times in this format are assumed
+      to be local time.
 
 - location is just some information for a developer who has to diagnose
   a problem with a test.  Since we have 5 projects spread over 8 

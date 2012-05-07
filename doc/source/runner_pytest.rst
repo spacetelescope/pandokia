@@ -6,7 +6,7 @@ pytest (Python) - py.test
 
 :abstract:
 
-	Pandokia can use py.test 2.2 to run tests.
+    Pandokia can use py.test 2.2 to run tests.
 
 .. contents::
 
@@ -18,15 +18,15 @@ you use Pandokia to run a test with py.test.
 
 You can run py.test with the Pandokia plugin by using the special program pdkpytest::
 
-	pdkpytest foo.py
+    pdkpytest foo.py
 
 You can declare the plugin by one of the methods known to py.test, but you
 must say --pdk to enable it::
 
-	setenv PYTEST_PLUGINS pandokia.helpers.pytest_plugin
-	py.test --pdk foo.py
+    setenv PYTEST_PLUGINS pandokia.helpers.pytest_plugin
+    py.test --pdk foo.py
 
-	py.test -p pandokia.helpers.pytest_plugin --pdk foo.py
+    py.test -p pandokia.helpers.pytest_plugin --pdk foo.py
 
 Enabling the plugin always cause a PDK_LOG file to be created, but you
 can ignore it.
@@ -44,14 +44,14 @@ declares that some files should be run with the runner `pytest`.
 The most convenient way to do it is to declare that all python files
 should be run with py.test::
 
-	*.py	pytest
+    *.py	pytest
 
 You can also mix py.test, nose, and other test runners::
 
-	a.py	pytest
-	b*.py	nose
-	c*.py	minipyt
-	d*.py	pytest
+    a.py	pytest
+    b*.py	nose
+    c*.py	minipyt
+    d*.py	pytest
 
 .. index:: single: timeout; py.test
 
@@ -60,10 +60,10 @@ Test timeouts
 
 You can define timeouts for individual tests like this::
 
-	@pytest.mark.timeout(3)
-	def test_foo() :
-		# this test always times out
-		time.sleep(6)
+    @pytest.mark.timeout(3)
+    def test_foo() :
+        # this test always times out
+        time.sleep(6)
 
 The timeout is always specified in seconds.  If the test runs longer
 than that, the plugin will trigger SIGALRM that will raise an exception.
@@ -86,8 +86,8 @@ Knowing your test name
 You can tell your test function the name that Pandokia knows it by
 like this::
 
-	def test_foo(pdk_test_name) :
-		print "My pandokia test name is: ", pdk_test_name
+    def test_foo(pdk_test_name) :
+        print "My pandokia test name is: ", pdk_test_name
 
 You could use this in data that is reported outside the Pandokia system.
 For example, when we test a web app, we sometimes include the test name

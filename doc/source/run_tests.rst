@@ -1,5 +1,5 @@
 .. index::
-	single: running tests
+    single: running tests
 
 ================================================================================
 Using Pandokia To Run Tests
@@ -29,7 +29,7 @@ Using Pandokia To Run Tests
 .. contents::
 
 .. index::
-	single: running tests; overview
+    single: running tests; overview
 
 Simple Overview
 --------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ tests in that file.  It runs the tests even if the .disable file
 exists.
 
 .. index::
-	single: running tests; environment variables
+    single: running tests; environment variables
 
 pdk run arguments and environment variables
 --------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ pdkrun can run multiple processes concurrently.  To see a report
 of what is currently running, you can enter this command in the
 directory where you started the tests ::
 
-	pdk runstatus
+    pdk runstatus
 
 This clears the screen and shows three columns of information ::
 
