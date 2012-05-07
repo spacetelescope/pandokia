@@ -61,7 +61,6 @@ def check_valuable(test_run) :
 #
 
 def delete_background_step( n = 200, verbose=False ) :
-    verbose=1
     start = time.time()
     if verbose :
         print "select"
