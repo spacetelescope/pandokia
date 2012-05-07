@@ -12,8 +12,8 @@ expected_results = [
     #
     # remember the db access library automatically converts things that look like numbers to float
 
-	( 'pdkrun_test_data/regtest/3',
-		{ 'status' : 'P', 'tda_title' : 'testfiles 3', 'tda__okfile' : anything },
+    ( 'pdkrun_test_data/regtest/3',
+        { 'status' : 'P', 'tda_title' : 'testfiles 3', 'tda__okfile' : anything },
             [ 'testfiles 3 ok',
                '[.] Test title: testfiles 3',
                ' ascii comparison passed for test_3.ref and test_3.out' 
@@ -21,8 +21,8 @@ expected_results = [
     ),
 
 
-	( 'pdkrun_test_data/regtest/4',
-		{ 'status' : 'F', 'tda_title' : 'testfiles 4', 'tda__okfile' : anything },
+    ( 'pdkrun_test_data/regtest/4',
+        { 'status' : 'F', 'tda_title' : 'testfiles 4', 'tda__okfile' : anything },
             [ 'testfiles 4 ok',
                '[.] Test title: testfiles 4',
                 'ascii comparison FAILED',
