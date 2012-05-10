@@ -97,4 +97,4 @@ install: 	html
 	cd build/html; cp -r . $(installdest)
 
 version.txt: ../pandokia/__init__.py
-	PYTHONPATH=../pandokia:$(PYTHONPATH) python -c 'import pandokia ; print pandokia.__version__' > version.txt
+	PYTHONPATH=../pandokia:$(PYTHONPATH) python -c 'import pandokia ; print pandokia.__version__ ; print "automatically generated" ' > version.txt

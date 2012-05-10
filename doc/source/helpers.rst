@@ -1,10 +1,6 @@
 ================================================================================
-Helper Functions and Useful Patterns
+Useful Patterns and Helper Functions
 ================================================================================
-
-:abstract:
-
-    Pandokia provides some helper functions to make it easier to 
 
 .. toctree::
 

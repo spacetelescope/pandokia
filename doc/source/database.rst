@@ -44,7 +44,7 @@ The directory and the database files must be writable to
 
 Enter the name of the database in config.py, then ::
 
-    sqlite3 /path/to/database/file.db < pandokia/sql/sqlite.sql
+    pdk sql pandokia/sql/sqlite.sql
 
 TODO: ref to editing config file
 
@@ -62,12 +62,23 @@ Initializing the database : MySQL
 
 TODO: describe using mysql
 
+Enter the access credentials in config.py, then: ::
+
+    pdk sql pandokia/sql/mysql.sql
+
 TODO: describe grants
 
 Initializing the database : Postgres
 ...........................................
 
-TODO: describe using mysql
+
+Note:  The postgres support is not as actively maintained as mysql.
+
+TODO: describe using postgres
+
+Enter the access credentials in config.py, then: ::
+
+    pdk sql pandokia/sql/postgres.sql
 
 TODO: describe grants
 
