@@ -2,7 +2,7 @@
 .. index:: single: patterns; regtest; replacing
 
 ===============================================================================
-Replacing XML regtests with Python
+Python: Replacing XML regtests with Python
 ===============================================================================
 
 It is fairly easy to translate an XML stsci regest into python.  Here is an example.

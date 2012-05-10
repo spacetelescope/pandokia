@@ -2,7 +2,7 @@
 .. index:: single: patterns; regtest; new
 
 ===============================================================================
-Tests based on reference files
+Python: Tests based on reference files
 ===============================================================================
 
 :abstract:
@@ -156,10 +156,10 @@ you can give a more detailed definition: ::
     ]
 
 Available Comparators
-...............................................................................
+-------------------------------------------------------------------------------
 
 binary
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 This comparator checks that the files contain identical byte streams.
 It takes no additional args. ::
@@ -169,7 +169,7 @@ It takes no additional args. ::
     ]
 
 diff
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 This comparator uses difflib to make a unified diff of two text files.
 This comparator reads both entire files into memory. ::
@@ -195,7 +195,7 @@ some cases, json will write trailing spaces that are not significant. ::
 
 
 fits
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 This runs fitsdiff to compare the files. ::
 
@@ -223,7 +223,7 @@ regtest system, but the lists are specified as python lists like [
 
 
 text
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 This is the text comparison from the stsci XML regtest system.  It
 does not make especially interesting diffs, but is has facilities
@@ -258,7 +258,7 @@ matches to the value " IGNORE ".
 
 
 user-defined comparators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+......................................................................
 
 You can provide your own comparison function before you call filecomp.compare_files(). ::
 
