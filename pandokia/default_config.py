@@ -158,6 +158,9 @@ runner_glob = [
     ( '*.py',               'nose'      ),      # nose on a file here
     ( 'test*.sh',           'shell_runner' ),   # single test in a shell script
     ( 'test*.csh',          'shell_runner' ),   # single test in a csh script
+    ( '*.pytest',           'pytest'    ),
+    ( '*.nose',             'nose'      ),
+    ( '*.minipyt',          'minipyt'   ),
     ( '*.xml',              'regtest'   ),      # legacy system used at STScI
     ( '*.shunit2',          'shunit2'   ),      # shunit2 with stsci hacks
     ( '*.c',                'maker'      ),     # compiled C unit tests (fctx)

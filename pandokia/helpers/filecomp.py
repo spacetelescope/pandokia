@@ -4,17 +4,12 @@ pandokia.helpers.filecomp - a general interface for intelligently
 
 contents of this module:
 
-    compare_files( list, okroot=None, tda=None )
-            list is a list of (filename, comparison_type)
+    compare_files( clist, okroot=None, tda=None )
+            clist is a list of (filename, comparison_type)
             okroot is the base name of the okfile.
             tda is a dict to update with the name of the okfile
 
             This function is probably what you want to use in your test.
-
-    command(str, env) 
-            portable way to run a shell command (the python library has
-            many ways to do this, but nearly all are deprecated.  This
-            interface is meant to use whichever one is in favor.)
 
     check_file( name, comparator, reference_file, header_message=None, 
         quiet=False, raise_exception=True, cleanup=False, ok_file_handle=None, 
@@ -38,7 +33,7 @@ contents of this module:
 
 '''
 
-__all__ = [ 'command', 'check_file', 'file_comparators', 'compare_files', 'ensure_dir' ]
+__all__ = [ 'check_file', 'file_comparators', 'compare_files', 'ensure_dir' ]
 
 import os
 import re
@@ -46,26 +41,7 @@ import sys
 import subprocess
 import difflib
 
-
-###
-### "portable" way to run a shell command.  Use this in your
-### tests to run a command
-###
-
-# The standard python library contains MANY methods for starting a
-# child process, but nearly all of them are deprecated.  When subprocess
-# becomes deprecated, we can update it once here instead of in every
-# test that anybody writes.
-
-# bug: capture stdout/stderr of child process and repeat it into
-# sys.stdout/sys.stderr (so nose can capture it).
-def command(s, env=None) :
-    sys.stdout.flush()
-    sys.stderr.flush()
-    r = subprocess.call(s, shell=True, env=env)
-    if r < 0 :
-        raise Exception("signal %d from %s"%(-r, s) )
-    return r
+import pandokia.helpers.process as process
 
 ###
 ### Various file comparisons
@@ -118,10 +94,17 @@ def cmp_example( the_file, reference_file, header_message, quiet, **kwargs ) :
             cleanup=True )
 
     '''
-    # You can see I just copied cmp_binary for an example.
     if ( not quiet ) and ( header_message is not None ) :
         sys.stdout.write(header_message)
-    r=command("cmp -s %s %s"%(the_file, reference_file))
+
+    safe_rm('filecomp.tmp')
+
+    # cmp command - only works on unix-like systems
+    r = process.run_process( [ "cmp", the_file, reference_file ],  output_file="filecomp.tmp" )
+
+    process.cat('filecomp.tmp')
+    safe_rm('filecomp.tmp')
+
     if r == 1:
         if not quiet :
             sys.stdout.write("file match error: %s\n"%the_file)
@@ -194,7 +177,7 @@ def cmp_binary( res, ref, msg, quiet, **kwargs ) :
 #
 # This uses fitsdiff from STSCI_PYTHON, an astronomical data analysis package
 #
-# http://www.stsci.edu/resources/software_hardware/pyraf/stsci_python
+# http://www.stsci.edu/institute/software_hardware/pyraf/stsci_python
 #
 
 def cmp_fits( the_file, reference_file, msg, quiet, **kwargs ) :
@@ -202,23 +185,41 @@ def cmp_fits( the_file, reference_file, msg, quiet, **kwargs ) :
     cmp_fits - compare fits files.  kwargs are passed through to fitsdiff
     '''
 
-    try :
-        # new package name in stsci_python >= 2.12
-        import stsci.tools.fitsdiff as fitsdiff
-    except :
-        import pytools.fitsdiff as fitsdiff
-
-    sys.stdout.write("FITSDIFF %s %s\n"%(the_file, reference_file))
     if quiet:
         sys.stdout.write("(sorry - fitsdiff does not know how to be quiet)\n")
 
-    d = fitsdiff.fitsdiff( the_file, reference_file, ** kwargs )
+    safe_rm('filecomp.tmp')
 
-    # fitsdiff returns nodiff -- i.e. 0 is differences, 1 is no differences
-    if d == 0 :
-        return False
-    else :
+    # fitsdiff does not know how to distinctively report that a reference
+    # file was missing (it gives the same status as for a failed match)
+    if not os.path.exists( reference_file ) :
+        e = IOError( 'No reference file: %s' % reference_file )
+        print e
+        raise e
+
+    # run fitsdiff externally - if you call it directly, it does
+    # weird things to the tests. (This will change with Erik's new
+    # fitsdiff API, but it isn't here yet.)
+
+    arglist = [ 'fitsdiff' ] 
+    if 'maxdiff' in kwargs :
+        arglist  = arglist + [ '-d',      str(kwargs['maxdiff'])    ]
+    if 'ignorekeys' in kwargs :
+         arglist = arglist + [ '-k', ','.join(kwargs['ignorekeys']) ]
+    if 'ignorecomm' in kwargs :
+        arglist  = arglist + [ '-c', ','.join(kwargs['ignorecomm']) ]
+    arglist = arglist + [ the_file, reference_file ]
+
+    print arglist
+    status = process.run_process( arglist, output_file="filecomp.tmp" )
+
+    process.cat('filecomp.tmp')
+    safe_rm('filecomp.tmp')
+
+    if status == 0 :
         return True
+    else :
+        return False
 
 ###
 ### text comparison
@@ -388,38 +389,46 @@ def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
     return False
 
 ###
-### 
+### use difflib to make a unified diff
 ###
 
+# diff two files
+
 def cmp_diff( fromfile, tofile, msg, quiet, **kwds ) :
-
-    if '-C' in kwds :
-        n = kwds['-C']
-    else :
-        n = 3
-
-    # The rest is basically "A command-line interface to difflib" from
-    # the python docs for difflib.
-    fromdate = time.ctime(os.stat(fromfile).st_mtime)
-    todate = time.ctime(os.stat(tofile).st_mtime)
     fromlines = open(fromfile, 'U').readlines()
     tolines = open(tofile, 'U').readlines()
+    rstrip = kwds.get( 'rstrip', False )
+    return difflist(fromlines, tolines, fromfile, tofile, quiet, msg, rstrip=rstrip)
 
-    diff = difflib.unified_diff(fromlines, tolines, fromfile, tofile,
-                                    fromdate, todate, n=n)
+# common code to perform/display results from the diff
 
+def difflist( fromlines, tolines, fromfile=None, tofile=None, quiet=False, msg=None, addnl=None, rstrip=False ) :
+    if rstrip :
+        fromlines  = [ x.rstrip() for x in fromlines  if x != '' ]
+        tolines    = [ x.rstrip() for x in tolines    if x != '' ]
+    diff = difflib.unified_diff(fromlines, tolines, fromfile, tofile, n=5)
     diff = list(diff)
     if len(diff) :
         if not quiet :
             if msg :
                 sys.stdout.write(msg)
-            sys.stdout.writelines(diff)
+            if addnl :
+                for x in diff :
+                    sys.stdout.write(x)
+                    sys.stdout.write(addnl)
+            else :
+                sys.stdout.writelines(diff)
             sys.stdout.write('========\n')
         return False
     else :
         return True
-    
 
+# compare the two json string representations - from strings in memory, not from files
+
+def diffjson( found, expected ) :
+    found    = found.split()
+    expected = expected.split()
+    return difflist( found, expected, fromfile="found", tofile="expected", rstrip=True )
 
 ###
 ### end of format-specific file comparison functions
@@ -432,9 +441,12 @@ def cmp_diff( fromfile, tofile, msg, quiet, **kwds ) :
 
 file_comparators = {
     'binary':       cmp_binary,
+    'diff':         cmp_diff,
     'fits':         cmp_fits,
     'text':         cmp_text,
-    'diff':         cmp_diff,
+
+    # compatibility with old regtest
+    'image':        cmp_fits,
 }
 
 ###
@@ -498,10 +510,7 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
     #Clean up file that passed if we've been asked to
     if r :
         if cleanup:
-            try:
-                os.unlink(name)
-            except Exception:
-                pass
+            safe_rm(name)
 
     #Update the okfile if the test failed
     else:
@@ -521,19 +530,51 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
 ### compare_file)
 ###
 
-def compare_files( list, okroot=None, tda=None ):
-    '''
-    compare_files( list, okroot=None, tda=None )
+# the user gives us a list of files to compare.  There are two ways
+# to specify them; this function normalizes them into a single
+# representation.
+def _normalize_list( l ) :
+    for x in range(len(l)) :
+        data = l[x]
+        if isinstance(data,tuple) :
+            newdata = { }
+            newdata['output']       = 'out/' + data[0]
+            newdata['reference']    = 'ref/' + data[0]
+            newdata['comparator']   = data[1]
+            if len(data) > 2 :
+                newdata['args']   = data[2]
 
-        list is a tuple of (filename, comparator, kwargs) 
+            l[x] = newdata
+            data = newdata
+
+        if not 'args' in data :
+            data['args']   = { }
+
+        if 'file' in data :
+            data['output'] = data['file']
+            del data['file']
+
+        ensure_dir( os.path.dirname(data['output'   ]) )
+        ensure_dir( os.path.dirname(data['reference']) )
+
+def delete_output_files( l ) :
+    _normalize_list( l )
+    for x in l :
+        safe_rm(x['output'])
+
+def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
+    '''
+    compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True )
+
+        clist is a tuple of (filename, comparator, args) 
             filename is the name of a file in the directory out/; it is
                 compared to a file of the same name in the directory ref/,
 
             comparator is the name of the comparator to use.  The default
                 system has 'text', 'binary', and 'fits'.
 
-            kwargs is a dict of keyword args to pass to comparator
-                function, or None.  You may omit kwargs if it is not needed.
+            args is a dict of keyword args to pass to comparator
+                function, or None.  You may omit args if it is not needed.
 
         okroot is the bas name of the okfile.  If present, an okfile named
             okroot+'.okfile' is created.  Normally, you would use the
@@ -542,33 +583,59 @@ def compare_files( list, okroot=None, tda=None ):
         tda is the tda dict.  If there is a tda dict and an okfile, the
             "_okfile" tda is set.
 
+	    tra is the tra dict.  If the file comparator is able
+            to put useful attributes in the tra, this will be used.
+
+        cleanup is true if it should delete output files from passing tests.
+
     In your code, you would write something like:
 
         x = compare_files(
-                list = [
+                clist = [
                     ( 'binary_output',  'binary' ),
                     ( 'text_output',    'binary', { 'ignore_date' : True } ),
                     ],
-                okroot= __file__ + '.testname',
+                okroot= ( __file__, 'testname' ),
                 tda=tda
                 )
 
-        if x :
-            raise x
+    The function call will compare all the files, then raise an
+    exception for one of the errors or assertions.
 
     '''
 
     # see if we are using an okfile; if we are, get it ready
     if okroot is not None :
+
+        if isinstance(okroot, tuple) :
+            # if it is a tuple, it is ( __file__, 'testname' );
+	        # chop it up and assemble a reasonable okfile name
+            ok_dir  = os.path.dirname(okroot[0])
+            ok_file = os.path.basename(okroot[0])
+            if ok_file.endswith('.py') :
+                ok_file = ok_file[:-3]
+            elif ok_file.endswith('.pyc') or ok_file.endswith('.pyo') :
+                ok_file = ok_file[:-4]
+            ok_test = okroot[1]
+            if ok_dir == '' :
+                ok_dir = '.'
+            okroot = ok_dir + "/okfile/" +ok_file + "." + ok_test
+
+        # construct the path name
         okfn = os.path.join(os.getcwd(), okroot + '.okfile')
+        ensure_dir( os.path.dirname(okfn) )
+
+        # remember it in the tda
         if tda is not None :
             tda['_okfile'] = okfn
-        try :
-            os.unlink(okfn)
-        except :
-            pass
+
+        #
+        safe_rm(okfn)
+
+        #
         okfh = open(okfn, 'w')
     else :
+        # 
         okfh = None
 
     # ret_exc is the exception that the application should raise
@@ -578,18 +645,15 @@ def compare_files( list, okroot=None, tda=None ):
     # exception that is worse than what we have seen so far.
     ret_exc = None
 
-    for x in list :
-        # pick out file name, comparator type, kwargs (optional)
-        if len(x) > 2 :
-            name, type, kwargs = x
-        else :
-            name, type = x
-            kwargs = { }
-    
+    _normalize_list(clist)
+
+    for x in clist :
         # perform the comparison
         try :
-            print "\nCOMPARE:",name
-            check_file( name='out/'+name, cmp=type, ref='ref/'+ name, okfh=okfh, exc=True)
+            print "\nCOMPARE:",x['output']
+            check_file( name=x['output'], cmp=x['comparator'],
+                 ref=x['reference'], okfh=okfh, exc=True, cleanup=False, 
+                 **x['args'] )
 
         # assertion error means the test fails
         except AssertionError, e :
@@ -599,17 +663,31 @@ def compare_files( list, okroot=None, tda=None ):
 
         # any other exception means the test errors
         except Exception, e:
-            print "ERROR",str(e)
+            print "ERROR"
             if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :
                 ret_exc = e
+
+        else :
+            print "PASS"
 
     print ""
 
     # remember to close the okfile
-    okfh.close()
+    if okfh :
+        okfh.close()
 
-    # return the exception
-    return ret_exc
+    # raise the exception if there is one
+    if ret_exc :
+        raise ret_exc
+
+    # If we were asked to clean up the output files, do that now
+    # -- after we know there were no exceptions, so all the compares
+    # passed.
+    if cleanup :
+        for x in clist :
+            safe_rm(x['output'])
+
+    # done
 
 ###
 ### what os.makedirs should have been...
@@ -669,3 +747,19 @@ def assert_file_newer( f, other=None, days=0, hours=0 ) :
     ref_age = file_age_ref( other, days, hours )
     if f_age > ref_age :
         assert False, 'file %s is %s newer'%(f,t_to_s(f_age - ref_age))
+
+
+#####
+#####
+#####
+
+def safe_rm( fname ) :
+    if isinstance(fname, list) :
+        for x in fname :
+            safe_rm( x ) 
+    else :
+        try :
+            os.unlink( fname )
+        except OSError :
+            pass
+

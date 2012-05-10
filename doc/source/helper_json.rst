@@ -82,7 +82,7 @@ in the gui. ::
 
         # list of files to compare
         files = [ 
-                ( "test_1.txt", "diffjson" ) 
+                ( "test_1.txt", "diff", { 'rstrip' : True } ) 
             ]
 
         # delete output files before running test
