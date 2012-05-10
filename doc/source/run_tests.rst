@@ -7,7 +7,7 @@ Using Pandokia To Run Tests
 
 :abstract:
 
-        This document describes how to use the Pandokia Meta-Runner to
+        This describes how to use the Pandokia Meta-Runner to
         execute your tests.
 
         The Meta-Runner identifies tests, sets up an appropriate execution
@@ -18,10 +18,11 @@ Using Pandokia To Run Tests
         The Meta-Runner has provisions for enabling/disabling tests and
         for setting environment variables before the test is executed.
 
-        A Test-Runner is a Pandokia component that implements a standard
-        interface between the Meta-Runner and some specific test execution
-        software.  For example, the "nose" Test-Runner uses nose 0.11
-        (along with a nose plugin) to run tests.
+        A Test-Runner is a Pandokia component that implements a
+        standard interface between the Meta-Runner and some specific
+        test execution software.  There are several test runners
+        available.  For example, the "pytest" Test-Runner uses
+        py.test 2.2.1 (along with a plugin) to run tests.
 
         See adding_runners.rst for documentation on implementing your
         own Test-Runner for whatever testing systems you have.
@@ -34,6 +35,10 @@ Using Pandokia To Run Tests
 Simple Overview
 --------------------------------------------------------------------------------
 
+Typical usage is to create a directory tree that contains all the
+tests.  Every test has a unique name, and the path from the top of
+the directory tree to the file containing the test will be part of
+the name.
 
 There are three ways to run tests with the Pandokia Meta-Runner:
 
@@ -251,6 +256,11 @@ pdk_contacts
 
 Writing a nose test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TODO: move this into the runners_nose section
+
+TODO: refer to a directory of sample tests
+
 
 Pandokia will support any type of test that nose supports: unittests,
 doctests, and arbitrary test functions that raise assertion errors if

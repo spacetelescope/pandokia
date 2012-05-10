@@ -50,8 +50,10 @@ cursor = pdk_db.execute( statement, parameters )
     even if it occurs inside a string literal.
 
     It IS NOT permitted to have the character '%' in your sql,
-    even if it occurs inside a string literal.  (This limitation
-    is inherited from some of the DBAPI implementations.)
+    even if it occurs inside a string literal.  This limitation
+    is inherited from some of the DBAPI implementations.  Notably,
+    you cannot use LIKE 'xxx%' but you can use LIKE :1 and pass
+    a parameter of "xxx%".
 
 The return value is a cursor 
 
@@ -101,6 +103,7 @@ If you want to use this database access layer with another system:
     import pandokia.db_sqlite as dbdriver
 
     db = pandokia.db_sqlite.PandokiaDB( filename )
+        # filename is the same as you would use with sqlite3
 
 The object does not connect to the database when you create it.
 You can call db.open() to explicitly connect, or it will connect
@@ -117,20 +120,23 @@ so bad if you have a small number of tables.
 Dynamically constructed WHERE clauses
 -------------------------------------------------------------------------------
 
+where_dict is a function to dynamically construct WHERE clauses, based
+on a list of column names and values.
+
 The parameter to where_dict is a list of ( column_name, value ),
 where column_name is a required column name and value is a value
 to match.  All the columns are ANDed together.  If the value for
 a column is a list, the possible values are ORed together.
 
 The value may contain "\*x", "x\*", or "\*x\*", which will be converted
-to "%x", "x%", or "%x%".  Other glob-like characters are not
-permitted.
+to "%x", "x%", or "%x%" and used in a LIKE clause.  Other glob-like
+characters are not permitted.
 
-The value may contain '%' to cause a LIKE expression.  The '_'
+If the value contains '%', it will be used in a LIKE clause.  The '_'
 character does NOT create a LIKE expression because it is too common
 in our data values.
 
-There is no good way to search for literals containing \*, %, [, or ?
+There is no good way to search for values containing \*, %, [, or ? 
 
 Example: ::
 
@@ -138,7 +144,7 @@ Example: ::
         ( 'a', 1 ), 
         ( 'b', [ 'x', 'y' ] ),
         ( 'c', 'z*' )
-        ]
+        ] )
 
     c = pdk_db.execute("SELECT a,b FROM tb %s"%where_text, where_dict)
 
@@ -157,7 +163,7 @@ is equivalent to ::
 COMMIT / ROLLBACK
 -------------------------------------------------------------------------------
 
-Commit and rollback work the same; use the pandokia database object: ::
+Commit and rollback work the same as with dbapi; use the pandokia database object: ::
 
     pdk_db.commit()
 
@@ -198,6 +204,7 @@ way: ::
 In mysql, this is the sum of the table and index sizes from "SHOW TABLE STATUS".
 
 In sqlite3, this is the size of the database file.
+
 
 EXPLAIN QUERY
 -------------------------------------------------------------------------------

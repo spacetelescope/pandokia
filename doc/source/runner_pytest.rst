@@ -69,10 +69,10 @@ The timeout is always specified in seconds.  If the test runs longer
 than that, the plugin will trigger SIGALRM that will raise an exception.
 
 The plugin attempts to detect the application program setting a signal
-handler for SIGALRM.  If a signal handler already exists for SIGALRM,
-or if the test ends with a signal handler that is not the one that the
-plugin installed, the test will report an error.  The exception will
-identify the signal handling function.
+handler for SIGALRM.  If a signal handler already exists for SIGALRM
+when the test starts, or if the test ends with a signal handler
+that is not the one that the plugin installed, the test will report
+an error.  The exception will identify the signal handling function.
 
 Timeouts are not implemented on Windows.
 

@@ -8,6 +8,7 @@ Helper Functions and Useful Patterns
 
 .. toctree::
 
-    helper_json.rst
+    helper_reference.rst
     helper_exml.rst
+    helper_json.rst
 

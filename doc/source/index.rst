@@ -6,12 +6,6 @@
 Pandokia Documentation
 ======================
 
-*'All your test are belong to us'*
-
-This is the development version of the pandokia documentation.
-
-Contents:
-
 .. toctree::
     :maxdepth: 2
 

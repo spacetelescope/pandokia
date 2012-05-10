@@ -1,6 +1,10 @@
 Appendix: Importing Demo Data
 ==============================
 
+
+TODO: THIS CHAPTER IS PROBABLY OUT OF DATE
+
+
 After you have installed Pandokia on your system, you can follow this
 procedure to import the provided demo data into your database.
 

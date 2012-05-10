@@ -250,16 +250,6 @@ schema can be used to query the database, which is presently
 implemented in SQLite.
 
 
-Limitations
------------
-
-This project is still in development!
-Presently relies on UNIX-specific functionality for the discoverer and
-metarunner. 
-
-
-
-
 Authors
 -------
    Mark Sienkiewicz (STScI) and Vicki Laidler (CSC/STScI),

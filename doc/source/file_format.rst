@@ -1,6 +1,8 @@
 Pandokia Test Result File Format
 --------------------------------
 
+TODO: move this to Adding Test Runners section
+
 A test report file is a series of one ore more test result records, 
 with each record represented by several lines of ASCII text that
 comply with the following format::

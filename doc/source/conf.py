@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pandokia'
+project = u'Pandokia'
 copyright = u'2009-2011, Association of Universities for Research in Astronomy'
 
 # The version info for the project you're documenting, acts as replacement for
