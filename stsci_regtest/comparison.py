@@ -19,11 +19,6 @@ import re, os
 import datespec  # for ascii comparisons
 import tempfile  #}
 
-try :
-    import pytools.fitsdiff  as fitsdiff #} for fits comparisons
-except :
-    import stsci.tools.fitsdiff as fitsdiff
-
 import sys
 
 from pyraf import iraf      #}
@@ -119,7 +114,7 @@ class FitsComparison(ComparisonClass):
     def __init__(self,testfile, reffile, **kwds):
         ComparisonClass.__init__(self,testfile,reffile)
         self.type='fits'
-        self.fitsdiff_output=None
+        self.fitsdiff_output='fitsdiff.tmp'
         self.keylist=kwds.get('ignorekeys','')
         self.commlist=kwds.get('ignorecomm','')
         self.maxdiff=float(kwds.get('maxdiff',2.e-7))
@@ -128,12 +123,16 @@ class FitsComparison(ComparisonClass):
         """Call Fitsdiff with the appropriate things set"""
         status = 0
 
-        self.fitsdiff_output = tempfile.mktemp(".fitsdiff")
-        fitsdiff_path = fitsdiff.__file__
+        #
+        try :
+            os.unlink(self.fitsdiff_output)
+        except OSError :
+            pass
+
         # remove extra spaces from keywords
         self.commlist = self.commlist.strip()
-        command = "python %s -c '%s' -k '%s' -d %g -o %s %s %s" % \
-                  (fitsdiff_path,
+        command = "fitsdiff -c '%s' -k '%s' -d %g -o %s %s %s" % \
+                  (
                    self.commlist,   #change
                    self.keylist,    #change
                    self.maxdiff,
@@ -148,7 +147,7 @@ class FitsComparison(ComparisonClass):
             lines=fd.readlines()
             fd.close()
 
-            if lines[-1].strip() == "No difference is found.":
+            if status == 0 :
                 self.failed=False
             else:
                 self.failed=True
@@ -165,15 +164,6 @@ class FitsComparison(ComparisonClass):
 
         """
         pass
-##         fh.write("? \n")
-##         fh.write("? Fitsdiff comparison: %s \n"%fitsdiff.__version__)
-##         fh.write("? Test file: %s\n"%self.testfile)
-##         fh.write("? Reference file: %s\n"%self.reffile)
-##         fh.write("? Keyword(s) not to be compared: %s\n"%str(self.keylist))
-##         fh.write("? Keyword(s) whose comments not to be compared: %s\n"%str(self.commlist))
-##         fh.write("? Maximum difference to accept: %g\n"%self.maxdiff)
-##         fh.flush()
-
 
     def writeresults(self,fh):
         if self.failed:
