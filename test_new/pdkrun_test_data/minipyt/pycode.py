@@ -29,5 +29,26 @@ def test_plover() :
             # this test is named "plover.egg.hatch"
             assert 1
 
+    with pycode.test( 'emerald' ) :
+        print "just the emerald"
+
     print "that laid an egg"
+
+def test_banana() :
+    print "yellow"
+    with pycode.test( 'fruit' ) :
+        print "fruit"
+
+    with pycode.test( 'cesium' ) :
+        e.tra['cesium'] = 'high'
+        assert 0
+
+    with pycode.test( 'potassium' ) as e :
+        e.tra['potassium'] = 'high'
+
+        with pycode.test( 'radioactive' ) :
+            pass
+
+    with pycode.test( 'chocolate_coated' ) :
+        assert 'yum'
 

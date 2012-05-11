@@ -288,9 +288,6 @@ def peek_snarfed_stdout() :
 # the assert a).
 #
 
-# This variable is the stack of the tests that we are in.
-name_stack = [ ]
-
 # This variable is here so we don't have to pass our report object
 # all around.  Typically, there is only one report object that we
 # are using, so we let the user just stash it.  (If they screw it
@@ -369,10 +366,12 @@ class _pycode_with(object) :
             raise Exception("Object not reusable")
         self.expired = True
 
-        # Constructing our name.  It will be stacked on global
-	    # name_stack to obtain a more full test name.  In turn, that
-	    # name will be appended to PDK_PREFIX.
-        name_stack.append(self.name)
+        # Constructing our name.  It will be stacked on the minipyt
+	    # name stack to obtain a more full test name -- even
+	    # if we are not running in minipyt, that is where we store
+	    # the name.  In turn, that name will be appended to
+	    # PDK_PREFIX.
+        runner_minipyt.currently_running_test_name.append(self.name)
 
         # This takes a little explaining:  We might be running in
 	    # the context of minipyt.  (In fact, we probably are, but I
@@ -390,7 +389,6 @@ class _pycode_with(object) :
         # there are no non-None values in the minipyt name stack.
         self.full_name = '.'.join( 
             [ x for x in runner_minipyt.currently_running_test_name if x ] 
-            + name_stack 
         )
 
         # When we started.
@@ -408,7 +406,7 @@ class _pycode_with(object) :
     def __exit__(self, extype, exvalue, extraceback) :
 
         # take our name off the stack
-        if name_stack.pop() != self.name :
+        if runner_minipyt.currently_running_test_name.pop() != self.name :
             raise Exception("Internal inconsistency in pycode context manager - name stack is messed up")
 
         # If there is no exception, the test passes
