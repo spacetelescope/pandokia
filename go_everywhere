@@ -9,15 +9,16 @@ fi
 echo ok
 
 rm -rf log
+mkdir log
 
 for x in arzach banana bond cadeau herbert thor ssb
 do
 	echo XXXXX
 	echo $x
-	ssh $x "cd $wdir && ./go iraf > log/`hostname`.iraf && ./go irafx > log/`hostname`.irafx && ./go irafdev> log/`hostname`.irafdev "
+	ssh $x "cd $wdir && ./go iraf >& log/$x.iraf && ./go irafx >& log/$x.irafx && ./go irafdev>& log/$x.irafdev "
 done
 
 echo XXXXX
 echo arzach again - earlier python versions
-ssh arzach "cd $wdir && ./go irafdev 2.5.4 > log/`hostname`/irafdev.2.5.4 && ./go irafdev 2.6.5> log/`hostname`/irafdev.2.6.5 "
+ssh arzach "cd $wdir && ./go irafdev 2.5.4 >& log/$x.irafdev.2.5.4 && ./go irafdev 2.6.5 >& log/$x.irafdev.2.6.5 "
 
