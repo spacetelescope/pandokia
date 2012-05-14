@@ -1,4 +1,4 @@
-.. index:: single: patterns; xml; alternative for new tests
+v. index:: single: patterns; xml; alternative for new tests
 .. index:: single: patterns; regtest; new
 
 ===============================================================================
@@ -32,10 +32,11 @@ Here is a basic template that works in py.test, nose, and minipyt: ::
         testname = 'test_foo'
 
         # put this exact code here
-        global tda
+        global tda, tra
         tda = { }
+        tra = { }
 
-        # definition of output/reference files
+        # Define the list of output/reference files
         output = [
             ... details described below
             ]
@@ -43,11 +44,17 @@ Here is a basic template that works in py.test, nose, and minipyt: ::
         # Delete all the output files before starting the test.
         filecomp.delete_output_files( output )
 
-        # YOUR TEST CODE HERE
-        open("file","w").write("something\n")
+        # Run the code under test here
+        # CALCULATE SOME THINGS OR CALL SOME FUNCTIONS
+
+        # If the code under test isn't doing this already, write the results
+        # to one ore more output files (defined above) for comparison
+        f = open("out/file","w")
+        f.write("something\n")
+        f.close()               # be sure to close the output file
 
         # compare the output files - use this exact command
-        filecomp.compare_files( output, ( __file__, testname ), tda = tda,)
+        filecomp.compare_files( output, ( __file__, testname ), tda = tda, tra = tra )
 
 
 Here is a detailed commentary: ::
@@ -57,18 +64,24 @@ Here is a detailed commentary: ::
         # define your test name here
         testname = 'test_foo'
 
-The test name is used in the call to compare_files; it is used to create a unique file name that is used by the FlagOK feature. ::
+The test name is used in the call to compare_files; it is used to
+create a unique file name that is used by the FlagOK feature. ::
 
         # put this exact code here
-        global tda
+        global tda, tra
         tda = { }
+        tra = { }
 
-The tda is needed to report the location of the okfile.  You can also add your own attributes if you want. ::
+The tda is needed to report the location of the okfile. ::
 
         # definition of output/reference files
         output = [
             ... details described below
             ]
+
+You can also add your own attributes if you want.  If the code under test
+takes input parameters that make this test special, those input
+parameters are a good choice. ::
 
 You need a list of output files, reference files, and how to peform
 the comparison.  This is somewhat involved, so it is described
@@ -82,12 +95,17 @@ under test fails to produce an output file, it will be detected.
 (If you don't delete the output files, your comparison may see an
 old file that was left behind from a previous test run.) ::
 
-        # YOUR TEST CODE HERE
+        # Run the code under test here
+        # CALCULATE SOME THINGS OR CALL SOME FUNCTIONS
+
+        # If the code under test isn't doing this already, write the results
+        # to one ore more output files (defined above) for comparison
         f = open("out/file","w")
         f.write("something\n")
         f.close()               # be sure to close the output file
 
-Here, you would write some code that produces the output files.  This is your test. ::
+Here you exercise the code under test to produce output files.  The comparison of
+these files to the previously existing reference files is your test. ::
 
         # compare the output files - use this exact command
         filecomp.compare_files( output, ( __file__, testname ), tda = tda,)
@@ -99,12 +117,14 @@ is an error or AssertionError if one of the files does not match.
 Defining the list of output files - simple form
 ...............................................................................
 
-If you create your output files in the directory out/, then you can use this
-simple form.  Each element of the list is a tuple of ( filename,
-comparator, comparator_args ).  
 
-Your test should create the file name in the directory out/, but
-list only the base name of the output file.
+To use the simple form, you must create your output files in the directory out/, which will
+be created for you. 
+
+Each element of the list is a tuple of ( filename, comparator, comparator_args ).  
+
+Create the file in the directory out/, but list only the base name
+of the output file here.
 
 For example, if your test creates "out/xyzzy.fits", you can compare it to 
 "ref/xyzzy.fits" using fitsdiff: ::

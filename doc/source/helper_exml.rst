@@ -117,7 +117,8 @@ Translate to python: ::
         # The old regtest runner loads the IRAF tasks for tables,
         # stsdas, images, and fitsio.  Load as many of the IRAF tasks 
         # as you need.
-
+        #
+        # Skip this section if your test does not require pyraf/iraf.
         import pyraf        # not all tests need or want pyraf
         from pyraf.iraf import tables
         from pyraf.iraf import stsdas
