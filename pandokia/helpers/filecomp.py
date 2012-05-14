@@ -11,14 +11,6 @@ contents of this module:
 
             This function is probably what you want to use in your test.
 
-    check_file( name, comparator, reference_file, header_message=None, 
-        quiet=False, raise_exception=True, cleanup=False, ok_file_handle=None, 
-        **kwargs )
-            Compare a file to a reference file, using a specified comparator.
-            It can display header_message before the comparison, raise an
-            AssertionError if the files do not match, delete the input file
-            after comparison (cleanup), and write a pdk compliant okfile.
-
     file_comparators[ ]
             a dict that converts comparator names to a function that performs
             the comparison.  This is here so you can add your own comparators.
@@ -33,13 +25,14 @@ contents of this module:
 
 '''
 
-__all__ = [ 'check_file', 'file_comparators', 'compare_files', 'ensure_dir' ]
+__all__ = [ 'file_comparators', 'compare_files', 'ensure_dir' ]
 
 import os
 import re
 import sys
 import subprocess
 import difflib
+import traceback
 
 import pandokia.helpers.process as process
 
@@ -50,20 +43,14 @@ import pandokia.helpers.process as process
 ### false = different
 ###
 
-def cmp_example( the_file, reference_file, header_message, quiet, **kwargs ) :
+def cmp_example( the_file, reference_file, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, **kwargs ) :
     '''
-    cmp_example(  the_file, reference_file, header_message, quiet, **kwargs ) 
-
     This is an example of how to write your own file comparison function.
     See also the source code.
 
         the_file is the input file that we are testing.
 
         reference_file is the reference file that we already know to be correct.
-
-        header_message is printed before the comparison.  Use this if you want
-        to say something about what you are doing.  Notably, this is useful
-        if your comparison might print things.
 
         quiet is true to suppress all output.  Not all comparison functions
         are capable of this, because some of them use external packages
@@ -82,16 +69,7 @@ def cmp_example( the_file, reference_file, header_message, quiet, **kwargs ) :
     like:
         pandokia.helpers.filecomp.file_comparators['example'] = cmp_example
 
-    You can then use it by calling check_file:
-
-        from pandokia.helpers.filecomp import check_file
-
-        # simplest form
-        check_file('output_file.txt', 'example')
-
-        # more complex form - see check_file for detail
-        check_file('output_file.txt', 'example', msg='Example Compare:',
-            cleanup=True )
+    You can then use it by calling file_compare()
 
     '''
     if ( not quiet ) and ( header_message is not None ) :
@@ -118,7 +96,7 @@ def cmp_example( the_file, reference_file, header_message, quiet, **kwargs ) :
 ### binary file compare
 ###
 
-def cmp_binary( res, ref, msg, quiet, **kwargs ) :
+def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, **kwargs ) :
     '''
     cmp_binary - a byte-for-byte binary comparison; the files must
         match exactly.  No kwargs are recognized.
@@ -180,11 +158,15 @@ def cmp_binary( res, ref, msg, quiet, **kwargs ) :
 # http://www.stsci.edu/institute/software_hardware/pyraf/stsci_python
 #
 
-def cmp_fits( the_file, reference_file, msg, quiet, **kwargs ) :
+def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, maxdiff=None, ignorekeys=None, ignorecomm=None ) :
     '''
     cmp_fits - compare fits files.  kwargs are passed through to fitsdiff
     '''
 
+    if tda is not None :
+        tda[attr_prefix+'tda'] = 'TDA'
+    if tra is not None :
+        tra[attr_prefix+'tra'] = 'TRA'
     if quiet:
         sys.stdout.write("(sorry - fitsdiff does not know how to be quiet)\n")
 
@@ -202,12 +184,12 @@ def cmp_fits( the_file, reference_file, msg, quiet, **kwargs ) :
     # fitsdiff API, but it isn't here yet.)
 
     arglist = [ 'fitsdiff' ] 
-    if 'maxdiff' in kwargs :
-        arglist  = arglist + [ '-d',      str(kwargs['maxdiff'])    ]
-    if 'ignorekeys' in kwargs :
-         arglist = arglist + [ '-k', ','.join(kwargs['ignorekeys']) ]
-    if 'ignorecomm' in kwargs :
-        arglist  = arglist + [ '-c', ','.join(kwargs['ignorecomm']) ]
+    if maxdiff is not None :
+        arglist  = arglist + [ '-d', str(maxdiff)    ]
+    if ignorekeys is not None :
+         arglist = arglist + [ '-k', ','.join(ignorekeys) ]
+    if ignorecomm is not None :
+        arglist  = arglist + [ '-c', ','.join(ignorecomm) ]
     arglist = arglist + [ the_file, reference_file ]
 
     print arglist
@@ -275,7 +257,8 @@ def cmp_text_assemble_timestamp() :
 # It could probably make use of the standard python diff library 
 # instead.
 
-def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
+def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, **kwargs ) :
+
     '''
     cmp_text - compare files as text
 
@@ -394,10 +377,10 @@ def cmp_text( the_file, reference_file, msg, quiet, **kwds ) :
 
 # diff two files
 
-def cmp_diff( fromfile, tofile, msg, quiet, **kwds ) :
+def cmp_diff( fromfile, tofile, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, rstrip=False, **kwargs ) :
+
     fromlines = open(fromfile, 'U').readlines()
     tolines = open(tofile, 'U').readlines()
-    rstrip = kwds.get( 'rstrip', False )
     return difflist(fromlines, tolines, fromfile, tofile, quiet, msg, rstrip=rstrip)
 
 # common code to perform/display results from the diff
@@ -462,11 +445,12 @@ def update_okfile(okfh, name, ref):
 ### compare a single file
 ###
     
-def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
-                cleanup=False, okfh=None, **kwargs ) :
+def check_file( name, cmp, ref=None, msg=None, quiet=False, 
+                cleanup=False, okfh=None, attr_prefix=None, tda=None, tra=None, **kwargs ) :
     """
-    status = check_file( name, cmp, msg=None, quiet=False, exc=True,
-                         cleanup=False, okfh=None, **kwargs )
+    status = check_file( name, cmp, msg=None, quiet=False, 
+                         cleanup=False, okfh=None, tda=None, tra=None,
+                         **kwargs )
 
     name = file to compare
 
@@ -475,8 +459,6 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
     ref = file to compare against. If None, it lives in a ref/ dir
            under the dir containing the file to compare
 
-    exc=True: raise AssertionError if comparison fails
-
     cleanup=True: delete file "name" if comparison passes
 
     okfh is a file-like object to write the okfile information; it must
@@ -484,23 +466,17 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
 
     msg, quiet, **kwargs: passed to individual comparators
 
-    Returns: 
-       True if same
-       False if different (but raises exception if exc=True)
+    Returns True if same
+    Raises AssertionError if different
 
     """
     #Make sure we have a comparator
     if not cmp in file_comparators :
         raise ValueError("file comparator %s not known"%str(cmp))
 
-    #Construct the reference file if necessary
-    if ref is None:
-        ref = os.path.join(os.path.dirname(name),
-                           'ref',
-                           os.path.basename(name))
     #Do the comparison
     try:
-        r = file_comparators[cmp](name, ref, msg, quiet, **kwargs )
+        r = file_comparators[cmp](name, ref, msg=msg, quiet=quiet, attr_prefix=attr_prefix, tda=tda, tra=tra, **kwargs )
     #Catch exceptions so we can update the okfile
     except Exception:
         if okfh:
@@ -518,8 +494,8 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False, exc=True,
             update_okfile(okfh, name, ref)
 
         #Last of all, raise the AssertionError that defines a failed test
-        if exc :
-            raise(AssertionError("files are different: %s, %s\n"%(name,ref)))
+        raise(AssertionError("files are different: %s, %s\n"%(name,ref)))
+
     #and return the True/False (Pass/Fail) status
     return r
 
@@ -596,7 +572,8 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
                     ( 'text_output',    'binary', { 'ignore_date' : True } ),
                     ],
                 okroot= ( __file__, 'testname' ),
-                tda=tda
+                tda=tda,
+                tra=tra
                 )
 
     The function call will compare all the files, then raise an
@@ -647,12 +624,14 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
     _normalize_list(clist)
 
-    for x in clist :
+    for n, x in enumerate(clist) :
         # perform the comparison
         try :
             print "\nCOMPARE:",x['output']
             check_file( name=x['output'], cmp=x['comparator'],
-                 ref=x['reference'], okfh=okfh, exc=True, cleanup=False, 
+                 ref=x['reference'], okfh=okfh, cleanup=False, 
+                 attr_prefix='cmp_%d_'%n,
+                 tda=tda, tra=tra,
                  **x['args'] )
 
         # assertion error means the test fails
@@ -663,7 +642,8 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
         # any other exception means the test errors
         except Exception, e:
-            print "ERROR"
+            print "ERROR", e
+            traceback.print_exc()
             if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :
                 ret_exc = e
 
