@@ -39,7 +39,7 @@ def test_banana() :
     with pycode.test( 'fruit' ) :
         print "fruit"
 
-    with pycode.test( 'cesium' ) :
+    with pycode.test( 'cesium' ) as e :
         e.tra['cesium'] = 'high'
         assert 0
 
