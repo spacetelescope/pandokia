@@ -155,6 +155,9 @@ class FitsComparison(ComparisonClass):
         except Exception, e:
             raise OSError, "? Error running FITSDIFF: %s"%str(e)
 
+        # This unlink should work, or there is a problem
+        os.unlink(self.fitsdiff_output)
+
 
     def writeheader(self,fh):
         """ Since the FITS comparison is performed by invoking fitsdiff,
@@ -178,7 +181,6 @@ class FitsComparison(ComparisonClass):
     def cleanup(self):
         if not self.failed:
             iraf.imdelete(self.testfile,verify=iraf.no)
-        os.unlink(self.fitsdiff_output)
 
 class AsciiComparison(ComparisonClass):
     """Override methods for Ascii Comparison. Ignore keywords include:
