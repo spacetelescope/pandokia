@@ -144,7 +144,7 @@ class FitsComparison(ComparisonClass):
             status = os.system (command)
 
             fd=open(self.fitsdiff_output)
-            lines=fd.readlines()
+            sys.stdout.write(fd.read())
             fd.close()
 
             if status == 0 :
@@ -169,14 +169,8 @@ class FitsComparison(ComparisonClass):
         pass
 
     def writeresults(self,fh):
-        if self.failed:
-            fd=open(self.fitsdiff_output,'r')
-            fh.write("? \n")
-            for l in fd:
-                fh.write("? %s"%l)
-            fd.close()
-            fh.write("? \n")
-            fh.flush()
+        # we wrote the results already
+        pass
 
     def cleanup(self):
         if not self.failed:
