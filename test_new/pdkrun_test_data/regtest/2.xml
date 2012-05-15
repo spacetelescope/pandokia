@@ -1,0 +1,44 @@
+<regtest>
+<level>1</level>
+<title>testfiles 1 </title>
+<pre-exec>
+<command>
+import numpy
+import pyfits
+
+# from section 1.2.2 of the pyfits doc - create an image file
+data = numpy.arange(0,50)
+hdu = pyfits.PrimaryHDU(data) 
+hdulist = pyfits.HDUList( [ hdu ] )
+hdulist.writeto("out/test_2i.fits", clobber=True)
+
+# create a table file
+a1 = numpy.array(['NGC1001', 'NGC1002', 'NGC1003'])
+a2 = numpy.array([11.1, 12.3, 15.2])
+
+col1 = pyfits.Column(name='target', format='10A', array=a1)
+col2 = pyfits.Column(name='V_mag', format='E', array=a2)
+
+cols = pyfits.ColDefs([col1, col2])
+
+tbhdu = pyfits.new_table(cols)
+
+# the table file contains both the image and the table
+thdulist = pyfits.HDUList([hdu, tbhdu])
+thdulist.writeto('out/test_2t.fits', clobber=True)
+
+</command>
+</pre-exec>
+<output>
+	<val>
+		<file>out/test_2i.fits</file>
+		<reference>ref/test_2i.fits</file>
+		<comparator>fits</comparator>
+	</val>
+	<val>
+		<file>out/test_2t.fits</file>
+		<reference>ref/test_2t.fits</file>
+		<comparator>fits</comparator>
+	</val>
+</output>
+</regtest>

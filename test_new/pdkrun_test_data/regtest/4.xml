@@ -12,7 +12,7 @@ f.close()
 <output>
 	<val>
 		<file>test_4.out</file>
-		<reference>test_4.ref</file>
+		<reference>ref/test_4.out</file>
 		<comparator>ascii</comparator>
 	</val>
 </output>
