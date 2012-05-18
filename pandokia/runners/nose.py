@@ -37,7 +37,8 @@ def list( env ) :
     # Note that the PDK_TESTPREFIX is applied by the nose plugin, not us.
 
     # If this function is called, it is only once per process.
-    import pandokia.helpers.filecomp
+    import pandokia.helpers.process as process
+    import pandokia.helpers.filecomp as filecomp
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.
@@ -51,7 +52,7 @@ def list( env ) :
     # know that only one process can be running tests in a single directory.
     s='pdknose --pdk --with-doctest --doctest-tests --pdklog='+tmpfile+' --collect-only %(PDK_FILE)s' % env
 
-    pandokia.helpers.filecomp.command(s, env)
+    process.run_process(s.split(), env, output_file='pdknose.tmp' )
 
     # gather the names from pdk.log
     l = [ ]
@@ -64,7 +65,8 @@ def list( env ) :
     f.close()
 
     # clean up
-    os.unlink(tmpfile)
+    filecomp.safe_rm('pdknose.tmp')
+    filecomp.safe_rm(tmpfile)
 
     # return list
     return l
