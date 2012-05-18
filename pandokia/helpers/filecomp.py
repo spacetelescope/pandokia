@@ -4,25 +4,40 @@ pandokia.helpers.filecomp - a general interface for intelligently
 
 contents of this module:
 
+    delete_output_files( clist ) 
     compare_files( clist, okroot=None, tda=None )
-            clist is a list of (filename, comparison_type)
-            okroot is the base name of the okfile.
-            tda is a dict to update with the name of the okfile
-
-            This function is probably what you want to use in your test.
+        a function to compare output files to reference files
 
     file_comparators[ ]
-            a dict that converts comparator names to a function that performs
-            the comparison.  This is here so you can add your own comparators.
+        a dict that converts comparator names to a function that performs
+        the comparison.  This is here so you can add your own comparators.
 
     cmp_example( )
-            an example of how to make your own comparison function; this is
-            not actually used, but you can look at the docstring.
+        an example of how to make your own comparison function; this is
+        not actually used, but you can look at the docstring.
 
     ensure_dir( name )
-            make sure directory exists, creating if necessary.  (There is no
-            function like this in the python library.)
+        make sure directory exists, creating if necessary.  (There is no
+        function like this in the python library.)
 
+    safe_rm( name )
+    safe_rm( [ name, name, ... ] )
+        remove files, ignoring OSError
+
+    file_age( name ) 
+        return how long ago a file was modified
+
+    assert_file_newer( file1, file2 )
+    assert_file_newer( file1, file2 )
+    assert_file_older( file1, days=0, hours=0 ) :
+    assert_file_older( file1, days=0, hours=0 ) :
+        compare files modification times to other files or relative times
+
+    diffjson( s1, s2 )
+        show a unified diff of two json strings - does a string diff,
+        but ignoring trailing whitespace
+
+            
 '''
 
 __all__ = [ 'file_comparators', 'compare_files', 'ensure_dir' ]
@@ -163,10 +178,6 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     cmp_fits - compare fits files.  kwargs are passed through to fitsdiff
     '''
 
-    if tda is not None :
-        tda[attr_prefix+'tda'] = 'TDA'
-    if tra is not None :
-        tra[attr_prefix+'tra'] = 'TRA'
     if quiet:
         sys.stdout.write("(sorry - fitsdiff does not know how to be quiet)\n")
 
@@ -200,8 +211,10 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
 
     if status == 0 :
         return True
-    else :
+    elif status == 1 :
         return False
+    else :
+        raise Exception("fitsdiff error - exited %d"%status)
 
 ###
 ### text comparison
@@ -409,6 +422,7 @@ def difflist( fromlines, tolines, fromfile=None, tofile=None, quiet=False, msg=N
 # compare the two json string representations - from strings in memory, not from files
 
 def diffjson( found, expected ) :
+    '''diff two json strings'''
     found    = found.split()
     expected = expected.split()
     return difflist( found, expected, fromfile="found", tofile="expected", rstrip=True )
@@ -534,14 +548,19 @@ def _normalize_list( l ) :
         ensure_dir( os.path.dirname(data['reference']) )
 
 def delete_output_files( l ) :
+    '''Remove all the output files in a list intended for compare_files
+
+Use this at the start of a test to ensure that none of your output
+files already exist (so old files cannot mistakenly cause the test
+to pass), then use compare_files() at the end of your test.
+
+'''
     _normalize_list( l )
     for x in l :
         safe_rm(x['output'])
 
 def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
     '''
-    compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True )
-
         clist is a tuple of (filename, comparator, args) 
             filename is the name of a file in the directory out/; it is
                 compared to a file of the same name in the directory ref/,
@@ -628,9 +647,13 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
         # perform the comparison
         try :
             print "\nCOMPARE:",x['output']
+            attr_prefix = 'cmp_%d_'%n
+            for y in x['args'] :
+                tda[attr_prefix + y] = x['args'][y]
+            tda[attr_prefix + 'file'] = x['output']
             check_file( name=x['output'], cmp=x['comparator'],
                  ref=x['reference'], okfh=okfh, cleanup=False, 
-                 attr_prefix='cmp_%d_'%n,
+                 attr_prefix=attr_prefix,
                  tda=tda, tra=tra,
                  **x['args'] )
 
@@ -695,6 +718,7 @@ import os
 import time
 
 def file_age(f) :
+    'return the time from the last modification of the file to now, in seconds'
     st = os.stat( f )
     return time.time() - st.st_mtime
 
@@ -715,18 +739,35 @@ def t_to_s( sec ) :
     sec = sec - hours * 3600
     return '%d days %d:%02d:%02d'%(days,hours,min,sec)
 
-def assert_file_older( f, other=None, days=0, hours=0 ) :
-    f_age = file_age(f)
-    ref_age = file_age_ref( other, days, hours )
-    print "XX",f_age, ref_age
-    if f_age < ref_age :
-        assert False, 'file %s is %s older'%(f,t_to_s(ref_age - f_age))
+def assert_file_older( file1, file2=None, days=0, hours=0 ) :
+    '''file is older than a reference
 
-def assert_file_newer( f, other=None, days=0, hours=0 ) :
-    f_age = file_age(f)
-    ref_age = file_age_ref( other, days, hours )
+assert_file_older( 'a', 'b' )
+    raises exception if 'a' is not older than 'b'
+
+assert_file_older( 'a', days=1, hours=5 )
+    raises exception if 'a' is not older than 1 day 5 hours
+
+'''
+    f_age = file_age(file1)
+    ref_age = file_age_ref( file2, days, hours )
+    if f_age < ref_age :
+        assert False, 'file %s is %s older'%(file1,t_to_s(ref_age - f_age))
+
+def assert_file_newer( file1, file2=None, days=0, hours=0 ) :
+    '''file is newer than a reference
+
+assert_file_newer( 'a', 'b' )
+    raises exception if 'a' is not newer than 'b'
+
+assert_file_newer( 'a', days=1, hours=5 )
+    raises exception if 'a' is not newer than 1 day 5 hours
+
+'''
+    f_age = file_age(file1)
+    ref_age = file_age_ref( file2, days, hours )
     if f_age > ref_age :
-        assert False, 'file %s is %s newer'%(f,t_to_s(f_age - ref_age))
+        assert False, 'file %s is %s newer'%(file1,t_to_s(f_age - ref_age))
 
 
 #####
@@ -734,6 +775,18 @@ def assert_file_newer( f, other=None, days=0, hours=0 ) :
 #####
 
 def safe_rm( fname ) :
+    '''Remove a file, ignoring OSError
+
+safe_rm( filename )
+    removes a file
+
+safe_rm( [ f1, f2, f3 ... ] )
+    removes several files
+
+OSError is what you see when the file does not currently exist.
+You should structure your usage so that it does not matter if
+the remove fails because of permissions or some such.
+'''
     if isinstance(fname, list) :
         for x in fname :
             safe_rm( x ) 

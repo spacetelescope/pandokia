@@ -8,6 +8,17 @@ tdaIgnoreNames = ['mode','$nargs']
 tdaIgnoreValues = ['none','no','','indef']
 
 def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
+    '''run a task, using pyraf
+
+    taskname is the name of the task, as it is known to pyraf
+
+    pfile is the name of a parameter file
+
+    output_file is the name of stdout
+
+    tda: parameters from the pfile are recorded as attributes
+
+'''
     import pyraf
 
     try :
@@ -38,6 +49,16 @@ def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
 
 
 def run_process( arglist, env=None, output_file="output_file" ) :
+    '''run a process, collectig stdout and stderr to a file
+
+    arglist is a list that will be sys.argv for the new process.
+    arglist[0] is the name of the executable to run.
+
+    env is the environment to use (default is os.environ)
+
+    output_file is the name of the output file
+
+'''
     import subprocess
 
     sys.stdout.flush()
@@ -55,6 +76,11 @@ def run_process( arglist, env=None, output_file="output_file" ) :
 
 
 def cat( *l ) :
+    '''read a list of files and print to stdout
+
+cat( [ 'f1', 'f2' ] )
+
+'''
     for x in l :
         f = open(x,"r")
         while 1 :
