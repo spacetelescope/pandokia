@@ -267,12 +267,12 @@ If those methods are more convenient, you should use them.  Here are some
 features that can be an advantage of this approach:
 
  - the simplicity of linearly executing procedural code:  There are
-   no callbacks, no implicit ordering, no out-of-order setup/teardown
-   functions.  
+   no callbacks, no implicit ordering, no separate setup/teardown
+   functions to keep track of.  
 
  - you choose the test name; in a parameterized test or a generator,
    all the parameters to the test function are included in the test
-   name, even when they are not all relevant.  The pandokia plugings
+   name, even when they are not all relevant.  The pandokia plugins
    for pytest/nose cannot know which parameter values may be excluded
    from the name, so they include them all.
 
@@ -323,10 +323,10 @@ If you specify both the environment variable and the module variable, the
 module variable takes precedence.::
 
     # no dots
-    minipyt_dots = ''
+    minipyt.dots_mode = None
 
-    # show dots
-    minipyt_dots = 'S'
+    # show dots and the name+status of the non-passing test
+    minipyt.dots_mode = 'N'
 
 
 prevent using nose by mistake

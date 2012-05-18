@@ -81,7 +81,7 @@ The tda is needed to report the location of the okfile. ::
 
 You can also add your own attributes if you want.  If the code under test
 takes input parameters that make this test special, those input
-parameters are a good choice. ::
+parameters are a good choice.
 
 You need a list of output files, reference files, and how to peform
 the comparison.  This is somewhat involved, so it is described

@@ -2,109 +2,87 @@
 Overview
 ========
 
+
+
 Philosophy
 ----------
 
-You don't run tests because it is virtuous; you run tests because
-you need to see the results from those tests.  If you have many
-tests, the results can be difficult to manage.
+Pandokia is designed as a lightweight test management and reporting system. 
+It consists of loosely coupled set of components that:
 
-Pandokia is a system for displaying those test results.
+  - discover test files
+  - configure the test environment
+  - invoke test runners to run tests contained in test files
+  - import test results to a database
+  - identify missing test results
+  - display browsable (CGI) test reports from the database
 
-The two major subsystems are:
+Any test runner, reporting tool, or analysis tool that complies with
+the interface between components can participate in the system.
 
- - A web-based user interface for reporting.  It uses a CGI, so
-   there is no complicated server configuration.
-
- - An optional system for executing tests.  It can run tests in
-   py.test (python), nose (python), unittest2 (python), shunit2 (sh),
-   FCTX (C/C++), all in a single test run.  You can add your own
-   methods for executing other types of tests.
-
-   It is optional because the database ingest reads a simple text
-   format; anything that can produce pandokia-formatted data
-   can report test results.  (There is an experimental interface for
-   reading JUnit/XML data, but the pandokia format contains more
-   information.)
+Pandokia is a command line tool, invoked with a "pdk <verb>"
+pattern. "pdk --help" shows the available commands.
 
 We assume two primary use cases for Pandokia:
-
-  - continuous-integration batch runs of the whole system
+  - nightly or continuous-integration batch runs of the whole system
   - developer-driven manual runs of parts of the system
 
-The reports understand that you will run the same test code many
-times.  Each test result is identified by a unique tuple:
-
- - test_run is the name of this instance of running a batch of
-   tests.  The name is arbitrary, but often fits a pattern such as
-   "daily_2010-04-12" or "user_henry_ticket87".
-
- - project is a project name; a CI system may integrate tests from
-   several projects into a single report.
-
- - context identifies something about the environment where the
-   test was run.  We sometimes name contexts for the version of python
-   the test ran in, or for a particular system configuration.
-
- - host is which computer the test ran on.  Our CI system runs the
-   same tests on many different operating systems.
-
- - test_name is the name of a particular test.  The reporting system
-   understands that test names fit into a hierarchy, much like file
-   names.  Test names are arbitrary, but normally we name a test by
-   the directory where the test file is located, the name of the file
-   containing the test, and the name of a function/class that implements
-   the test.
-
-   The system assumes that you use the always use the same name for
-   the same test, so that you can compare results across test runs,
-   hosts, or contexts.
-
-After you ingest the test results into the database, there are reports
-that cover:
-
- - all currently known test runs
-
- - a tablar report of all information about a single test run, or
-   a project within that test run
-
- - a tree view of the results, with "drill down"
-
- - a summary of an arbitrary list of tests, with operators to
-   add/remove tests from the list and combine lists
-
- - details of a specific test, including captured stdout/stderr and
-   various values ("attributes") that the test reported
+Environment, configuration, and disabled tests are managed with
+special files, to make it as easy as possible for the developer.
 
 
-Supporting Software
--------------------
+Environment
+-----------
 
-For database support, you need one of:
+The environment that is passed in to the test runner can be customized
+for each directory of tests by creating a special file named
+pdk_environment. The environment specifications in these files are
+applied hierarchically: values set in a subdirectory will override
+values set at a higher level. The resulting environment will be
+merged with os.environ prior to running tests; in particular, any
+PATH environment variable is handled specially, and appended to
+(rather than overriding) existing values at a higher level.
 
- - if using MySQL as the database: MySQLdb 
- - if using Postgres as the database: psycopg2
- - if using Sqlite3 as the database: sqlite3 (usually included with Python) or pysqlite2
+The pdk_environment file is an INI-style file with named sections. The
+[default] section applies to all tests; additional sections based on
+operating system, machine architecture, or hostname may be included to
+further customize the execution environment.
 
-For running tests, any of these that you wish to use:
 
- - nose - http://readthedocs.org/docs/nose/
- - py.test - http://pytest.org/
- - pyraf - http://www.stsci.edu/institute/software_hardware/pyraf (used to run IRAF tasks)
- - shunit2 - specially modified version from http://stsdas.stsci.edu/shunit/
- - unittest2 - http://pypi.python.org/pypi/unittest2
- - FCTX - included in pandokia, but see also http://fctx.wildbearsoftware.com/ 
+Notification
+------------
+
+Each directory may also contain a file named pdk_contacts. This file
+should include the username or email address of individuals (one per
+line) who should be notified about anomalous results for tests
+contained in this directory. 
+
+These files are applied cumulatively: thus, a project manager can
+arrange to receive a notification email for all tests in a tree by
+modifying only the pdk_contacts file at the top of the tree, while
+individual developers can be listed at lower levels.
+
+
+Test identifiers
+----------------
+
+Tests are identified by the tuple (test_run, project, host,
+test_name). "Project" is an arbitrary basket containing some
+hierarchically ordered set of tests. Some test_runs can be given
+special names (eg, daily_YYYY-MM-DD). "Host" refers to the
+machine on which the tests were run.
+
 
 Test status
 -----------
 
 Pandokia presently supports the following statuses:
 
- - P = Passed
- - F = Failed
- - E = Error: there was a problem running the test
- - D = Disabled: test was directed to not run
- - M = Missing: test was expected to run, but no report was received
+ - P = Test passed
+ - F = Test failed
+ - E = Test ended in error; did not complete
+ - D = Test disabled: test was deliberately disabled
+ - M = Test missing: test was expected to run, but no report was received
 
 Tests can be disabled by developers. This can be useful for
 chronically failing tests, and for tests that were written and
@@ -122,14 +100,20 @@ because it once reported a result.
 Test attributes
 ---------------
 
-Pandokia can collect additional information beyond simple Pass/Fail by
-declaring "attributes".
+Pandokia can collect additional information through the population of
+test attributes.
 
 Test definition attributes (TDAs) can be used to record input parameters or
 other information about the definition of a test such as reference values.
 
-Test result attributes (TRAs) can be used to record more detailed results,
-such as computed values and magnitude of discrepancies.
+Test result attributes (TRAs) can be used to record more detailed results
+than a simple pass/fail status, such as computed values and
+discrepancies.
+
+Test configuration attributes (TCAs, planned for next release) 
+can be used to record values of environment variables, software
+versions for libraries that were used, and so on.
+
 
 The browsable report generator will optionally show these values for a
 selected set of tests, and will pull out all identical values for a

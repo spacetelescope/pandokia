@@ -44,7 +44,7 @@ Define the python code to interface with your runner
 
 For a runner named XYZ, you must create either the module *pandokia.runners.XYZ*
 (to build your runner into pandokia) or *pandokia_runner_XYZ* (to create your
-runner as a separately installable module).
+runner as a separately installable python module).
 
 For example, for *shell_runner*, you would create the file
 *pandokia/runners/shell_runner.py*.
