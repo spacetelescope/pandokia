@@ -31,6 +31,7 @@ python_commands = [
     'pdknose',                  # run nose with pdk plugin
     'pdkpytest',                # run py.test with pdk plugin
     'pdkrun',                   # like "pdk run"
+    'pdkjunit',                 # convert junit/xml to pandokia format
     'tbconv',                   # table conversion; not really part of testing
      ]
 
