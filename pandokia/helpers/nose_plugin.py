@@ -145,11 +145,16 @@ class Pdk(nose.plugins.base.Plugin):
         pass
 
     # nose calls addError(), addFailure(), or addSuccess() to report the status of a test
+    #
+    # status E and F both show a traceback, but NOT the exception because it does not
+    # display properly if we report it from err[0]; in write_report(), we pick up a
+    # better copy that displays nicely.
+
     def addError(self, test, err):
-        self.write_report( test, 'E', trace= ''.join( traceback.format_exception(*err) ) )
+        self.write_report( test, 'E', trace= ''.join( traceback.format_tb(err[2]) ) )
 
     def addFailure(self, test, err):
-        self.write_report( test, 'F', trace= ''.join( traceback.format_exception(*err) ) )
+        self.write_report( test, 'F', trace= ''.join( traceback.format_tb(err[2]) ) )
 
     def addSuccess(self,test):
         self.write_report( test, 'P' )
@@ -169,7 +174,7 @@ class Pdk(nose.plugins.base.Plugin):
 
         # For error status, remember the exception - we have to get it now before it
         # is lost due to another exception happening somewhere
-        if status == 'E' :
+        if ( status == 'E' ) or ( status == 'F' ) :
             try :
                 # this works in python 2.7 with updated unittest and
                 # recent versions of nose
@@ -181,6 +186,16 @@ class Pdk(nose.plugins.base.Plugin):
                 except AttributeError :
                     # Here's a fallback.
                     exc = 'test._exc_info not available'
+
+            # We have the stack trace in capt already, but we also
+	        # need the exception that caused it.  Now we have it, so
+            # we can show it in the captured output.
+            capt = capt + ( str(exc) + '\n' )
+
+            # suppress the tra_Exception when status=F
+            if status == 'F' :
+                exc = None
+
         else :
             exc = None
 
