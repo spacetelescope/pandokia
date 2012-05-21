@@ -305,15 +305,26 @@ class Pdk(nose.plugins.base.Plugin):
         # (Someday, it might be nice to use the start()/finish() interface
         # to the pycode reporter.  A crashed test run would leave just a
         # little more information in the pdk log.)
-        self.rpt.report(
-            test_name = name,
-            status = status,
-            start_time = pdktimestamp(self.pdk_starttime),
-            end_time   = pdktimestamp(self.pdk_endtime),
-            tda = tda,
-            tra = tra,
-            log = log,
-            )
+
+        if name == "nose.failure.Failure.runTest" :
+            # this is an error - it does not represent an identifiable test,
+            # so there is no point in reporting it.  The error will just
+            # become an expected result. If somebody contrives to
+            # get their test named this, I don't have a lot of sympathy.
+            pass
+        elif name.endswith("/nose.failure.Failure.runTest") :
+            # same thing, with a file/directory name in front of it
+            pass
+        else :
+            self.rpt.report(
+                test_name = name,
+                status = status,
+                start_time = pdktimestamp(self.pdk_starttime),
+                end_time   = pdktimestamp(self.pdk_endtime),
+                tda = tda,
+                tra = tra,
+                log = log,
+                )
 
 
     # nose calls finalize() after everything is finished
