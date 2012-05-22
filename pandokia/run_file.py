@@ -4,6 +4,7 @@ import sys
 import fnmatch
 import datetime
 import signal
+import errno
 
 import pandokia
 
@@ -23,53 +24,83 @@ import pandokia.runners
 #
 # find the file name patterns that associate a file name with a test runner
 #
-runner_glob_cache = { }
 
+
+# There is a default list of runners in the runners package
 runner_glob = pandokia.runners.runner_glob
+
+# you can override the default set of runners in the config file
 try :
-    runner_glob = runner_glob + pandokia.cfg.runner_glob
+    runner_glob = pandokia.cfg.runner_glob + runner_glob
 except AttributeError :
     pass
 
+# here is a cache of the runner specifications we found for each directory
+runner_glob_cache = { }
+
 def read_runner_glob ( dirname ) :
     # Find the list of file patterns and test runners that apply
-    # in a specific directory.  This is only called once per directory.
-    # The content of this file does NOT apply to more deeply nested
-    # directories.
+    # in a specific directory.
     #
     # return value is a list of ( file_pattern, test_runner )
     # 
+    dirname = os.path.abspath(dirname)
 
     # maybe we already know the answer
     if dirname in runner_glob_cache :
         return runner_glob_cache[dirname]
 
-    # try to read it from a file in the directory with the test
+    # we don't know, so we have to go looking.
+
+    # find the parent
+    parent = os.path.abspath( dirname + '/..' )
+
+    # work around a bug in os.path.abspath
+    parent = parent.replace('//','/')
+
+    if parent == dirname :
+	    # if the parent is the same, we are at the top of the
+	    # filesystem.  On linux, this looks like '/'.  On
+        # windows, this looks like 'Z:\'
+        parent_list = runner_glob
+
+    elif os.path.exists( dirname + '/pandokia_top' ):
+        # if we see pandokia_top, we are at the top of the test
+	    # tree.
+        parent_list = runner_glob
+
+    else :
+	    # otherwise, we need to get the list of runners from the
+	    # parent directory
+        parent_list = read_runner_glob( parent )
+
+    # now we have the list from the higher directories; try to 
+    # read the pdk_runners from the directory we are interested in.
     try :
         f=open(dirname+"/pdk_runners","r")
-    except :
-        # bug: no error handling - should distinguish file not found
-        # (IOError) from permission denied (IOError) or not-a-file
-        # (IOError)
-        return runner_glob
+    except IOError, e :
+        if e.errno == errno.ENOENT :
+            return parent_list
+        raise
 
     # read pairs from file
     # bug: no real error handling here
-    l = [ ]
+    here_list = [ ]
     for line in f :
         line = line.strip()
         if line.startswith("#"):
             continue
         line = line.split()
         if len(line) == 2 :
-            l.append( (line[0],line[1]) )
+            here_list.append( (line[0],line[1]) )
 
     # explicit close
     f.close()
 
     # the list we find in the file goes in front of the defaults from the config
-    l = l + runner_glob
+    l = here_list + parent_list
     runner_glob_cache[dirname] = l
+
     return l
 
 
