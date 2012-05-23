@@ -213,7 +213,8 @@ def default_test_run() :
     elif 'USERNAME' in os.environ :
         user = os.environ['USERNAME']
     else :
-        user = 'unknown'
+        import getpass
+        user = getpass.getuser()
     fmt = 'user_' + user + '_%Y-%m-%d-%H-%M-%S'
     d = d.strftime( fmt )
     print "DEFAULT TEST RUN",d
