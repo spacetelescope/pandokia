@@ -48,7 +48,7 @@ pdk_tra() {
 # natively, so we call it fail for shunit2 and then change the status
 # to E for pandokia.
 pdk_error() {
-	echo "PDK_ERROR called"
+	echo "PDK_ERROR"
  	_shunit_assertFail "$*"
 
 	# E is the most severe status, so we don't need to guard against

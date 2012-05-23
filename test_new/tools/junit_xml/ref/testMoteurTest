@@ -1,0 +1,57 @@
+
+
+START
+test_name=net.cars.engine.MoteurTest.hasBougie
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.MoteurTest.hasCarburatueur
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.MoteurTest.hasDelco
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.MoteurTest.hasDemareur
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.MoteurTest.hasPiston
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.MoteurTest.selfTest
+location=testresults/TEST-net.cars.engine.MoteurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END

@@ -1,6 +1,35 @@
+#! python
+"""junittopdk [options] FILES | pdk import -
+
+Convert junix/xml files into pandokia format.  This is an experimental
+feature.  It does not import directly into the database.
+
+These options exist to specify information that is not stored
+in the junit/xml data format:
+
+        -test_run   xxx
+        -host       xxx
+        -context    xxx
+        -project    xxx
+
+These other options exist:
+
+        -prefix xxx
+            put the specified prefix on the front of each test
+            name.
+
+        -h
+            show this message
+
+It is preferred to use a test runner that writes pandokia format
+if possible, because junit/xml does not collect all the data we
+want.
+
+"""
+
 # Convert junit/xml format into pandokia format
 #
-# pdkjunit [options] FILES | pdk import -
+# junittopdk [options] FILES | pdk import -
 #
 # You might run this on the machine where you ran the test and
 # then transmit the pandokia files to the server.
@@ -172,12 +201,12 @@ def data( d ) :
 
     elif d.strip() == '' :
         # there are tabs/spaces/newlines between the tags that do
-	    # not mean anything.
+        # not mean anything.
         pass
 
     else :
         # don't expect this -- if we get here, then this program
-	    # does not fully understand the data format
+        # does not fully understand the data format
         confused_about_junit_xml = True
         sys.stderr.write("# DATA OUTSIDE TEST %s\n"%d)
 
@@ -197,40 +226,44 @@ fd = sys.stdout
 ##### main program
 #####
 
-import pandokia.helpers.easyargs as easyargs
+if __name__ == '__main__' :
+    import pandokia.helpers.easyargs as easyargs
 
-opt, args = easyargs.get( {
-    '-test_run' :   '=',
-    '-host'     :   '=',
-    '-context'  :   '=',
-    '-project'  :   '=',
-    '-prefix'   :   '=',
-    '-h'        :   '',
-    }, sys.argv[1:] )
+    opt, args = easyargs.get( {
+        '-test_run' :   '=',
+        '-host'     :   '=',
+        '-context'  :   '=',
+        '-project'  :   '=',
+        '-prefix'   :   '=',
+        '-h'        :   '',
+        }, sys.argv[1:] )
 
-for x in args :
-    fd.write( "\n\nSTART\n" )
-    reset_state()
+    if opt['-h'] :
+        print __doc__
+        sys.exit(0)
 
-    other_data = ''
-    for y in ( 'test_run', 'host', 'context', 'project' ) :
-        if '-' + y in opt :
-            other_data += '%s: %s\n' % ( y, opt[ '-'+y ] )
+    for x in args :
+        fd.write( "\n\nSTART\n" )
+        reset_state()
 
-    if '-prefix' in opt :
-        test_prefix += opt['-prefix'] + '.'
+        other_data = ''
+        for y in ( 'test_run', 'host', 'context', 'project' ) :
+            if '-' + y in opt :
+                other_data += '%s: %s\n' % ( y, opt[ '-'+y ] )
 
-    parser = expat.ParserCreate( )
+        if '-prefix' in opt :
+            test_prefix += opt['-prefix'] + '.'
 
-    parser.StartElementHandler = start  # called for <thing x="1">
-    parser.EndElementHandler = end      # called for </thing>
-    parser.buffer_text = True           # make it call CharacterDataHandler only once
-    parser.CharacterDataHandler = data  # called for data
+        parser = expat.ParserCreate( )
 
-    location = x
-    print "---",x
-    parser.ParseFile( open(x) )
+        parser.StartElementHandler = start  # called for <thing x="1">
+        parser.EndElementHandler = end      # called for </thing>
+        parser.buffer_text = True           # make it call CharacterDataHandler only once
+        parser.CharacterDataHandler = data  # called for data
 
-    if confused_about_junit_xml :
-        sys.stderr.write("Your JUnit/XML data is not understood by this program.  This could mean your JUnit is corrupted, but it could mean that I do not fully understand this data format.\n")
-        sys.exit(2)
+        location = x
+        parser.ParseFile( open(x) )
+
+        if confused_about_junit_xml :
+            sys.stderr.write("Your JUnit/XML data is not understood by this program.  This could mean your JUnit is corrupted, but it could mean that I do not fully understand this data format.\n")
+            sys.exit(2)

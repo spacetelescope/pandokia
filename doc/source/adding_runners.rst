@@ -27,9 +27,15 @@ Describe file names for that kind of test
 --------------------------------------------------------------------------------
 
 Pandokia uses a wild card pattern to recognize all the files that belong to a
-particular test_runner.  These are listed in the configuration module pandokia.config
- 
-Choose your wildcard and add it to the list of patterns in the variable *runner_glob*::
+particular test_runner.  
+
+If you are adding a new runner to the pandokia source tree, change the value of runner_glob
+in pandokia/runners/__init__.py
+
+If you are adding your own runner, change the value of runner_glob in the installed module
+pandokia.config
+
+Choose your wildcard and add it to the list of patterns:
 
     runner_glob = [
     #   ( 'not_a_test*.py',     None        ),
@@ -49,14 +55,14 @@ runner as a separately installable python module).
 For example, for *shell_runner*, you would create the file
 *pandokia/runners/shell_runner.py*.
 
-In this file, you define the functions that Pandokia will call to use your runner.
+In this file, you define the functions that Pandokia will call to locate your runner.
 
 The functions are:
 
  - def command( env )
 
     The function *command* returns a command that pandokia should use to execute a test.  The parameters are all in
-    the dictionary *env*.  The returned command is used roughly like this::
+    the dictionary *env*, along with other environment variables.  The returned command is used roughly like this::
 
         p = subprocess.Popen(cmd, shell=True, env = env )
 
@@ -75,12 +81,12 @@ The functions are:
     a list of disabled tests to include in the pandokia log
     file.
 
-    If your test runner is not capable of listing the tests in
-    a file, return None.  In that case, disabled tests will not
-    be reported.
+    It is not always convenient to implement this feature.  If
+    it is not, return None.
 
-The parameter *env* is a dictionary of environment variables that would be used to execute the test.  Everything you need
-to know is stored in this environment.  
+The parameter *env* is a dictionary of environment variables that
+would be used to execute the test.  Everything you need to know is
+stored in this environment.
 
 The specific variables of interest are:
 
@@ -99,13 +105,17 @@ The specific variables of interest are:
 
     Your test runner should append test results to this file.
 
+ - PDK_TESTRUN
+
+    The name of the test run that this test execution is part of.
+
  - PDK_PROJECT
 
     The name of the project that this test execution is part of.
 
- - PDK_TESTRUN
+ - PDK_CONTEXT
 
-    The name of the test run that this test execution is part of.
+    The name of the context that this test is running in.  
 
  - PDK_TESTPREFIX
 
@@ -120,10 +130,6 @@ The specific variables of interest are:
     are not directly useful to a test_runner, but the system does not remove
     them from the environment.
 
- - PDK_CONTEXT
-
-    The name of the context that this test is running in.  
-
 Other environment variables are also present, either from the
 environment inherited from your shell or from the pdk_environment
 files.
@@ -134,8 +140,9 @@ Implement the command that runs your tests
 You must provide a program that actually runs the tests.  It should
 use arguments and/or environment variables to know what to do.
 
-You should APPEND data in pandokia log format (see doc/file_format.txt and
-doc/report_fields.txt) to the file named in $PDK_LOG.
+You should APPEND data in pandokia log format to the file named in $PDK_LOG.
+
+See doc/file_format.txt and doc/report_fields.txt for details of the report format.
 
 Before starting your program, pdkrun wrote some default values to
 the log file.  These are::
@@ -153,7 +160,8 @@ At a minimum, you must add::
     status
     END
 
-but you may also add other fields as described in doc/report_fields.txt.
+You may report values that override the defaults, and you may add
+other fields as described in doc/report_fields.txt.
 
 If you are writing in python, you can use the "reporter" object in
 pandokia.helpers.pycode to write to $PDK_LOG.

@@ -1,0 +1,27 @@
+junittopdk [options] FILES | pdk import -
+
+Convert junix/xml files into pandokia format.  This is an experimental
+feature.  It does not import directly into the database.
+
+These options exist to specify information that is not stored
+in the junit/xml data format:
+
+        -test_run   xxx
+        -host       xxx
+        -context    xxx
+        -project    xxx
+
+These other options exist:
+
+        -prefix xxx
+            put the specified prefix on the front of each test
+            name.
+
+        -h
+            show this message
+
+It is preferred to use a test runner that writes pandokia format
+if possible, because junit/xml does not collect all the data we
+want.
+
+

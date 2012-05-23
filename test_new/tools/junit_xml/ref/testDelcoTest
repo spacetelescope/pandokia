@@ -1,0 +1,12 @@
+
+
+START
+test_name=net.cars.engine.DelcoTest.rotate
+location=testresults/TEST-net.cars.engine.DelcoTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=P
+log:
+.
+
+END

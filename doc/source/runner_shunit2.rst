@@ -123,3 +123,67 @@ You can report tda/tra attributes with the pdk_tda or pdk_tra functions: ::
         pdk_tra foo
     }
 
+
+Using pdk_shell_runner_helper
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you do not have reference files: ::
+
+    . pdk_shell_runner_helper
+
+    test_name1() {
+        # must init the helper at start of each test
+        init
+
+        # declare any tda attributes
+        pdk_tda foo 1
+
+        # do something
+        thing=`echo X`
+
+        # report a test result
+        case "$thing"
+        in
+        pass)       
+                :       # do nothing special to indicate pass
+                ;;
+        fail)
+                fail    # regular shunit2 way of failing a test
+                ;;
+        *)
+                pdk_error # how to declare error to shunit2
+                ;;
+        esac
+
+        # declare any tra attributes
+        pdk_tra bar 2
+    }
+
+
+If you have reference files to compare: ::
+
+    . pdk_shell_runner_helper
+
+    test_name2() {
+        # You must init the helper at start of each test; this does all
+        # the regular init AND declares the okfile for tracking
+        # output/reference files.
+
+        init_okfile ${_shunit_test_}
+
+        # Make some output files.
+
+        echo hello > out/${_shunit_test_}.f1
+        echo world > out/${_shunit_test_}.f2
+
+        # Use testfile to compare the output to the reference file.
+        # testfile declares the pass/fail/error status to shunit2
+        # and pandokia.
+
+        testfile diff out/${_shunit_test_}.f1
+        testfile cmp  out/${_shunit_test_}.f2
+
+        # you can declare attributes
+        pdk_tda foo 1
+        pdk_tra bar 2
+    }

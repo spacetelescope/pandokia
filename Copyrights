@@ -81,3 +81,9 @@ delta.png, papa.png
 	of information that is common property and contains no original
 	authorship.
 
+
+The JUNIT/XML sample files in test_new/tools/junit_xml/testresults came from 
+http://junitpdfreport.sourceforge.net/ .  The source code contains
+the note "This software is OSI Certified Open Source Software", but
+otherwise contains no copyright notice.
+

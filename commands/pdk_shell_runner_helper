@@ -47,11 +47,17 @@ pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.okfile
 # Call this to delcare the existence of an okfile.  If you don't have one,
 # don't call it.
 function init_okfile {
+	pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.$1.okfile
 	# purge any old okfile sitting around
 	rm -f $pdk_okfile
 	mkdir -p $pdk_okfile_dir
 
 	echo 'tda__okfile='$pdk_okfile >> $PDK_LOG
+	init_test
+}
+
+function init_test {
+	pdk_teststatus=0
 }
 
 # Call this once for each output file that you will okify.
@@ -76,16 +82,17 @@ function testfile {
 	cmd=$1
 	file=$2
 
-	echo "Comparing output file $file"
-
 	# make the okfile entry
 	bn=`basename $file`
 	okfile_entry $file ref/$bn
 
+	#
+	echo "Comparing output file $file to ref/$bn"
+
 	# We expect the user to pass in the name of the diff command to use.
 	# I want to choose "diff" or "cmp", but you can also add in parameters
 	# to the comparison.
-	$cmd $file ref/$file
+	$cmd $file ref/$bn
 	cmp_status $?
 
 	echo ''
@@ -124,11 +131,23 @@ function cmp_status {
 			then
 				# status 1 will log the test result as Fail
 				pdk_teststatus=1
+
+				# if we are in shunit2, use its notifier
+				if [ "$_shunit_test_" != "" ]
+				then
+					fail
+				fi
 			fi
 			;;
 		*)
 			# status 128 will log the test result as Error
 			pdk_teststatus=128
+
+			# if we are in shunit2, use its notifier
+			if [ "$_shunit_test_" != "" ]
+			then
+				pdk_error
+			fi
 			;;
 		esac
 	done
@@ -154,15 +173,20 @@ function csh_diff {
 #	test_attr tra value
 
 test_attr() {
-        case "$1"
-        in
-        t[dr]a_*)
-                echo $1=$2 >> $PDK_LOG
-                ;;
-        *)
-                echo bad attribute type passed to test_attr: $1
-                pdk_teststatus=128
-                ;;
-        esac
+	if [ "$_shunit_test_}" != "" ]
+	then
+		pdk_attribute $1 $2
+	else
+		case "$1"
+		in
+		t[dr]a_*)
+			echo $1=$2 >> $PDK_LOG
+			;;
+		*)
+			echo bad attribute type passed to test_attr: $1
+			pdk_teststatus=128
+			;;
+		esac
+	fi
 }
 
