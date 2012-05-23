@@ -91,7 +91,10 @@ class Pdk(nose.plugins.base.Plugin):
         self.conf = conf
         self.enabled = options.pdk_enabled
 
-        if (options.pdklog is not None):
+        if 'PDK_LOG' in os.environ :
+            self.enabled = True
+            self.pdklogfile = os.environ['PDK_LOG']
+        elif (options.pdklog is not None):
             self.pdklogfile=options.pdklog
         else:
             self.pdklogfile = os.path.join(os.path.abspath(os.path.curdir),
