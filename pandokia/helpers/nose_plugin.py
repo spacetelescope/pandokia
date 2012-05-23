@@ -116,19 +116,32 @@ class Pdk(nose.plugins.base.Plugin):
             hostname = hostname.split('.',1)[0]
 
         try:
-            # determine whether we need to write the defaults
-            sd = not 'PDK_FILE' in os.environ
+            # find the location of the file
+            if 'PDK_FILE' in os.environ :
+                default_location = os.path.join( os.environ['PDK_DIRECTORY'], os.environ['PDK_FILE'] )
+            else :
+                # wrong, but better than nothing.  We would actually
+		        # like to report the file that each test is in, but
+		        # it appears that nose has lost that information by
+		        # the time it gets to us.
+                default_location = os.path.abspath(os.path.curdir) 
+
+            #
             self.rpt = pandokia.helpers.pycode.reporter(
                 source_file = None,
-                setdefault = sd,
+                setdefault = True,
+		            # force it to write all the values, even if
+                    # pdkrun may have written a setdefault block.  If
+                    # the "run" runner runs a shell script that says
+                    # "pdknose modulename", we at least get some
+                    # sort of location
+
                 filename = self.pdklogfile,
                 test_run = self.pdktestrun,
                 project = self.pdkproject,
                 host = hostname,
                 context = self.pdkcontext,
-
-                # this is wrong for location, but it is less wrong than nothing at all
-                location = os.path.abspath(os.path.curdir),
+                location = default_location,
                 test_runner = 'nose',
                 test_prefix = '',
                 )
