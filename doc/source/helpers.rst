@@ -7,4 +7,5 @@ Useful Patterns and Helper Functions
     helper_reference.rst
     helper_exml.rst
     helper_json.rst
+    helper_testfn.rst
 

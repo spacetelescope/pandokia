@@ -10,7 +10,8 @@ runner_glob = [
     ( 'test*.csh',          'shell_runner' ),   # single test in a csh script
     ( '*.xml',              'regtest'   ),      # legacy system used at STScI
     ( '*.shunit2',          'shunit2'   ),      # shunit2 with stsci hacks
-    ( '*.c',                'maker'      ),     # compiled C unit tests (fctx)
+    ( '*.c',                'maker'     ),      # compiled C unit tests (fctx)
+    ( '*.run',              'run'       ),      # run a pdk-aware executable
 ]
 
 

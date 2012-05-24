@@ -22,6 +22,11 @@ import traceback
 
 class reporter(object) :
 
+    # default to pandokia log format
+    report_view = False
+    report_view_sep = ( '-' * 79 ) 
+    report_view_verbose = False
+
     def __init__( self, source_file, setdefault=False, filename=None, test_run=None, project=None, host=None, context=None, location=None, test_runner=None, test_prefix=None ) :
 
         '''pandokia log file object
@@ -62,10 +67,17 @@ class reporter(object) :
 '''
 
         # in all cases, we need to open the output file
-        if filename is None :
-            filename = os.environ['PDK_LOG']
-        self.filename = filename
-        self.report_file=open(filename,"a")
+        if filename is not None :
+            self.filename = filename
+            self.report_file=open(filename,"a")
+        else :
+            if 'PDK_LOG' in os.environ :
+                filename = os.environ['PDK_LOG']
+                self.filename = filename
+                self.report_file=open(filename,"a")
+            else :
+                self.report_file=sys.stdout
+                self.report_view = True
 
         # select the prefix to insert in front of test names.
         if test_prefix is None :
@@ -86,7 +98,7 @@ class reporter(object) :
                 source_file = source_file[:-4]
             self.test_prefix = self.test_prefix + source_file
 
-        if setdefault :
+        if setdefault and not self.report_view :
             # If you are running in the context of pdkrun, all of these
             # values will already be set as defaults in the pdk log file.
             #
@@ -150,9 +162,21 @@ class reporter(object) :
 
         # end if setdefault
 
+        # count how many of each status showed up
+        self.status_count = { }
+
     # end def __init__
 
-    def report( self, test_name, status, start_time=None, end_time=None, tra={ }, tda={ }, log=None ) :
+    def report( self, test_name, status, start_time=None, end_time=None, tra={ }, tda={ }, log=None, location=None) :
+
+        self.status_count[status] = self.status_count.get(status,0) + 1
+
+        if self.report_view :
+            if status == 'P' :
+                if not self.report_view_verbose :
+                    return
+            self.report_file.write(self.report_view_sep)
+            self.report_file.write('\n')
 
         if test_name is None :
             test_name = self.test_prefix
@@ -167,22 +191,29 @@ class reporter(object) :
 
         self.write_field('status',      status)
 
-        if start_time is not None :
-            self.write_field('start_time',  str(start_time))
+        if not self.report_view :
+            if location is not None :
+                self.write_field('location',  str(location))
 
-        if end_time is not None :
-            self.write_field('end_time',    str(end_time))
+            if start_time is not None :
+                self.write_field('start_time',  str(start_time))
 
-        for name in tda :
-            self.write_field('tda_'+name, tda[name])
+            if end_time is not None :
+                self.write_field('end_time',    str(end_time))
 
-        for name in tra :
-            self.write_field('tra_'+name, tra[name])
+            for name in tda :
+                self.write_field('tda_'+name, tda[name])
 
-        if log is not None :
-            self.write_field('log',         log)
+            for name in tra :
+                self.write_field('tra_'+name, tra[name])
 
-        self.report_file.write('END\n')
+            if log is not None :
+                self.write_field('log',         log)
+            self.report_file.write('END\n')
+        else :
+            self.report_file.write(log)
+
+
 
         # You would think we don't need this, but in practice sometimes
         # python C extensions will core dump the whole python interpreter.
@@ -322,7 +353,7 @@ class _pycode_with(object) :
         raise Exception('Do not instantiate me directly.  Use pycode.test or pycode.setup')
 
     # This is used by the init of the subclasses.
-    def fmt(self, name, rpt, tda, tra ) :
+    def fmt(self, name, rpt, tda, tra, location ) :
 
         # importing runner_minipyt here to break an import loop.
         # runner_minipyt imports pycode, so we only do the import here when
@@ -342,7 +373,7 @@ class _pycode_with(object) :
             global cached_rpt
             if not cached_rpt :
                 # this happens if we are running without a test runner
-                cached_rpt = reporter( None, filename='PDK_LOG' ) 
+                cached_rpt = reporter( None ) 
             self.rpt = cached_rpt
         else :
             self.rpt = rpt
@@ -357,6 +388,22 @@ class _pycode_with(object) :
 	    # it twice.
         self.expired = False
 
+        # remember in case the user gave a location for the test
+        self.location = location
+
+	    # if they did not give us a location, figure it out.  We
+	    # are in a context manager that was invoked from a with-statement.
+        # If we do not know where we are, walk up the stack frame until
+        # we find a source file that is not the one we are currently in.
+        if location is None :
+            import inspect
+            l = inspect.stack()
+            this_file = l[0][1]
+            for x in l :
+                if x[1] != this_file :
+                    # found first stack frame not in this file.  remember.
+                    self.location = x[1]
+                    break
 
     # 
     def __enter__(self) :
@@ -438,6 +485,7 @@ class _pycode_with(object) :
         if runner_minipyt.dots_mode :
             runner_minipyt.show_dot( status, self.full_name, log)
 
+        open("/dev/tty","w").write("LOCATION %s\n"%self.location)
         # write the report.
         self.rpt.report( test_name=self.full_name, 
                 status=status, 
@@ -445,7 +493,8 @@ class _pycode_with(object) :
                 end_time=datetime.datetime.now(),
                 tra=self.tra,
                 tda=self.tda,
-                log=log )
+                log=log,
+                location=self.location )
 
         # Return true means to ignore the exception, instead of
 	    # re-raising it outside the with statement.
@@ -461,14 +510,42 @@ class _pycode_with(object) :
 class test(_pycode_with) :
     pass_status = 'P'
 
-    def __init__(self, name, rpt=None, tda = { }, tra = { } ) :
-        self.fmt( name, rpt, tda, tra )
+    def __init__(self, name, rpt=None, tda = { }, tra = { }, location=None ) :
+        self.fmt( name, rpt, tda, tra, location )
 
 class setup(_pycode_with) :
     # Someday, change this to 'R' so vicki can see setup different
     # from test in the report
     pass_status = 'P'
 
-    def __init__(self, name, rpt=None, tda = { }, tra = { } ) :
-        self.fmt( name, rpt, tda, tra )
+    def __init__(self, name, rpt=None, tda = { }, tra = { }, location=None ) :
+        self.fmt( name, rpt, tda, tra, location )
  
+#####
+##### a tool for running with-type tests from the packagename.test() function
+#####
+
+def package_test( parent, test_package, test_modules, verbose=False ) :
+
+    import pandokia.helpers.runner_minipyt as runner_minipyt
+    runner_minipyt.dots_mode = ''
+
+    global cached_rpt
+    cached_rpt = reporter( None ) 
+    cached_rpt.report_view_verbose = verbose
+
+    for x in test_modules :
+        x = parent + '.' +  test_package + '.' + x
+        with test(x) as t :
+            exec "import %s" % x
+    passed = cached_rpt.status_count.get('P',0)
+    failed = cached_rpt.status_count.get('F',0)
+    error  = cached_rpt.status_count.get('E',0)
+
+    print cached_rpt.report_view_sep
+    print "Pass: %d  Fail: %d  Error: %d"%( passed, failed, error )
+
+    if ( failed == 0 ) and ( error == 0 ) :
+        return 0
+    else :
+        return 1
