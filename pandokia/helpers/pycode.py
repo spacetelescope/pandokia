@@ -394,16 +394,19 @@ class _pycode_with(object) :
 	    # if they did not give us a location, figure it out.  We
 	    # are in a context manager that was invoked from a with-statement.
         # If we do not know where we are, walk up the stack frame until
-        # we find a source file that is not the one we are currently in.
+        # we find the location where the test was invoked.  That is
+        # either the first frame that is not in this source file, or
+        # it is the function package_test() in this file.
         if location is None :
             import inspect
             l = inspect.stack()
             this_file = l[0][1]
             for x in l :
-                if x[1] != this_file :
-                    # found first stack frame not in this file.  remember.
+                if x[1] != this_file or x[3] == 'package_test' :
                     self.location = x[1]
                     break
+            if '__init__' in self.location :
+                open("/dev/tty","w").write(str(l))
 
     # 
     def __enter__(self) :
@@ -485,7 +488,6 @@ class _pycode_with(object) :
         if runner_minipyt.dots_mode :
             runner_minipyt.show_dot( status, self.full_name, log)
 
-        open("/dev/tty","w").write("LOCATION %s\n"%self.location)
         # write the report.
         self.rpt.report( test_name=self.full_name, 
                 status=status, 

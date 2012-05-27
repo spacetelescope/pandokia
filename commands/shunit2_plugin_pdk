@@ -97,6 +97,9 @@ shunit_plugin_init() {
 		*.shunit)
 			__pdk_file_part=`basename $PDK_FILE .shunit` 
 			;;
+		*.shunit2)
+			__pdk_file_part=`basename $PDK_FILE .shunit2` 
+			;;
 		*)                
 			__pdk_file_part=`basename $PDK_FILE` 
 			;;
