@@ -1,6 +1,7 @@
 # shunit2 plugin for pandokia
 #
 # ** This requires shunit2 2.1.6plugin as modified at stsci.
+# see http://stsdas.stsci.edu/shunit
 #
 
 #-----------------------------------------------------------------------------

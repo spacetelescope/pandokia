@@ -1,4 +1,4 @@
-#!/usr/stsci/pyssgdev/Python-2.5.4/bin/python
+#!python
 
 #
 # pandokia - a test reporting and execution system

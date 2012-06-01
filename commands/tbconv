@@ -1,44 +1,42 @@
 #!/usr/bin/env python
+'''
+tbconv from_type to_type
+  convert a text table on stdin from one format to another
 
-#
-# tbconv from_type to_type
-#   convert a text table on stdin from one format to another
-#
-# types are:
-#
-#   name        in  out description
-#
-#   awk             y   tabs between columns, for use with awk
-#   csv             y   CSV files
-#   html            y   HTML table
-#   rst         y   y   restructured text, simple table only
-#   trac_wiki   y   y   table format used in trac wiki
-#   tw          y   y   alias for trac_wiki, easier to type
-#
-# It is difficult work on an RST document with tables in it,  There
-# are two table formats, but both are hideous to type.  The
-# trac wiki format is WAY easier to edit, but does not look as nice.
-#
-# Solution: enter the table in trac wiki format, use the vi command
-# "!}tbconv tw rst" to convert it to RST.  If you need to edit it
-# again, "!}tbconv rst tw" to turn it back.
-#
-# The trac wiki output format has all columns the same width (even
-# though this is not required by the trac wiki), so "!}tbconv tw tw"
-# can beautify a trac wiki table.
-#
-# If you are an emacs user, you can use:
-#   move to beginning of table
-#   Control-shift-@                    (sets the mark)
-#   move to end of table
-#   Control-u Meta-| tbconv rst tw RETURN    (pipe region through shell command)
-# If you don't know where your Meta key is, press ESCAPE then | for
-# Meta-|
-#
+types are:
 
-PDK_DIR_HERE    # this will be edited by setup.py when you install
-import sys
-sys.path.insert(0, pdk_dir)
+  name        in  out description
+
+  awk         y   y   alias for tabs, use with awk
+  csv         y   y   CSV files
+  html            y   HTML table
+  rst         y   y   restructured text, simple table only
+  tabs        y   y   tabs between columns
+  trac_wiki   y   y   table format used in trac wiki
+  tw          y   y   alias for trac_wiki, easier to type
+
+It is difficult work on an RST document with tables in it,  There
+are two table formats, but both are hideous to type.  The
+trac wiki format is WAY easier to edit, but does not look as nice.
+
+Solution: enter the table in trac wiki format, use the vi command
+"!}tbconv tw rst" to convert it to RST.  If you need to edit it
+again, "!}tbconv rst tw" to turn it back.
+
+The trac wiki output format has all columns the same width (even
+though this is not required by the trac wiki), so "!}tbconv tw tw"
+can beautify a trac wiki table.
+
+If you are an emacs user, you can use:
+  move to beginning of table
+  Control-shift-@                    (sets the mark)
+  move to end of table
+  Control-u Meta-| tbconv rst tw RETURN    (pipe region through shell command)
+If you don't know where your Meta key is, press ESCAPE then | for
+Meta-|
+
+
+'''
 
 
 #
@@ -244,6 +242,7 @@ input_translations = {
 }
 
 output_translations = {
+    'awk':          write_tabs,
     'csv':          write_csv,
     'html':         write_html,
     'rst':          write_rst,
