@@ -3,7 +3,7 @@
 # This is a bourne shell script, so you can use it with /bin/sh, bash,
 # or presumably with other bourne shell compatibles.
 #
-# This is NOT for use with shunit.
+# This is not well-tested for use with shunit2.
 #
 # These tools implement output/reference files.  Your test creates an
 # output file.  The function testfile compares it to a reference file.
@@ -46,7 +46,7 @@ pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.okfile
 
 # Call this to delcare the existence of an okfile.  If you don't have one,
 # don't call it.
-function init_okfile {
+init_okfile () {
 	pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.$1.okfile
 	# purge any old okfile sitting around
 	rm -f $pdk_okfile
@@ -56,18 +56,18 @@ function init_okfile {
 	init_test
 }
 
-function init_test {
+init_test () {
 	pdk_teststatus=0
 }
 
 # Call this once for each output file that you will okify.
-function okfile_entry {
+okfile_entry () {
 	echo $1 $2 >> $pdk_okfile
 }
 
 # Here is the function to compare output files.  Call it once for each
 # output file.
-function testfile {
+testfile () {
 	# testfile $cmd $file
 	#
 	# cmd is one of:
@@ -104,7 +104,7 @@ function testfile {
 # pandokia test status.  Call this as many times as you want - the result is the
 # worst of pass, fail, error.  The "-e" flag is for use by csh scripts.
 
-function cmp_status {
+cmp_status () {
 	for st in $*
 	do
 		if [ X$st = X-e ]
@@ -155,7 +155,7 @@ function cmp_status {
 
 # a function to diff a bunch of output files and handle all the okfile stuff
 
-function csh_diff {
+csh_diff () {
 	init_okfile
 
 	okfile_entry $*
