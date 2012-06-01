@@ -86,14 +86,6 @@ def read_record(f) :
             name = l[0:n]
             name = name.lower()
             value = l[n+1:]
-            if ans.has_key(name) and ans[name] != value :
-                print "INVALID INPUT FILE - duplicate key ",name,line_count
-                print "     old ",ans[name]
-                print "     new ",value
-                if name.startswith("tra_") :
-                    value = ans[name]+" "+value
-                print "     use ",value
-                exit_status = 1
             ans[name] = value
             found_any = 1
             continue
