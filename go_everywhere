@@ -11,7 +11,7 @@ echo ok
 rm -rf log
 mkdir log
 
-for x in arzach banana bond cadeau herbert thor ssb
+for x in arzach jwcalibdev banana bond cadeau herbert thor ssb 
 do
 	echo XXXXX
 	echo $x
