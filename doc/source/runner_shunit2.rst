@@ -188,3 +188,41 @@ If you have reference files to compare: ::
         pdk_tda foo 1
         pdk_tra bar 2
     }
+
+shunit2 outside pandokia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To make your shunit2 tests work in or out of pandokia: ::
+
+    . pdk_shell_runner_helper
+
+    test_whatever() {
+        ...
+    }
+
+    if [ "$SHUNIT_VERSION" = "" ]
+    then
+        . shunit2
+    fi
+
+If you write your tests in this form, you can run them with
+any of these commands: ::
+
+    pdkrun foo.shunit2
+
+    shunit2 foo.shunit2
+
+    ./foo.shunit2
+
+installed shunit2 tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can write shunit2 tests that are installed on the users PATH.
+The user can then run them by typing the name, but it requires
+special handling to have pdkrun find and execute them.  
+
+Use the "run" runner.  Create file.run containing: ::
+
+    #!/bin/sh
+    exec shunit2 --plugin pdk installed_name.shunit2
+
