@@ -35,35 +35,115 @@
 # To use it from csh, see sample_tests/shell/csh_ref.csh in the source code
 #
 
+if [ "$PDK_LOG" != "" ]
+then
+
+########
+######## define the entire interface for living within pdkrun
+########
+
+	# find the correct name of the okfile
+	pdk_okfile_dir=$PDK_DIRECTORY/okfile/
+	pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.okfile
+
+	# Call this to delcare the existence of an okfile.  If you don't have one,
+	# don't call it.
+	init_okfile () {
+		pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.$1.okfile
+		# purge any old okfile sitting around
+		rm -f $pdk_okfile
+		mkdir -p $pdk_okfile_dir
+
+		echo 'tda__okfile='$pdk_okfile >> $PDK_LOG
+		init_test
+	}
+
+	init_test () {
+		pdk_teststatus=0
+	}
+
+	# Call this once for each output file that you will okify.
+	okfile_entry () {
+		echo $1 $2 >> $pdk_okfile
+	}
+
+	# usage:
+	#	test_attr tda value
+	#	test_attr tra value
+
+	test_attr() {
+		if [ "$_shunit_test_}" != "" ]
+		then
+			pdk_attribute $1 $2
+		else
+			case "$1"
+			in
+			t[dr]a_*)
+				echo $1=$2 >> $PDK_LOG
+				;;
+			*)
+				echo bad attribute type passed to test_attr: $1
+				pdk_teststatus=128
+				;;
+			esac
+		fi
+	}
+
+else
+########
+######## PDK_LOG not set - define the interface for living without pdkrun;
+######## also provide the helper functions from the shunit2 pandokia plugin 
+########
+
+
+	init_test () {
+		pdk_teststatus=0
+	}
+
+	init_okfile() {
+		init_test
+	}
+
+	okfile_entry() {
+		:
+	}
+
+	test_attr() {
+		:
+	}
+
+	##
+
+	pdk_attribute() {
+		:
+	}
+
+	pdk_tda() {
+		:
+	}
+
+	pdk_tra() {
+		:
+	}
+
+	pdk_error() {
+		echo "PDK_ERROR"
+		_shunit_assertFail "$*"
+	}
+
+
+fi
+
+########
+########
+########
+
+#
+# features that work the same whether we are in pdkrun or not
+#
+
 # Unless we decide otherwise, the test passes
 pdk_teststatus=0
-
-
-# find the correct name of the okfile
-pdk_okfile_dir=$PDK_DIRECTORY/okfile/
-pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.okfile
-
-
-# Call this to delcare the existence of an okfile.  If you don't have one,
-# don't call it.
-init_okfile () {
-	pdk_okfile=$pdk_okfile_dir/`basename $PDK_FILE`.$1.okfile
-	# purge any old okfile sitting around
-	rm -f $pdk_okfile
-	mkdir -p $pdk_okfile_dir
-
-	echo 'tda__okfile='$pdk_okfile >> $PDK_LOG
-	init_test
-}
-
-init_test () {
-	pdk_teststatus=0
-}
-
-# Call this once for each output file that you will okify.
-okfile_entry () {
-	echo $1 $2 >> $pdk_okfile
-}
 
 # Here is the function to compare output files.  Call it once for each
 # output file.
@@ -166,27 +246,5 @@ csh_diff () {
 	done
 
 	exit $pdk_teststatus
-}
-
-# usage:
-#	test_attr tda value
-#	test_attr tra value
-
-test_attr() {
-	if [ "$_shunit_test_}" != "" ]
-	then
-		pdk_attribute $1 $2
-	else
-		case "$1"
-		in
-		t[dr]a_*)
-			echo $1=$2 >> $PDK_LOG
-			;;
-		*)
-			echo bad attribute type passed to test_attr: $1
-			pdk_teststatus=128
-			;;
-		esac
-	fi
 }
 
