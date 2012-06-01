@@ -23,7 +23,7 @@
         test_with_attr()
         {
                 pdk_tda one 1
-                x=`ls | wc`
+                x=2
                 pdk_tra filecount $x
                 pdk_tra foo
         }
