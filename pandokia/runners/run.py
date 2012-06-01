@@ -16,7 +16,7 @@ import os.path
 # we are passing is in the environment.
 
 def command( env ) :
-    return env['PDK_FILE']
+    return env['PDK_DIRECTORY'] + '/' + env['PDK_FILE']
 
 # Not likely to support reporting disabled tests in an external program
 def list( env ) :
