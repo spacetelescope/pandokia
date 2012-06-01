@@ -1,6 +1,6 @@
 from pandokia.helpers.minipyt import *
 
-print dir()
+print "minipyt disables test"
 
 @test
 def function_active() :

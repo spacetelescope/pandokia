@@ -5,7 +5,7 @@ import pandokia.helpers.minipyt as mpt
 # instatiated until we try to run one of the tests.  That means if it does
 # not have any test methods, it will _never_ get instantiated.
 
-class init_f(object) :
+class init_e(object) :
     __test__ = 1
     minipyt_shared=1
 
