@@ -63,7 +63,7 @@ pdk webserver
 import os
 import sys
 
-def run() :
+def run( argv = sys.argv ) :
 
     # first, we have a special heuristic to discover if we are running
     # as a CGI.  If we are, jump in to the cgi entry point.
@@ -78,12 +78,12 @@ def run() :
 
     # Ok, not a CGI, so it must be a command line of the form
     # pdk command [ args ]
-    if len(sys.argv) < 2 :
+    if len(argv) < 1 :
         print helpstr
         return
 
-    cmd = sys.argv[1]
-    args = sys.argv[2:]
+    cmd = argv[1]
+    args = argv[2:]
 
     # each entry here follows the general form of:
     #   if cmd == 'whatever' :
