@@ -67,8 +67,9 @@ Assertions in shunit2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The shunit2 distribution contains documentation of various assertions
-in doc/shunit2.rst and at 
+in doc/shunit2.rst ; you can read it online at 
 http://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html
+or http://stsdas.stsci.edu/shunit/shunit2.html
 
 There is significant difference of interest to python programmers:
 When an assertion fails in shunit, it does NOT abort the rest of
