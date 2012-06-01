@@ -4,6 +4,8 @@
 * $ cc -o ip2 -I$PDK_MAKER ip2.c 
 * $ ./ip2
 *
+* These are in place tests that include attributes
+*
 */
 
 #include "pandokia_fct.h"
