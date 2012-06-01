@@ -1,0 +1,38 @@
+check that no unexpected tests show up
+
+fctx
+	ok
+
+helpers
+	ok
+
+minipyt
+	class_2.py tests not showing up
+
+	shoud class_disable list the tests inside the class?  no
+
+	re-run, then ok
+
+regtest
+	not ok - no pyraf
+
+shell
+	csh tests not ok - no csh
+	sh not ok - bash-only syntax in helper
+
+	re-run then check
+
+shunit2
+	needs tests with sh helper funcs
+	not stripping .shunit2 from test name
+
+	re-run then check
+
+unittest2
+	not ok - not installed
+
+
+
+--
+detail of all should sort by test name to match other displays
+
