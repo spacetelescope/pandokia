@@ -45,9 +45,9 @@ __all__ = [ 'file_comparators', 'compare_files', 'ensure_dir' ]
 import os
 import re
 import sys
-import subprocess
 import difflib
 import traceback
+import glob
 
 import pandokia.helpers.process as process
 
@@ -790,9 +790,20 @@ the remove fails because of permissions or some such.
     if isinstance(fname, list) :
         for x in fname :
             safe_rm( x ) 
-    else :
-        try :
-            os.unlink( fname )
-        except OSError :
-            pass
+        return
+    try :
+        os.unlink( fname )
+    except OSError :
+        pass
+
+def wild_rm( fname ) :
+    '''Remove files, matching wildcard patterns, ignoring OSError
+
+'''
+    if isinstance(fname, list) :
+        for x in fname :
+            wild_rm( x )
+        return
+    for x in glob.glob( fname ) :
+        safe_rm( x )
 
