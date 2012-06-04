@@ -20,5 +20,5 @@ done
 
 echo XXXXX
 echo arzach again - earlier python versions
-ssh arzach "cd $wdir && ./go irafdev 2.5.4 >& log/$x.irafdev.2.5.4 && ./go irafdev 2.6.5 >& log/$x.irafdev.2.6.5 "
-
+ssh arzach "cd $wdir && ./go irafdev 2.6.5 >& log/$x.irafdev.2.6.5 "
+echo ...not on python 2.5
