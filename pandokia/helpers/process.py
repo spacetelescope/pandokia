@@ -75,17 +75,21 @@ def run_process( arglist, env=None, output_file="output_file" ) :
     return status
 
 
-def cat( *l ) :
+def cat( fname ) :
     '''read a list of files and print to stdout
 
 cat( [ 'f1', 'f2' ] )
 
 '''
-    for x in l :
-        f = open(x,"r")
-        while 1 :
-            b = f.read( 1048576 )
-            if b == "" :
-                break
-            sys.stdout.write( b ) 
-        f.close()
+    if isinstance(fname, list) :
+        for x in fname :
+            cat( x )
+        return
+
+    f = open(fname,"r")
+    while 1 :
+        b = f.read( 1048576 )
+        if b == "" :
+            break
+        sys.stdout.write( b ) 
+    f.close()
