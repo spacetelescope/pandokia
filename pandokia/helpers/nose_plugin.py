@@ -118,7 +118,11 @@ class Pdk(nose.plugins.base.Plugin):
         try:
             # find the location of the file
             if 'PDK_FILE' in os.environ :
-                default_location = os.path.join( os.environ['PDK_DIRECTORY'], os.environ['PDK_FILE'] )
+                if 'PDK_DIRECTORY' in os.environ :
+                    d = os.environ['PDK_DIRECTORY']
+                else :
+                    d = os.path.abspath(os.path.curdir) 
+                default_location = os.path.join( d, os.environ['PDK_FILE'] )
             else :
                 # wrong, but better than nothing.  We would actually
 		        # like to report the file that each test is in, but

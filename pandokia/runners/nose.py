@@ -50,8 +50,10 @@ def list( env ) :
     # run the command to collect the names
     # pandokia log goes to tmpfile - it is ok to used a fixed name because we
     # know that only one process can be running tests in a single directory.
-    s='pdknose --pdk --with-doctest --doctest-tests --pdklog='+tmpfile+' --collect-only %(PDK_FILE)s' % env
+    s='pdknose --pdk --with-doctest --doctest-tests --collect-only %(PDK_FILE)s' % env
 
+    env = env.copy()
+    env['PDK_LOG'] = tmpfile
     process.run_process(s.split(), env, output_file='pdknose.tmp' )
 
     # gather the names from pdk.log
