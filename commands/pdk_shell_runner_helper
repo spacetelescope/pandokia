@@ -164,7 +164,8 @@ testfile () {
 
 	# make the okfile entry
 	bn=`basename $file`
-	okfile_entry `pwd`/$file ref/$bn
+	here=`pwd`
+	okfile_entry $here/$file $here/ref/$bn
 
 	#
 	echo "Comparing output file $file to ref/$bn"
