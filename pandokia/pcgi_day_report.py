@@ -183,18 +183,14 @@ def rpt2( ) :
         test_run_valuable = int(test_run_valuable)
 
     # create the actual table
-    [ table, projects ] = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable )
+    ( table, projects ) = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable )
 
 # # # # # # # # # # 
     if pandokia.pcgi.output_format == 'html' :
         
-        header = "<h1>"+cgi.escape(test_run)+"</h1>\n"
+        header = "<big><big><b>"+cgi.escape(test_run)+"</b></big></big>\n"
 
-        recurring_prefix = common.recurring_test_run(test_run) 
-        if recurring_prefix :
-            # 
-            # If we have a recurring run, create a special header.
-
+        if 1 :
             # if it looks like there is a date in it, try to show the day of the week
             # dates must look like 2011-01-01 and do not occur at the beginning of the name
             t = re.search('[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])',test_run)
@@ -204,9 +200,17 @@ def rpt2( ) :
                 (year, month, day) = (int(t[0]),int(t[1]),int(t[2]))
                 t = datetime.date(year, month, day)
                 t = t.strftime("%A")
-                header = header+ "<h2>"+str(t)+"</h2>"
+                header = header+ "<big>("+str(t)+")</big>"
             except :
                 pass
+
+        header = header + "<p>"
+
+        recurring_prefix = common.recurring_test_run(test_run) 
+        if recurring_prefix :
+            # 
+            # If we have a recurring run, create a special header.
+
 
             # Include links to the previous / next in the sequence
 
@@ -240,7 +244,17 @@ def rpt2( ) :
         sys.stdout.write(common.cgi_header_html)
         sys.stdout.write(common.page_header())
         sys.stdout.write(header)
+
+        # write links to the top of each project
+        sys.stdout.write('<p>\n')
+        for p in projects :
+            p = cgi.escape(p)
+            sys.stdout.write('<a href="#%s">%s</a>&nbsp;&nbsp; '% (p,p) )
+        sys.stdout.write('</p>\n')
+
+        # write the report table
         sys.stdout.write(table.get_html(headings=0))
+
     elif pandokia.pcgi.output_format == 'csv' :
         sys.stdout.write(common.cgi_header_csv)
         sys.stdout.write(table.get_csv())
@@ -304,10 +318,16 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
 
     hc_where, hc_where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
     c = pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
+
+    # now we forget the list of projects that came in and construct a
+    # list of projects that we actually saw.
+    projects = [ ]
     for project, host, context in c :
 
         ## make a new project section of the table
         if project != prev_project :
+
+            projects.append(project)
 
             table.set_value(row,0,"")
             row = row + 1
@@ -322,7 +342,9 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
             link = common.selflink(query_dict = query, linkmode="treewalk" )
 
             # the heading for a project subsection of the table
-            table.set_value(row, 0, text=project, html="<hr><big><strong><b>"+project+"</b></strong></big>", link=link)
+            project_text = cgi.escape(project)
+            project_text = '<hr><big><strong><b><a name="%s" href="%s">%s</a></b></strong></big>' % (project_text, link, project_text) 
+            table.set_value(row, 0, text=project, html= project_text)
             table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
             row += 1
 
@@ -444,7 +466,7 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
             )
         table.set_html_cell_attributes(total_row, status, 'align="right"' )
 
-    return [ table, projects ]
+    return ( table, projects )
 
 
 #
