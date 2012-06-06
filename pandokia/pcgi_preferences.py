@@ -63,6 +63,11 @@ def run( ) :
 
     if user in cfg.admin_user_list :
         output.write('<p><a href=%s?query=prefs&subtype=list>list all</a></p>'%common.get_cgi_name())
+        sys_report()
+
+def sys_report() :
+        output.write('<p>You are admin.</p>')
+        output.write(__file__)
 
 # show the user preferences as an input form
 def show(user) :
