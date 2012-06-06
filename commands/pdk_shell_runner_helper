@@ -54,6 +54,9 @@ then
 		rm -f $pdk_okfile
 		mkdir -p $pdk_okfile_dir
 
+		# make sure there is at least an empty file to look at
+		touch $pdk_okfile
+
 		echo 'tda__okfile='$pdk_okfile >> $PDK_LOG
 		init_test
 	}
@@ -162,11 +165,6 @@ testfile () {
 	cmd=$1
 	file=$2
 
-	# make the okfile entry
-	bn=`basename $file`
-	here=`pwd`
-	okfile_entry $here/$file $here/ref/$bn
-
 	#
 	echo "Comparing output file $file to ref/$bn"
 
@@ -174,7 +172,21 @@ testfile () {
 	# I want to choose "diff" or "cmp", but you can also add in parameters
 	# to the comparison.
 	$cmd $file ref/$bn
-	cmp_status $?
+
+	testfile_status=$?
+
+	cmp_status $testfile_status
+
+	if [ "$testfile_status" = 0 ]
+	then
+		# if it passes, we do not need to keep the output file
+		rm $file
+	else
+		# if it fails, make an okfile entry for it
+		bn=`basename $file`
+		here=`pwd`
+		okfile_entry $here/$file $here/ref/$bn
+	fi
 
 	echo ''
 
