@@ -134,33 +134,13 @@ def treewalk ( ) :
 
 
     #
-    # main heading
-    #
-
-    output.write("<h1>Test tree browser</h1>")
-
-
-    #
     # show the narrowing parameters
     #
 
-    if qid is not None :
-        output.write( "<h2>QID %d</h2>\n" % qid )
+    header_table = text_table.text_table()
+    header_table.set_html_table_attributes( ' style="font-size: large; font-weight: bold" ' )
 
-    s_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s </h2>\n"
-
-    for var, label in [
-        ( 'project', 'project' ),
-        ( 'context', 'context' ),
-        ( 'host', 'host' ),
-        ( 'status', 'status' ),
-        ] :
-
-        if query[var] != '*' :
-            lquery = copy.copy(query)
-            lquery[var] = "*"
-            line = s_line % ( label, cgi.escape(query[var]), common.self_href(lquery,"treewalk",remove_arrow)  )
-            output.write(line)
+    row = 0
 
     #
     # if a test_run is selected, show the test_run here
@@ -171,25 +151,52 @@ def treewalk ( ) :
         lquery = copy.copy(query)
         lquery["test_run"] = "*"
         test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s</h2>\n"
-        tmp1 = common.self_href(lquery,"treewalk",remove_arrow)
+        header_table.set_value( row, 0, 'test_run' )
+        header_table.set_value( row, 1, '=' )
+        header_table.set_value( row, 2, cgi.escape(test_run) )
+        header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
         tmp2 = common.run_previous(None,test_run)
         tmp3 = common.run_next(None,test_run)
 
         if tmp2 is not None :
             lquery["test_run"] = tmp2
             tmp2 = common.self_href(lquery,"treewalk"," (%s)"%tmp2 )
+            header_table.set_value( row, 4, html=tmp2 )
         else :
             tmp2 = ""
 
         if tmp3 is not None :
             lquery["test_run"] = tmp3
             tmp3 = common.self_href(lquery,"treewalk"," (%s)"%tmp3 )
+            header_table.set_value( row, 5, html=tmp3 )
         else :
             tmp3 = ""
 
-        line = test_run_line % ( "test_run", cgi.escape(test_run), tmp1, tmp2, tmp3)
-        output.write(line)
+        row = row + 1
 
+    for var, label in [
+        ( 'project', 'project' ),
+        ( 'host', 'host' ),
+        ( 'context', 'context' ),
+        ( 'status', 'status' ),
+        ] :
+
+        if query[var] != '*' :
+            lquery = copy.copy(query)
+            lquery[var] = "*"
+            header_table.set_value( row, 0, label )
+            header_table.set_value( row, 1, '=' )
+            header_table.set_value( row, 2, cgi.escape(query[var]) )
+            header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
+            row = row + 1
+
+    if qid is not None :
+        header_table.set_value( row, 0, 'QID' )
+        header_table.set_value( row, 2, str(qid) )
+        row = row + 1
+
+
+    print header_table.get_html()
 
     ### start of "Test Prefix: line"
 
