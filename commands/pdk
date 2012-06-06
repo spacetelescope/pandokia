@@ -11,7 +11,24 @@
 #
 
 import sys
+import os
 
-# Invoke the actual entry point.
-import pandokia.entry
-sys.exit(pandokia.entry.run())
+PDK_DIR_HERE
+
+# With most web servers, QUERY_STRING is sufficient to recognize
+# you are in a CGI.  With the python CGIHTTPServer object,
+# you may not get a QUERY_STRING if you are running on MS WINDOWS.
+if 'QUERY_STRING' in os.environ or 'GATEWAY_INTERFACE' in os.environ :
+    # need to explicitly put ourself on sys.path so the web server
+    # does not need to pass us a PYTHONPATH
+    sys.path.insert(0,pdk_dir)
+
+    # since we know we are in a web server, call directly into the cgi
+    import pandokia.pcgi
+    pandokia.pcgi.run()
+
+else :
+    # Invoke the command line entry point
+    import pandokia.entry
+    sys.exit(pandokia.entry.run())
+
