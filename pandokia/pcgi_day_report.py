@@ -330,7 +330,6 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
             projects.append(project)
 
             table.set_value(row,0,"")
-            row = row + 1
 
             prev_project = project
 
@@ -439,7 +438,6 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
         table.set_value(row,0,"")
 
     # insert a total for everything
-    row += 1
     table.set_value(row, 0, html='<hr>')
     table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
 
@@ -482,8 +480,6 @@ def insert_col_headings( table, row, link ) :
             xl = link + '&status='+x 
         table.set_value(row, x, text=xn, link = xl )
         table.set_html_cell_attributes(row, x, 'align="right"' )
-    table.set_value(row, "note", text="" )  # no heading for this one
-
 
 #
 #
