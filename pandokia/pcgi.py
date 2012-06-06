@@ -191,11 +191,6 @@ def run() :
         x.flagok()
         sys.exit(0)
 
-    if query == 'settings' :
-        import pandokia.pcgi_user as x
-        x.run()
-        sys.exit(0)
-
     if query == 'action' :
         import pandokia.pcgi_action as x
         x.run()
