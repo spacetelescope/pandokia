@@ -1,4 +1,5 @@
 import distutils.core
+import distutils.command
 import os
 import os.path
 
@@ -6,10 +7,6 @@ import platform
 # print platform.python_version()
 
 windows = platform.system() == 'Windows'
-
-
-# bug: take this out (?)
-# os.system("rm -rf build")
 
 package_list = [
     'pandokia',             # core of pandokia system
@@ -153,14 +150,51 @@ def fix_script(name) :
     if not windows :
         os.chmod(fname + '.py', 0700)
 
+#
+# The entrypoints file
+#
+entrypoints = '''
+[pytest11]
+pandokia = pandokia.helpers.pytest_plugin
+
+[nose.plugins.0.10]
+pandokia = pandokia.helpers.nose_plugin:Pdk
+
+'''
+
+# py.test and nose use setuptools to find their plugins, but whenever
+# I go near setuptools, it always causes problems for me.  So, the
+# procedure here is simple:  Install with distutils, then convert
+# the .egg-info file that is installed into a setuptools-compatible
+# .egg-info directory that contains the entrypoints definition.
+def dorque_egg_info( target ) :
+    print "EGG-INFO", target
+    pkginfo = open(target).read()
+    os.unlink(target)
+    os.mkdir(target)
+    open(target+"/PKG-INFO","w").write(pkginfo)
+    open(target+"/not-zipe-safe","w").close()
+    open(target+"/entry_points.txt","w").write(entrypoints)
+
+
 if 'install' in d.command_obj :
     # they did an install
+
+    # Convert the egg-info to a dir that looks like what setuptools
+    # uses.  Set the entry points for use by nose and py.test
+    dorque_egg_info( d.command_obj['install_egg_info'].target )
+
+    # find where the scripts went
     script_dir = d.command_obj['install'].install_scripts
     lib_dir    = d.command_obj['install'].install_lib
     print 'scripts went to', script_dir
     print 'python  went to', lib_dir
+
+    # hack the scripts for PDK_DIR_HERE
     for x in python_commands :
         fix_script(x)
+
+    # tell the user 
     print ''
     print 'set path = ( %s $path )' % script_dir
     print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
@@ -171,3 +205,4 @@ if 'install' in d.command_obj :
     print ''
 else :
     print "no install"
+
