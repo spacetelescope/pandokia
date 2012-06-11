@@ -408,7 +408,7 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
                 table.set_value(row, status, text=str(x), link = link + "&status="+status )
             table.set_html_cell_attributes(row, status, 'align="right"' )
 
-            if x == 'M' :
+            if status == 'M' :
                 missing_count = x
 
         project_sum['total'] += total_results
