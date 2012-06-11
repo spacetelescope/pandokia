@@ -8,4 +8,5 @@ Useful Patterns and Helper Functions
     helper_exml.rst
     helper_json.rst
     helper_testfn.rst
+    helper_run.rst
 
