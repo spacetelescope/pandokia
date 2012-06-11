@@ -4,18 +4,6 @@ echo $path
 
 rm -rf build
 
-set which_python=`which python`
-switch ( $which_python )
-case /usr/stsci/*:
-	echo ''
-	breaksw
-default:
-	echo 'not using the right python'
-	which python
-	exit 1
-	breaksw
-endsw
-
 unsetenv PYTHONPATH
 
 switch ( "$1" )
@@ -76,6 +64,18 @@ case irafdev:
 	exit 0
 
 case "":
+	set which_python=`which python`
+	switch ( $which_python )
+	case /usr/stsci/*:
+		echo ''
+		breaksw
+	default:
+		echo 'not using the right python'
+		which python
+		exit 1
+		breaksw
+	endsw
+
 	set n=57
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/pandokia
