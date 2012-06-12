@@ -111,6 +111,9 @@ class Pdk(nose.plugins.base.Plugin):
         """Figure out the name of the logfile, open it, &
         initialize it for this test run."""
 
+        # no report by default.  maybe we make one, maybe we don't.
+        self.rpt = None
+
         fname=self.pdklogfile
         hostname = platform.node()
         if '.' in hostname :
@@ -351,7 +354,10 @@ class Pdk(nose.plugins.base.Plugin):
         elif name.endswith("/nose.failure.Failure.runTest") :
             # same thing, with a file/directory name in front of it
             pass
-        else :
+        elif self.rpt :
+            # we have a rpt object, so make the report.  (If we
+	        # don't, we are in something like "nosetests --pdk" but
+	        # without the log file specified.)
             self.rpt.report(
                 test_name = name,
                 status = status,
@@ -361,9 +367,13 @@ class Pdk(nose.plugins.base.Plugin):
                 tra = tra,
                 log = log,
                 )
+        else :
+            # no rpt object, so no report
+            pass
 
 
     # nose calls finalize() after everything is finished
     def finalize(self,result):
-        self.rpt.close()
+        if self.rpt :
+            self.rpt.close()
 
