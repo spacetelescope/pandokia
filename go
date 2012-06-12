@@ -13,7 +13,7 @@ case iraf:
 	set which_python=`which python`
 	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
-        rm -rf $libdir/pandokia
+        rm -rf $libdir/pandokia*
 	python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/default_config.py
         echo CONFIG $libdir/pandokia/default_config.py
@@ -29,7 +29,7 @@ case irafx:
 	set which_python=`which python`
 	set python_bin=`dirname $which_python`
         set libdir=`echo $PYTHONPATH  | tr ':' '\n' | grep -v stsci_python | tail -1 `
-        rm -rf $libdir/pandokia
+        rm -rf $libdir/pandokia*
 	python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/default_config.py
         echo CONFIG $libdir/pandokia/default_config.py
@@ -52,7 +52,7 @@ case irafdev:
                 set libdir='/usr/stsci/pyssgdev/'$version
         endif
         echo LIBDIR IS $libdir
-        rm -rf $libdir/pandokia
+        rm -rf $libdir/pandokia*
         python setup.py -q install --install-lib $libdir
         cat stsci/config.py >> $libdir/pandokia/default_config.py
         echo CONFIG $libdir/pandokia/default_config.py
@@ -78,7 +78,7 @@ case "":
 
 	set n=57
 	set there=/ssbwebv1/data2/pandokia/c$n
-        rm -rf $there/pandokia
+        rm -rf $there/pandokia*
 	python setup.py -q install --home $there
 
 	cp  /eng/ssb/web/shunit/shunit2 $there/bin
