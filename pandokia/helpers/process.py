@@ -7,6 +7,9 @@ import sys
 tdaIgnoreNames = ['mode','$nargs']
 tdaIgnoreValues = ['none','no','','indef']
 
+class RunPyrafTaskException(Exception) :
+    pass
+
 def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
     '''run a task, using pyraf
 
@@ -45,7 +48,9 @@ def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
     command = getattr(pyraf.iraf, taskname)
     err = command( ParList=pfile, Stderr=output_file )
     if err :
-        raise Exception("IRAF task %s exited with error %s"% (taskname, err) )
+        e = RunPyrafTaskException("IRAF task %s exited with error %s"% (taskname, err) )
+        e.pyraf_task = task
+        e.pyraf_error = err
 
 
 def run_process( arglist, env=None, output_file="output_file" ) :
