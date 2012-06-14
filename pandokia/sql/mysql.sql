@@ -54,8 +54,10 @@ CREATE TABLE result_scalar (
 		-- blank or "Y" for "needs attention"
 		-- "N" for "not a problem"
 		-- "R" for "problem resolved"
-	has_okfile CHAR(1)
+	has_okfile CHAR(1),
 		-- 0 or 1 indicating whether this test had a tda_okfile attribute
+        chronic CHAR(1)
+                -- 0 or 1 indicating whether this test is a chronic problem
 	);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 
@@ -261,6 +263,27 @@ CREATE TABLE hostinfo (
 CREATE INDEX hostinfo_index
 	ON hostinfo ( hostname );
 
+-- chronic problem tests:
+--      this is a lot like expected:  it has the test identity and
+--      a type of test run.  The "when" field is a date/time of
+--      when it first went bad.  The difference between the time
+--      of today's test run and "when" tells us whether a test is
+--      chronic or not.
+
+CREATE TABLE chronic (
+	test_run_type VARCHAR(100),
+		-- this "daily_" or something like that; the information
+		-- that connects the test_run_type to an actual test_run
+		-- comes from outside the database.
+	project VARCHAR(25),
+	host VARCHAR(64),
+	test_name VARCHAR(500),
+	context VARCHAR(25)
+		-- project, host, test_name, context as in result_scalar
+        when VARCHAR
+                -- indicator of when the test first went bad
+        );
+
 
 --
 --
@@ -276,4 +299,4 @@ ALTER TABLE user_email_pref ENGINE = Innodb ;
 ALTER TABLE query_id ENGINE = Innodb ;
 ALTER TABLE query ENGINE = Innodb ;
 ALTER TABLE delete_queue ENGINE = Innodb ;
-
+ALTER TABLE chronic ENGINE = Innodb ;
