@@ -72,6 +72,11 @@ def run_process( arglist, env=None, output_file="output_file" ) :
     if env is None :
         env = os.environ
 
+    try :
+        os.unlink(output_file)
+    except IOError :
+        pass
+
     out = open(output_file, "w")
 
     p = subprocess.Popen( arglist, env = env, stdout=out, stderr=subprocess.STDOUT )

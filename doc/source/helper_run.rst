@@ -6,8 +6,40 @@ Python: Running external executables in your test
 
 There are some helper functions for running external programs.  You can
 use these instead of any of the half-dozen or so variants of popen that
-are in the standard library.  This interface is simpler, and it will not
-be deprecated as often as the other popen variants.
+are in the standard library.  This interface is simpler, it will not
+be deprecated as often as the other popen variants, and it is easier
+to be compatible with python testing packages.
+
+Do not use subprocess
+-------------------------------------------------------------------------------
+
+You most likely want to capture the stdout and stderr of the external
+program in your test log.  By default, this will not work in
+subprocess -- it will go to the stdout/stderr of pdkrun.  If you
+want to use subprocess, you have to take special actions to capture
+the stdout/stderr and repeat it into Python's stdout/stderr.
+
+Instead, use the run_process function: ::
+
+    # NO
+    import subprocess
+    subprocess.call( [ 'ls', '-l' ] )
+
+    # YES
+    import pandokia.helpers.process as process
+    
+    # run the program, capturing output into a file
+    status = process.run_process( [ 'ls', '-l' ], output_file='myfile.tmp' )
+
+    # read the file and print it to the stdout being used by the test
+    process.cat( [ "myfile.tmp" ] )
+
+It is not necessary to guarantee a unique name for the temp file
+or to delete it before using it.
+
+
+Running an external process
+-------------------------------------------------------------------------------
 
 ``run_process`` executes a command with stdout/stderr redirected into a file: ::
 
