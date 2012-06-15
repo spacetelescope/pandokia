@@ -289,7 +289,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     ignore_raw = { }
     files_are_same = True
 
-    for val in kwds.get('ignore_wstart',[]):
+    for val in kwargs.get('ignore_wstart',[]):
         if ignore_raw.has_key('wstart'):
             ignore_raw['wstart'].append(val)
         else:
@@ -297,7 +297,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
         pattern=r'\s%s\S*\s'%val
         ignore.append(pattern)
 
-    for val in kwds.get('ignore_wend',[]):
+    for val in kwargs.get('ignore_wend',[]):
         if ignore_raw.has_key('wend'):
             ignore_raw['wend'].append(val)
         else:
@@ -305,11 +305,11 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
         pattern=r'\s\S*%s\s'%val
         ignore.append(pattern)
 
-    for val in kwds.get('ignore_regexp',[]):
+    for val in kwargs.get('ignore_regexp',[]):
         ignore_raw['regexp']=val
         ignore.append(val)
 
-    if kwds.get('ignore_date',False):
+    if kwargs.get('ignore_date',False):
         ignore_raw['date']=True
         if cmp_text_timestamp is None :
             cmp_text_assemble_timestamp()
