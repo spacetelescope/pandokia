@@ -54,5 +54,6 @@ def test( verbose=False ) :
     no = test_nose(verbose)
     print "PYTEST"
     pt = test_pytest(verbose)
+    print "FINISHED"
     return pt | no | pc
 
