@@ -278,11 +278,13 @@ CREATE TABLE chronic (
 	project VARCHAR(25),
 	host VARCHAR(64),
 	test_name VARCHAR(500),
-	context VARCHAR(25)
+	context VARCHAR(25),
 		-- project, host, test_name, context as in result_scalar
-        when VARCHAR
+        xwhen VARCHAR(50)
                 -- indicator of when the test first went bad
         );
+
+CREATE UNIQUE INDEX chronic_u ON chronic ( test_run_type, project, host, test_name, context );
 
 
 --

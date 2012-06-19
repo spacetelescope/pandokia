@@ -163,7 +163,7 @@ def clean_queries() :
     print "start delete old queries", now
 
     # placeholder so we don't re-use any of the deleted sequence numbers
-    pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+10))
+    pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+1000))
 
     # delete the records related to the query
     pdk_db.execute("DELETE FROM query WHERE qid IN ( SELECT qid FROM query_id WHERE expires > 0 AND expires < :1 ) ", (now,))
