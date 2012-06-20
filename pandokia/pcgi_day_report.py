@@ -156,6 +156,7 @@ def rpt2( ) :
     projects = None
     host = None
     context = None
+    chronic = '0'
 
     if form.has_key("project") :
         projects = form.getlist("project")
@@ -165,6 +166,9 @@ def rpt2( ) :
 
     if form.has_key("context") :
        context = form.getlist("context")
+
+    if form.has_key("chronic") :
+       chronic = form.getlist("chronic")[0]
 
     c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))
     x = c.fetchone()
@@ -183,7 +187,7 @@ def rpt2( ) :
         test_run_valuable = int(test_run_valuable)
 
     # create the actual table
-    ( table, projects ) = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable )
+    ( table, projects ) = gen_daily_table( test_run, projects, context, host, valuable = test_run_valuable, chronic=chronic=='1' )
 
 # # # # # # # # # # 
     if pandokia.pcgi.output_format == 'html' :
@@ -193,7 +197,7 @@ def rpt2( ) :
         if 1 :
             # if it looks like there is a date in it, try to show the day of the week
             # dates must look like 2011-01-01 and do not occur at the beginning of the name
-            t = re.search('[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])',test_run)
+            t = common.looks_like_a_date( test_run )
             try :
                 import datetime
                 t = t.group(1).split('-')
@@ -263,7 +267,9 @@ def rpt2( ) :
 #   #   #   #   #   #   #   #   #   #
 
 
-def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 ) :
+def gen_daily_table( test_run, projects, query_context, query_host, valuable=0, chronic=False ) :
+
+    # chronic is true if we should do the chronic column, false otherwise
 
     # convert special names, e.g. daily_latest to the name of the latest daily_*
     test_run = common.find_test_run(test_run)
@@ -302,6 +308,8 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
     table.define_column("total")
     for x in status_types :
         table.define_column(x)
+    if chronic :
+        table.define_column("chronic")
     table.define_column("del")
     table.define_column("note")
 
@@ -311,13 +319,18 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
     # loop across hosts
     prev_project = None
 
-    all_sum = { 'total' : 0 }
+    all_sum = { 'total' : 0, 'chronic' : 0 }
     for status in status_types :
         all_sum[status] = 0
 
 
     hc_where, hc_where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ), ('project', projects), ( 'context', query_context ), ('host', query_host) ]  )
     c = pdk_db.execute("SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " % hc_where, hc_where_dict )
+
+    if chronic :
+        chronic_str = "AND ( chronic = '0' or chronic IS NULL )"
+    else :
+        chronic_str = ""
 
     # now we forget the list of projects that came in and construct a
     # list of projects that we actually saw.
@@ -348,13 +361,13 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
             row += 1
 
             # the column headings for this project's part of the table
-            insert_col_headings( table, row, link )
+            insert_col_headings( table, row, link, chronic )
             row += 1
 
             # This will be the sum of all the tests in a particular project.
             # It comes just under the headers for the project, but we don't
             # know the values until the end.
-            project_sum = { 'total' : 0 }
+            project_sum = { 'total' : 0, 'chronic' : 0 }
             for status in status_types :
                 project_sum[status] = 0
 
@@ -396,7 +409,8 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
         total_results = 0
         missing_count = 0
         for status in status_types :
-            c1 = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5",
+            # use "or chronic is null" until we update the database for the new schema.
+            c1 = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5 %s" % ( chronic_str, ),
                 ( test_run, project, host, status, context ) )
             (x,) = c1.fetchone()
             total_results += x
@@ -411,16 +425,30 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
             if status == 'M' :
                 missing_count = x
 
+        if chronic :
+            c1 = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND context = :5 AND chronic = '1'",
+                ( test_run, project, host, status, context ) )
+            (x,) = c1.fetchone()
+            total_results += x
+            project_sum['chronic'] += x
+            all_sum['chronic'] += x
+            table.set_value(row, 'chronic', text=str(x), link = link + "&chronic=1" )
+            table.set_html_cell_attributes(row, 'chronic', 'align="right"' )
+            
+
         project_sum['total'] += total_results
         all_sum['total'] += total_results
 
-        if 'M' in status_types :
-            if missing_count == total_results :
-                # if it equals the total, then everything is missing; we make a note of that
-                table.set_value(row, 'note', 'all')
-            elif missing_count != 0 :
-                # if it is not 0, then we have a problem
-                table.set_value(row, 'note', 'some')
+        if 0 and 'M' in status_types :
+            # not sure how to deal with this in the presence of chronic problem tests
+
+            if missing_count != 0 :
+                if missing_count == total_results :
+                    # if it equals the total, then everything is missing; we make a note of that
+                    table.set_value(row, 'note', 'all missing')
+                else :
+                    # only some of them are missing
+                    table.set_value(row, 'note', 'some missing')
 
         table.set_value(row, 'total', text=str(total_results), link=link )
         table.set_html_cell_attributes(row, 'total', 'align="right"' )
@@ -442,7 +470,7 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
     table.set_html_cell_attributes(row,0,"colspan=%d"%n_cols)
 
     row = row + 1
-    insert_col_headings( table, row, None )
+    insert_col_headings( table, row, None, chronic )
 
     row = row + 1
     total_row = row
@@ -470,7 +498,7 @@ def gen_daily_table( test_run, projects, query_context, query_host, valuable=0 )
 #
 # 
 #
-def insert_col_headings( table, row, link ) :
+def insert_col_headings( table, row, link, chronic ) :
     table.set_value(row, "total", text="total", link=link )
     table.set_html_cell_attributes(row, 'total', 'align="right"' )
     xl = None
@@ -480,6 +508,10 @@ def insert_col_headings( table, row, link ) :
             xl = link + '&status='+x 
         table.set_value(row, x, text=xn, link = xl )
         table.set_html_cell_attributes(row, x, 'align="right"' )
+
+    if chronic :
+        table.set_value(row, 'chronic', 'chronic' )
+        table.set_html_cell_attributes(row, 'chronic', 'align="right"' )
 
 #
 #

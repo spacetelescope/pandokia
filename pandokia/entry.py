@@ -101,6 +101,10 @@ def run( argv = sys.argv ) :
         import pandokia.check_expected as x
         return x.run(args)
 
+    if cmd == 'chronic' :
+        import pandokia.chronic as x
+        return x.run(args)
+
     if cmd == 'clean' :
         import pandokia.cleaner
         return pandokia.cleaner.delete_background(args)

@@ -329,6 +329,20 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
             result.write(x)
     return result.getvalue()
 
+######
+#
+# pattern for a test run name that appears to have a date in it
+
+looks_like_a_date_re = None     # don't compile it unless we use it
+
+def looks_like_a_date( name ) :
+    global looks_like_a_date_re
+    if looks_like_a_date_re is None :
+        looks_like_a_date_re = re.compile('[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])')
+    t = looks_like_a_date_re.search( name )
+    if t :
+        return t.group(1)
+    return None
 
 ######
 #--#--# CGI
@@ -430,6 +444,13 @@ def parse_time( arg ) :
     # (no usec)
     try :
         d = datetime.datetime.strptime(arg,'%a %b %d %H:%M:%S %Y')
+        return d
+    except ValueError:
+        pass
+
+    # just a date
+    try :
+        d = datetime.datetime.strptime(arg,'%Y-%m-%d')
         return d
     except ValueError:
         pass
