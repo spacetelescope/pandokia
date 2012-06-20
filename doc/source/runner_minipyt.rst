@@ -244,20 +244,24 @@ Tests that are defined in "with" statements may be used inside test functions:
         print "just a plover"
         with pycode.test( 'egg' ) :
         # this test is named "plover.egg"
-        print "An emerald the size of a plover's egg"
-        with pycode.test( 'hatch' ) :
-            # this test is named "plover.egg.hatch"
-            assert 1
+            print "An emerald the size of a plover's egg"
+            with pycode.test( 'hatch' ) :
+                # this test is named "plover.egg.hatch"
+                assert 1
         print "that laid an egg"
 
 
-A powerful use of this feature is in dynamically defining tests:
+You can use this feature to dynamically define tests:
 
 ::
 
     for x, y  in some_list :
         with pycode.test( str(x) ) :
             assert f(x,y)
+
+This example is similar to the parameterized tests in py.test, but
+you do not need to have the entire list of tests before the tests
+start running.
 
 
 why not py.test parameterized test or nose generators?

@@ -62,8 +62,7 @@ In your __init__.py:  ::
 
     def test( verbose=False ) :
         #
-        import os
-        import pytest
+        import os, sys, pytest
 
         # import the test package
         test_pkg = __name__ + '.tests'
@@ -75,13 +74,46 @@ In your __init__.py:  ::
         # assemble the py.test args
         args = [ dir ]
 
-        if 'PDK_LOG' in os.environ :
-            args = [ '-p', 'pandokia.helpers.pytest_plugin' ] + args
-
         # run py.test
-        return pytest.main( args )
+        try :
+            return pytest.main( args )
+        except SystemExit as e :
+            return e.code
+
 
 Install your tests in xxx.tests with file names that py.test will recognize.
+
+using nose
+-------------------------------------------------------------------------------
+
+In your package, create a subsidiary package names "tests" (note
+the 's' in the name).  The tests package should contain python files
+that will be recognized by py.test.
+
+In your __init__.py:  ::
+
+    def test( verbose=False ) :
+        import os, sys, nose
+
+        # import the test package
+        test_pkg = __name__ + '.tests'
+        exec( "import %s" % test_pkg )
+
+        # find the directory where the test package lives
+        dir = os.path.dirname( sys.modules[test_pkg].__file__ )
+
+        # get the name of the test package
+        argv = [ 'nosetests', dir ]
+
+        # run nose
+        try :
+            return nose.main( argv = argv )
+        except SystemExit as e :
+            return e.code
+
+
+Install your tests in xxx.tests with file names that nose will recognize.
+
 
 using pycode
 -------------------------------------------------------------------------------
@@ -133,39 +165,6 @@ When writing pycode tests using the with-statement, you can nest tests: ::
 See ... for details.
 
 
-using nose
--------------------------------------------------------------------------------
-
-In your package, create a subsidiary package names "tests" (note
-the 's' in the name).  The tests package should contain python files
-that will be recognized by py.test.
-
-In your __init__.py:  ::
-
-    def test( verbose=False ) :
-        import nose
-
-        # get the pandokia plugin if it is available (it will only
-        # do anything if we are run from pandokia).
-        try :
-            import pandokia.helpers.nose_plugin as nose_plugin
-        except ImportError :
-            nose_plugin = None
-
-        if nose_plugin :
-            addplugins = [ nose_plugin.Pdk() ]
-        else :
-            addplugins = None
-
-        # get the name of the test package
-        argv = [ 'nosetests', __name__ + '.tests' ]
-
-        # run nose
-        return nose.main( argv = argv,  addplugins=addplugins )
-
-Install your tests in xxx.tests with file names that nose will recognize.
-
-
 using multiple runners
 -------------------------------------------------------------------------------
 
@@ -174,16 +173,21 @@ test function invoke each of the frameworks separately.  For example: ::
 
     def test_pytest( verbose=False ) :
         ... as in examples above, 
-        ... but using tests_pytest for the test package
+        ... but using tests.pytest for the test package
 
     def test_nose( verbose=False ) :
         ... as above
+        ... but using tests.nose for the test package
 
     def test_pycode( verbose=False ) :
         ... as above
+        ... but using tests.pycode for the test package
 
     def test( verbose=False ) :
-        return test_pytest(verbose) | test_nose(verbose) | test_pycode(verbose)
+        pt = test_pytest(verbose) 
+        no = test_nose(verbose) 
+        pc = test_pycode(verbose)
+        return pt | no | pc
 
 Of course, this means that you need more than one test framework
 installed to run all the tests.  This is an incovenience to the
@@ -201,4 +205,7 @@ the various test functions to be aware of whether they can run or not: ::
             return
         ...
 
+There is an example of this usage in test_new/pdkrun_test_data/test_fn in the
+pandokia source code (
+https://svn.stsci.edu/svn/ssb/etal/pandokia/trunk/test_new/pdkrun_test_data/test_fn ).
 
