@@ -9,4 +9,5 @@ Useful Patterns and Helper Functions
     helper_json.rst
     helper_testfn.rst
     helper_run.rst
+    helper_parameterized.rst
 
