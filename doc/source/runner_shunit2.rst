@@ -26,6 +26,8 @@ to your installed Pandokia are required.
 
 This copy of shunit2 is identified by SHUNIT_VERSION='2.1.6plugin'
 
+The *unmodified* documentation for shunit2 is available at https://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html or http://stsdas.stsci.edu/shunit/shunit2.html
+
 Using shunit2 with Pandokia
 ----------------------------------------------------------------------
 
