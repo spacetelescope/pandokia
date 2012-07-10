@@ -273,10 +273,11 @@ def run( dirname, basename, envgetter, runner ) :
                     os.unlink("stdout.%s.tmp"%slot_id)
                 else :
                     # on unix, just do it
-                    def yow() :
-                        os.setpgrp()
 
-                    p = subprocess.Popen( thiscmd, shell=True, env = env, preexec_fn=yow )
+		            # we used to setpgrp() but that messes something
+		            # up on python 2.7.3 on mac lion, so we never see
+		            # the child process exit.  So, don't setpgrp...
+                    p = subprocess.Popen( thiscmd, shell=True, env = env)
                     if 'PDK_TIMEOUT' in env :
                         proc_timeout_start(env['PDK_TIMEOUT'], p)
                         status = p.wait()
