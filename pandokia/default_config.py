@@ -140,6 +140,11 @@ exclude_dirs = [
     '.subversion',  # subversion
     'CVS',          # CVS
     '__pycache__',  # py.test
+    'tmp',          # temporary work directory for tests to use;
+                    # files created here cannot be mistaken for tests
+    'ref',          # ||
+    'out',          # || default reference/output/okfile directory names
+    'okfile',       # ||
 ]
 
 ######
