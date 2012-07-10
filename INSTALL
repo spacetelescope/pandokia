@@ -45,7 +45,7 @@ run time), but you may find it helpful to have some of :
 		For running tests in C.  The bare minimum necessary to
 		compile and execute tests is included with Pandokia,
 		but there is also quite good documentation and example
-		code available.
+		code available on their web site.
 
 		http://fctx.wildbearsoftware.com/
 
@@ -148,8 +148,8 @@ to find the location of the configuration file.  Edit it for your
 specific site.  The defaults are suitable for most of the values,
 but you will want to change these for your site:
 
-- Select the database driver you want to use.  Enter the relevant access
-  information.
+Select the database driver you want to use.  Enter the relevant access
+  	information.
 
 user_list
 	This is a list of user names that are allowed access to the
@@ -166,22 +166,20 @@ pdk_url
 	This is the URL provided in the email reports as a shortcut
         for users to access the browsable reports.
 
-exclude_dirs
-        Directories with these names are ignored when looking for tests.
-
-
 Edit config.py on the TEST-ONLY systems
 --
 
 Most of the default values in the config file are sufficient for
-a TEST-ONLY system, but you may want to edit the values of exclude_dirs.
+a TEST-ONLY system, but:
+
+exclude_dirs
+        Directories with these names are ignored when looking for tests.
 
 
 Initialize the Database
 --
 
 You only need a database on a SERVER machine.
-
 
 
 .... tbd ....
@@ -270,5 +268,4 @@ Pandokia is now installed on your system. Next, read
 - doc/demo.txt to see how to import some demo data into the database.
 
 - doc/pdk_aware.txt to see how to run your own tests
-
 
