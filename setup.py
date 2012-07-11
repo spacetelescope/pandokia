@@ -136,19 +136,19 @@ def fix_script(name) :
     f.writelines(l)
     f.close()
 
-    if windows :
-        # windows versions - we hope to use these everywhere
-        # to avoid writing a lot of "if windows: x=x+'.py'"
-        f=open(fname+".py","w")
-        f.writelines(l)
-        f.close()
+    # windows versions - we hope to use these everywhere
+    # to avoid writing a lot of "if windows: x=x+'.py'"
+    f=open(fname+".py","w")
+    f.writelines(l)
+    f.close()
 
+    if windows :
         # make .bat files too, so the commands can have normal names
         f=open(fname+".bat","w")
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
-        os.chmod(fname + '.py', 0755)
+    os.chmod(fname + '.py', 0755)
 
 #
 # The entrypoints file
