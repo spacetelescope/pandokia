@@ -148,7 +148,6 @@ def fix_script(name) :
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
-    if not windows :
         os.chmod(fname + '.py', 0755)
 
 #
