@@ -1,7 +1,14 @@
 
 import os
 import sys
-import pandokia.helpers.filecomp as filecomp
+
+# duplicate here because we get an import loop if we try to use the safe_rm in filecomp
+def safe_rm( fname ) :
+    try :
+        os.unlink( fname )
+    except OSError :
+        pass
+
 
 # ignore some especially uninteresting clutter in the par files
 # (you have to understand IRAF to understand why)
@@ -25,7 +32,7 @@ def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
 '''
     import pyraf
 
-    filecomp.safe_rm(output_file)
+    safe_rm(output_file)
 
     sys.stdout.flush()
     sys.stderr.flush()
@@ -70,7 +77,7 @@ def run_process( arglist, env=None, output_file="output_file" ) :
     if env is None :
         env = os.environ
 
-    filecomp.safe_rm(output_file)
+    safe_rm(output_file)
 
     out = open(output_file, "w")
 
