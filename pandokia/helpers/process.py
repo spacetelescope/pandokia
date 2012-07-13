@@ -1,6 +1,7 @@
 
 import os
 import sys
+import pandokia.helpers.filecomp as filecomp
 
 # ignore some especially uninteresting clutter in the par files
 # (you have to understand IRAF to understand why)
@@ -24,10 +25,7 @@ def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
 '''
     import pyraf
 
-    try :
-        os.unlink(output_file)
-    except OSError :
-        pass
+    filecomp.safe_rm(output_file)
 
     sys.stdout.flush()
     sys.stderr.flush()
@@ -72,10 +70,7 @@ def run_process( arglist, env=None, output_file="output_file" ) :
     if env is None :
         env = os.environ
 
-    try :
-        os.unlink(output_file)
-    except IOError :
-        pass
+    filecomp.safe_rm(output_file)
 
     out = open(output_file, "w")
 
