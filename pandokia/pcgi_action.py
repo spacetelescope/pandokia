@@ -117,14 +117,15 @@ def run( ) :
         v = int(form['valuable_qid'].value)
         if v :
             expire = pandokia.never_expires
-            s = "SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id " % ( qid, ) 
-            print "S=%s<br>"%s
-            c = pdk_db.execute( s ) 
-            for x in c :
-                print x, "<br>"
+            if 0 :
+                s = "SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id " % ( qid, ) 
+                print "S=%s<br>"%s
+                c = pdk_db.execute( s ) 
+                for x in c :
+                    print x, "<br>"
             pdk_db.execute("""UPDATE distinct_test_run SET valuable=1 WHERE test_run IN 
                 ( SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id )
-                """ % ( qid, qid ) )
+                """ % ( qid, ) )
         else :
             expire = time.time() + pandokia.cfg.default_qid_expire_days * 86400
         pdk_db.execute("UPDATE query_id SET username = :1, expires = :2 WHERE qid = :3",(common.current_user(), expire, qid))
