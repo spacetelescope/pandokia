@@ -1,5 +1,5 @@
-Notes for making a release
---
+# Notes for making a release
+# --
 
 d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
 
@@ -9,7 +9,9 @@ svn del -m'replacing branch' $d/$release
 
 svn copy -m'release branch' $d/trunk $d/$release
 
-svn checkout $d/$release
+rm -rf $release
+
+svn checkout -q $d/$release
 
 cd $release
 
