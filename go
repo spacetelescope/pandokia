@@ -76,9 +76,9 @@ case "":
 		breaksw
 	endsw
 
-	set n=58
+	set n=59
 	set there=/ssbwebv1/data2/pandokia/c$n
-        rm -rf $there/pandokia*
+        rm -rf $there/lib/python/pandokia*
 	python setup.py -q install --home $there
 
 	cp  /eng/ssb/web/shunit/shunit2 $there/bin

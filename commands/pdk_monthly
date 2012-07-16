@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# This is a script that we use to purge old daily tests from our database.
+# You could customize this for your own site.
+#
+# We clean old records out of the database when it gets to about 150 GB.
+# We make enough test data that we can only keep between 3 and 4 months
+# of results in 150 GB, so whenever we go over, I delete the automated
+# test runs from 4 months ago.
+#
+# I delete user-generated test runs manually.
+#
+
+
+# What month are we deleting?  today - $purge_month
+
+purge_month=4
+
+# You could use this to find the earliest actually in the database, but we don't.
+#
+# pdk query "select min(test_run) from distinct_test_run where test_run like 'daily_20%%';"
+# pdk query "select min(test_run) from distinct_test_run where test_run like 'jwst_%%';"
+
+# what month is it now
+year=`date +%Y`
+month=`date +%m`
+
+# a simple way to find the month that is N months ago
+adjust_month_year() {
+	year=$1
+	month=$2
+	offset=$3
+
+	newmonth=`expr $month - $offset`
+	newyear=$year
+
+	while [ $newmonth -lt 1 ]
+	do
+		newmonth=`expr $newmonth + 12`
+		newyear=`expr $newyear - 1`
+	done
+
+	case "$newmonth"
+	in
+	?)	newmonth=0$newmonth
+		;;
+	esac
+
+	echo $newyear-$newmonth
+}
+
+
+# Find all the test runs from a particular calendar month.  Delete them
+# one at a time.  This keeps the transaction size down to a tolerable level,
+# and makes this whole procedure more restartable.
+clean_month() {
+	prefix=$1
+	month=$2
+
+	echo CLEAN_MONTH $prefix$month
+
+	# yes, I know the _ in the test_run name is a wild card in sql
+	test_runs=` pdk query "select test_run from distinct_test_run where test_run like '$prefix$month-%%' and valuable = '0' order by test_run;"`
+
+	for x in $test_runs
+	do
+		echo XXXX
+		pdk delete -test_run $x
+	done
+	echo DONE
+}
+
+# find the month we are deleting
+delmonth=`adjust_month_year $year $month $purge_month`
+
+clean_month jwst_  $delmonth
+clean_month daily_ $delmonth

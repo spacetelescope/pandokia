@@ -34,6 +34,7 @@ python_commands = [
 
 shell_commands = [ 
     'pdk_gen_contact',          # create contact list for pdk import_contact
+    'pdk_monthly',              # cleaner tool for stsci
     'pdk_run_helper.sh',        # helper for shell scripts using "run" runner
     'pdk_shell_runner',         # run a shell script as a test, use exit code as status
     'pdk_shell_runner_helper',  # tools to use in shell_runner scripts
