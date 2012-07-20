@@ -39,7 +39,9 @@ shell_commands = [
     'pdk_shell_runner',         # run a shell script as a test, use exit code as status
     'pdk_shell_runner_helper',  # tools to use in shell_runner scripts
     'pdk_stsci_regress',        # regtest runner
+    'sendto',                   # here for convenience; not really pandokia
     'shunit2_plugin_pdk',       # pandokia plugin for shunit2
+    'xtname',                   # here for convenience; not really pandokia
     ]
 
 command_list = python_commands + shell_commands

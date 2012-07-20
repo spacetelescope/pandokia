@@ -1,0 +1,258 @@
+#!/bin/sh
+#
+
+helpstr() {
+cat << ARF
+sendto [ -y ] [ -n ] [ -t ] [ -m'comment' ] branch
+
+If the current directory is checked out from subversion, it is copied
+to the same location in the specified branch.  For example, if your
+current directory was checked out from
+
+  http://www.example.com/svn/mything/trunk/some/directory
+
+you could use the command
+
+  sendto release_1
+
+to copy it to
+
+  http://www.example.com/svn/mything/branches/release_1/some/directory
+
+The destination directory will be deleted first, then the svn copy is
+made with "svn copy . URL"
+
+If you give -m'comment' it is passed to the svn copy command.
+
+If you give -t, it copies to tags/ instead of branches/.
+
+If you give -y, it does not ask you for confirmation.
+
+If you give -n, it shows the svn commands it would use, but does not
+do anything.
+
+ARF
+}
+
+# this has either the value "branches" or "tags" depending where
+# we are sending to
+branches_or_tags=branches
+
+nop=no
+ask=yes
+
+# simplistic arg processing - probably even overkill for this application
+while [ "$*" != "" ]
+do
+	case "$1"
+	in
+	-t)
+		echo 'sending to tags'
+		branches_or_tags=tags
+		;;
+	-m)
+		comment="-m$2"
+		shift
+		;;
+	-m*)
+		comment="$1"
+		;;
+	-n)
+		nop=yes
+		;;
+	-h*)
+		helpstr
+		exit 0
+		;;
+	-y)
+		ask=no
+		;;
+	-*)
+		helpstr
+		echo unknown option $1
+		exit 1
+		;;
+	*)
+		if [ "$branchname" = "" ]
+		then
+			branchname=$1
+		else 
+			helpstr
+			echo "Can only give one branch name: " $1
+			exit 1
+		fi
+		;;
+	esac
+	shift
+done
+
+if [ -z "$branchname" ]
+then
+	helpstr
+	echo "must specify name of branch to send to or 'trunk'"
+	exit 1
+fi
+
+#
+# svn info tells us the URL of the current checked out directory
+from=`svn info | awk '/^URL:/ { print $2}' `
+
+if [ -z "$from" ]
+then
+	helpstr
+	echo current directory does not appear to be checked out from subversion
+	exit 1
+fi
+
+#
+# Split the URL of the current directory at the work "trunk" or "branches".
+#
+# Use the first part to compute the URL of the "top" level (i.e. where the
+# /trunk and /branches directories appear).
+#
+# Use the second part to compute where we are in the heirarchy of checked
+# out files.
+#
+# This is slightly different, depending on the form of the current URL.
+#
+# $base is the first part of the URL
+# $here is our location in the heirarchy
+
+case "$from"
+in
+
+*/trunk)
+	if [ "$branchname" = 'trunk' ]
+	then
+		echo 'You are on the trunk, but are attempting to copy to the trunk.'
+		exit 1
+	fi
+	# we are sending the whole trunk; just take the "/trunk" off the end
+	# to get the base.
+	base=`echo $from | sed 's?/trunk??'`
+	here=''
+	;;
+
+*/trunk/*)
+	if [ "$branchname" = 'trunk' ]
+	then
+		echo 'You are on the trunk, but are attempting to copy to the trunk.'
+		exit 1
+	fi
+	# we are in a subdirectory of the trunk; split it off at /trunk/ to
+	# get the base URL and the current relative directory.
+	base=`echo $from | sed 's?/trunk/? ?' | awk '{ print $1 }' `
+	here=`echo $from | sed 's?/trunk/? ?' | awk '{ print $2 }' `
+	;;
+
+*/branches/*)
+	# find the current branch name, so we can see if the user asked to
+	# copy into the same branch.
+	this_branch=`echo $from | sed 's?/branches/? ?' | awk '{ print $2 }' | sed 's?/.*$??' `
+	if [ "$branchname" = "$this_branch" ] && [ "$branches_or_tags" = "branches" ]
+	then
+		echo 'You are trying to copy to the same branch that you are already on.'
+		echo 'You cannot do that.'
+		exit 1
+	fi
+	# we are in a branch; split it off at /branches/branchname to
+	# get the base URL and the current relative directory.
+	base=`echo $from | sed 's?/branches/[^/]*? ?' | awk '{ print $1 }' `
+	here=`echo $from | sed 's?/branches/[^/]*? ?' | awk '{ print $2 }' `
+	;;
+
+*/tags/*)
+	# find the current tag name, so we can see if the user asked to
+	# copy into the same tag
+	this_tag=`echo $from | sed 's?/tags/? ?' | awk '{ print $2 }' | sed 's?/.*$??' `
+	if [ "$branchname" = "$this_tag" ] && [ "$branches_or_tags" = "tags" ]
+	then
+		echo 'You are trying to copy to the same tag that you are already on.'
+		echo 'You cannot do that.'
+		exit 1
+	fi
+	# we are in a branch; split it off at /branches/branchname to
+	# get the base URL and the current relative directory.
+	base=`echo $from | sed 's?/tags/[^/]*? ?' | awk '{ print $1 }' `
+	here=`echo $from | sed 's?/tags/[^/]*? ?' | awk '{ print $2 }' `
+	;;
+
+*)
+	# If it doesn't follow the trunk/branches convention, we can't handle it.
+	# Also, we don't send from tags/ to a branch; use regular svn copy
+	echo Do not know how to handle $here
+	echo It does not appear to be either a branch or the trunk
+	exit 1
+	;;
+
+esac
+
+# If the destination is 'trunk', send to the real trunk instead a
+# branches/trunk.  This lets you send from a branch back to the trunk.
+case "$branchname"
+in
+trunk)
+	there=$base/trunk/$here
+	;;
+*)
+	there=$base/$branches_or_tags/$branchname/$here
+	;;
+esac
+
+# Ok, here are the svn commands.
+
+# Must delete the destination first; use same comment always, so the user doesn't
+# have to type in comments twice.
+
+# FIRST: echo the commands for the user to see
+
+echo svn del -m\'delete for branch update\' $there
+
+# If the user gave a '-mxxx', we use it, otherwise
+# svn will ask for the comment.
+if [ "x$comment" = "x" ]
+then
+	echo svn copy . $there
+else
+	echo svn copy \'"$comment"\' . $there
+fi
+
+# SECOND: 
+#	ask for confirmation
+#	if they gave -n, quit now
+
+if [ "$nop" = "yes" ]
+then
+	exit 0
+fi
+
+if [ "$ask" = "yes" ]
+then
+	echo ''
+	echo 'Is this what you want (type 'yes' to proceed)'
+	read ans
+	case "$ans"
+	in
+	yes)
+		:
+		;;
+	*)
+		echo 'not "yes" - not proceeding'
+		exit 0
+		;;
+	esac
+fi
+
+
+# THIRD: actually perform the commands
+svn del -m'delete for branch update' $there
+
+# If the user gave a '-mxxx', we use it, otherwise
+# svn will ask for the comment.
+if [ "x$comment" = "x" ]
+then
+        svn copy . $there
+else
+        svn copy "$comment" . $there
+fi
+
