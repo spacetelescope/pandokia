@@ -38,6 +38,7 @@ Meta-|
 
 '''
 
+import sys
 
 #
 # text_table is a general purpose table builder.  You fill in the
