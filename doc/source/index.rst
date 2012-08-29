@@ -10,6 +10,7 @@ Pandokia Documentation
     :maxdepth: 2
 
     intro.rst
+    install.rst
     pdk_aware.rst
     run_tests.rst
     file_format.rst

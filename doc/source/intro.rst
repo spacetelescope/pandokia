@@ -13,19 +13,21 @@ Pandokia is a system for displaying those test results.
 
 The two major subsystems are:
 
- - A web-based user interface for reporting.  It uses a CGI, so
-   there is no complicated server configuration.
+ -  A web-based user interface for reporting.  It uses a CGI, so
+    there is no complicated server configuration.
 
- - An optional system for executing tests.  It can run tests in
-   py.test (python), nose (python), unittest2 (python), shunit2 (sh),
-   FCTX (C/C++), all in a single test run.  You can add your own
-   methods for executing other types of tests.
+ -  An optional system for executing tests.  It can run tests
+    written for many different test frameworks, all in a single
+    test run.  There is direct support for tests in py.test (python), 
+    nose (python), unittest2 (python), shunit2 (sh), FCTX (C/C++),
+    or even stand-alone programs.  You can add your own methods for
+    executing other types of tests.
 
-   It is optional because the database ingest reads a simple text
-   format; anything that can produce pandokia-formatted data
-   can report test results.  (There is an experimental interface for
-   reading JUnit/XML data, but the pandokia format contains more
-   information.)
+    You don't need to use pandokia to run your tests.  The database
+    ingest reads a simple text format; anything that can produce
+    pandokia-formatted data can report test results.  There is also
+    an experimental interface for reading JUnit/XML data, but the
+    pandokia format contains fields that JUnit does not report.
 
 We assume two primary use cases for Pandokia:
 
@@ -35,70 +37,54 @@ We assume two primary use cases for Pandokia:
 The reports understand that you will run the same test code many
 times.  Each test result is identified by a unique tuple:
 
- - test_run is the name of this instance of running a batch of
-   tests.  The name is arbitrary, but often fits a pattern such as
-   "daily_2010-04-12" or "user_henry_ticket87".
+ -  test_run is the name of this instance of running a batch of
+    tests.  The name is arbitrary, but often fits a pattern such
+    as "daily_2010-04-12" or "user_henry_ticket87".
 
- - project is a project name; a CI system may integrate tests from
-   several projects into a single report.
+ -  project is a project name; a CI system may integrate tests from
+    several projects into a single report.
 
- - context identifies something about the environment where the
-   test was run.  We sometimes name contexts for the version of python
-   the test ran in, or for a particular system configuration.
+ -  context identifies something about the environment where the
+    test was run.  We sometimes name contexts for the version of
+    python the test ran in, or for a particular system configuration.
 
- - host is which computer the test ran on.  Our CI system runs the
-   same tests on many different operating systems.
+ -  host is which computer the test ran on.  Our CI system runs the
+    same tests on many different operating systems.
 
- - test_name is the name of a particular test.  The reporting system
-   understands that test names fit into a hierarchy, much like file
-   names.  Test names are arbitrary, but normally we name a test by
-   the directory where the test file is located, the name of the file
-   containing the test, and the name of a function/class that implements
-   the test.
+ -  test_name is the name of a particular test.  The reporting system
+    understands that test names fit into a hierarchy, much like
+    files are organized in directories.  Test names are arbitrary,
+    but the test runners that Pandokia provides will name the test
+    by the directory where the test file is located, the name of
+    the file containing the test, and the name of a function/class
+    that implements the test.
 
-   The system assumes that you use the always use the same name for
-   the same test, so that you can compare results across test runs,
-   hosts, or contexts.
+    The system assumes that you use the always use the same name for
+    the same test, so that you can compare results across test runs,
+    hosts, or contexts.
 
 After you ingest the test results into the database, there are reports
 that cover:
 
- - all currently known test runs
+ -  all currently known test runs
 
- - a tablar report of all information about a single test run, or
-   a project within that test run
+ -  a tabular report of all information about a single test run, or
+    a project within that test run
 
- - a tree view of the results, with "drill down"
+ -  a tree view of the results, with "drill down"
 
- - a summary of an arbitrary list of tests, with operators to
-   add/remove tests from the list and combine lists
+ -  a summary of an arbitrary list of tests, with operators to
+    add/remove tests from the list and combine lists
 
- - details of a specific test, including captured stdout/stderr and
-   various values ("attributes") that the test reported
+ -  details of a specific test, including captured stdout/stderr and
+    various values ("attributes") that the test reported
 
-
-Supporting Software
--------------------
-
-For database support, you need one of:
-
- - if using MySQL as the database: MySQLdb 
- - if using Postgres as the database: psycopg2
- - if using Sqlite3 as the database: sqlite3 (usually included with Python) or pysqlite2
-
-For running tests, any of these that you wish to use:
-
- - nose - http://readthedocs.org/docs/nose/
- - py.test - http://pytest.org/
- - pyraf - http://www.stsci.edu/institute/software_hardware/pyraf (used to run IRAF tasks)
- - shunit2 - specially modified version from http://stsdas.stsci.edu/shunit/
- - unittest2 - http://pypi.python.org/pypi/unittest2
- - FCTX - included in pandokia, but see also http://fctx.wildbearsoftware.com/ 
 
 Test status
 -----------
 
-Pandokia presently supports the following statuses:
+We find it useful to have more to a test status than just "pass"
+or "fail".  Pandokia presently supports the following statuses:
 
  - P = Passed
  - F = Failed
@@ -172,8 +158,7 @@ test, which contains all the information about the test available in
 the database. For tests that are "OK-aware", a "FlagOK" button is
 present on this form, that can be used to mark a failed test "OK". 
 
-From the detailed report, you can return to the treewalker
-
+From the detailed report, you can return to the treewalker.
 
 The following screen shots illustrate several commonly-used reports in
 the system:
@@ -277,5 +262,4 @@ Support
    You can request help on Pandokia by sending email to help@stsci.edu
    with STSDAS/Pandokia in the subject line. The authors also follow
    the TIP mailing list (testing-in-python@lists.idyll.org).
-
 

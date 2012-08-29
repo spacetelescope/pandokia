@@ -4,14 +4,11 @@
 fctx (C) - C unit testing
 ===============================================================================
 
-:abstract:
-
-    Pandokia can use fctx 1.6.1 to test code written in C.
-
 Overview
 -------------------------------------------------------------------------------
 
-FCTX is a C unit test framework.  It comes from http://fctx.wildbearsoftware.com/ but everything you need to compile and run tests is included with Pandokia.
+FCTX is a C unit test framework.  Everything you need to compile and run tests is included with Pandokia.
+See http://fctx.wildbearsoftware.com/ or http://ssb.stsci.edu/testing/fctx for FCTX documentation.
 
 In FCTX terms, the Pandokia interface is implemented as a "custom
 logger".  To make your tests Pandokia-capable, you need to include

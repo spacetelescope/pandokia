@@ -10,23 +10,25 @@ Overview
 This runner uses a modified version of shunit2; the modifications implement
 support for a plugin architecture.  
 
-As of this writing, patches to implement this plugin architecture have been
-submitted to the shunit2 maintainer, but have not been accepted into the
-source code.
-
 The plugin that reports to the Pandokia system is distributed with Pandokia.
+
+(As of this writing, patches to implement this plugin architecture have been
+submitted to the shunit2 maintainer, but have not been accepted into the
+source code.)
+
 
 Installing
 ----------------------------------------------------------------------
 
-You can download the patched shunit2 from http://stsdas.stsci.edu/shunit/
+You can download the patched shunit2 from http://ssb.stsci.edu/testing/shunit2
 
 Download the file "shunit2" and put it on your PATH somewhere.  No changes
 to your installed Pandokia are required.
 
 This copy of shunit2 is identified by SHUNIT_VERSION='2.1.6plugin'
 
-The *unmodified* documentation for shunit2 is available at https://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html or http://stsdas.stsci.edu/shunit/shunit2.html
+The *unmodified* documentation for shunit2 is available at https://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html or http://ssb.stsci.edu/testing/shunit2/shunit2.html
+
 
 Using shunit2 with Pandokia
 ----------------------------------------------------------------------
@@ -71,7 +73,7 @@ Assertions in shunit2
 The shunit2 distribution contains documentation of various assertions
 in doc/shunit2.rst ; you can read it online at 
 http://shunit2.googlecode.com/svn/trunk/source/2.1/doc/shunit2.html
-or http://stsdas.stsci.edu/shunit/shunit2.html
+or http://ssb.stsci.edu/testing/shunit2/shunit2.html
 
 There is significant difference of interest to python programmers:
 When an assertion fails in shunit, it does NOT abort the rest of

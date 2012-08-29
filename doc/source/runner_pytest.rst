@@ -4,42 +4,36 @@
 pytest (Python) - py.test
 ===============================================================================
 
-:abstract:
-
-    Pandokia can use py.test 2.2 to run tests.
-
 .. contents::
 
 Overview
 -------------------------------------------------------------------------------
 
-Pandokia supplies a py.test plugin.  It is automatically enabled when
-you use Pandokia to run a test with py.test.
+Pandokia supplies a py.test plugin.  It is automatically enabled
+when you use Pandokia to run a test with py.test.  
 
-You can run py.test with the Pandokia plugin by using the special program pdkpytest::
+With this plugin, py.test can also write a Pandokia log file on its own, so you can
+run it outside Pandokia.: ::
 
-    pdkpytest foo.py
-
-You can declare the plugin by one of the methods known to py.test, but you
-must say --pdk to enable it::
-
-    setenv PYTEST_PLUGINS pandokia.helpers.pytest_plugin
     py.test --pdk foo.py
 
-    py.test -p pandokia.helpers.pytest_plugin --pdk foo.py
 
-Enabling the plugin always cause a PDK_LOG file to be created, but you
-can ignore it.
+Installing
+-------------------------------------------------------------------------------
 
-Bug:  the plugin does not yet correctly restore stdout when using --pdb
+Documentation for installing py.test is available at http://pytest.org/
+.  The py.test documentation includes quite a nice Installation and
+Getting Started section.  If you are not already familiar with
+py.test, it is a good introduction.
 
 
 Enabling py.test
 -------------------------------------------------------------------------------
 
-The default test runner for python files is currently nose.  To direct
-pandokia to use py.test, create a file named `pdk_runners` that 
-declares that some files should be run with the runner `pytest`.
+Any file matching the pattern `*.pytest` will be executed with py.test.
+
+The default runner for `*.py` is nose, but you can override this
+per-directory by creating a `pdk_runners` file.
 
 The most convenient way to do it is to declare that all python files
 should be run with py.test::
@@ -52,6 +46,7 @@ You can also mix py.test, nose, and other test runners::
     b*.py	nose
     c*.py	minipyt
     d*.py	pytest
+
 
 .. index:: single: timeout; py.test
 

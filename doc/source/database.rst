@@ -14,73 +14,7 @@ Pandokia Database Administration
 Overview
 ........
 
-The CGI app needs a database to store its data.  For each supported
-database, there is a file of SQL statements in pandokia/sql that
-will create the necessary tables and indexes.  
-
-Initializing the database : sqlite
-...........................................
-
-Sqlite3 support is normally built into Python.  You can look for it
-by ::
-
-    python
-    import sqlite3
-
-If you do not get an error, you already have sqlite support.  If
-you do not, you can re-compile python with sqlite support, or you
-can install pysqlite from http://pypi.python.org/pypi/pysqlite/
-
-Sqlite3 does not use a server itself; it only needs a directory to
-store the database file in.  It requires working file locking.  Some
-NFS servers have buggy file locking, which you can avoid by storing
-the data files locally.
-
-The directory and the database files must be writable to
-
-  - the uid that runs the CGI
-  - the database administrator
-  - any user that imports data with "pdk import"
-
-Enter the name of the database in config.py, then ::
-
-    pdk sql pandokia/sql/sqlite.sql
-
-TODO: ref to editing config file
-
-Sqlite3 generally does not require any direct maintenance, but note
-that Pandokia uses "pragma synchronous = normal;" for speed.  Certain
-types of crashes can cause your database to be corrupted.  
-
-See http://sqlite.org/pragma.html#pragma_synchronous for more
-information.  There is not a configuration for this, but it only
-happens once in pandokia/db_sqlite.py
-
-
-Initializing the database : MySQL
-...........................................
-
-TODO: describe using mysql
-
-Enter the access credentials in config.py, then: ::
-
-    pdk sql pandokia/sql/mysql.sql
-
-TODO: describe grants
-
-Initializing the database : Postgres
-...........................................
-
-
-Note:  The postgres support is not as actively maintained as mysql.
-
-TODO: describe using postgres
-
-Enter the access credentials in config.py, then: ::
-
-    pdk sql pandokia/sql/postgres.sql
-
-TODO: describe grants
+...
 
 Running Tests
 ...........................................
