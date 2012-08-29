@@ -192,10 +192,12 @@ if 'install' in d.command_obj :
     lib_dir    = d.command_obj['install'].install_lib
     print 'scripts went to', script_dir
     print 'python  went to', lib_dir
-
     # hack the scripts for PDK_DIR_HERE
     for x in python_commands :
         fix_script(x)
+
+    print ''
+    print 'Get the CGI from ', os.path.join(script_dir, 'pdk')
 
     # tell the user 
     print ''

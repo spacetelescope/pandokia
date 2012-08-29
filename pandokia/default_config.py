@@ -17,7 +17,11 @@
 # To select the database to use, import the appropriate database
 # driver and instantiate a connection to the database.
 
-def readpass() :
+def readpass(fn) :
+    f = open(fn,'r')
+    return f.read().strip()
+
+def complex_readpass() :
     # import os.path
     # d=os.path.dirname(__file__)
     d = '/ssbwebv1/data2/pandokia/'
@@ -46,8 +50,8 @@ def readpass() :
     f.close()
     return s.strip()
 
+# Database: SQLITE
 if 0 :
-    # Database: SQLITE
     #           http://www.sqlite.org/
     #
     # sqlite3 - ships with python
@@ -78,17 +82,21 @@ if 0 :
     pdk_db = dbd.PandokiaDB( db_arg )
 
 
+# Database: Postgres
 if 0 :
-    # Database: Postgres
     #           http://www.postgresql.org/
     # psycopg
     #           http://initd.org/psycopg/
     # 
     import pandokia.db_psycopg2 as dbd
-    pdk_db = dbd.PandokiaDB( { 'database' : 'pandokia', } )
 
+    db_arg = { 'database' : 'pandokia', }
+
+    pdk_db = dbd.PandokiaDB( db_arg )
+
+
+# Database: MySQL
 if 0 :
-    # Database: MYSQL
     #           http://www.mysql.com/
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
@@ -97,7 +105,7 @@ if 0 :
     # db_arg is a dict of the parameters to pass to connect()
     db_arg = { 'host' : 'whatever', 
             'user' : 'whatever', 
-            'passwd' : readpass(),
+            'passwd' : readpass('/ssbwebv1/data2/pandokia/mysql_password'),
             'db' : 'whatever'
         }
 
