@@ -235,8 +235,8 @@ def pytest_runtest_setup(item):
     if in_tester() :
         tty.write( "IN TESTER\n" )
         # we are NOT running in the context of pdkrun, so the file
-	    # name may contain various kinds of junk that we want to
-	    # exclude.
+        # name may contain various kinds of junk that we want to
+        # exclude.
         try :
             filename = trim_filename( filename )
         except Exception, e :
@@ -392,8 +392,8 @@ def pytest_runtest_makereport(__multicall__, item, call):
         item.pandokia.exception = None
 
         ## if we don't make it to the 'call' when, there was an
-	    ## error in the setup.  Make an empty record that gets us
-	    ## through the report.
+        ## error in the setup.  Make an empty record that gets us
+        ## through the report.
         item.pandokia.status = None
         item.pandokia.tda = { }
         item.pandokia.tra = { }
@@ -428,7 +428,7 @@ def pytest_runtest_makereport(__multicall__, item, call):
         # after the test and the teardown function are finished running:
 
         ## If there is an exception in the test setup, when='call'
-	    ## never happens.  This part dances around that issue.
+        ## never happens.  This part dances around that issue.
 
         # no status implies not pass/skipped/fail, leaving E
         if item.pandokia.status is None :

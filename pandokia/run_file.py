@@ -59,19 +59,19 @@ def read_runner_glob ( dirname ) :
     parent = parent.replace('//','/')
 
     if parent == dirname :
-	    # if the parent is the same, we are at the top of the
-	    # filesystem.  On linux, this looks like '/'.  On
+        # if the parent is the same, we are at the top of the
+        # filesystem.  On linux, this looks like '/'.  On
         # windows, this looks like 'Z:\'
         parent_list = runner_glob
 
     elif os.path.exists( dirname + '/pandokia_top' ):
         # if we see pandokia_top, we are at the top of the test
-	    # tree.
+        # tree.
         parent_list = runner_glob
 
     else :
-	    # otherwise, we need to get the list of runners from the
-	    # parent directory
+        # otherwise, we need to get the list of runners from the
+        # parent directory
         parent_list = read_runner_glob( parent )
 
     # now we have the list from the higher directories; try to 
@@ -274,9 +274,9 @@ def run( dirname, basename, envgetter, runner ) :
                 else :
                     # on unix, just do it
 
-		            # we used to setpgrp() but that messes something
-		            # up on python 2.7.3 on mac lion, so we never see
-		            # the child process exit.  So, don't setpgrp...
+    	            # we used to setpgrp() but that messes something
+    	            # up on python 2.7.3 on mac lion, so we never see
+    	            # the child process exit.  So, don't setpgrp...
                     p = subprocess.Popen( thiscmd, shell=True, env = env)
                     if 'PDK_TIMEOUT' in env :
                         proc_timeout_start(env['PDK_TIMEOUT'], p)

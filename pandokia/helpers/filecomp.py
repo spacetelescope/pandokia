@@ -578,7 +578,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
         tda is the tda dict.  If there is a tda dict and an okfile, the
             "_okfile" tda is set.
 
-	    tra is the tra dict.  If the file comparator is able
+        tra is the tra dict.  If the file comparator is able
             to put useful attributes in the tra, this will be used.
 
         cleanup is true if it should delete output files from passing tests.
@@ -605,7 +605,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
         if isinstance(okroot, tuple) :
             # if it is a tuple, it is ( __file__, 'testname' );
-	        # chop it up and assemble a reasonable okfile name
+            # chop it up and assemble a reasonable okfile name
             ok_dir  = os.path.dirname(okroot[0])
             ok_file = os.path.basename(okroot[0])
             if ok_file.endswith('.py') :

@@ -129,16 +129,16 @@ class Pdk(nose.plugins.base.Plugin):
                 default_location = os.path.join( d, os.environ['PDK_FILE'] )
             else :
                 # wrong, but better than nothing.  We would actually
-		        # like to report the file that each test is in, but
-		        # it appears that nose has lost that information by
-		        # the time it gets to us.
+    	        # like to report the file that each test is in, but
+    	        # it appears that nose has lost that information by
+    	        # the time it gets to us.
                 default_location = os.path.abspath(os.path.curdir) 
 
             #
             self.rpt = pandokia.helpers.pycode.reporter(
                 source_file = None,
                 setdefault = True,
-		            # force it to write all the values, even if
+    	            # force it to write all the values, even if
                     # pdkrun may have written a setdefault block.  If
                     # the "run" runner runs a shell script that says
                     # "pdknose modulename", we at least get some
@@ -212,7 +212,7 @@ class Pdk(nose.plugins.base.Plugin):
                     exc = 'test._exc_info not available'
 
             # We have the stack trace in capt already, but we also
-	        # need the exception that caused it.  Now we have it, so
+            # need the exception that caused it.  Now we have it, so
             # we can show it in the captured output.
             capt = capt + ( str(exc) + '\n' )
 
@@ -356,8 +356,8 @@ class Pdk(nose.plugins.base.Plugin):
             pass
         elif self.rpt :
             # we have a rpt object, so make the report.  (If we
-	        # don't, we are in something like "nosetests --pdk" but
-	        # without the log file specified.)
+            # don't, we are in something like "nosetests --pdk" but
+            # without the log file specified.)
             self.rpt.report(
                 test_name = name,
                 status = status,
