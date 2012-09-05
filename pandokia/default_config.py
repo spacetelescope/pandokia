@@ -17,7 +17,7 @@
 # To select the database to use, import the appropriate database
 # driver and instantiate a connection to the database.
 
-def readpass(fn) :
+def readpass(fn = None) :
     f = open(fn,'r')
     return f.read().strip()
 

@@ -133,7 +133,8 @@ def find_test_run( run) :
     if run.endswith('_latest') :
         prefix = run[0:-len('_latest')]
         if prefix in cfg.recurring_prefix :
-            return run_latest(prefix)
+            s= run_latest(prefix)
+            return s
 
     if run.endswith('_yesterday') :
         prefix = run[0:-len('_yesterday')]

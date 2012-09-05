@@ -17,6 +17,7 @@ recurring_prefix = (
     'weekly',
     'monthly',
     'numpy',
+    'jwst',
     )
 
 if not 'pdk_db' in globals() :
@@ -31,7 +32,7 @@ if not 'pdk_db' in globals() :
         # db_arg is a dict of the parameters to pass to connect()
         db_arg = { 'host' : 'ssb.stsci.edu',
                 'user' : 'pandokia',
-                'passwd' : readpass(),
+                'passwd' : complex_readpass(),
                 'db' : 'pandokia'
             }
 

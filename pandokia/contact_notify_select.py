@@ -3,9 +3,12 @@ users will be able to select which reports they like and the level of verbosity
 associated with said reports.
 """
 TEST = False
+TEST = 1
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
+
+import pandokia.helpers.easyargs as easyargs
 
 import pandokia.common
 import text_table
@@ -60,6 +63,14 @@ def project_test_run(test_run, project):
     host_context = [ ]
     for host, context in c :
         host_context.append( (host, context) )
+
+    # If we did not find any host/context, that means there is no report
+    # in the database for this test_run/project.  Therefore, we don't need
+    # to count the failed tests.  The caller will see None as our result,
+    # and know it doesn't need to report anything about this case.
+    if len(host_context) == 0 :
+        test_runs[(test_run,project)] = (None, None)
+        return (None, None)
 
     query = """SELECT host, test_name, context, status FROM result_scalar WHERE test_run = :1 AND project = :2
             AND status <> 'P' ORDER BY host, context, test_name """
@@ -211,27 +222,32 @@ def create_email(username, test_run) :
 
         if format.capitalize() == 'F':
 
-            all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
+            # anything is True/False for whether there was anything in
+            # the test_run/project (passing or not).  This is used to
+            # suppress the report when the project does not exist in this
+            # test run.
+            anything, all_hosts, some_hosts = build_report_table(test_run,project,maxlines)
 
-            if ( ( all_hosts is None ) and ( some_hosts is None ) ) :
-                if (format == 'F') :
-                    email += "Project: "+ project + "\n\n    No problems to report\n\n"
+            if anything :
+                if ( ( all_hosts is None ) and ( some_hosts is None ) ) :
+                    if (format == 'F') :
+                        email += "Project: "+ project + "\n\n    No problems to report\n\n"
+                        send_notice = True
+                    continue
+
+                email += "Project: "+ project + "\n\n"
+
+                if all_hosts is not None :
+                    email += "These tests had a problem on all hosts and on all contexts\n"
+                    email += all_hosts.get_rst()
+                    email += "\n"
                     send_notice = True
-                continue
 
-            email += "Project: "+ project + "\n\n"
-
-            if all_hosts is not None :
-                email += "These tests had a problem on all hosts and on all contexts\n"
-                email += all_hosts.get_rst()
-                email += "\n"
-                send_notice = True
-
-            if some_hosts is not None :
-                email += "These tests had a problem on some hosts\n"
-                email += some_hosts.get_rst()
-                email += "\n"
-                send_notice = True
+                if some_hosts is not None :
+                    email += "These tests had a problem on some hosts\n"
+                    email += some_hosts.get_rst()
+                    email += "\n"
+                    send_notice = True
             continue
 
         # format 's' always displays a result
@@ -246,8 +262,6 @@ def create_email(username, test_run) :
 
     if not send_notice :
         return None
-
-    email += '\n\nThis email created for %s\n' % username
 
     return email
 
@@ -274,6 +288,9 @@ def build_report_table(test_run,project,maxlines):
 
     # Pick up the data
     hc_array, all_list = project_test_run(test_run,project);
+
+    if hc_array is None and all_list is None:
+        return (False, None, None)
 
     ## construct the table of tests that had problems in some places
 
@@ -338,7 +355,7 @@ def build_report_table(test_run,project,maxlines):
     if some_hosts.get_row_count() == 0 :
         some_hosts = None
 
-    return (all_hosts, some_hosts)
+    return (True, all_hosts, some_hosts)
 
 
 #actually send the email
@@ -359,7 +376,34 @@ def sendmail(addy, subject, text):
 
 
 def run(args):
-    test_run = pandokia.common.find_test_run("daily_latest")
+    argspec = {
+        '-r' :  '=+',
+        '-s' :  '=',
+        '--help'    : '',
+        '--test_run' :  '-r',
+        '--subject' :   '-s',
+        }
+    opt, args = easyargs.get( argspec, args )
+
+    if opt['--help'] :
+        print """
+-r
+--test_run
+    specify a list of test runs to report on
+
+-s
+--subject
+    specify a subject for the email
+
+other parameters are users to send email to (not email addresses)
+"""
+        return 0
+
+    if '-r' in opt :
+        test_runs = [ pandokia.common.find_test_run(x) for x in opt['-r'] ]
+    else :
+        test_runs = [ pandokia.common.find_test_run("daily_latest") ]
+
     if args:
         # for each user name, look it up the email address in the table
         users = [ ]
@@ -377,13 +421,23 @@ def run(args):
         user_res = pdk_db.execute(query)
         users = [(user,email) for user,email in user_res]
 
-    subject = 'Test Results: %s' % test_run
+    if '-s' in args :
+        subject = args['-s']
+    else :
+        subject = 'Test Results: %s' % ', '.join([ x for x in test_runs ])
 
     # compute the email to send to each user; send it.
     for user, email in users:
-        msg = create_email(user, test_run)
-        if msg is not None :
-            sendmail(email, subject, msg)
+        msg = ''
+        for x in test_runs :
+            newmsg = create_email(user, x)
+            if newmsg is not None :
+                msg = msg + newmsg
+        if len(msg) > 0 :
+            sendmail(email, subject, '%s\n\n\nThis report created for %s'%(msg, email))
+        else :
+            if TEST :
+                print "suppress blank email", email
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
