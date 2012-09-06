@@ -10,7 +10,6 @@ import pandokia
 
 import cStringIO as StringIO
 
-pdk_db = pandokia.cfg.pdk_db
 
 exit_status = 0
 
@@ -253,28 +252,28 @@ class test_result(object):
 
         # if this database engine does not have a usable auto-increment
         # field, get a key_id from the sequence in the database
-        if pdk_db.next :
-            key_id = pdk_db.next('sequence_key_id')
+        if db.next :
+            key_id = db.next('sequence_key_id')
         else :
             key_id = None
 
         try :
             res = self.try_insert(db, key_id)
-            if not pdk_db.next :
+            if not db.next :
                 key_id = res.lastrowid
             insert_count += 1
 
-        except pdk_db.IntegrityError, e:
+        except db.IntegrityError, e:
             db.rollback()
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
-            c = pdk_db.execute("select status from result_scalar where "
+            c = db.execute("select status from result_scalar where "
                 "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
                 (self.test_run, self.host, self.context, self.project, self.test_name ) 
                 )
             x = c.fetchone()
             if x is not None :
-                pdk_db.execute("delete from result_scalar where "
+                db.execute("delete from result_scalar where "
                     "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
                     (self.test_run, self.host, self.context, self.project, self.test_name ) 
                     )
@@ -284,11 +283,11 @@ class test_result(object):
                 raise e
 
         for x in self.tda :
-            pdk_db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )" ,
+            db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )" ,
                 ( key_id, x, self.tda[x] ) )
 
         for x in self.tra :
-            pdk_db.execute("INSERT INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )" ,
+            db.execute("INSERT INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )" ,
                 ( key_id, x, self.tra[x] ) )
 
         # BUG: this is stupid.  Do something about it.
@@ -300,7 +299,7 @@ class test_result(object):
             self.log = self.log[0:990000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
             print "LOG TRUNCATED: key_id=%d" % key_id
 
-        pdk_db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
+        db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
                 ( key_id, self.log ) )
 
         db.commit()
@@ -309,9 +308,9 @@ class test_result(object):
             # if we don't know about this test run, 
             try :
                 # add it to the list of known test runs
-                pdk_db.execute("INSERT INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",(self.test_run,))
+                db.execute("INSERT INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",(self.test_run,))
                 db.commit()
-            except pdk_db.IntegrityError :
+            except db.IntegrityError :
                 db.rollback()
             # remember that we saw it so we don't have to touch the database again
             all_test_runs[self.test_run] = 1
@@ -319,6 +318,8 @@ class test_result(object):
 
 def run(args, hack_callback = None) :
     global insert_count, line_count
+
+    pdk_db = pandokia.cfg.pdk_db
 
     default_test_runner = ''
     default_context = 'unk'
