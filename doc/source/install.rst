@@ -40,11 +40,17 @@ setup.py will print example shell commands that you can use to set
 up your environment.  If you did not, you can ignore that output.
 
 
-Configure the Web Application
+Web Application
 -----------------------------
 
-The Web Server
-~~~~~~~~~~~~~~
+To install the web application, you need to:
+
+ - install the CGI
+
+ - configure and initialize the database
+
+The CGI
+~~~~~~~~~~~~
 
 You can install Pandokia in any web server that can run CGI scripts.  We use Apache for our normal usage.
 
@@ -55,8 +61,9 @@ When you run setup.py, one of the things it will say is something like:
     Get the CGI from  /Users/sienkiew/test_install/python/bin/pdk
 
 Copy that file into the appropriate place in the DocumentRooot for
-your web site.  If your server allows symlinks (Options FollowSymLinks
-in Apache), you can use a symlink:
+your web site, so that your web server can run it as a CGI.  If
+your server allows symlinks (Options FollowSymLinks in Apache), you
+can use a symlink:
 
 ::
 
@@ -80,8 +87,8 @@ on your web server.  In the example above, the URL would be something
 like http://www.example.com/cgi-bin/pandokia.cgi
 
 
-The Developmenet Web Server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Development Web Server
+............................
 
 Pandokia comes with a mini development web server that you can use for testing.
 You can run it from the *bin* directory where Pandokia commands
@@ -96,6 +103,7 @@ Then you could start the development web server with:
 ::
 
     cd /Users/sienkiew/mypython/python/bin
+    cp pdk pdk.cgi
     pdk webserver
 
 It will state the IP address and port number that it is listening
@@ -253,13 +261,13 @@ can install Pandokia without any of this, then add it later.
 
  -  py.test (Python) - http://pytest.org/
 
- - unittest2 (Python) - http://pypi.python.org/pypi/unittest2
+ -  unittest2 (Python) - http://pypi.python.org/pypi/unittest2
 
  -  fctx (C, C++) - http://fctx.wildbearsoftware.com/
 
     The fct.h file is included in pandokia, so it is not necessary to install anything.
 
- - pyraf (IRAF) - http://www.stsci.edu/institute/software_hardware/pyraf (used to run IRAF tasks)
+ -  pyraf (IRAF) - http://www.stsci.edu/institute/software_hardware/pyraf (used to run IRAF tasks)
 
- - shunit2 (sh) - specially modified version from http://ssb.stsci.edu/testing/shunit2/
+ -  shunit2 (sh) - specially modified version from http://ssb.stsci.edu/testing/shunit2/
 
