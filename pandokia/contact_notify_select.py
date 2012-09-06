@@ -366,6 +366,7 @@ def sendmail(addy, subject, text):
         addy = getpass.getuser()
         #then don't irritate people by sending test emails; send them
         #all to the user running the test instead
+    print "mail to ",addy
     sub = subprocess.Popen( [ 'mail', '-s', subject, addy ], shell=False, stdin=subprocess.PIPE)
     sub.stdin.write(text)
     sub.stdin.close()
@@ -432,7 +433,7 @@ other parameters are users to send email to (not email addresses)
             newmsg = create_email(user, x)
             if newmsg is not None :
                 msg = msg + newmsg
-        if len(msg) > 0 :
+        if len(msg) > 0 and email :
             sendmail(email, subject, '%s\n\n\nThis report created for %s'%(msg, email))
         else :
             if TEST :
