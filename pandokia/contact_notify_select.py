@@ -3,7 +3,6 @@ users will be able to select which reports they like and the level of verbosity
 associated with said reports.
 """
 TEST = False
-TEST = 1
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
