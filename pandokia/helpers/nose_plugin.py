@@ -129,16 +129,16 @@ class Pdk(nose.plugins.base.Plugin):
                 default_location = os.path.join( d, os.environ['PDK_FILE'] )
             else :
                 # wrong, but better than nothing.  We would actually
-    	        # like to report the file that each test is in, but
-    	        # it appears that nose has lost that information by
-    	        # the time it gets to us.
+                # like to report the file that each test is in, but
+                # it appears that nose has lost that information by
+                # the time it gets to us.
                 default_location = os.path.abspath(os.path.curdir) 
 
             #
             self.rpt = pandokia.helpers.pycode.reporter(
                 source_file = None,
                 setdefault = True,
-    	            # force it to write all the values, even if
+                    # force it to write all the values, even if
                     # pdkrun may have written a setdefault block.  If
                     # the "run" runner runs a shell script that says
                     # "pdknose modulename", we at least get some
