@@ -428,6 +428,8 @@ other parameters are users to send email to (not email addresses)
 
     # compute the email to send to each user; send it.
     for user, email in users:
+        if email is None :
+            continue
         msg = ''
         for x in test_runs :
             newmsg = create_email(user, x)
@@ -436,8 +438,7 @@ other parameters are users to send email to (not email addresses)
         if len(msg) > 0 and email :
             sendmail(email, subject, '%s\n\n\nThis report created for %s'%(msg, email))
         else :
-            if TEST :
-                print "suppress blank email", email
+            print "suppress blank email to ", email
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
