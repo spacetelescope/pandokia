@@ -121,6 +121,8 @@ def run(args) :
 
     # check each test reported in the query result
 
+    detected = 0
+
     for ( project, host, test_name, context ) in c :
         if verbose > 2 :
             print "CHECK",project, host, test_name
@@ -140,8 +142,11 @@ def run(args) :
                 VALUES ( :1, :2, :3, :4, :5, :6, :7 )""",
                  ( test_run, project, host, context, test_name, 'M', 'Y' ) 
                 )
+            detected = detected + 1
 
     # must commit after db updates
 
     pdk_db.commit()
 
+
+    print "detected ",detected

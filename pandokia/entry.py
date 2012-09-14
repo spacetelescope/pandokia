@@ -210,5 +210,9 @@ def run( argv = sys.argv ) :
         import pandokia.cleaner
         return pandokia.cleaner.recount( args )
 
+    if cmd == 'hack' :
+        import pandokia.hack
+        return pandokia.hack.run(args)
+
     sys.stderr.write("command %s not known\n"%cmd)
     return 1

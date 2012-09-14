@@ -21,9 +21,20 @@ debug = 0
 import sys
 import pandokia.common as common
 import pandokia
+import pandokia.helpers.easyargs as easyargs
+
 pdk_db = pandokia.cfg.pdk_db
 
 def run(args) :
+    opts, args = easyargs.get( {
+        '-c'    : 'list',
+        '-p'    : 'list',
+        '-h'    : 'list',
+        '--context' : '-c',
+        '--project' : '-p',
+        '--host'    : '-h',
+         }, args )
+
     try :
         test_run_type = args[0]
         test_run_pattern = args[1]
@@ -36,7 +47,26 @@ def run(args) :
 
     print "test_run_pattern = ",test_run_pattern
 
-    c = pdk_db.execute("select distinct project, host, context, test_name from result_scalar where test_run = :1 ", ( test_run_pattern, ) )
+    l = [ ('test_run', test_run_pattern ) ]
+
+    if '-c' in opts :
+        l = l + [ ('context', x) for x in opts['-c'] ]
+    if '-p' in opts :
+        l = l + [ ('project', x) for x in opts['-p'] ]
+    if '-h' in opts :
+        l = l + [ ('host', x) for x in opts['-h'] ]
+
+
+    if debug :
+        for x in l :
+            print "	",x
+        print "?"
+        sys.stdin.readline()
+
+    where_str, where_dict = pdk_db.where_dict( l )
+
+    sql = "select distinct project, host, context, test_name from result_scalar %s " % where_str
+    c = pdk_db.execute( sql, where_dict )
 
     for ( project, host, context, test_name ) in c :
         if test_name.endswith("nose.failure.Failure.runTest") :
@@ -50,7 +80,7 @@ def run(args) :
         # insert to the expected table; if the record is already there, it's ok.
         try : 
             pdk_db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )', ( test_run_type, project, host, context, test_name ))
-        except pdk_db.db_module.IntegrityError, e:
+        except pdk_db.IntegrityError, e:
             if debug :
                 print "exception", e
             pass

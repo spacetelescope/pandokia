@@ -24,10 +24,10 @@ spec is a dictionary where the key is an option and the value is a
 description of how to process it.
 
     spec = {
-        '-v' : '',              # arg takes no parameter, opt['-v'] is
+        '-v' : 'flag',          # arg takes no parameter, opt['-v'] is
                                 # how many times it occurred
-        '-f' : '=',             # arg takes a parameter
-        '-mf' : '=+',           # arg takes a parameter, may be specified 
+        '-f' : 'one',           # arg takes a parameter
+        '-mf' : 'list',         # arg takes a parameter, may be specified 
                                 # several times to get a list
         '--verbose' : '-v',     # arg is an alias for some other arg
     }
@@ -88,7 +88,7 @@ def get( spec, argv = None ) :
     # for opts that are just counted, initialize them to 0
     for x in spec :
         s = spec[x]
-        if s == '' :
+        if s == '' or s == 'flag' :
             opts[x] = 0
 
     # loop over the args, picking out args that we recognize
@@ -122,7 +122,7 @@ def get( spec, argv = None ) :
                 raise SyntaxError('Bad spec to easyargs - cannot chain aliases: %s : %s : %s'%(org_this_opt, this_opt, this_spec))
 
             # if the spec starts with '=', it means an opt that takes an arg
-            if this_spec.startswith('=') :
+            if this_spec.startswith('=') or ( this_spec == 'one' ) or ( this_spec == 'list' ) :
                 if n >= arglen :
                     raise BadArgs('%s requires argument'%org_this_opt)
 
@@ -132,7 +132,7 @@ def get( spec, argv = None ) :
 
                 # =+ means we want a list
                 # =  means we want just the last one
-                if '+' in this_spec :
+                if ( '+' in this_spec ) or ( this_spec == 'list' ) :
                     l = opts.get(this_opt,[])
                     l.append(thisarg)
                     opts[this_opt]=l
