@@ -144,6 +144,10 @@ def run(args) :
                 )
             detected = detected + 1
 
+            # do some commits from time to time to avoid lock timeouts
+            if detected % 10000 == 0 :
+                pdk_db.commit()
+
     # must commit after db updates
 
     pdk_db.commit()
