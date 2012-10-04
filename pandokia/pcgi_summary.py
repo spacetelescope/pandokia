@@ -349,7 +349,7 @@ def run ( ) :
         output.write('<input type=submit name="action_cattn" value="Clear Attn">')
         output.write('<input type=submit name="action_sattn" value="Set Attn">')
         output.write('<br>')
-        output.write('<input type=submit name="not_expected" value="Not Expected"> in <input type=text name=arg1 value="daily" size=10> test runs')
+        output.write('<input type=submit name="not_expected" value="Not Expected"> in <input type=text name=arg1 value="%" size=10> test runs')
         output.write('</form>')
 
         output.write( "<br>rows: %d <br>"%rowcount )

@@ -102,10 +102,11 @@ def run( ) :
             pdk_db.commit()
 
     elif 'not_expected' in form :
+        arg1 = form['arg1'].value
         for key_id in valid_key_ids(form) :
             c = pdk_db.execute("SELECT project, host, test_name, context FROM result_scalar WHERE key_id = :1 ", (key_id,) )
             for project, host, test_name, context in c :
-                pdk_db.execute("DELETE FROM expected WHERE test_run_type = 'daily' AND project = :1 AND host = :2 AND test_name = :3 AND context = :4 ",(project,host,test_name,context))
+                pdk_db.execute("DELETE FROM expected WHERE test_run_type LIKE :5 AND project = :1 AND host = :2 AND test_name = :3 AND context = :4 ",(project,host,test_name,context,arg1))
         pdk_db.commit()
 
     elif 'claim_qid' in form :
