@@ -46,3 +46,4 @@ if not 'pdk_db' in globals() :
 
 
 
+enable_magic_html_log = True

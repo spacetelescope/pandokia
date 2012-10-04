@@ -268,9 +268,18 @@ def do_result( key_id ) :
         sys.stdout.write("<a href=%s>status history</a><br>\n"%common.selflink(linkback_dict, linkmode = 'test_history'))
 
         c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ) )
+
         for y in c1 :
             (y, ) = y
             if y != "" :
+                try :
+                    if cfg.enable_magic_html_log :
+                        if '<!DOCTYPE' in y or '<html' in y:
+                            sys.stdout.write("<a href=%s>HTML block in a single page</a><br>"%
+                                common.selflink( { 'magic_html_log' : key_id, }, linkmode = 'magic_html_log'))
+                except AttributeError :
+                    pass
+
                 sys.stdout.write("Log:<br><pre>")
                 sys.stdout.write(cgi.escape(y))
                 sys.stdout.write("</pre>\n")
@@ -338,4 +347,51 @@ def test_history( ) :
             tb.set_value(row, 0, '->')
         row = row + 1
     print tb.get_html()
+
+
+##
+# This is a tremendous hack, but it is helpful for pyetc.  If <!DOCTYPE
+# occurs in the log (as from a django stack trace captured by the test
+# and then printed), we make a link to this "magic_html_log" report.  Just
+# emit from the <!DOCTYPE to the </html> as a web page.
+#
+# This has all kinds of opportunity for the test author to run arbitrary
+# javascript/whatever in the browser of somebody who looks at the test
+# report.  Decide if you trust your collaborators before using this feature.
+
+def magic_html_log() :
+    if not cfg.enable_magic_html_log :
+        return
+    
+    # common header
+    sys.stdout.write(common.cgi_header_html)
+
+    # key_id of the log
+    form = pandokia.pcgi.form
+    key_id = int(form['magic_html_log'].value)
+
+    # get it
+    c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ) )
+
+    # fetch the log
+    log, = c1.fetchone()
+
+    # split on the magic recognition string
+    if '<!DOCTYPE' in log :
+        t = log.split('<!DOCTYPE')
+        sys.stdout.write('<!DOCTYPE')
+
+    elif '<html' in log :
+        t = log.split('<html')
+        sys.stdout.write('<html')
+
+    # keep the part after the string
+    t = t[1]
+
+    # show the rest up to /html
+    if '</html>' in t :
+        sys.stdout.write(t.split('</html>')[0])
+        sys.stdout.write('</html>')
+    else :
+        sys.stdout.write(t)
 

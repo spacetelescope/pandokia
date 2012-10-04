@@ -221,6 +221,10 @@ def run() :
         x.set_hostinfo()
         sys.exit(0)
 
+    if query == 'magic_html_log' :
+        import pandokia.pcgi_detail as x
+        x.magic_html_log()
+        sys.exit(0)
 
     error_1201()
     #
