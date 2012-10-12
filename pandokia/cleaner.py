@@ -66,74 +66,122 @@ def delete_background_step( n = 200, verbose=False ) :
         print "select"
     c = pdk_db.execute("SELECT key_id FROM delete_queue LIMIT :1 ",(n,) )
     keys = tuple( [ x[0] for x in c ] )
+
+    if len(keys) == 0 :
+        if verbose :
+            print "no more to delete"
+        return 0
+
     # print "delete ",keys
     parm = ', '.join( [ ':%d'%(n+1) for n in range(0, len(keys) ) ] )
-    # print parm
+    if verbose:
+        print parm
     
     if verbose :
         print "result_scalar"
     pdk_db.execute("DELETE FROM result_scalar WHERE key_id IN ( %s )" % parm, keys )
     if verbose :
+        print time.time() - start
         print "result_tda"
     pdk_db.execute("DELETE FROM result_tda    WHERE key_id IN ( %s )" % parm, keys )
     if verbose :
+        print time.time() - start
         print "result_tra"
     pdk_db.execute("DELETE FROM result_tra    WHERE key_id IN ( %s )" % parm, keys )
     if verbose :
+        print time.time() - start
         print "result_log"
     pdk_db.execute("DELETE FROM result_log    WHERE key_id IN ( %s )" % parm, keys )
     if verbose :
+        print time.time() - start
         print "delete_queue"
     pdk_db.execute("DELETE FROM delete_queue  WHERE key_id IN ( %s )" % parm, keys )
-
-    end1 = time.time()
-    if verbose :
+    if verbose:
+        print time.time() - start
         print "commit"
+
+    # commit here because we want to do the operation in little chunks
+    # instead of one massive transaction.
     pdk_db.commit()
 
-    end2 = time.time()
-    print "step - ",end1-start, end2-start
     return len(keys)
 
-def delete_background( args = [ ] ) :
+def delete_background( args = [ ], verbose = False ) :
     # defaults
-    n = 1000000000 # 1 billion records; lazy way to say "infinite"
-    ns = 200
+
+    # max_delete is 2 billion records - lazy way to say "infinite".
+    # We have a settable limit so you can run partial deletes,
+    # instead of hogging the database access.  e.g. You could
+    # use a cron jobs to delete 10k records every hour.
+    max_delete = 2000000000
+
+    # max_per_step is how many records to delete in a single step.
+    # This is limited by how much your database can tolerate in
+    # the WHERE clauses in delete_background_step.  If using
+    # sqlite, it can also be an issue because of keeping the
+    # database locked during the transaction.
+    max_per_step = 200
+
+    # How long to wait between steps of the delete.  In sqlite,
+    # this can create windows where other database users can
+    # get access in between our transactions.
     sleeptime=0
+
+    # parse args
 
     # max records to delete
     if len(args) > 0 :
-        n = int(args[0])
+        max_delete = int(args[0])
+
     # number of records in a single step
     if len(args) > 1 :
-        ns = int(args[1])
+        max_per_step = int(args[1])
+
     # sleep time between deleting chunks
     if len(args) > 2 :
         sleeptime=int(args[2])
 
-    while n > 0 :
-        c=pdk_db.execute("SELECT count(*) FROM delete_queue")
-        # print c
-        c = c.fetchone()
-        # print c
-        if c is None :
-            print "HOW?"
-        (remaining,) = c
+    # initialize remaining.  This count takes some substantial time in
+    # some databases, so we do it once at the beginning and adjust
+    # the value.  (We don't really need it - it is just to show the
+    # user how much we have left to do.)
+    c=pdk_db.execute("SELECT count(*) FROM delete_queue")
+    (remaining,) = c.fetchone()
+    print "remaining:",remaining
+
+    # when did we start
+    start_time = time.time()
+
+    total_deletes = min( remaining, max_delete )
+
+    total_deleted = 0
+
+    while 1 :
         print "remaining:",remaining
-        if remaining <= 0 :
-            return
-        deleted_count = delete_background_step( ns )
-        n = n - ns
-        if deleted_count < ns :
+
+        deleted_count = delete_background_step( max_per_step, verbose )
+        if deleted_count == 0 :
+            break
+
+        remaining = remaining - deleted_count
+        total_deleted = total_deleted + deleted_count
+
+        if total_deleted >= max_delete :
             # we ran out - ok to stop now
             break
+
         if sleeptime > 0 :
             print "sleep after ",deleted_count
             time.sleep(sleeptime)
-        # commit each time through the loop
-        pdk_db.commit()
 
-    pdk_db.commit()
+        time_so_far = time.time() - start_time
+        time_per_record = float(time_so_far) / total_deleted
+        print "time so far", time_so_far
+        print "time/record", time_per_record
+        print "est remain ", remaining * time_per_record
+
+    print "done"
+    return 0
 
 ##########
 #
@@ -372,37 +420,53 @@ def delete(args) :
         print "You really have to specify -test_run"
         return 1
 
-    opt['-test_run'] = [ common.find_test_run(x) for x in opt['-test_run'] ]
-    print "TEST RUN", opt['-test_run']
+    # 
+    lll = [ ]
+    for x in opt['-test_run'] :
+        lll = lll + common.expand_test_run(x)
+    opt['-test_run'] = lll
 
+    lll = [ ]
     for x in opt['-test_run'] :
         if check_valuable(x) :
-            print "test run %s is marked valuable - cannot delete" % s
-            dont=1
+            print "test run %s is marked valuable - cannot delete" % x
+        else :
+            lll.append(x)
+
+    opt['-test_run'] = lll
+
+    if len(lll) == 0 :
+        # print "No deleteable test runs found"
+        dont = 1
 
     lll = [ ]
     for x in sorted(opt.keys()) :
+        if x == '-test_run' :
+            continue
+
         v = opt[x]
         lll.append( ( x[1:], v ) )
         if not wild :
-            print x,v
-            if ( '*' in v ) or ( '?' in v ) :
+            if ( '*' in v ) or ( '?' in v ) or ( '%' in v ) :
                 print '\nError: must use -wild for ',x,v,'\n'
                 dont=1
 
     if dont :
         return
 
-    where_str, where_dict = pdk_db.where_dict( lll )
-
     if count :
+        where_str, where_dict = pdk_db.where_dict( lll )
         c = pdk_db.execute("SELECT count(*) FROM result_scalar %s" % (where_str,) , where_dict )
         print "total records",c.fetchone()[0]
         return
 
-    delete_by_query( where_str, where_dict )
+    for x in opt['-test_run'] :
+        print "deleting from test run",x
+        where_str, where_dict = pdk_db.where_dict( lll + [ ( 'test_run', x ) ] )
+    
+        delete_by_query( where_str, where_dict )
 
-    recount( opt['-test_run'], verbose=0 )
+        recount( [ x ] , verbose=0 )
 
     return 0
 

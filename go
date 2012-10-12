@@ -76,7 +76,7 @@ case "":
 		breaksw
 	endsw
 
-	set n=61
+	set n=62
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/lib/python/pandokia*
 	python setup.py -q install --home $there

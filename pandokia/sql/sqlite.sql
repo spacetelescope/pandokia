@@ -232,6 +232,9 @@ CREATE TABLE delete_queue (
 	key_id INTEGER
 	);
 
+CREATE INDEX delete_queue_key_id ON 
+	delete_queue ( key_id ) ;
+
 -- hostinfo:
 --      descriptions of various hosts
 CREATE TABLE hostinfo (

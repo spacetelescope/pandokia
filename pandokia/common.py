@@ -123,12 +123,27 @@ def self_href( query_dict, linkmode, text ) :
     return '<a href="%s">%s</a>'%(selflink(query_dict, linkmode),text)
 
 
+#
+# 
+#
+def expand_test_run( run ) :
+    s = find_test_run( run )
+    if run != s :
+        return s
+    where_str, where_dict = pandokia.cfg.pdk_db.where_dict( [ ( 'test_run', run ) ] )
+    print 'SELECT test_run FROM distinct_test_run %s' % where_str
+    c = pandokia.cfg.pdk_db.execute( 'SELECT test_run FROM distinct_test_run %s' % where_str, where_dict )
+    l = [ ]
+    for x, in c :
+        l.append(x)
+    return l
+
 
 #
 # convert a test_run name entered by a user into a real test_run name; various
 # nicknames get translated into real names.
 #
-def find_test_run( run) :
+def find_test_run( run ) :
 
     if run.endswith('_latest') :
         prefix = run[0:-len('_latest')]
