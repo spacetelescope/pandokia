@@ -1,35 +1,65 @@
-import distutils.core
-import distutils.command
+
+## basic imports
+
+import sys
 import os
 import os.path
 
+## detect our environment
+#
+# This setup.py was written to work with distutils.  I still use
+# it with distutils, so I'm preserving that capability.  If you
+# try to install with easy_install or pip, it will load setuptools
+# before setup.py; we detect that here and modify our behaviour
+# to work in the setuptools environment.
+#
+# if you use setuptools (including easy_install or pip) then
+# the CGI magic that was in earlier versions of pandokia will
+# not work.  You'll have to run your cgi directly from site-packages.
+
+if 'setuptools' in sys.modules :
+    print "SETUPTOOLS HERE"
+    from setuptools import setup
+    have_setuptools = True
+
+else :
+    print "SETUPTOOLS NOT HERE"
+    from distutils.core import setup
+    have_setuptools = False
+
+## detect our environment
+#
+# A flag for whether this is a MS Windows machine
+
 import platform
 # print platform.python_version()
-
 windows = platform.system() == 'Windows'
+
+## basic config
+#
+# This is a list of all the packages that we install.
 
 package_list = [
     'pandokia',             # core of pandokia system
     'pandokia.runners',     # "plugin-like" things that run various kinds of tests
-    'pandokia.helpers',     # modules to use in writing your tests, usually with nose/unittest
+    'pandokia.helpers',     # modules to use in running your tests
     'stsci_regtest',        # legacy STScI IRAF/PyRAF test system
 ]
 
 #
-# These are all commands that the user can type.  We will susbstitute strings
-# in them so that they will find the pandokia we are installing even if it is
-# not on PYTHONPATH, _even_ if there is _another_ pandokia on pythonpath.
+# These are all commands that the user can type.
+#
 python_commands = [ 
-    'pdk',                      # pandokia entry point
+    'pdk',                      # pandokia main entry point
+    'pdkrun',                   # like "pdk run"
     'pdk_filecomp',             # helper file comparisons for use in shell scripts
-    'pdk_python_runner',        # exec test runner from python module
+    'pdk_python_runner',        # exec for custom test runner written in python
     'pdk_stsci_regress_helper', # part of regtest runner
     'pdk_stsci_regress_refs',   # ?
     'pdknose',                  # run nose with pdk plugin
     'pdkpytest',                # run py.test with pdk plugin
-    'pdkrun',                   # like "pdk run"
     'junittopdk',               # convert junit/xml to pandokia format
-    'tbconv',                   # table conversion; not really part of testing
+    'tbconv',                   # table conversion among various formats
      ]
 
 shell_commands = [ 
@@ -46,16 +76,10 @@ shell_commands = [
 
 command_list = python_commands + shell_commands
 
-
+## version
 #
-# These scripts should start "#!/usr/bin/env python", not with whatever
-# python we happen to be using.
-use_usr_bin_env = [
-    'pdknose',
-    'pdkpytest',
-    'pdk_stsci_regress_helper',
-    'pdk_python_runner',
-]
+# get our version out of __init__ so we only have to edit one place
+#
 
 f=open("pandokia/__init__.py","r")
 for x in f :
@@ -65,9 +89,13 @@ for x in f :
 f.close()
 
 
+##
 # if the stsci distutils hack is present, use it to try to capture
 # subversion information.
-
+#
+# If you are not at STScI, you do not need this.  Delete this call if
+# it causes you any trouble.
+#
 def du_hack() :
     try :
         import stsci.tools.stsci_distutils_hack as H
@@ -92,11 +120,20 @@ def du_hack() :
         f.write("__svn_version__ = %s\n" % repr(revision))
         f.write("\n__full_svn_info__ = '''\n%s'''\n\n" % info)
         f.close()
-
-# If you are not at STScI, you do not need this.  Delete this call if
-# it causes you any trouble.
 du_hack()
 
+##
+# we provide setuptools-style entry points that cause plugins to
+# be available to some other programs.  This is the setuptools 
+# format for defining them.
+
+entry_points_dict = { 
+    'pytest11' : 'pandokia = pandokia.helpers.pytest_plugin',
+    'nose.plugins.0.10' : 'pandokia = pandokia.helpers.nose_plugin:Pdk'
+    }
+
+##
+# setup args - common to distutils and setuptools
 
 args = {
     'name' :            'pandokia',
@@ -112,13 +149,30 @@ args = {
     'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql', 'runners/maker/*'  ]  },
 }
 
-#
+# setup args - known by setuptools only
+
+if have_setuptools :
+    args.update( 
+        {
+        'entry_points' : entry_points_dict,
+        'zip_safe' : False,
+        }
+    )
+
+##
 # Actually do the install
 #
-d = distutils.core.setup(
+d = setup(
     **args
 )
 
+##
+# cgi magic - "python setup.py install --home /a/b/c" and then you can 
+# "ln -s /a/b/c/bin/pdk ..../pdk.cgi" on your web server.  This setup
+# will write this assignment so the cgi can add  /a/b/c/lib/python to
+# sys.path at run time.
+#
+# works with distutils only, not easy_install, pip, or setuptools.
 dir_set = "pdk_dir = r'%s' # this was set during install by setup.py\n"
 
 #
@@ -128,10 +182,8 @@ def fix_script(name) :
 
     f=open(fname,"r")
     l = f.readlines()
-    if name in use_usr_bin_env :
-        l[0] = '#!/usr/bin/env python\n'
     for count, line in enumerate(l) :
-        if line.startswith("PDK_DIR_HERE") :
+        if 'pdk_dir =' in line :
             l[count] = dir_set % lib_dir.replace('\\','/')
     f.close()
 
@@ -153,53 +205,67 @@ def fix_script(name) :
 
     os.chmod(fname + '.py', 0755)
 
-#
-# The entrypoints file
-#
-entrypoints = '''
-[pytest11]
-pandokia = pandokia.helpers.pytest_plugin
-
-[nose.plugins.0.10]
-pandokia = pandokia.helpers.nose_plugin:Pdk
-
-'''
-
 # py.test and nose use setuptools to find their plugins, but whenever
-# I go near setuptools, it always causes problems for me.  So, the
-# procedure here is simple:  Install with distutils, then convert
-# the .egg-info file that is installed into a setuptools-compatible
-# .egg-info directory that contains the entrypoints definition.
+# I go near setuptools, it always causes problems for me.  You
+# can't avoid it with easy_install or pip, but you can otherwise.
+# 
+# If we are just using distutils, procedure here is simple:  Install
+# with distutils, then convert the .egg-info file that is installed
+# into a setuptools-compatible .egg-info directory that contains the
+# entrypoints definition.
+
 def dorque_egg_info( target ) :
-    print "EGG-INFO", target
+    import os
+    # convert entry point dict to a .ini file
+    entry_points_file = [ ]
+    for x in entry_points_dict :
+        entry_points_file.append('[' + x + ']')
+        for y in entry_points_dict[x] :
+            entry_points_file.append(y)
+
+    entry_points_file = '\n'.join(entry_points_file)
+
+    # read the .egg-info file
     pkginfo = open(target).read()
+
+    # delete it
     os.unlink(target)
+
+    # make the .egg-info a directory
     os.mkdir(target)
+
+    # put files in it
     open(target+"/PKG-INFO","w").write(pkginfo)
     open(target+"/not-zipe-safe","w").close()
-    open(target+"/entry_points.txt","w").write(entrypoints)
+    open(target+"/entry_points.txt","w").write(entry_points_file)
 
+
+##
+# if the user did an install, do some post-install follow-up
 
 if 'install' in d.command_obj :
-    # they did an install
 
-    # Convert the egg-info to a dir that looks like what setuptools
-    # uses.  Set the entry points for use by nose and py.test
-    dorque_egg_info( d.command_obj['install_egg_info'].target )
+    if not have_setuptools :
+        # Convert the egg-info to a dir that looks like what setuptools
+        # uses.  Set the entry points for use by nose and py.test
+        dorque_egg_info( d.command_obj['install_egg_info'].target )
 
     # find where the scripts went
     script_dir = d.command_obj['install'].install_scripts
     lib_dir    = d.command_obj['install'].install_lib
-    print 'scripts went to', script_dir
-    print 'python  went to', lib_dir
-    # hack the scripts for PDK_DIR_HERE
-    for x in python_commands :
-        fix_script(x)
+    # print 'scripts went to', script_dir
+    # print 'python  went to', lib_dir
+
+    if not have_setuptools :
+        # hack the scripts for PDK_DIR_HERE
+        for x in python_commands :
+            fix_script(x)
+            pass
 
     print ''
     print 'Get the CGI from ', os.path.join(script_dir, 'pdk')
 
-    # tell the user 
+    # tell the user about the install
     print ''
     print 'set path = ( %s $path )' % script_dir
     print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
