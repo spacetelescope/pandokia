@@ -74,9 +74,9 @@ test_prefix=''
 # line, we use it here
 other_data = ''
 
-# true if we should ignore data that comes between markup elements.
-# set this when you think there is some data there, but you do
-# not have any place to collect it.
+# Sometimes we should ignore the data that comes between markup
+# elements, other times not.  This flag is set according to where we
+# are in the xml syntax.
 ignore_cdata = False
 
 def reset_state() :
@@ -97,7 +97,7 @@ def start( name, attr ):
         # the whole file is wrapped in a single <testsuite>
 
         # here are some things that py.test and nose do not
-        # appear to report, but some other sources do
+        # appear to report in xml mode, but some other sources do
         if 'hostname' in attr :
             other_data += 'host: %s\n' % attr['hostname']
 
@@ -130,8 +130,9 @@ def start( name, attr ):
         pass
 
     elif name == 'system-out' :
-        # pandokia doesn't file stdout/stderr specially - it should
-        # be in a test, and we should create that test here
+        # JUnit reports a single stdout/stderr for the whole test
+        # run, but pandokia wants it per-test.  We don't know what
+        # to do with this, so just ignore it.
         ignore_cdata = True
 
     elif name == 'system-err' :
@@ -189,7 +190,7 @@ def end( name ) :
         confused_about_junit_xml = True
         sys.stderr.write("# unknown END %s\n"%name )
 
-# called for the test in between markup tags
+# called in between markup tags
 def data( d ) :
     if ignore_cdata :
         return
