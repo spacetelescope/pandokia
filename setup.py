@@ -5,6 +5,26 @@ import sys
 import os
 import os.path
 
+## 
+#
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Environment :: Web Environment',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: BSD License',
+    'Natural Language :: English',
+    'Operating System :: POSIX',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Unix',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Topic :: Software Development :: Quality Assurance',
+    'Topic :: Software Development :: Testing',
+]
+
 ## detect our environment
 #
 # This setup.py was written to work with distutils.  I still use
@@ -147,6 +167,7 @@ args = {
     'scripts' :         [ "commands/"+x for x in command_list ],
     'packages':         package_list,
     'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql', 'runners/maker/*'  ]  },
+    'classifiers' :     classifiers,
 }
 
 # setup args - known by setuptools only
