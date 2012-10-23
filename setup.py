@@ -5,7 +5,7 @@ import sys
 import os
 import os.path
 
-## 
+##
 #
 
 classifiers = [
@@ -69,7 +69,7 @@ package_list = [
 #
 # These are all commands that the user can type.
 #
-python_commands = [ 
+python_commands = [
     'pdk',                      # pandokia main entry point
     'pdkrun',                   # like "pdk run"
     'pdk_filecomp',             # helper file comparisons for use in shell scripts
@@ -82,7 +82,7 @@ python_commands = [
     'tbconv',                   # table conversion among various formats
      ]
 
-shell_commands = [ 
+shell_commands = [
     'pdk_gen_contact',          # create contact list for pdk import_contact
     'pdk_monthly',              # cleaner tool for stsci
     'pdk_run_helper.sh',        # helper for shell scripts using "run" runner
@@ -144,12 +144,12 @@ du_hack()
 
 ##
 # we provide setuptools-style entry points that cause plugins to
-# be available to some other programs.  This is the setuptools 
+# be available to some other programs.  This is the setuptools
 # format for defining them.
 
-entry_points_dict = { 
-    'pytest11' : 'pandokia = pandokia.helpers.pytest_plugin',
-    'nose.plugins.0.10' : 'pandokia = pandokia.helpers.nose_plugin:Pdk'
+entry_points_dict = {
+    'pytest11' : ['pandokia = pandokia.helpers.pytest_plugin'],
+    'nose.plugins.0.10' : ['pandokia = pandokia.helpers.nose_plugin:Pdk']
     }
 
 ##
@@ -173,7 +173,7 @@ args = {
 # setup args - known by setuptools only
 
 if have_setuptools :
-    args.update( 
+    args.update(
         {
         'entry_points' : entry_points_dict,
         'zip_safe' : False,
@@ -188,7 +188,7 @@ d = setup(
 )
 
 ##
-# cgi magic - "python setup.py install --home /a/b/c" and then you can 
+# cgi magic - "python setup.py install --home /a/b/c" and then you can
 # "ln -s /a/b/c/bin/pdk ..../pdk.cgi" on your web server.  This setup
 # will write this assignment so the cgi can add  /a/b/c/lib/python to
 # sys.path at run time.
@@ -229,7 +229,7 @@ def fix_script(name) :
 # py.test and nose use setuptools to find their plugins, but whenever
 # I go near setuptools, it always causes problems for me.  You
 # can't avoid it with easy_install or pip, but you can otherwise.
-# 
+#
 # If we are just using distutils, procedure here is simple:  Install
 # with distutils, then convert the .egg-info file that is installed
 # into a setuptools-compatible .egg-info directory that contains the
