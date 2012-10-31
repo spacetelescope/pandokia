@@ -194,7 +194,7 @@ d = setup(
 # sys.path at run time.
 #
 # works with distutils only, not easy_install, pip, or setuptools.
-dir_set = "pdk_dir = r'%s' # this was set during install by setup.py\n"
+dir_set = "    pdk_dir = r'%s' # this was set during install by setup.py\n"
 
 #
 #
