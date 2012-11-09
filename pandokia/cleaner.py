@@ -420,19 +420,22 @@ def delete(args) :
         print "You really have to specify -test_run"
         return 1
 
-    # 
+    # expand wild cards in test run
     lll = [ ]
     for x in opt['-test_run'] :
         lll = lll + common.expand_test_run(x)
     opt['-test_run'] = lll
 
-    lll = [ ]
-    for x in opt['-test_run'] :
-        if check_valuable(x) :
-            print "test run %s is marked valuable - cannot delete" % x
-        else :
-            lll.append(x)
+    # 
+    if not count :
+        lll = [ ]
+        for x in opt['-test_run'] :
+            if check_valuable(x) :
+                print "test run %s is marked valuable - cannot delete" % x
+            else :
+                lll.append(x)
 
+    #
     opt['-test_run'] = lll
 
     if len(lll) == 0 :
@@ -454,17 +457,16 @@ def delete(args) :
     if dont :
         return
 
-    if count :
-        where_str, where_dict = pdk_db.where_dict( lll )
-        c = pdk_db.execute("SELECT count(*) FROM result_scalar %s" % (where_str,) , where_dict )
-        print "total records",c.fetchone()[0]
-        return
-
     for x in opt['-test_run'] :
-        print "deleting from test run",x
         where_str, where_dict = pdk_db.where_dict( lll + [ ( 'test_run', x ) ] )
     
-        delete_by_query( where_str, where_dict )
+        if count :
+            c = pdk_db.execute("SELECT count(*) FROM result_scalar %s" % (where_str,) , where_dict )
+            print x, c.fetchone()[0]
+
+        else :
+            print x
+            delete_by_query( where_str, where_dict )
 
         recount( [ x ] , verbose=0 )
 
