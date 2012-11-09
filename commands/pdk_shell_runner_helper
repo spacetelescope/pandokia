@@ -159,11 +159,13 @@ testfile () {
 	#
 	# file is the output file you just created
 	#
-	# the reference file is created automatically
+	# the reference file name is created automatically
 	#
 
 	cmd=$1
 	file=$2
+
+	bn=`basename $file`
 
 	#
 	echo "Comparing output file $file to ref/$bn"
@@ -183,7 +185,6 @@ testfile () {
 		rm $file
 	else
 		# if it fails, make an okfile entry for it
-		bn=`basename $file`
 		here=`pwd`
 		okfile_entry $here/$file $here/ref/$bn
 	fi
