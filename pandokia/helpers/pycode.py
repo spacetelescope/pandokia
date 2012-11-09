@@ -187,6 +187,9 @@ class reporter(object) :
                 else :
                     test_name = self.test_prefix + '.' + test_name
 
+        if '\n' in test_name :
+            test_name = test_name.replace('\n','-')
+
         self.write_field('test_name',   test_name)
 
         self.write_field('status',      status)

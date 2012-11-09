@@ -169,6 +169,8 @@ class test_result(object):
         self.has_okfile = 'tda__okfile' in dict
 
         # no space in test name
+        if '\n' in self.test_name :
+            self.test_name = self.test_name.replace('\n','_')
         if ' ' in self.test_name :
             self.test_name = self.test_name.replace(' ','_')
         if '\t' in self.test_name :
