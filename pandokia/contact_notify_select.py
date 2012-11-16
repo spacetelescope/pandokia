@@ -1,3 +1,6 @@
+#
+# implements 'pdk email'
+#
 """This is the new means to email test reports to contacts.  As it takes shape
 users will be able to select which reports they like and the level of verbosity
 associated with said reports.
@@ -320,7 +323,7 @@ def build_report_table(test_run,project,maxlines):
             # insert a row
             test_name, status = val
             some_hosts.set_value(row,'Host',     host)
-            some_hosts.set_value(row,'Test Name',test_name)
+            some_hosts.set_value(row,'Test Name',test_name[0:75])
             some_hosts.set_value(row,'Context',  context)
             some_hosts.set_value(row,'Status',   status)
 
@@ -334,7 +337,7 @@ def build_report_table(test_run,project,maxlines):
             all_hosts_more_count += 1
             continue
 
-        all_hosts.set_value(row,'Test Name', x)
+        all_hosts.set_value(row,'Test Name', x[0:75])
 
     # if we cut off either table for going over the maxlines, add a line
     # at the end showing how many lines we cut off.  This happens after

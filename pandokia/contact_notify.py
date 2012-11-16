@@ -1,3 +1,7 @@
+#
+# This is the obsolete version
+#
+
 """This module supports the 'pdk notify' verb to send notification
 emails to the designated contacts for any tests that failed, had errors,
 or are missing. If some tests have contact='unknown', the report for those
