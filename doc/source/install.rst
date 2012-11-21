@@ -129,7 +129,7 @@ The advantages of Sqlite are:
 
 The disadvantage is:
 
-    - It has very coarse write locking.  If you are running a big write transaction, other users may get timeout errors.
+    - It has very coarse write locking.  If you are running a big transaction, other users may get timeout errors.
 
 Sqlite3 support is normally built into Python.  You can look for it
 by ::
@@ -157,9 +157,8 @@ The database file and the directory that it is in must be writable to
   - the database administrator
   - any user that imports data with "pdk import"
 
-Some NFS servers have buggy file locking, which you can avoid by storing
-the data files locally.
-
+Apparently, some NFS servers still have buggy file locking, which
+you can avoid by storing the data files locally.  
 Create the database tables and indexes with the command:
 
 ::
@@ -195,7 +194,12 @@ http://sourceforge.net/projects/mysql-python/ ; we are using version
 
 Create the database and a database user for the pandokia application.
 Pandokia needs a database user with the permissions USAGE, SELECT,
-INSERT, UPDATE, DELETE, and CREATE TEMPORARY TABLES.
+INSERT, UPDATE, DELETE, and CREATE TEMPORARY TABLES. 
+
+Here is what SHOW GRANTS says for our pandokia user: ::
+
+    GRANT USAGE ON *.* TO 'pandokia'@'%.stsci.edu' IDENTIFIED BY PASSWORD 'XXXXX'                       
+    GRANT SELECT, INSERT, UPDATE, DELETE, CREATE TEMPORARY TABLES, SHOW VIEW ON `pandokia`.* TO 'pandokia'@'%.stsci.edu'
 
 Get the name of the Pandokia configuration file by entering the command:
 
@@ -224,8 +228,8 @@ Create the database tables and indexes with the command:
 Initializing the database : Postgres
 ...........................................
 
-MySQL provides good performance.  The only significant disadvantage
-is that you need to know (or find someone who knows) how to do Postgres
+Postgres provides good performance.  The only significant disadvantage
+is that you need to know (or find someone who knows) how to do MySQL
 database administration.  This is mostly only an issue for the
 initial setup.
 
@@ -245,6 +249,7 @@ notes on using postgres .
 ::
 
     pdk sql pandokia/sql/postgres.sql
+
 
 
 Machines that will run tests

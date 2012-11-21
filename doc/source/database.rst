@@ -1,21 +1,13 @@
 Pandokia Database Administration
 --------------------------------
 
-.. toctree::
+Initial Setup
+...........................................
 
 
-Overview
-........
-
-...
 
 Running Tests
 ...........................................
-
-See doc/pdk_aware.txt for details on running tests.  The result of
-running a test with pdkrun is one or more pdk log files.  You somehow
-need to get those to your pandokia server where you can import them
-into the database with the 'pdk import' command.
 
 TODO: fix this to know the current state of the implementation
 
@@ -24,6 +16,11 @@ TODO: fix this to know the current state of the implementation
  - common.looks_like_a_date() to show day names
 
  - common.run_previous(), common.run_next()
+
+See doc/pdk_aware.txt for details on running tests.  The result of
+running a test with pdkrun is one or more pdk log files.  You somehow
+need to get those to your pandokia server where you can import them
+into the database with the 'pdk import' command.
 
 There is a special set of test run names that follow the pattern
 'daily_YYYY-MM-DD' where Y/M/D are the year/month/day of the test.
@@ -58,13 +55,14 @@ job that is essentially ::
 to import the data after all the tests are run.
 
 When a test result is already in the database, it prints a warning.
+If you do not complete an import, you can run it again; you just
+get a lot of warnings about records that already exist.
 
 Expected / Missing Tests
 ...........................................
 
 The database keeps a list of expected tests according to a class
-of test runs.  You can populate the table with SQL INSERT statements,
-but it is easier to just update from an existing test run.
+of test runs.
 
 In our system, the morning cron job imports the results from the
 previous night's tests, then executes these commands::
@@ -117,7 +115,7 @@ in two ways:
 Importing Contacts
 ...........................................
 
-Contacts are handled separately from the test results.  On any _one_
+Contacts are handled separately from the test results.  On any `one`
 of the test machines::
 
     pdk_gen_contact projectname /where/ever/it/is > file.contact
@@ -148,7 +146,10 @@ Deleting Old Test Data
 
 When you have test runs to delete from the database:
 
-1. Delete the primary records: ::
+Delete the primary records
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
 
     pdk delete -test_run daily_2009-03-10
         # deletes just that one day's results
@@ -168,10 +169,13 @@ parameters listed: ::
     pdk delete -test_run 'user_xyzzy_*' -project 'pyetc' -context 'trunk'
         -host 'etcbrady' -status 'M'
 
-This will not delete records that are part of a test run marked
+This will not delete records that are part of any test run marked
 "valuable".
 
-2. The initial delete only removes enough of the data to make the
+Delete secondary records
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The initial delete only removes enough of the data to make the
 test no longer appear on the reports.  There is a second step
 that is not performed at this stage because it is much slower.
 
@@ -180,18 +184,25 @@ Clean up related records::
     pdk clean
 
 Because of the large volume (easily many millions of records for a
-single day's test runs), this step takes a long time.  It does the
-delete in groups of a few hundred at a time.  You can interrupt it
-whenever you get tired of waiting, then restart it again later.
+single day's test runs), this step can take a long time.  Instead
+of requiring this to happen during `pdk delete`, we provide it as
+a separate step.
+
+`pdk clean` does the delete in groups of a few hundred tests at a
+time.  You can interrupt it whenever you get tired of waiting, then
+restart it again later.
 
 It is not necessary to run the clean step every time you delete
 records.  In a normal system, an administrator will run the clean
 step from time to time.
 
-Notes:
+Notes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- If you will delete several test runs, it is faster to 'pdk delete'
-  each of them, then use a single 'pdk clean' command afterwards.
+- If you will delete several test runs, it is convenient to 'pdk delete'
+  each of them, then use a single `pdk clean` command afterwards.  We
+  commonly allow anyone to run `pdk delete` alone, then run a scheduled
+  `pdk clean` during off hours.
 
 - The database files do not necessarily get smaller when you delete
   data, but space in the file is available to be re-used.
@@ -235,9 +246,35 @@ on the server: ::
     pdk gen_expected   daily daily_latest
     pdk check_expected daily daily_latest
 
-    pdk email
+    pdk email daily_latest
 
-TODO: shouldn't the 'pdk email' command need to know the test run name?
+Of course, we also have scripts that first install the software to be tested.
 
-Of course, we also have scripts that install the software to be tested.
+
+Some Database Notes
+..................................................
+
+Here are some database notes:
+
+Mysql
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    mysql -p
+    create database pandokia;
+    use pandokia;
+
+    drop database pandokia;
+
+::
+
+    set password [ for user ] = password("xyzzy") ;
+
+::
+
+    use mysql;
+    update user set password=PASSWORD("xyzzy") where user = 'dude' ;
+    flush privileges;
+
 
