@@ -1,14 +1,7 @@
 Pandokia Database Administration
 --------------------------------
 
-- Overview
-- Initializing the Database
-- Running Tests
-- Importing Test Results
-- Expected / Missing Tests
-- Emailed Announcements
-- Sample Nightly Scripts
-- Purging Old Data
+.. toctree::
 
 
 Overview
@@ -22,7 +15,15 @@ Running Tests
 See doc/pdk_aware.txt for details on running tests.  The result of
 running a test with pdkrun is one or more pdk log files.  You somehow
 need to get those to your pandokia server where you can import them
-into the database.
+into the database with the 'pdk import' command.
+
+TODO: fix this to know the current state of the implementation
+
+ - XX_latest , XX_yesterday recognizes if XX is in cfg.recurring_prefix
+
+ - common.looks_like_a_date() to show day names
+
+ - common.run_previous(), common.run_next()
 
 There is a special set of test run names that follow the pattern
 'daily_YYYY-MM-DD' where Y/M/D are the year/month/day of the test.
@@ -141,6 +142,75 @@ Emailed Announcements
 
 This section TBD.
 
+
+Deleting Old Test Data
+...........................................
+
+When you have test runs to delete from the database:
+
+1. Delete the primary records: ::
+
+    pdk delete -test_run daily_2009-03-10
+        # deletes just that one day's results
+
+You can use "*" as a wild card if it is at the beginning or end of a name: ::
+
+    pdk delete -test_run 'user_xyzzy_2012-07-*'
+
+You can use SQL wild cards: ::
+
+    pdk delete -test_run 'user_xyzzy_2012-07-%'
+
+You can specify multiple parameters to delete only a portion of a
+test run.  It will delete only that portion that matches all the
+parameters listed: ::
+
+    pdk delete -test_run 'user_xyzzy_*' -project 'pyetc' -context 'trunk'
+        -host 'etcbrady' -status 'M'
+
+This will not delete records that are part of a test run marked
+"valuable".
+
+2. The initial delete only removes enough of the data to make the
+test no longer appear on the reports.  There is a second step
+that is not performed at this stage because it is much slower.
+
+Clean up related records::
+
+    pdk clean
+
+Because of the large volume (easily many millions of records for a
+single day's test runs), this step takes a long time.  It does the
+delete in groups of a few hundred at a time.  You can interrupt it
+whenever you get tired of waiting, then restart it again later.
+
+It is not necessary to run the clean step every time you delete
+records.  In a normal system, an administrator will run the clean
+step from time to time.
+
+Notes:
+
+- If you will delete several test runs, it is faster to 'pdk delete'
+  each of them, then use a single 'pdk clean' command afterwards.
+
+- The database files do not necessarily get smaller when you delete
+  data, but space in the file is available to be re-used.
+
+- 'pdk clean' does a lot of work.  In sqlite, it tries not to keep
+  the database locked for too long, but that is hard to achieve.
+  If using sqlite, it is best to run it when the database is not
+  otherwise busy.
+
+
+Deleting Old QID data
+...........................................
+
+The system stores data relating to some queries in the database.
+You should clean this out now and then with just::
+
+    pdk clean_queries
+
+
 Sample Nightly Scripts
 ...........................................
 
@@ -170,45 +240,4 @@ on the server: ::
 TODO: shouldn't the 'pdk email' command need to know the test run name?
 
 Of course, we also have scripts that install the software to be tested.
-
-
-Purging Old Data
-...........................................
-
-The system stores data relating to some queries in the database.
-You should clean this out now and then with just::
-
-    pdk clean_queries
-
-When you have test runs to delete from the database:
-
-TODO: This is obsolete
-
-1. Delete the primary records::
-
-    pdk delete_run daily_2009-03-10
-        # deletes just that one day's results
-
-    pdk delete_run ...........................................wild 'daily_2009-03-*'
-        # deletes everything from March
-
-2. Clean up related records::
-
-    pdk clean
-
-If you will delete several test runs, it is faster to 'pdk delete_run'
-each of them, then use a single 'pdk clean' command afterwards.
-
-Note that the database files do not necessarily get smaller when
-you delete data, but space in the file is available to be re-used.
-
-Notes:
-
-- 'pdk clean' does a lot of work.  In sqlite, it tries not to keep the database
-  locked for too long, but it is best to run it when the database is
-  not otherwise busy.  Especially do not do this during an import,
-  though you could do it immediately before you start importing data::
-
-    pdk clean
-    pdk import /directory/*
 
