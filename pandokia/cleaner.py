@@ -213,13 +213,12 @@ def clean_queries() :
     # placeholder so we don't re-use any of the deleted sequence numbers
     pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+1000))
 
-    # delete the records related to the query
-    pdk_db.execute("DELETE FROM query WHERE qid IN ( SELECT qid FROM query_id WHERE expires > 0 AND expires < :1 ) ", (now,))
-
-    # delete 
-    pdk_db.execute("DELETE FROM query_id WHERE expires > 0 AND expires < :1 ", ( now, ) )
-
-    pdk_db.commit()
+    c = pdk_db.execute("SELECT qid FROM query_id WHERE expires > 0 AND expires < :1", (now,) )
+    for qid, in c :
+        # delete the records related to the query
+        pdk_db.execute("DELETE FROM query WHERE qid = :1",(qid,))
+        pdk_db.execute("DELETE FROM query_id WHERE qid = :1 ", ( qid, ) )
+        pdk_db.commit()
 
 
 ##########
