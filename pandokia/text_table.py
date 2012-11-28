@@ -782,6 +782,20 @@ class text_table :
         s.close()
         return rval
 
+
+    ## generic getter with a format
+    def get( self, format='rst', headings=False ) :
+        if format == 'html' :
+            return self.get_html(headings=headings)
+        elif format == 'csv' :
+            return self.get_csv(headings=headings)
+        elif format == 'awk' :
+            return self.get_awk(headings=headings)
+        elif format == 'rst' or format == 'text' :
+            return self.get_rst(headings=headings)
+        elif format == 'track_wiki' or format == 'tw' :
+            return self.get_track_wiki(headings=headings)
+
     ##
     ## end class text_table
 

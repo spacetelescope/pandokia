@@ -10,6 +10,7 @@
 import sys
 import re
 import types
+import pandokia.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')   
 # used to remove control characters. Not space (32) through tilde (127).
@@ -198,7 +199,7 @@ class where_dict_base(object) :
     #
     # run a big sequence of SQL commands
     #
-    def sql_commands(self, s) :
+    def sql_commands(self, s, format='rst') :
         # s is a single string, maybe with newlines
 
         import re
@@ -216,9 +217,19 @@ class where_dict_base(object) :
                 continue
             c = c + x + '\n'
             if c.endswith(';\n') :
-                print "line",line
-                print c
-                self.execute(c)
+                # perform the command
+                cursor = self.execute(c)
+
+                # display the result, if it looks like there is one
+                if cursor and cursor.description :
+                    tbl = text_table.text_table()
+                    for name in cursor.description :
+                        name = name[0]
+                        tbl.define_column( name )
+                    for rownum, rowval in enumerate(cursor) :
+                        for colnum, colval in enumerate(rowval) :
+                            tbl.set_value( rownum, colnum, colval )
+                    print tbl.get(format=format, headings=1)
                 c = ''
 
         self.commit()
@@ -235,6 +246,18 @@ def sql_files( files ) :
     import pandokia
     pdk_db = pandokia.cfg.pdk_db
 
+    format= 'rst'
+
+    while files[0].startswith('-') :
+        arg = files[0]
+        files = files[1:]
+        if arg in ( '-rst', '-csv', '-html' ) :
+            format = arg[1:]
+            print "FORMAT",format
+        else :
+            print arg, "unrecognized"
+            return 1
+
     if len(files) > 0 :
 
         dir = os.path.dirname(__file__) + "/sql/"
@@ -243,8 +266,10 @@ def sql_files( files ) :
                 f = open(x)
             except IOError:
                 f = open(dir+x)
-            pdk_db.sql_commands(f.read())
+            pdk_db.sql_commands(f.read(), format=format)
             f.close()
     else :
         import sys
-        pdk_db.sql_commands(sys.stdin.read())
+        pdk_db.sql_commands(sys.stdin.read(), format=format)
+
+    return 0
