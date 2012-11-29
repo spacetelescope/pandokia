@@ -113,6 +113,10 @@ def run( argv = sys.argv ) :
         import pandokia.cleaner
         return pandokia.cleaner.clean_queries()
 
+    if cmd == 'clean_db' :
+        import pandokia.cleaner
+        return pandokia.cleaner.clean_db(args)
+
     if cmd == 'config' :
         import pandokia
         f= pandokia.cfg.__file__

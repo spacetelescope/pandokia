@@ -268,18 +268,20 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
     max_kills = 400
 
     kill  = [ 1 ] 
-    while min_key_id < max_key_id :
-        print "search",min_key_id
-        kill = [ ]
+
+    if 1 :
 
         # sql is safe - 'which' is a parameter I passed in as one of a few constants
-        c = pdk_db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= :1 and key_id <= :2", (min_key_id,min_key_id+inc))
+        c = pdk_db.execute("SELECT DISTINCT key_id FROM "+which + " WHERE key_id >= :1 ", (min_key_id, ) )
 
         # set the min key number to the next value to use, in case we don't find anything
         # in this query
         min_key_id = min_key_id + inc
 
         tyme = time.time()
+
+        n = 0
+        d = 0
 
         # This is a loop over the key_id's that are greater than the minimum key_id
         # that we are looking at.  The key_id's are chosen from the attribute table
@@ -290,33 +292,21 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
             c1 = pdk_db.execute("SELECT count(*) FROM result_scalar WHERE key_id = :1",(key_id,))
             (count,) = c1.fetchone()
             if count == 0 :
-                # don't just delete it now - save up a batch to do all at once
-                kill.append(key_id)
-                if len(kill) >= max_kills :
-                    # when the batch is long enough, leave the loop and do some deleteing
-                    break
-                min_key_id=key_id
+                pdk_db.execute("DELETE FROM "+which+" WHERE key_id = :1",(key_id,))
+                d = d + 1
+                if d > 100 :
+                    print "deleted",key_id
 
-        c1 = None
-        c = None
+            n = n + 1
 
-        # Delete all the key_id's that are in the kill list.
-        if len(kill) > 0 :
-            print "kill"
-            for key_id in kill :
-                    # sql is safe - which is a parameter I passed in as one of a few constants
-                    pdk_db.execute("DELETE FROM "+which+" WHERE key_id = :1",(key_id,))
+            if n > 10000 :
+                # Commit!  The whole point of deleting in chunks is so that a specific transaction
+                # does not grow too large.  Also, we don't keep the database locked for so long.    
+                # (sqlite only locks the entire database, not tables or rows.)
+                pdk_db.commit()
 
-            # Commit!  The whole point of deleting in chunks is so that a specific transaction
-            # does not grow too large.  Also, we don't keep the database locked for so long.    
-            # (sqlite only locks the entire database, not tables or rows.)
-            pdk_db.commit()
-
-        print "        ",time.time()-tyme
-
-        if sleep is not None :
-            print "sleep"
-            time.sleep(sleep)
+                n = 0
+                print "        ",time.time()-tyme, "  key_id", key_id
 
     print "done"
     print "end   clean key_id", which, time.time()
@@ -330,7 +320,7 @@ def clean_db(args) :
 
     if len(args) > 0 and args[0] == '--help' :
         print '''
-pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
+pdk clean_db [ min_keyid [ max_keyid [ sleep_interval ] ] ]
 '''
         return
 
@@ -351,7 +341,6 @@ pdk clean [ min_keyid [ max_keyid [ sleep_interval ] ] ]
     clean_key_id("result_log", min_key_id, max_key_id, sleep)
     clean_key_id("result_tda", min_key_id, max_key_id, sleep)
     clean_key_id("result_tra", min_key_id, max_key_id, sleep)
-    clean_queries()
 
 
 ##########
