@@ -2,6 +2,8 @@
 # This is a script I use to install pandokia at various places that I use here at stsci.  This is unlikely to be useful to you.
 echo $path
 
+set n=63
+
 rm -rf build
 
 unsetenv PYTHONPATH
@@ -76,7 +78,6 @@ case "":
 		breaksw
 	endsw
 
-	set n=62
 	set there=/ssbwebv1/data2/pandokia/c$n
         rm -rf $there/lib/python/pandokia*
 	python setup.py -q install --home $there
