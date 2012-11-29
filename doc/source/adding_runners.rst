@@ -35,7 +35,7 @@ in pandokia/runners/__init__.py
 If you are adding your own runner, change the value of runner_glob in the installed module
 pandokia.config
 
-Choose your wildcard and add it to the list of patterns:
+Choose your wildcard and add it to the list of patterns: ::
 
     runner_glob = [
     #   ( 'not_a_test*.py',     None        ),
