@@ -135,7 +135,8 @@ echo MAIN LOOP
 # any directory named "doc" or "docs" may contain a document.  I give
 # up trying to achieve any consistency.  For each one we find, we try
 # to recognize if it contains a sphinx document.  If not, we ignore it.
-find . \( -name doc -o -name docs \) -type d -print | ( 
+
+find . \( \( -name doc -o -name docs \) -type d \) -o \( -name .this_is_a_sphinx_doc \) -print | sed 's?/.this_is_a_sphinx_doc??' | ( 
 	while read docdir
 	do
 		echo LOOK AT $docdir
