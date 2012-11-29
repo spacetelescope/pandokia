@@ -121,12 +121,12 @@ doublecheck_sphinx() {
 # main program
 
 # index is a file where we collect one line about each document processed
-index=$webdir/index.raw
+index_raw=$webdir/index.raw
 
 # stat_summary is a csv file with the status about building each doc as pdf and html.
 # It exists for a later step of the CI system to use in reporting.
 stat_summary=$webdir/stat_summary.csv
-rm -rf $index $stat_summary
+rm -rf $index_raw $stat_summary
 
 # How we indicate errors in the html
 error="<font color=red>error</font>"
@@ -239,7 +239,7 @@ find . \( -name doc -o -name docs \) -type d -print | (
 			pdfname=`cat $dest/pdfname.txt`
 
 			# be sure there is exactly one line each, so it sorts well later
-tr -d '\n' >> $index << ARF
+tr -d '\n' >> $index_raw << ARF
 			<tr>
 			<td>$title</td>
 			<td><a href=$flatname/html/index.html>html</a> </td>
@@ -250,6 +250,7 @@ tr -d '\n' >> $index << ARF
 			<td>$docdir</td>
 			</tr>
 ARF
+			echo '' >> $index_raw
 
 			# group writeable 
 			chmod -R 775 $dest
@@ -278,7 +279,7 @@ rm -f index.html
 	[ -f header.html ] && cat header.html
 	echo '<table border=1>'
 	# sort by the text title of the document
-	sort -t '>' -k 3 < index.raw
+	sort -t '>' -k 3 < $index_raw
 	echo '</table>'
 	[ -f footer.html ] && cat footer.html
 ) > index.shtml
