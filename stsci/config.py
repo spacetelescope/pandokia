@@ -18,6 +18,7 @@ recurring_prefix = (
     'monthly',
     'numpy',
     'jwst',
+    'ureka',
     )
 
 if not 'pdk_db' in globals() :
