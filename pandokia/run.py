@@ -48,6 +48,10 @@ directoryname
     Default is a generated string including the user name and the
     time to the nearest minute
 
+--host HOST
+    HOST is the value of hostname by defalt, but this flag provides a way to
+    override the system's value of hostname.  Alternatively, set PDK_HOST.
+
 Defaults can also be set by environment variables.
 
 
@@ -67,6 +71,7 @@ def run(args) :
     context     = os.environ.get("PDK_CONTEXT",     'default')
     parallel    = os.environ.get("PDK_PARALLEL",    None)
     tmpdir      = os.environ.get("PDK_TMP",         None)
+    host        = os.environ.get("PDK_HOST",        None)
     verbose = 0 # not implemented
     dry_run = 0 # not implemented
 
@@ -105,6 +110,8 @@ def run(args) :
             dry_run = 1
         elif opt == '-' or opt == '--parallel' : 
             parallel = str(int(optarg))
+        elif opt == '--host' :
+            host = optarg
 
     if project is None :
         project = default_project()
@@ -112,6 +119,8 @@ def run(args) :
         test_run = default_test_run()
     if log is None :
         log = "PDK_DEFAULT.LOG."+test_run
+    if host is None :
+        host = common.gethostname()
 
     if parallel is not None :
         os.environ['PDK_PARALLEL'] = parallel
@@ -122,6 +131,7 @@ def run(args) :
     os.environ['PDK_PROJECT'] = project
     os.environ['PDK_TESTRUN'] = test_run
     os.environ['PDK_CONTEXT'] = context
+    os.environ['PDK_HOST'] = host
 
     initialized_status_file = 0
     if not 'PDK_STATUSFILE' in os.environ :

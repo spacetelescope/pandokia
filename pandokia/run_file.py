@@ -233,7 +233,7 @@ def run( dirname, basename, envgetter, runner ) :
         f.write("\n\nSTART\n")
         f.write('test_run=%s\n'     % env['PDK_TESTRUN'])
         f.write('project=%s\n'      % env['PDK_PROJECT'])
-        f.write('host=%s\n'         % common.gethostname() )
+        f.write('host=%s\n'         % env['PDK_HOST'] )
         f.write('location=%s\n'     % full_filename )
         f.write('test_runner=%s\n'  % runner)
         f.write('context=%s\n'      %env['PDK_CONTEXT'])
