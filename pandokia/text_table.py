@@ -793,8 +793,8 @@ class text_table :
             return self.get_awk(headings=headings)
         elif format == 'rst' or format == 'text' :
             return self.get_rst(headings=headings)
-        elif format == 'track_wiki' or format == 'tw' :
-            return self.get_track_wiki(headings=headings)
+        elif format == 'trac_wiki' or format == 'tw' :
+            return self.get_trac_wiki(headings=headings)
 
     ##
     ## end class text_table
