@@ -275,11 +275,13 @@ cd $webdir
 rm -f index.html
 
 (
+	[ -f header.html ] && cat header.html
 	echo '<table border=1>'
 	# sort by the text title of the document
 	sort -t '>' -k 3 < index.raw
 	echo '</table>'
-) > index.html
+	[ -f footer.html ] && cat footer.html
+) > index.shtml
 st=$st$?
 
 st=`echo $st | tr -d 0 | cut -c1-1`
