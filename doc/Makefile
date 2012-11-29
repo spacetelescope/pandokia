@@ -89,7 +89,8 @@ doctest:	version.txt
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
-installdest=/eng/ssb/web/pandokia_docs_new/
+installdest=/eng/ssb/websites/ssbpublic/testing/pandokia/docs_new
+
 
 install: 	html
 	rm -rf $(installdest)
