@@ -92,6 +92,7 @@ shell_commands = [
     'sendto',                   # here for convenience; not really pandokia
     'shunit2_plugin_pdk',       # pandokia plugin for shunit2
     'xtname',                   # here for convenience; not really pandokia
+    'pdk_sphinxweb',            # builds a bunch of sphinx documents into a web page
     ]
 
 command_list = python_commands + shell_commands
