@@ -220,16 +220,22 @@ class where_dict_base(object) :
                 # perform the command
                 cursor = self.execute(c)
 
-                # display the result, if it looks like there is one
-                if cursor and cursor.description :
-                    tbl = text_table.text_table()
+                # display the result
+                tbl = text_table.text_table()
+
+                # define columns, if we know them
+                if cursor.description :
                     for name in cursor.description :
                         name = name[0]
                         tbl.define_column( name )
-                    for rownum, rowval in enumerate(cursor) :
-                        for colnum, colval in enumerate(rowval) :
-                            tbl.set_value( rownum, colnum, colval )
-                    print tbl.get(format=format, headings=1)
+
+                # fill the table cells
+                for rownum, rowval in enumerate(cursor) :
+                    for colnum, colval in enumerate(rowval) :
+                        tbl.set_value( rownum, colnum, colval )
+
+                # show the table in the format the user asked
+                print tbl.get(format=format, headings=1)
                 c = ''
 
         self.commit()
@@ -246,12 +252,12 @@ def sql_files( files ) :
     import pandokia
     pdk_db = pandokia.cfg.pdk_db
 
-    format= 'rst'
+    format= 'tw'
 
-    while files[0].startswith('-') :
+    while len(files) > 0 and files[0].startswith('-') :
         arg = files[0]
         files = files[1:]
-        if arg in ( '-rst', '-csv', '-html' ) :
+        if arg in ( '-html', '-csv', '-awk', '-rst', '-text', '-trac_wiki', '-tw' ) :
             format = arg[1:]
             print "FORMAT",format
         else :
