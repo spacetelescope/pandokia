@@ -130,7 +130,10 @@ class reporter(object) :
             # host - required
             #   what the user provided, else the real host name without the domain
             if host is None :
-                host = pandokia.lib.gethostname()
+                if 'PDK_HOST' in os.environ.keys():
+                    host = os.environ['PDK_HOST']
+                else:
+                    host = pandokia.lib.gethostname()
             self.write_field('host',            host )
 
             # location - optional
