@@ -93,7 +93,14 @@ doublecheck_sphinx() {
 		return 0
 	fi
 
-	# Sphinx says ERROR when something very bad happens.
+	# Sphinx sometimes says SEVERE when something very bad happens.
+	if grep -q SEVERE $f
+	then
+		echo severe
+		return 0
+	fi
+
+	# Sphinx sometimes says ERROR when something very bad happens.
 	if grep -q ERROR $f
 	then
 		echo error
