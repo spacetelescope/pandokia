@@ -115,9 +115,12 @@ class Pdk(nose.plugins.base.Plugin):
         self.rpt = None
 
         fname=self.pdklogfile
+        
         hostname = platform.node()
         if '.' in hostname :
             hostname = hostname.split('.',1)[0]
+        if 'PDK_HOST' in os.environ.keys():
+            hostname = os.environ['PDK_HOST']
 
         try:
             # find the location of the file
