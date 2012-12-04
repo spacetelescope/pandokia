@@ -1,0 +1,17 @@
+# A *.snout file contains a list of _installed_ modules/packages
+# to run nose on.  It happens that this can run doctests, but it
+# really runs any tests that nose can recognize.
+
+# Each of these happens to be a module from the standard library that
+# contains various doctests.
+Cookie
+
+decimal
+
+difflib
+
+# oddly enough, nose cannot run the doctests in the module 'doctest'
+# -- it contains a class with "Test" in it's name that crashes when
+# instantiated.
+#
+# snout

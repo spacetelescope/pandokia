@@ -1,0 +1,63 @@
+
+
+START
+test_name=net.cars.engine.PistonTest.moveUp
+location=testresults/TEST-net.cars.engine.PistonTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=E
+log:
+.message: test timed out after 1 milliseconds
+.type: java.lang.Exception
+.java.lang.Exception: test timed out after 1 milliseconds
+.
+
+END
+test_name=net.cars.engine.PistonTest.moveDown
+location=testresults/TEST-net.cars.engine.PistonTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.PistonTest.checkSpeed
+location=testresults/TEST-net.cars.engine.PistonTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=F
+log:
+.message: Plunger upward speed below specifications.
+.type: junit.framework.AssertionFailedError
+.junit.framework.AssertionFailedError: Plunger upward speed below specifications.
+.	at net.cars.engine.PistonTest.checkSpeed(PistonTest.java:47)
+.
+
+END
+test_name=net.cars.engine.PistonTest.lubricate
+location=testresults/TEST-net.cars.engine.PistonTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=F
+log:
+.message: Failed to lubricate the plunger.
+.type: junit.framework.AssertionFailedError
+.junit.framework.AssertionFailedError: Failed to lubricate the plunger.
+.	at net.cars.engine.PistonTest.lubricate(PistonTest.java:52)
+.
+
+END
+test_name=net.cars.engine.PistonTest.checkStatus
+location=testresults/TEST-net.cars.engine.PistonTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=F
+log:
+.message: Plunger status invalid to proceed driving.
+.type: junit.framework.AssertionFailedError
+.junit.framework.AssertionFailedError: Plunger status invalid to proceed driving.
+.	at net.cars.engine.PistonTest.checkStatus(PistonTest.java:42)
+.
+
+END

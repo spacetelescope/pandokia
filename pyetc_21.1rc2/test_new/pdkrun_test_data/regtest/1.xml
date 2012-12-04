@@ -1,0 +1,34 @@
+<regtest>
+<level>1</level>
+<title>testfiles 1 </title>
+<pre-exec>
+<command>
+for x in [ 1, 2, 3, 4 ] :
+	f=open("out/test_1.%d.out"%x,"w")
+	f.write("hello\n")
+	f.close()
+</command>
+</pre-exec>
+<output>
+	<val>
+		<file>out/test_1.1.out</file>
+		<reference>ref/test_1.1.out</file>
+		<comparator>ascii</comparator>
+	</val>
+	<val>
+		<file>out/test_1.2.out</file>
+		<reference>ref/test_1.2.out</file>
+		<comparator>ascii</comparator>
+	</val>
+	<val>
+		<file>out/test_1.3.out</file>
+		<reference>ref/test_1.3.out</file>
+		<comparator>ascii</comparator>
+	</val>
+	<val>
+		<file>out/test_1.4.out</file>
+		<reference>ref/test_1.4.out</file>
+		<comparator>ascii</comparator>
+	</val>
+</output>
+</regtest>

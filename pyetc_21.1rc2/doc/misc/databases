@@ -1,0 +1,72 @@
+Databases to consider
+--
+
+Pandokia is written for a SQL database using python dbapi, though using
+dbapi does not mean you necessarily have code that is portable across
+databases.
+
+http://www.python.org/dev/peps/pep-0249/
+http://wiki.python.org/moin/DatabaseInterfaces
+
+
+
+sqlite3
+	Works good - except during large transactions, where the coarse
+	locking causes "database locked" errors.
+
+	sqlite locks the whole database during a transaction, and other
+	users get SQLITE_BUSY errors.  This can happen when there is a
+	lot of data, or when you use a glob and sqlite can't choose a
+	suitable index.
+
+	We try to limit our database to 150 GB.
+
+mysql
+	Works good - production database at STScI.
+
+	next target; used in other projects here
+	http://mysql.com/
+	http://mysql-python.sourceforge.net/MySQLdb.html
+
+postgresql
+	Lightly tested - 
+
+	http://www.postgresql.org/
+	http://wiki.postgresql.org/wiki/Python
+
+gadfly
+	not implemented
+
+	Not suitable because it loads all data into memory and
+	does not have good concurrency control.  Because of these
+	limitations, it is not worth trying to adapt to this
+	database when I already have sqlite support.
+	http://gadfly.sourceforge.net/faq.html
+
+Firebird
+	not implemented
+
+	http://www.firebirdsql.org/
+	http://kinterbasdb.sourceforge.net/
+
+Microsoft SQL Server
+	not implemented
+
+	We now have access to a sql server test systems, but no real
+	motivation to try to use it.
+
+Informix
+	don't have one
+
+Oracle
+	don't have one
+
+Sybase
+	not readily available; need license
+
+
+Why not an ORM
+--
+
+I don't know of any ORM that wouldn't just get in the way.  The table
+structure and the capabilities in SQL are much easier to handle.

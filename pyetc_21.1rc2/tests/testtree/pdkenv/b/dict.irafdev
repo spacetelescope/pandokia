@@ -1,0 +1,10 @@
+PATH=/usr/stsci/ssbdev/bin:/your/other/path
+c=/grp/hst/cdbs
+cracscomp=/grp/hst/cdbs/comp/acs/
+crotacomp=/grp/hst/cdbs/comp/ota/
+jref=/grp/hst/cdbs/jref/
+mtab=/grp/hst/cdbs/mtab/
+nref=/grp/hst/cdbs/nref/
+ntab=/grp/hst/cdbs/ntab/
+oref=/grp/hst/cdbs/oref/
+uref=/grp/hst/cdbs/uref/

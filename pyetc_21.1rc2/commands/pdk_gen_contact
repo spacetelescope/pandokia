@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# Pandokia gen_contact
+#
+#	gen_contact projectname directory_name
+#
+# [[ Note:  This is a shell script adapted from an earlier testing
+# system.  It will be written in python as a regular pdk command in
+# a future release. ]]
+#
+# In a directory of tests, there may be a file named "pdk_contacts".
+# That file is the list of contacts for everything in that directory
+# and lower.  If a directory tree contains multiple contact files, the
+# list of contacts is the union of all the contacts down that branch of
+# the tree. Here, we generate a file to hand to "pdk import_contact"
+#
+# This is a really primitive way to do it.  The directory_name that you
+# give _must_ be the root of the tree of tests.  (i.e. It is the name of
+# the directory that has the pandokia_top file in it.)
+#
+# The output file is a set of lines like
+#
+# project,prefix,contact
+#
+# where all the lines from a single project are expected to be together.
+#
+
+generate() {
+	project=$1
+
+	cd $2
+
+	if [ ! -f pandokia_top ]
+	then
+		(
+		echo 'looking in '$2
+		echo 'The directory name you give must be the top level of the test tree.'
+		echo 'It is recognized by the file file pandokia_top in that directory.'
+		) >&2
+		exit 1
+	fi
+
+	find . -name pdk_contacts -print | sed -e 's?^\./??' -e 's?pdk_contacts$??' | ( while read dir
+	do
+		tr '[ \t]' '\n' < ./$dir/pdk_contacts | sed 's?^?'$project','$dir',?' 
+	done
+	)
+}
+
+if [ "$2" = "" ]
+then
+	(
+	echo ''
+	echo 'usage:'
+	echo '	pdk_gen_contact project /where/ever/directory'
+	echo '		directory must be the top level'
+	echo ''
+	) >& 2
+	exit 1
+fi
+
+# At STScI, instead of using $1 and $2, I hard-code calls to generate
+# for each project:
+#	generate astrolib /thor/data1/rt/astrolib
+#	generate stsdas /thor/data3/rt/stsdas
+#	...
+generate $1 $2

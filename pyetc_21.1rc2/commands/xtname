@@ -1,0 +1,11 @@
+#!/bin/sh
+# this script prints the escape sequence that sets the name in the
+# title bar of an xterm
+if [ "$*" = "" ]
+then
+	echo 'xtname name'
+	echo '	sets the name in the title bar of your xterm'
+	exit 0
+fi
+
+echo ']0;'$*''

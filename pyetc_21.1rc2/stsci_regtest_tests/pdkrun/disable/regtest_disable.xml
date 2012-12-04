@@ -1,0 +1,18 @@
+<regtest>
+<level>1</level>
+<title>disabled regtest</title>
+<pre-exec>
+<command>
+f=open("regtest_disable_output","w")
+f.write("nothing to do with tbconv\n")
+f.close()
+</command>
+</pre-exec>
+<output>
+<val>
+<file>regtest_disable_output</file>
+<reference>ref/regtest_disable_output</reference>
+<comparator>ascii</comparator>
+</val>
+</output>
+</regtest>

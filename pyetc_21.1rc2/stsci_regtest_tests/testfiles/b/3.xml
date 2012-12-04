@@ -1,0 +1,17 @@
+<regtest>
+<level>1</level>
+<title>testfiles 3 </title>
+<pre-exec>
+<command>
+print "testfiles 3 ok"
+open("test_3.out","w").close()
+</command>
+</pre-exec>
+<output>
+	<val>
+		<file>test_3.out</file>
+		<reference>test_3.ref</file>
+		<comparator>ascii</comparator>
+	</val>
+</output>
+</regtest>

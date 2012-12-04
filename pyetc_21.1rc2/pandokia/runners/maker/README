@@ -1,0 +1,13 @@
+fct.h
+	Taken unmodified from fctx-1.6.1; this is here as a convenience
+	so you do not have to install it separately.  A test written
+	for fctx can run with just this file.  For a complete fctx 
+	distribution, see
+
+	http://fctx.wildbearsoftware.com/
+
+	It is subject to a BSD license, noted at the top of the file.
+
+pandokia_fct.h
+	Pandokia custom logger for fctx.  See comments at the top for
+	how to write pandokia-capable tests.

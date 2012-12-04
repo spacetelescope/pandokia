@@ -1,0 +1,21 @@
+
+
+START
+test_name=net.cars.engine.DemareurTest.releaseGrip
+location=testresults/TEST-net.cars.engine.DemareurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.DemareurTest.start
+location=testresults/TEST-net.cars.engine.DemareurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=P
+log:
+.
+
+END

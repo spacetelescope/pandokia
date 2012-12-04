@@ -1,0 +1,22 @@
+These are tests of Pandokia, written for the Pandokia meta-runner.
+
+compare
+	tests of file comparison functions provided for tests to use
+
+examples
+        tests that are part of the documentation, that demonstrate how
+        to write a test (possibly should be moved)
+
+nose_plugin
+	tests of the nose plugin provided for pdk
+
+pandokia_top
+	marks top of test tree
+
+pdkrun
+	tests of 'pdk run' running (and not running) tests; this is
+	actually testing the 'pdk' command that you use to run the tests.
+
+tbconv
+	tests of tbconv table converter
+

@@ -1,0 +1,25 @@
+# Notes for making a release
+# --
+
+d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
+
+release=pandokia-1.2rc5
+
+svn del -m'replacing branch' $d/$release
+
+svn copy -m'release branch' $d/trunk $d/$release
+
+rm -rf $release
+
+svn checkout -q $d/$release
+
+cd $release
+
+svn info > stsci_remember_svn_info
+
+find . -name .svn | xargs rm -rf 
+
+cd ..
+
+tar zcf /eng/ssb/src/$release.tar.gz $release
+

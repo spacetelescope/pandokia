@@ -1,0 +1,26 @@
+
+
+START
+test_name=net.cars.engine.BougieTest.sparkDry
+location=testresults/TEST-net.cars.engine.BougieTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=P
+log:
+.
+
+END
+test_name=net.cars.engine.BougieTest.sparkHumid
+location=testresults/TEST-net.cars.engine.BougieTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=E
+log:
+.message: humidity level too high
+.type: java.lang.RuntimeException
+.java.lang.RuntimeException: humidity level too high
+.	at net.cars.engine.Bougie.spark(Unknown Source)
+.	at net.cars.engine.BougieTest.sparkHumid(BougieTest.java:36)
+.
+
+END

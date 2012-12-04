@@ -1,0 +1,8 @@
+This shows a single package named "pk" that contains pk.test()
+
+The test function implments some tests with py.test, some with nose,
+and some with pycode.  
+
+This is here to test that all the tests run when implemented this way
+(which matches what is in the documentation), but it can also serve
+as an example of how to do this.

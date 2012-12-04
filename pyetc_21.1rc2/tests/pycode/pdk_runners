@@ -1,0 +1,8 @@
+# pdkrun generally assumes .py files are for nose, so we have to
+# explicitly state when we want pycode
+example.py	pycode
+
+# non_pdk.py is an example of how to use pandokia.helpers.pycode without
+# using pdkrun; we list it here with a runner of "none" so that pdkrun
+# will not try to run it.
+non_pdk.py	none

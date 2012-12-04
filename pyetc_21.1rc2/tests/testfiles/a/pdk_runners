@@ -1,0 +1,4 @@
+5.py	none
+6.sh	none
+*.sh	shell_runner
+*.py	nose

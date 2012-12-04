@@ -1,0 +1,15 @@
+check_chronic
+	-- only do this for project at a time at most
+	-- maybe only for project, context or project, context, host
+	for each item in chronic table
+		if pass/disable :
+			remove from chronic table
+		else :
+			if current test run - chronic table test run > N days :
+				set chronic flag on result
+
+	for each item ( in current test run ) and status != [PD] :
+		enter in chronic table with identity and date of todays test run
+		-- chronic table to have a unique index; ignore error if it is already there
+
+

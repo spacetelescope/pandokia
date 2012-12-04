@@ -1,0 +1,3 @@
+*.sh		shell_runner
+nose.py		nose
+pytest.py	pytest

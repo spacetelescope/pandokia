@@ -1,0 +1,1678 @@
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/assert_on_import_f.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/assert_on_import_f
+status=F
+start_time=1302025888.7
+end_time=1302025888.71
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 533, in process_file
+.    module = imp.load_source( module_name, filename )
+.  File "assert_on_import_f.py", line 8, in <module>
+.    assert a != b
+.AssertionError
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/assert_on_import_p.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/assert_on_import_p
+status=P
+start_time=1302025888.83
+end_time=1302025888.83
+log:
+.We are here!
+.TEST ORDER line
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/attr.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/attr.class_setup_exception
+status=E
+start_time=1302025888.95
+end_time=1302025888.95
+tda_classSetUp=class setup
+tda_classTearDown=class teardown
+tra_exception=Exception('ARF',)
+log:
+.init class_setup_exception
+.classSetUp
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 325, in run_test_class_single
+.    class_setup()
+.  File "attr.py", line 88, in classSetUp
+.    raise Exception('ARF')
+.Exception: ARF
+.class tearDown
+
+END
+test_name=minipyt/attr.not_shared.test_1
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_test=test_1
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_test=test_1
+log:
+.setUp
+.test_1
+.tearDown
+
+END
+test_name=minipyt/attr.not_shared.test_2
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_test=test_2
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_test=test_2
+log:
+.setUp
+.test_2
+.tearDown
+
+END
+test_name=minipyt/attr.not_shared
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+log:
+.MULTIPLE
+.init works
+.classSetUp
+.class tearDown
+.init works
+.classSetUp
+.class tearDown
+
+END
+test_name=minipyt/attr.setup_exception.test_1
+status=E
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_exception=Exception('ARF',)
+log:
+.setUp
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 248, in run_test_method
+.    setup()
+.  File "attr.py", line 129, in setUp
+.    raise Exception('ARF')
+.Exception: ARF
+.tearDown
+
+END
+test_name=minipyt/attr.setup_exception.test_2
+status=E
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_exception=Exception('ARF',)
+log:
+.setUp
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 248, in run_test_method
+.    setup()
+.  File "attr.py", line 129, in setUp
+.    raise Exception('ARF')
+.Exception: ARF
+.tearDown
+
+END
+test_name=minipyt/attr.setup_exception
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_setUp=setup
+tda_classSetUp=class setup
+tda_classTearDown=class teardown
+log:
+.init setup_exception
+.classSetUp
+.class tearDown
+
+END
+test_name=minipyt/attr.shared.test_1
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_test=test_1
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_test=test_1
+log:
+.setUp
+.test_1
+.tearDown
+
+END
+test_name=minipyt/attr.shared.test_2
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_test=test_2
+tda_setUp=setup
+tda_classSetUp=class setup
+tra_test=test_2
+log:
+.setUp
+.test_2
+.tearDown
+
+END
+test_name=minipyt/attr.shared
+status=P
+start_time=1302025888.95
+end_time=1302025888.95
+tda_tearDown=teardown
+tda_setUp=setup
+tda_classSetUp=class setup
+tda_classTearDown=class teardown
+log:
+.init works
+.classSetUp
+.class tearDown
+
+END
+test_name=minipyt/attr
+status=P
+start_time=1302025888.95
+end_time=1302025888.96
+tda_module=this is a module tda
+log:
+.TEST ORDER line
+.class class_setup_exception as class_setup_exception
+.class not_shared as not_shared
+.class setup_exception as setup_exception
+.class shared as shared
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/class_1.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/class_1.init_f
+status=E
+start_time=1302025889.08
+end_time=1302025889.08
+tra_exception=AssertionError()
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 309, in run_test_class_single
+.    class_ob = ob()
+.  File "class_1.py", line 13, in __init__
+.    assert False
+.AssertionError
+
+END
+test_name=minipyt/class_1.init_p
+status=P
+start_time=1302025889.08
+end_time=1302025889.08
+log=
+END
+test_name=minipyt/class_1
+status=P
+start_time=1302025889.08
+end_time=1302025889.08
+log:
+.TEST ORDER line
+.class init_f as init_f
+.class init_p as init_p
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/class_2.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/class_2
+status=P
+start_time=1302025889.19
+end_time=1302025889.2
+log:
+.TEST ORDER line
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/class_attr.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/class_attr.test.test_1
+status=P
+start_time=1302025889.31
+end_time=1302025889.31
+tra_foo=foo
+tra_narf=NARF
+log=
+END
+test_name=minipyt/class_attr.test
+status=P
+start_time=1302025889.31
+end_time=1302025889.31
+log=
+END
+test_name=minipyt/class_attr
+status=P
+start_time=1302025889.31
+end_time=1302025889.31
+log:
+.TEST ORDER line
+.class test as test
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/disables.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/disables.class_active.test1
+status=P
+start_time=1302025889.43
+end_time=1302025889.43
+log:
+.test
+.test
+
+END
+test_name=minipyt/disables.class_active.test2
+status=P
+start_time=1302025889.43
+end_time=1302025889.43
+log:
+.test
+.test
+
+END
+test_name=minipyt/disables.class_active.test3
+status=P
+start_time=1302025889.43
+end_time=1302025889.43
+log:
+.test
+.test
+
+END
+test_name=minipyt/disables.class_active
+status=P
+start_time=1302025889.43
+end_time=1302025889.43
+log:
+.MULTIPLE
+
+END
+test_name=minipyt/disables
+status=E
+start_time=1302025889.43
+end_time=1302025889.43
+log:
+.['__builtins__', '__doc__', '__file__', '__name__', '__package__', 'disable', 'istest', 'noseguard', 'nottest', 'test']
+.TEST ORDER line
+.class class_active as class_active
+.class class_disable as class_disable
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 620, in process_file
+.    run_test_class( rpt, module, name, ob, test_order )
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 452, in run_test_class
+.    gen_report( rpt, name, 'D' )
+.TypeError: gen_report() takes exactly 8 arguments (3 given)
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/function.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/function.test_p
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.We are here!
+
+END
+test_name=minipyt/function.test_f
+status=F
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "function.py", line 11, in test_f
+.    assert False
+.AssertionError
+
+END
+test_name=minipyt/function.test_e
+status=E
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "function.py", line 15, in test_e
+.    raise Exception('Bomb')
+.Exception: Bomb
+
+END
+test_name=minipyt/function.minipyt_decorated
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.We are here!
+
+END
+test_name=minipyt/function.fn_with_tda
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+tra_tda_1=1
+tra_tda_2=2
+log:
+.We are here!
+
+END
+test_name=minipyt/function.fn_with_tra
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+tda_tra_2=2
+tda_tra_1=1
+log:
+.(Do you hear a Who?)
+
+END
+test_name=minipyt/function.fn_with_attributes
+status=F
+start_time=1302025890.31
+end_time=1302025890.31
+tda_tra_2=2
+tda_tra_1=1
+tra_tda_1=1
+tra_tda_2=2
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "function.py", line 48, in fn_with_attributes
+.    assert False
+.AssertionError
+
+END
+test_name=minipyt/function.fn_nose_decorated
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.We are here!
+
+END
+test_name=minipyt/function.test_nose_raises_does
+status=P
+start_time=1302025890.31
+end_time=1302025890.31
+log=
+END
+test_name=minipyt/function.test_nose_raises_not
+status=F
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/tools.py", line 87, in newfunc
+.    raise AssertionError(message)
+.AssertionError: test_nose_raises_not() did not raise ValueError
+
+END
+test_name=minipyt/function.test_nose_timed_asserts
+status=F
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/tools.py", line 117, in newfunc
+.    func(*arg, **kw)
+.  File "function.py", line 81, in test_nose_timed_asserts
+.    assert False
+.AssertionError
+
+END
+test_name=minipyt/function.test_nose_timed_exc
+status=E
+start_time=1302025890.31
+end_time=1302025890.31
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/tools.py", line 117, in newfunc
+.    func(*arg, **kw)
+.  File "function.py", line 85, in test_nose_timed_exc
+.    raise ValueError('value error')
+.ValueError: value error
+
+END
+test_name=minipyt/function.test_nose_timed_nok
+status=F
+start_time=1302025890.31
+end_time=1302025891.31
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/tools.py", line 120, in newfunc
+.    raise TimeExpired("Time limit (%s) exceeded" % limit)
+.TimeExpired: Time limit (0.1) exceeded
+
+END
+test_name=minipyt/function.test_nose_timed_ok
+status=P
+start_time=1302025891.31
+end_time=1302025891.31
+log=
+END
+test_name=minipyt/function
+status=P
+start_time=1302025889.55
+end_time=1302025891.31
+log:
+.We are here!
+.TEST ORDER line
+.function test_p as test_p
+.function test_f as test_f
+.function test_e as test_e
+.function minipyt_decorated as minipyt_decorated
+.function fn_with_tda as fn_with_tda
+.function fn_with_tra as fn_with_tra
+.function fn_with_attributes as fn_with_attributes
+.function fn_nose_decorated as fn_nose_decorated
+.function test_nose_raises_does as test_nose_raises_does
+.function test_nose_raises_not as test_nose_raises_not
+.function test_nose_timed_asserts as test_nose_timed_asserts
+.function test_nose_timed_exc as test_nose_timed_exc
+.function test_nose_timed_nok as test_nose_timed_nok
+.function test_nose_timed_ok as test_nose_timed_ok
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/import_exception.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/import_exception
+status=E
+start_time=1302025891.49
+end_time=1302025891.49
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 533, in process_file
+.    module = imp.load_source( module_name, filename )
+.  File "import_exception.py", line 3, in <module>
+.    raise Exception("Bomb the import")
+.Exception: Bomb the import
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/import_fpe.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/import_fpe
+status=E
+start_time=1302025891.61
+end_time=1302025891.62
+log:
+.We are here!
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 533, in process_file
+.    module = imp.load_source( module_name, filename )
+.  File "import_fpe.py", line 3, in <module>
+.    a = 1.0 / 0.0
+.ZeroDivisionError: float division by zero
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/import_syntax_error.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/import_syntax_error
+status=E
+start_time=1302025891.73
+end_time=1302025891.73
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 533, in process_file
+.    module = imp.load_source( module_name, filename )
+.  File "import_syntax_error.py", line 3
+.    a = 1 :
+.          ^
+.SyntaxError: invalid syntax
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/nose_decorate.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/nose_decorate.test_s1
+status=P
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s1
+
+END
+test_name=minipyt/nose_decorate.test_s2
+status=P
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.test_s2
+.teardown
+
+END
+test_name=minipyt/nose_decorate.test_s3
+status=P
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s3
+.teardown
+
+END
+test_name=minipyt/nose_decorate.test_s4
+status=E
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s4
+.Exception in teardown()
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 145, in run_test_function
+.    teardown()
+.  File "nose_decorate.py", line 18, in broken_teardown
+.    raise IOError('broken teardown')
+.IOError: broken teardown
+
+END
+test_name=minipyt/nose_decorate.test_s5
+status=E
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s5
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "nose_decorate.py", line 43, in test_s5
+.    assert False
+.AssertionError
+.Exception in teardown()
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 145, in run_test_function
+.    teardown()
+.  File "nose_decorate.py", line 18, in broken_teardown
+.    raise IOError('broken teardown')
+.IOError: broken teardown
+
+END
+test_name=minipyt/nose_decorate.test_s6
+status=E
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s6
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "nose_decorate.py", line 48, in test_s6
+.    raise IOError('broken s6')
+.IOError: broken s6
+.Exception in teardown()
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 145, in run_test_function
+.    teardown()
+.  File "nose_decorate.py", line 18, in broken_teardown
+.    raise IOError('broken teardown')
+.IOError: broken teardown
+
+END
+test_name=minipyt/nose_decorate.test_s7
+status=E
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s7
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "nose_decorate.py", line 53, in test_s7
+.    raise IOError('broken s7')
+.IOError: broken s7
+.teardown
+
+END
+test_name=minipyt/nose_decorate.test_s8
+status=F
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.setup
+.test_s8
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "nose_decorate.py", line 58, in test_s8
+.    assert False
+.AssertionError
+.teardown
+
+END
+test_name=minipyt/nose_decorate.test_1
+status=F
+start_time=1302025892.1
+end_time=1302025892.1
+log:
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_minipyt.py", line 133, in run_test_function
+.    ob()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/tools.py", line 87, in newfunc
+.    raise AssertionError(message)
+.AssertionError: test_1() did not raise IOError
+
+END
+test_name=minipyt/nose_decorate.test_2
+status=P
+start_time=1302025892.1
+end_time=1302025892.1
+log=
+END
+test_name=minipyt/nose_decorate
+status=P
+start_time=1302025891.85
+end_time=1302025892.1
+log:
+.TEST ORDER line
+.function test_s1 as test_s1
+.function test_s2 as test_s2
+.function test_s3 as test_s3
+.function test_s4 as test_s4
+.function test_s5 as test_s5
+.function test_s6 as test_s6
+.function test_s7 as test_s7
+.function test_s8 as test_s8
+.function test_1 as test_1
+.function test_2 as test_2
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/minipyt/order.py
+test_runner=minipyt
+context=default
+SETDEFAULT
+test_name=minipyt/order.test_4.test_4_2
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order.test_4.test_4_3
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order.test_4.test_4_1
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order.test_4
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log:
+.MULTIPLE
+
+END
+test_name=minipyt/order.test_2
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order.test_3
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order.test_1
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log=
+END
+test_name=minipyt/order
+status=P
+start_time=1302025892.27
+end_time=1302025892.27
+log:
+.TEST ORDER line
+.class test_4 as test_4
+.function test_2 as test_2
+.function test_3 as test_3
+.function test_1 as test_1
+.tests completed
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/import_error.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/nose.failure.Failure.runTest
+status=E
+start_time=2011-04-05 13:51:33.245
+end_time=2011-04-05 13:51:33.257
+tra_Exception=ValueError('throwing an exception',)
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/loader.py", line 382, in loadTestsFromName
+.    addr.filename, addr.module)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 39, in importFromPath
+.    return self.importFromDir(dir_path, fqname)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 86, in importFromDir
+.    mod = load_module(part_fqname, fh, filename, desc)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/import_error.py", line 2, in <module>
+.    raise ValueError("throwing an exception")
+.ValueError: throwing an exception
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/import_fail.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/nose.failure.Failure.runTest
+status=E
+start_time=2011-04-05 13:51:33.821
+end_time=2011-04-05 13:51:33.822
+tra_Exception=SyntaxError('invalid syntax', ('/Users/sienkiew/work/pandokia/sample_tests/nose/import_fail.py', 1, 11, 'this import will fail because of a syntax error!\n'))
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/loader.py", line 382, in loadTestsFromName
+.    addr.filename, addr.module)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 39, in importFromPath
+.    return self.importFromDir(dir_path, fqname)
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/importer.py", line 86, in importFromDir
+.    mod = load_module(part_fqname, fh, filename, desc)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/import_fail.py", line 1
+.    this import will fail because of a syntax error!
+.              ^
+.SyntaxError: invalid syntax
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/test_classes.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/test_classes.FromUnit.testfail
+status=F
+start_time=2011-04-05 13:51:34.409
+end_time=2011-04-05 13:51:34.410
+tda_a=1
+tra_c=3
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/test_classes.py", line 13, in testfail
+.    self.failIf(True)
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 593, in deprecated_func
+.    return original_func(*args, **kwargs)
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 399, in assertFalse
+.    raise self.failureException(msg)
+.AssertionError: True is not False
+
+END
+test_name=nose/test_classes.FromUnit.testpass
+status=P
+start_time=2011-04-05 13:51:34.411
+end_time=2011-04-05 13:51:34.411
+tda_a=1
+tra_b=2
+log=
+END
+test_name=nose/test_classes.TestClassSetup.testfail
+status=F
+start_time=2011-04-05 13:51:34.412
+end_time=2011-04-05 13:51:34.424
+tda_a=1
+tda_b=2
+tra_d=4
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/test_classes.py", line 48, in testfail
+.    assert False
+.AssertionError
+
+END
+test_name=nose/test_classes.TestClassSetup.testpass
+status=P
+start_time=2011-04-05 13:51:34.424
+end_time=2011-04-05 13:51:34.424
+tda_a=1
+tda_b=2
+tra_c=3
+tra_d=4
+log=
+END
+test_name=nose/test_classes.TestFromClass.testfail
+status=F
+start_time=2011-04-05 13:51:34.425
+end_time=2011-04-05 13:51:34.425
+tda_a=1
+tra_c=3
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/test_classes.py", line 25, in testfail
+.    assert False
+.AssertionError
+
+END
+test_name=nose/test_classes.TestFromClass.testpass
+status=P
+start_time=2011-04-05 13:51:34.425
+end_time=2011-04-05 13:51:34.425
+tda_a=1
+tra_b=2
+log=
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/test_funcs.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/test_funcs.testfail
+status=F
+start_time=2011-04-05 13:51:34.995
+end_time=2011-04-05 13:51:34.996
+tda_a=1
+tra_b=2
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/test_funcs.py", line 7, in testfail
+.    raise AssertionError('test fails')
+.AssertionError: test fails
+
+END
+test_name=nose/test_funcs.testpass
+status=P
+start_time=2011-04-05 13:51:34.997
+end_time=2011-04-05 13:51:34.997
+tda_a=11
+tra_b=12
+log=
+END
+test_name=nose/test_funcs.testerror
+status=E
+start_time=2011-04-05 13:51:34.997
+end_time=2011-04-05 13:51:34.998
+tda_a=99
+tra_Exception=ValueError('this test has an error',)
+tra_b=99
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/test_funcs.py", line 17, in testerror
+.    raise ValueError('this test has an error')
+.ValueError: this test has an error
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/testgen.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/testgen.testgen(0,_1,_2)
+status=P
+start_time=2011-04-05 13:51:35.577
+end_time=2011-04-05 13:51:35.578
+tda_a=0
+tda_b=1
+tra_c=2
+log=
+END
+test_name=nose/testgen.testgen(1,_2,_3)
+status=P
+start_time=2011-04-05 13:51:35.578
+end_time=2011-04-05 13:51:35.578
+tda_a=1
+tda_b=2
+tra_c=3
+log=
+END
+test_name=nose/testgen.testgen(2,_3,_4)
+status=P
+start_time=2011-04-05 13:51:35.579
+end_time=2011-04-05 13:51:35.579
+tda_a=2
+tda_b=3
+tra_c=4
+log=
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/testmod.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/testmod.testpass
+status=P
+start_time=2011-04-05 13:51:36.160
+end_time=2011-04-05 13:51:36.160
+tda_a=1
+tda_c=3
+tra_b=2
+log:
+.passing
+
+END
+test_name=nose/testmod.testfail
+status=F
+start_time=2011-04-05 13:51:36.161
+end_time=2011-04-05 13:51:36.162
+tda_a=1
+tda_c=3
+tra_b=2
+tra_d=4
+log:
+.failing
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-0.11.2-py2.7.egg/nose/case.py", line 186, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/sample_tests/nose/testmod.py", line 15, in testfail
+.    assert False
+.AssertionError: 
+.-------------------- >> begin captured stdout << ---------------------
+.failing
+.
+.--------------------- >> end captured stdout << ----------------------
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/tf1.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf1.test1
+status=P
+start_time=2011-04-05 13:51:36.727
+end_time=2011-04-05 13:51:36.727
+log=
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/tf2.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf2.test1
+status=P
+start_time=2011-04-05 13:51:37.293
+end_time=2011-04-05 13:51:37.293
+tda_answer=42
+log:
+.tda_answer=42
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/nose/tf3.py
+test_runner=nose
+context=default
+SETDEFAULT
+test_name=nose/tf3.test1
+status=P
+start_time=2011-04-05 13:51:37.868
+end_time=2011-04-05 13:51:37.868
+tra_xxx=1
+log=
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/shell/csh_ref.csh
+test_runner=shell_runner
+context=default
+SETDEFAULT
+test_name=shell//csh_ref
+start_time=2011-04-05 13:51:38
+tda__okfile=/Users/sienkiew/work/pandokia/sample_tests/shell/csh_ref.csh.okfile
+end_time=2011-04-05 13:51:38
+status=E
+tra_exitcode=128
+log:
+.cmp: ref/csh_ref.csh.1.out: No such file or directory
+.diff: ref/csh_ref.csh.2.out: No such file or directory
+
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/shell/csh_ref2.csh
+test_runner=shell_runner
+context=default
+SETDEFAULT
+test_name=shell//csh_ref2
+start_time=2011-04-05 13:51:38
+tda__okfile=/Users/sienkiew/work/pandokia/sample_tests/shell/csh_ref2.csh.okfile
+tda__okfile=/Users/sienkiew/work/pandokia/sample_tests/shell/csh_ref2.csh.okfile
+end_time=2011-04-05 13:51:38
+status=E
+tra_exitcode=128
+log:
+.Comparing output file csh_ref2.csh.1.out
+.diff: ref/csh_ref2.csh.1.out: No such file or directory
+.
+.Comparing output file csh_ref2.csh.2.out
+.diff: ref/csh_ref2.csh.2.out: No such file or directory
+.
+
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/shell/sh_ref.sh
+test_runner=shell_runner
+context=default
+SETDEFAULT
+test_name=shell//sh_ref
+start_time=2011-04-05 13:51:38
+tda__okfile=/Users/sienkiew/work/pandokia/sample_tests/shell/sh_ref.sh.okfile
+end_time=2011-04-05 13:51:38
+status=E
+tra_exitcode=128
+log:
+.Comparing output file sh_ref.sh.1.out
+.cmp: ref/sh_ref.sh.1.out: No such file or directory
+.
+.Comparing output file sh_ref.sh.2.out
+.diff: ref/sh_ref.sh.2.out: No such file or directory
+.
+
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/shell/simple.sh
+test_runner=shell_runner
+context=default
+SETDEFAULT
+test_name=shell//simple
+start_time=2011-04-05 13:51:38
+end_time=2011-04-05 13:51:38
+status=P
+tra_exitcode=0
+log:
+
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/shell/very_simple.sh
+test_runner=shell_runner
+context=default
+SETDEFAULT
+test_name=shell//very_simple
+start_time=2011-04-05 13:51:38
+end_time=2011-04-05 13:51:38
+status=P
+tra_exitcode=0
+log:
+
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/autogen.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/autogen.test_alphabet.test_0
+status=P
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_0 ('A', 65)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_1
+status=P
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_1 ('B', 66)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_2
+status=F
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_2 ('Z', 99)
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "autogen.py", line 65, in do_test
+.    self.do_tst( name, arg )
+.  File "autogen.py", line 36, in do_tst
+.    self.assertEqual(x, output)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 521, in assertEqual
+.    assertion_func(first, second, msg=msg)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 514, in _baseAssertEqual
+.    raise self.failureException(msg)
+.AssertionError: 90 != 99
+
+END
+test_name=unittest2/autogen.test_alphabet.test_A
+status=P
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_A ('A', 65)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_B
+status=P
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_B ('B', 66)
+
+END
+test_name=unittest2/autogen.test_alphabet.test_Z
+status=F
+start_time=1302025898.93
+end_time=1302025898.93
+log:
+.test  test_Z ('Z', 99)
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "autogen.py", line 65, in do_test
+.    self.do_tst( name, arg )
+.  File "autogen.py", line 36, in do_tst
+.    self.assertEqual(x, output)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 521, in assertEqual
+.    assertion_func(first, second, msg=msg)
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 514, in _baseAssertEqual
+.    raise self.failureException(msg)
+.AssertionError: 90 != 99
+
+END
+test_name=unittest2/autogen
+status=E
+start_time=1302025898.92
+end_time=1302025898.93
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/example.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/example.TestSequenceFunctions.test_choice
+status=P
+start_time=1302025899.08
+end_time=1302025899.08
+log=
+END
+test_name=unittest2/example.TestSequenceFunctions.test_sample
+status=P
+start_time=1302025899.08
+end_time=1302025899.08
+log=
+END
+test_name=unittest2/example.TestSequenceFunctions.test_shuffle
+status=P
+start_time=1302025899.08
+end_time=1302025899.08
+log=
+END
+test_name=unittest2/example
+status=E
+start_time=1302025899.04
+end_time=1302025899.08
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.this is a print statement that runs when example.py is imported
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/import_fail.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/import_fail
+status=E
+start_time=1302025899.23
+end_time=1302025899.23
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_unit2.py", line 211, in main
+.    module = imp.load_source( module_name, filename )
+.  File "import_fail.py", line 4
+.    This line causes a syntax error on import!
+.            ^
+.SyntaxError: invalid syntax
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/init_fail.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/init_fail.TestSequenceFunctions.test_choice
+status=E
+start_time=1302025899.38
+end_time=1302025899.38
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 333, in run
+.    self.setUp()
+.  File "init_fail.py", line 10, in setUp
+.    raise ValueError("This is what happens when the object creation has an exception")
+.ValueError: This is what happens when the object creation has an exception
+
+END
+test_name=unittest2/init_fail.TestSequenceFunctions.test_shuffle
+status=E
+start_time=1302025899.38
+end_time=1302025899.38
+log:
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 333, in run
+.    self.setUp()
+.  File "init_fail.py", line 10, in setUp
+.    raise ValueError("This is what happens when the object creation has an exception")
+.ValueError: This is what happens when the object creation has an exception
+
+END
+test_name=unittest2/init_fail
+status=E
+start_time=1302025899.33
+end_time=1302025899.38
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.this is a print statement that runs when init_fail.py is imported
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/no_test_1.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/no_test_1
+status=F
+start_time=1302025899.53
+end_time=1302025899.53
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.This file reports status=F because 0 != 1
+.Traceback (most recent call last):
+.  File "/Users/sienkiew/py/lib/python/pandokia/helpers/runner_unit2.py", line 211, in main
+.    module = imp.load_source( module_name, filename )
+.  File "no_test_1.py", line 3, in <module>
+.    assert 0 == 1
+.AssertionError
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/no_test_2.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/no_test_2
+status=E
+start_time=1302025899.63
+end_time=1302025899.64
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.This file reports status=P and contains no tests
+
+END
+
+
+START
+test_run=sample
+project=default
+host=banana
+location=/Users/sienkiew/work/pandokia/sample_tests/unittest2/test_oo.py
+test_runner=unit2
+context=default
+SETDEFAULT
+test_name=unittest2/test_oo.test_1.test_a
+status=P
+start_time=1302025899.75
+end_time=1302025899.75
+tra_a=6
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_b
+status=P
+start_time=1302025899.75
+end_time=1302025899.75
+tra_b=8
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_c
+status=P
+start_time=1302025899.75
+end_time=1302025899.75
+tra_c=10
+log:
+.test setup
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_d
+status=F
+start_time=1302025899.75
+end_time=1302025899.75
+tra_c=10
+log:
+.test setup
+.example of a failing test
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "test_oo.py", line 44, in test_d
+.    assert self.c == 12
+.AssertionError
+.test teardown
+
+END
+test_name=unittest2/test_oo.test_1.test_e
+status=E
+start_time=1302025899.75
+end_time=1302025899.75
+log:
+.test setup
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/2.7/unittest2-0.5.1-py2.7.egg/unittest2/case.py", line 340, in run
+.    testMethod()
+.  File "test_oo.py", line 47, in test_e
+.    raise Exception("yow!")
+.Exception: yow!
+.test teardown
+
+END
+test_name=unittest2/test_oo
+status=E
+start_time=1302025899.74
+end_time=1302025899.75
+log:
+.THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR
+.HAVE   0.5.1
+.EXPECT ONE OF  ('0.3.0', '0.4.0', '0.4.2')
+.TEST1 INIT
+.ARG= test_a
+.TEST1 INIT
+.ARG= test_b
+.TEST1 INIT
+.ARG= test_c
+.TEST1 INIT
+.ARG= test_d
+.TEST1 INIT
+.ARG= test_e
+
+END

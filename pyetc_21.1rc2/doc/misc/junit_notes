@@ -1,0 +1,110 @@
+Notes on junit/xml output produce by various libraries; collected in case we want to read junit/xml data someday.
+
+----------------------------------------------------------------------
+py.test junit/xml output
+
+Not using an XML library.
+
+<testsuite ...
+	attributes:
+		name is always ""
+		errors, failures, skips, tests are counts
+		time is float duration
+	contains zero or more <testcase>
+
+<testcase> has attributes
+	classname
+		prefix + filename + class names ?
+	name
+		last part of name
+	time
+
+	-- from the code that generates it, it looks like the full name
+	-- of the test is (classname + '.' + name)
+
+<testcase> contains one of these:
+
+no data if it passes
+
+<failure message="test failure">%s</failure>'
+	append_failure
+	test failed. %s is the test output
+
+<skipped message="xfail-marked test passes unexpectedly"/>
+	append_failure, xfail
+
+<skipped message="collection skipped">%s</skipped>
+	contains output
+
+<failure message="collection failure">%s</failure>
+	append_collect_failure, contains output
+
+<error message="test setup failure">%s</error>
+	error, contains output
+
+<skipped message="expected test failure">%s</skipped>
+	Skip with xfail, contains output
+
+<skipped type="pytest.skip" message="%s">%s</skipped>
+	Skip; contains message and output
+
+<testcase classname="pytest" name="internal">
+<error message="internal error">%s</error></testcase>
+	pytest_internal_error, %s is the exception
+
+
+----------------------------------------------------------------------
+
+nose --with-xunit 
+	writes nosetests.xml
+
+does not use xml library
+
+<testsuite ...
+	attributes:
+		name is always "nosetests"
+		errors, failures, skips, tests are counts
+	contains zero or more <testcase>
+
+<testcase classname=%(cls)s name=%(name)s time="%(taken)d">
+	( classname + '.' + name ) is the test name
+	time is the duration
+
+error:
+<error type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>
+</error>
+	-- for addError()
+	errtype=  nice_classname(...) ???
+	message=exception text
+	cdata=test output
+
+skip:
+<skipped type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>
+</skipped>
+	-- for addError()
+	errtype=  nice_classname(...) ???
+	message=exception text
+	cdata=test output
+
+fail:
+<failure type=%(errtype)s message=%(message)s><![CDATA[%(tb)s]]>
+</failure>
+	-- for addFailure()
+	errtype=  nice_classname(...) ???
+	message=exception text
+	cdata=test output
+
+pass:
+test case contains no data for pass
+
+
+
+----------------------------------------------------------------------
+
+http://www.junit.org/node/399
+
+http://junitpdfreport.sourceforge.net/managedcontent/PdfTranslation
+
+http://junitpdfreport.cvs.sourceforge.net/junitpdfreport/src/resources/examples/testresults/
+
+

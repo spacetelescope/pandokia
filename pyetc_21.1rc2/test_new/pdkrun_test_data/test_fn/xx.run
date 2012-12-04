@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# 
+# You can pdkrun this file to execute the tests in the package pk
+
+import pk
+pk.test()

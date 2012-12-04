@@ -1,0 +1,27 @@
+Notes
+--
+
+This is not part of the document; it is just a place to collect notes.
+
+
+--
+
+We encountered a test manager that had to work within a particular
+management framework where she had no authority to require the
+developers to write tests or to follow any particular structure
+for their tests.  Instead, she had to persuade them to write
+useful tests.
+
+Vicki described this as "Make them test, but don't make them mad."
+
+--
+
+On observing a project where there is no formal test structure, but
+most of the developers were using some sort of testing (but each
+doing something different):
+
+Vicki says "That's a nice place to start"
+
+Mark says "but it's a terrible place to finish."
+
+

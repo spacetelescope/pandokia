@@ -1,0 +1,13 @@
+#! python
+
+#
+# pandokia - a test reporting and execution system
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+#
+
+import sys
+
+# see the stsci_regtest package for details
+import stsci_regtest.update
+sys.exit(stsci_regtest.update.main(sys.argv[1:]))
+
