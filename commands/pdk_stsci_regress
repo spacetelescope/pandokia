@@ -47,6 +47,7 @@ else
 	echo 'test_name='$PDK_TESTPREFIX/`basename $PDK_FILE .xml`
 	echo 'status=E'
 	echo 'end_time='`date +%s`
+	echo 'log:'
 	echo '.pdk_stsci_regress_helper did not produce tmpfile2:'
 	sed 's/^/./' < $tmpfile
 	echo ''
