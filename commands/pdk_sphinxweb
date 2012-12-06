@@ -28,6 +28,9 @@ webdir=$1
 
 st=0
 
+# BUG: add a way to set this at run time
+suppress_doc_error=true
+
 ##########
 # This function builds a document
 #	bdoc type dir 
@@ -183,6 +186,8 @@ find . '(' '(' -name doc -o -name docs ')' -type d -o  -name .this_is_a_sphinx_d
 
 		# sub-shell to change to that directory and build the document
 		(
+			dst=0
+
 			cd $docdir
 			st=$?
 
@@ -205,13 +210,13 @@ find . '(' '(' -name doc -o -name docs ')' -type d -o  -name .this_is_a_sphinx_d
 			if [ $? != 0 ]
 			then
 				herr=$error
-				st=1
+				dst=1
 			fi
 
 			if doublecheck_sphinx $dest/html.txt
 			then
 				herr=$error
-				st=1
+				dst=1
 			fi
 
 			### make pdf version
@@ -224,13 +229,13 @@ find . '(' '(' -name doc -o -name docs ')' -type d -o  -name .this_is_a_sphinx_d
 			if [ $? != 0 ]
 			then
 				perr=$error
-				st=1
+				dst=1
 			fi
 
 			if doublecheck_sphinx $dest/pdf.txt
 			then
 				perr=$error
-				st=1
+				dst=1
 			fi
 
 			# Make the table entry for this document
@@ -265,7 +270,16 @@ ARF
 			st=$st$?
 			# chgrp -R 528 $dest
 
-			st=`echo $st | tr -d 0 | cut -c1-1`
+			# if we are asked to suppress the doc build
+			# error, make it look like they all succeeded.
+			# The error will still be reported on the web
+			# page, but will not show in our exit code.
+			if $suppress_doc_error
+			then
+				dst=0
+			fi
+
+			st=`echo $dst$st | tr -d 0 | cut -c1-1`
 			exit $st
 		)
 		st=$st$?
@@ -284,12 +298,26 @@ cd $webdir
 rm -f index.html
 
 (
-	[ -f header.html ] && cat header.html
+	s=0
+	if [ -f header.html ] 
+	then
+		cat header.html
+		s=$?
+	fi
 	echo '<table border=1>'
+	s=$s$?
 	# sort by the text title of the document
 	sort -t '>' -k 3 < $index_raw
+	s=$s$?
 	echo '</table>'
-	[ -f footer.html ] && cat footer.html
+	s=$s$?
+	if [ -f footer.html ]
+	then
+		cat footer.html
+		s=$s$?
+	fi
+	s=`echo $s | tr -d 0 | cut -c1-1`
+	exit $s
 ) > index.shtml
 st=$st$?
 
