@@ -15,6 +15,7 @@ echo XXXXX
 tar=/eng/ssb/src/pandokia-1.2rc6.tar.gz 
 
 echo tar file $tar
+rm -f $tar
 ( cd .. ; tar cfz $tar pandokia )
 
 for x in arzach jwcalibdev banana bond cadeau herbert thor ssb 
