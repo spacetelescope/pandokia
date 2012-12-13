@@ -54,17 +54,15 @@ class ComparisonClass:
 
     def writeheader(self,fh):
         fh.write("? \n")
-        fh.write("? Ascii Comparison: %s\n"%__version__)
-        fh.write("? Test file: %s\n"%self.testfile)
-        fh.write("? Reference file: %s\n"%self.reffile)
+        fh.write("? Ascii Comparison\n")
+        fh.write("? Test: %s\n"%self.testfile)
+        fh.write("? Ref : %s\n"%self.reffile)
         fh.write("? \n")
-        fh.write("? Patterns to ignore: \n")
         if len(self.ignore_raw) > 0:
+            fh.write("? Patterns to ignore: \n")
             for k in self.ignore_raw:
                 fh.write('?   %s: %s\n'%(k,self.ignore_raw[k]))
-        else:
-            fh.write('?  None\n')
-        fh.write('?\n')
+            fh.write('?\n')
         fh.flush()
 
 
@@ -75,8 +73,8 @@ class ComparisonClass:
                 # tup is (tline, rline, <optional line num>)
                 if len(tup) > 2:
                     fh.write("? line %d,\n" % tup[2])
-                fh.write("? %s: %s\n"%(self.testfile,tup[0].rstrip()))
-                fh.write("? %s: %s\n"%(self.reffile,tup[1].rstrip()))
+                fh.write("? T: %s\n"%tup[0].rstrip() )
+                fh.write("? R: %s\n"%tup[1].rstrip() )
                 fh.write("? \n")
                 fh.flush()
 
