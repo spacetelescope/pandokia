@@ -3,7 +3,7 @@
 
 d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
 
-release=pandokia-1.2rc5
+release=pandokia-1.2rc6
 
 svn del -m'replacing branch' $d/$release
 
