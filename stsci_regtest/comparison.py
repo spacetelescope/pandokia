@@ -317,7 +317,7 @@ class DifflibComparison(ComparisonClass):
 
         # rstrip as well as use lineterm - sometimes lineterm doesn't work
         self.diffs = [l.rstrip() for l in \
-                      difflib.unified_diff(ref, test, lineterm='', n=0)]
+                      difflib.unified_diff(ref, test, lineterm='', n=3)]
 
         if len(self.diffs) != 0:
             self.failed=True
