@@ -89,9 +89,12 @@ def run(args) :
     # normalize the test run, so they can say stuff like "daily_latest"
     test_run = common.find_test_run( test_run )
 
-    if verbose :
-        print "TYPE ",test_run_type
-        print "test_run",test_run
+    print "TYPE ",test_run_type
+    print "test_run",test_run
+
+    if test_run.endswith('latest') :
+        print "this test run name is probably a mistake"
+        return 1
 
     # construct the query for the set of tests that we are expecting
 
