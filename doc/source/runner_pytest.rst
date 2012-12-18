@@ -108,3 +108,15 @@ capsys/capfd capability that is normally present in py.test.
 If the pandokia plugin is not enabled, capsys/capfd work as normal for
 py.test.
 
+
+Disabling individual tests in py.test
+-------------------------------------------------------------------------------
+
+::
+    @pytest.mark.skipif("True")
+    def test_me() :
+        pass
+
+Bug: As of pandokia 1.2rc6, this causes the test to be reported as "Pass"
+instead of "Disabled".
+

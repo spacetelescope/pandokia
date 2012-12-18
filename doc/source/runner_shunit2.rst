@@ -115,6 +115,18 @@ can call the special function pdk_error: ::
     }
 
 
+Disabling individual tests 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+    test_foo() {
+        echo 'in shunit, you can produce output from a skipped test'
+        _shunit_assertSkip
+        return
+        echo pass
+    }
+
+
 Pandokia Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -336,7 +336,7 @@ module variable takes precedence.::
 prevent using nose by mistake
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-nose should recognize and execute most minipyt tests, but you can explicitly
+nose should recognize and execute many minipyt tests, but you can explicitly
 prevent using a test file with nose by::
 
     import pandokia.helpers.minipyt as mph

@@ -24,3 +24,14 @@ advanced nose options through pandokia, but we typically find that
 we don't need to.  If you want to debug a test, you can do that
 outside pandokia with something like "nosetests --pdb file.py"
 
+Disabling individual tests in nose
+-------------------------------------------------------------------------------
+
+It is hard to find this in the nose documentation: ::
+
+    from nose.exc import SkipTest 
+
+    def test_foo() :
+        raise SkipTest('busted')
+
+

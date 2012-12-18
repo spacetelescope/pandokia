@@ -30,6 +30,14 @@ The build process for your system under test can compile and install
 test programs that are pandokia aware.  You can then use the "run"
 runner to execute those external programs.
 
+It may be helpful to place a shell script in your test directory: ::
+
+    #!/bin/sh
+    exec my_test_program
+
+where my_test_program could be somewhere on PATH.
+
+
 Special Shell Scripts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
