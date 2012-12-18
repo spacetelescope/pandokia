@@ -3,11 +3,16 @@
 
 # Source distribution
 
+d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
+
+svn checkout -q $d/trunk pandokia
+
+cd pandokia
+
 release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr -d '"'`
 
-echo $release
+echo release=$release
 
-d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
 
 svn del -m'replacing branch' $d/$release
 
@@ -38,9 +43,7 @@ cd $work
 
 work=`pwd`
 
-release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr -d '"'`
-
-echo $release
+release=...
 
 tar xf  /eng/ssb/src/$release.tar.gz  
 
