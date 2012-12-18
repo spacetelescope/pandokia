@@ -8,8 +8,7 @@ okfile/XXX
 ref/XXX.YYY
         reference file for test XXX, file YYY
         XXX is the same as used in the okfile
-        YYY is the basename of the output file it is a reference for
-                you can use out/YYY or just YYY for your output file
+        YYY is the basename of the output file it is a reference for you can use out/YYY or just YYY for your output file
 
 functions
 --
