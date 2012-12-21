@@ -21,6 +21,11 @@ from pyraf.irafglobals import *
 from pyraf.iraf import tables, stsdas, images
 from pyraf.iraf import fitsio
 
+# turn on test probes in pyraf, so the test report says some stuff
+# about what we are doing
+import pyraf.irafexecute
+pyraf.irafexecute.test_probe = True
+
 # REGRESS -- Top level driver for regression testing
 #
 # NOTES:
