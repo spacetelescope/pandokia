@@ -71,7 +71,7 @@ class BadArgs(Exception) :
     pass
 
 
-def get( spec, argv = None ) :
+def get( spec, argv = None, allow_unexpected = False ) :
 
     # the returned dict 
     opts = { }
@@ -146,7 +146,10 @@ def get( spec, argv = None ) :
 
         # unknown arg
         elif this_opt.startswith('-') :
-            raise BadArgs("unknown arg %s"%this_opt)
+            if allow_unexpected:
+                n += 1
+            else:
+                raise BadArgs("unknown arg %s"%this_opt)
 
         # anything else is the end of the list
         else :
