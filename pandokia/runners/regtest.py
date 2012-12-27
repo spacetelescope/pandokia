@@ -19,7 +19,7 @@ if windows :
             name = name[:-4]
         f.write("name=%s\n"%name)
 
-        f.write("status=E\nlog=stsci_regtest not available on Windows\nEND\n\n")
+        f.write("status=D\nlog=stsci_regtest not available on Windows\nEND\n\n")
         f.close()
 
     def command(env) :
