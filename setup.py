@@ -258,7 +258,7 @@ def dorque_egg_info( target ) :
 
     # put files in it
     open(target+"/PKG-INFO","w").write(pkginfo)
-    open(target+"/not-zipe-safe","w").close()
+    open(target+"/not-zip-safe","w").close()
     open(target+"/entry_points.txt","w").write(entry_points_file)
 
 
