@@ -802,6 +802,13 @@ class text_table :
 #-----------------------------------80 cols-------------------------------------##################### 132 cols #####################
 
 
+def sequence_to_table( l ) :
+	t = text_table()
+	for row, x in enumerate(l) :
+		for col,y in enumerate(x) :
+			t.set_value(row, col, y)
+	return t
+
 if __name__ =="__main__":
     import sys
     t=text_table()
