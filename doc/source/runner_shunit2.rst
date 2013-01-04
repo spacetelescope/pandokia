@@ -243,3 +243,17 @@ Use the "run" runner.  Create file.run containing: ::
     #!/bin/sh
     exec shunit2 --plugin pdk installed_name.shunit2
 
+shunit2 extended capabilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This modified shunit2 contains some new features.
+
+You can list all the test names that are defined in a shunit2 file: ::
+
+    shunit2 file.shunit2 --list
+    shunit2 file.shunit2 -l
+
+You can specify a list of tests to run, in place of all the tests in the file: ::
+
+    shunit2 file.shunit test_1 test_2
+
