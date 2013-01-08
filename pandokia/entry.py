@@ -6,7 +6,7 @@
 #
 # Main entry point into pandokia
 
-helpstr = '''
+'''
 
 pdk check_expected test_run_type test_run
     check that test_run contains a test result for each one listed as
@@ -79,7 +79,7 @@ def run( argv = sys.argv ) :
     # Ok, not a CGI, so it must be a command line of the form
     # pdk command [ args ]
     if len(argv) < 1 :
-        print helpstr
+        print __doc__
         return
 
     cmd = argv[1]
