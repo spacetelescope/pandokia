@@ -231,6 +231,7 @@ def default_test_run() :
     return d
 
 def export_environment(args) :
+    ## pdk getenv
     import pandokia.envgetter
     out = sys.stdout
     context=None
@@ -253,7 +254,8 @@ def export_environment(args) :
         args = [ '.' ]
     for x in args :
         envgetter = pandokia.envgetter.EnvGetter(context=context, defdict=env )
-        envgetter.populate(x)
+        x = os.path.abspath(x)
+        envgetter.envdir(x)
         envgetter.export(x,format=format,fh=out)
 
     out.flush()
