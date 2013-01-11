@@ -103,7 +103,7 @@ In your __init__.py:  ::
         dir = os.path.dirname( sys.modules[test_pkg].__file__ )
 
         # get the name of the test package
-        argv = [ 'nosetests', dir ]
+        argv = [ 'nosetests', '--exe', dir ]
 
         # run nose
         try :
