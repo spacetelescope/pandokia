@@ -62,14 +62,11 @@ In your __init__.py:  ::
 
     def test( verbose=False ) :
         #
-        import os, sys, pytest
-
-        # import the test package
-        test_pkg = __name__ + '.tests'
-        exec( "import %s" % test_pkg )
+        import os, pytest
 
         # find the directory where the test package lives
-        dir = os.path.dirname( sys.modules[test_pkg].__file__ )
+        from . import tests
+        dir = os.path.dirname( tests.__file__ )
 
         # assemble the py.test args
         args = [ dir ]
@@ -93,14 +90,11 @@ that will be recognized by py.test.
 In your __init__.py:  ::
 
     def test( verbose=False ) :
-        import os, sys, nose
-
-        # import the test package
-        test_pkg = __name__ + '.tests'
-        exec( "import %s" % test_pkg )
+        import os, nose
 
         # find the directory where the test package lives
-        dir = os.path.dirname( sys.modules[test_pkg].__file__ )
+        from . import tests
+        dir = os.path.dirname( tests.__file__ )
 
         # get the name of the test package
         argv = [ 'nosetests', '--exe', dir ]
@@ -194,7 +188,7 @@ installed to run all the tests.  This is an incovenience to the
 user, who may have to install all three of pandokia, py.test and
 nose to run all the tests.
 
-It could be usefule during a transition period, especially if you structure
+It could be useful during a transition period, especially if you structure
 the various test functions to be aware of whether they can run or not: ::
 
     def test_pytest( verbose=False ) :
