@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# generate some test data by using pdkrun
+#
+# You want to use the pdkrun that you are testing, but the result is
+# not the output of the test.  The result is a set of pdklog files that
+# you can use as input to the actual tests.
+
+rm -f PDK_*
+
+
+( cd external ; make clean ; make )
+
+# how many to run in parallel - we want it to be at least some, but not
+# so many as to hurt the machine.  Even a single CPU should be ok with P=4
+P=4
+
+pdkrun -r --parallel $P --test_run pdkrun_test .
+

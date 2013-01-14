@@ -1,0 +1,24 @@
+pdk_runners
+	This declares test runners for various file types.  By default,
+	the shell_runner expects files to be named test_*.sh or test_*.csh
+	because it is too easy to accidentally pick up a script otherwise.
+	But, if you declare a file to be a test in pdk_runners, you don't
+	have to have test_ in the name of the test.
+
+simple.sh
+	a simple test: does expr know that 1 + 1 = 2 ?  This includes
+	some error reporting, e.g. if expr is not found
+
+very_simple.sh
+	an extraordinarily simple test written in sh.
+
+sh_ref.sh
+	/bin/sh example that compares output files. This uses functions
+	defined by pandokia.
+
+csh_ref.csh
+	/bin/csh example that compares output files.  csh does not have
+	functions and all the work-arounds are pretty hacky.  This example
+	is exactly the same as sh_ref.sh except that all the work is
+	written into the test intead of into a library.
+

@@ -1,0 +1,32 @@
+:
+# Get a report with just the test_name and status in rst format.
+# Paste it to the stdin of this script to get a python program with
+# the list initialize to the test name and status in your rst table.
+# Then edit the result to add more data as necessary.
+
+cat << 'ARF'
+import os
+import pandokia.helpers.test_in_db as test_in_db
+
+test_in_db.query['test_name'] = 'PUT YOUR TEST NAME HERE'
+
+expected_results = [
+    #  test_name,
+    #       dict of values for equivalence
+    #
+    # remember the db access library automatically converts things that look like numbers to float
+
+ARF
+
+while read a b
+do
+	echo "	( '$a',"
+	echo "		{ 'status' : '$b' } ),"
+done
+
+cat << 'ARF'
+]
+
+test_in_db.perform_db_tests( test_in_db.query , expected_results )
+
+ARF

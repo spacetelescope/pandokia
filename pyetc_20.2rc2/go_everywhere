@@ -1,0 +1,21 @@
+wdir=/eng/ssb/pandokia_dev/pandokia
+
+
+if [ `pwd` != $wdir ]
+then
+	echo wrong directory
+	exit 1
+fi
+echo ok
+
+for x in arzach banana bond cadeau herbert thor ssb
+do
+	echo XXXXX
+	echo $x
+	ssh $x "cd $wdir && ./go iraf && ./go irafx && ./go irafdev"
+done
+
+echo XXXXX
+echo arzach again - earlier python versions
+ssh arzach "cd $wdir && ./go irafdev 2.5.4 && ./go irafdev 2.6.5"
+

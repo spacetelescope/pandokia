@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+#
+# This is a general purpose entry point for pandokia to run a python
+# module that implements a test runner.  This doesn't necessarily imply
+# that the runner tests python code or that the runner runs python --
+# just that the runner is a pandokia module implemented in python.
+#
+# pdk_python_runner runner_name [ args ]
+
+# Here is where we keep them:
+prefix = 'pandokia.helpers.runner_'
+
+import sys
+import re
+
+# 
+def usage() :
+    sys.stderr.write("usage: %s runner_name [ args ]\n" % sys.argv[0] )
+    sys.stderr.write("       runner_name must be alpha, numeric, or _\n" )
+    sys.exit(1)
+
+# 
+if len(sys.argv) < 2 :
+    usage()
+
+#
+runner_name = sys.argv[1]
+if not re.match('^[a-zA-Z0-9]+$',runner_name) :
+    usage()
+
+# 
+try :
+    s = "import %s%s as runner" % ( prefix, runner_name)
+    exec( s )
+except ImportError, e :
+    sys.stderr.write("Cannot import %s%s:\n%s\n" % ( prefix, runner_name, str(e)) )
+    sys.stderr.write("sys.path=[\n")
+    for x in sys.path :
+        sys.stderr.write('    %s\n'%x)
+    sys.stderr.write(']\n')
+    sys.exit(1)
+
+#
+runner.main(sys.argv[2:])

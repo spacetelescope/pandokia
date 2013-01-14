@@ -1,0 +1,19 @@
+.. index:: single: runners; nose
+
+===============================================================================
+nose (Python) - using nose to run your tests
+===============================================================================
+
+:abstract:
+
+	Pandokia can use nose 0.11.1 or 1.0 to run tests.  It uses
+	a nose plugin to gather the test results.  There are some
+	limitations.
+
+.. contents::
+
+Overview
+-------------------------------------------------------------------------------
+
+bug: Need to write this section.
+

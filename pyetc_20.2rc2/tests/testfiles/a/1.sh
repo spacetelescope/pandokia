@@ -1,0 +1,2 @@
+echo 'test 1 ok'
+exit 0
