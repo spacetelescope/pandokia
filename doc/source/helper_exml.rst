@@ -91,6 +91,7 @@ Translate to python: ::
                         # fitsdiff args ignorekeys and ignorecomm take
                         # a list instead of comma separated text
                         'ignorekeys': [ 'filename', 'date', 'iraf-tlm' ],
+                        'maxdiff' : .0001,
                      },
 
                 },
