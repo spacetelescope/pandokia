@@ -803,11 +803,11 @@ class text_table :
 
 
 def sequence_to_table( l ) :
-	t = text_table()
-	for row, x in enumerate(l) :
-		for col,y in enumerate(x) :
-			t.set_value(row, col, y)
-	return t
+    t = text_table()
+    for row, x in enumerate(l) :
+        for col,y in enumerate(x) :
+            t.set_value(row, col, y)
+    return t
 
 if __name__ =="__main__":
     import sys
