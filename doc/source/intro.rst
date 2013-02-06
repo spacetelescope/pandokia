@@ -59,7 +59,7 @@ times.  Each test result is identified by a unique tuple:
     the file containing the test, and the name of a function/class
     that implements the test.
 
-    The system assumes that you use the always use the same name for
+    The system assumes that you always use the same name for
     the same test, so that you can compare results across test runs,
     hosts, or contexts.
 
