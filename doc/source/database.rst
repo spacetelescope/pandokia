@@ -213,6 +213,29 @@ Notes
   otherwise busy.
 
 
+STScI Routine Database Cleaning
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+pandokia.cfg.pdk_db.table_usage() returns the current database size
+as best it can for the database you are using.  Part of our continuous
+integration system uses this call to generate a report when the
+database exceeds our current limit.
+
+When it does, we have somebody identify the oldest daily test runs
+in the database and delete them with a command like ::
+
+    pdk delete -test_run 'daily_2012-10-%'
+
+We repeat that command for each type of daily test runs (we have
+several), and then run ::
+
+    pdk clean
+
+We usually delete a month at a time.  Because of our high test
+volume (several million records per month), both of these steps
+take a very long time.
+
+
 Deleting Old QID data
 ...........................................
 
