@@ -127,7 +127,7 @@ if 0 :
 user_list = None
 
 # which users can see/operate the admin interfaces 
-admin_user_list = ( 'sienkiew', 'Nobody', )
+admin_user_list = ( 'sienkiew', 'cslocum', 'Nobody', )
 
 ######
 #
