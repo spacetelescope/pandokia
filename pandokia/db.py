@@ -279,3 +279,43 @@ def sql_files( files ) :
         pdk_db.sql_commands(sys.stdin.read(), format=format)
 
     return 0
+
+def db_from_django( settings ) :
+    '''Connect to a django database, using the pandokia database interface.
+
+    The parameter is the django settings module.
+
+    This function is useful mainly when you want something from an
+    application that uses a django database, but you don't want to go
+    through the pain of using the django ORM to form your query.
+
+    '''
+
+    if settings.DATABASE_ENGINE == 'mysql' :
+        import pandokia.db_mysqldb as dbmod
+        access = {
+            'host'  : settings.DATABASE_HOST,
+            'db'    : settings.DATABASE_NAME,
+            'user'  : settings.DATABASE_USER,
+            'passwd': settings.DATABASE_PASSWORD
+            }
+        if settings.DATABASE_PORT :
+            access['port'] = settings.DATABASE_PORT
+        db = dbmod.PandokiaDB( access )
+        return db
+
+    if settings.DATABASE_ENGINE == 'sqlite3' :
+        import pandokia.db_sqlite as dbmod
+        db = dbmod.PandokiaDB( 
+            {   
+            'db'  : settings.DATABASE_NAME,
+            }
+        )
+        return db
+
+    # I have no other django-based databases to test with, but you can
+    # see it is relatively simple if there is already pandokia support
+    # for that database.
+
+    raise Exception('Pandokia does not know django database engine name %s'%settings.DATABASE_ENGINE)
+
