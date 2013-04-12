@@ -241,7 +241,7 @@ def export_environment(args) :
 
     opts,args = getopt.getopt(args,"o:c:f",["output=", "context=", "full","csh","sh"])
     for (opt, optarg) in opts :
-        if opt == '-o' or opt == '-optput' :
+        if opt == '-o' or opt == '-output' :
             out = open(optarg,"w")
         elif opt == '-c' or opt == '--context' :
             context = optarg

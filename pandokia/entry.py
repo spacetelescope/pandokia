@@ -154,7 +154,7 @@ def run( argv = sys.argv ) :
         return x.export_environment(args)
 
     if cmd == 'help' or cmd == '-h' or cmd == '--help' :
-        print helpstr
+        print __doc__
         return
 
     if cmd == 'import' :
