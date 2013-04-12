@@ -47,13 +47,18 @@ cursor = pdk_db.execute( statement, parameters )
     If parameters is any other type, it is an error.
 
     It IS NOT permitted to have the character ':' in your sql,
-    even if it occurs inside a string literal.
+    even if it occurs inside a string literal.  The library
+    does not check for this, but will likely choke on your
+    query.
 
     It IS NOT permitted to have the character '%' in your sql,
     even if it occurs inside a string literal.  This limitation
-    is inherited from some of the DBAPI implementations.  Notably,
-    you cannot use LIKE 'xxx%' but you can use LIKE :1 and pass
-    a parameter of "xxx%".
+    is inherited from some of the DBAPI implementations.  You
+    may be able to get away with it, depending which DBAPI you
+    are using, but your code will not be portable.
+
+    Notably, you cannot use LIKE 'xxx%' but you can use LIKE :1 and
+    pass a parameter of "xxx%".
 
 The return value is a cursor 
 
@@ -70,10 +75,20 @@ you can't have the %.
 
 Stylistically, I like ":arf" better than "%(arf)s"
 
-General Usage
+What about performance?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This interface takes a small amount of additional time for each query, but
+the performance reduction from using an interpreted language like Python is
+so large that I don't notice (or care) about the difference.  The portability
+is more important.
+
+Connecting to the databse
 -------------------------------------------------------------------------------
 
-Within pandokia ::
+Within pandokia 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
 
     import pandokia
     pdb_db = pandokia.cfg.pdk_db
@@ -88,8 +103,8 @@ Use :1, :2, ... for parameters when you have only a fixed set of parameters. ::
     for x in c :
         print c[0],c[1]
 
-
-If you want to use this database access layer with another system:
+Without pandokia
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - using MySQLdb: ::
 
@@ -100,22 +115,57 @@ If you want to use this database access layer with another system:
 
  - using sqlite3 or pysqlite2: ::
 
-    import pandokia.db_sqlite as dbdriver
+    import pandokia.db_sqlite
 
     db = pandokia.db_sqlite.PandokiaDB( filename )
         # filename is the same as you would use with sqlite3
+
+ - using psyscopg2 (postgresql): ::
+
+    import pandokia.db_psycopg2
+
+    db = pandokia.db_psycopg2.PandokiaDB( access_arg )
+        # access_arg is the same as you would use with psycopg2
 
 The object does not connect to the database when you create it.
 You can call db.open() to explicitly connect, or it will connect
 to the database the first time it needs the connection.
 
 
+Without pandokia, if you have a Django settings.py module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+    # hook up to the database
+    import pandokia.db as dbm
+    import pyetc.etc_web.settings as settings
+
+    db = dbm.db_from_django( settings )
+
+The object does not connect to the database when you create it.
+You can call db.open() to explicitly connect, or it will connect
+to the database the first time it needs the connection.
+
 Schemas
 -------------------------------------------------------------------------------
 
 If you use database-specfic features in your schema, you just have
-to write a separate schema for each database engine.  This is not
-so bad if you have a small number of tables.
+to write a separate schema for each database engine.
+
+There are two significant differences in the Pandokia schemas for
+different databases:
+
+ - some databases allow VARCHAR without a length, but others do not.
+
+ - Different databases use different approaches to autoincrementing
+   columns.  See result_scalar.key_id in pandokia/sql/\*.sql to see
+   the different approaches.
+
+I have also found that the details of what indexes you want may
+vary between database implementations.
+
+This lacks the "magic" of an ORM automatically generating your
+schema, but is not so bad if you have a small number of tables.
 
 Dynamically constructed WHERE clauses
 -------------------------------------------------------------------------------
@@ -132,9 +182,11 @@ The value may contain "\*x", "x\*", or "\*x\*", which will be converted
 to "%x", "x%", or "%x%" and used in a LIKE clause.  Other glob-like
 characters are not permitted.
 
-If the value contains '%', it will be used in a LIKE clause.  The '_'
-character does NOT create a LIKE expression because it is too common
-in our data values.
+If the value contains '%', it will be used in a LIKE clause.  
+
+The '_' character does NOT automatically create a LIKE expression
+because it is too common in our data values, but note that "A_B*"
+will translate to LIKE 'A_B%'
 
 There is no good way to search for values containing \*, %, [, or ? 
 
