@@ -11,6 +11,19 @@
 # meta-runner.  It is not intended for you to run it directly.
 
 
+# We want this script to ignore signals that come from other places,
+# but we want the test we are running to respond to them.  Thanks to
+# details of the trap command, we have to turn our trap on/off/on
+# to make it work right.  See the race described below.
+do_trap() {
+	trap "" 2 3 15
+}
+
+do_untrap() {
+	trap - 2 3 15
+}
+
+do_trap
 
 # datefmt is a format for the date(1) command to use to report the
 # start/end time.
@@ -61,23 +74,45 @@ echo 'start_time='`date "$datefmt"`
 
 tmpfile=pdk.runner.tmp
 
-# Run the shell script, gathering output into a temp file. 
+# Run the shell script, gathering output into a temp file.  The
+# sequence here is :
+#
+# - clear all signal traps right before we run the test itself
+# - run the test in the background
+# - re-instate all the signal traps immediately
+# - wait for the background process
+#
+# This means that we do our waiting with signals blocked, except
+# for a tiny window around the time we start the test.  I can't really
+# do anything about that except re-write this part with some other
+# programming language that would allow me to change the signal
+# handling between the fork/exec.  [ Notice that ( trap ; cmd )
+# will "restore" the signal handling to "all blocked" because
+# that is the initial state of the shell interpreting the ( )
+# commands. ]
+
+echo '' > $tmpfile
 
 if [ -x $PDK_FILE ]
 then
 	# In fact, you can use any language here, not just sh.
 	# We can say ./ because we know that pdkrun always gives us just
 	# the basename.
-	./$PDK_FILE > $tmpfile 2>&1
+	do_untrap
+	./$PDK_FILE > $tmpfile 2>&1 &
+	do_trap
 else
 	case "$PDK_FILE"
 	in
 	*.sh)
-		sh $PDK_FILE > $tmpfile 2>&1
+		do_untrap
+		sh $PDK_FILE > $tmpfile 2>&1 &
+		do_trap
 		;;
 	*.csh)	
-		# by user request
-		csh -f $PDK_FILE > $tmpfile 2>&1
+		do_untrap
+		csh -f $PDK_FILE > $tmpfile 2>&1 &
+		do_trap
 		;;
 	*)
 		echo 'pdk_shell_runner: $PDK_FILE not executable and do not know interpreter to use' > $tmpfile
@@ -85,6 +120,8 @@ else
 		;;
 	esac
 fi
+
+wait
 
 exitcode=$?
 

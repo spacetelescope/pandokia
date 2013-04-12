@@ -250,7 +250,7 @@ def run( dirname, basename, envgetter, runner ) :
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
-                print 'COMMAND :', thiscmd, '(for file %s)'% full_filename, datetime.datetime.now()
+                print 'COMMAND :', repr(thiscmd), '(for file %s)'% full_filename, datetime.datetime.now()
                 sys.stdout.flush()
                 sys.stderr.flush()
                 if windows :
@@ -273,14 +273,11 @@ def run( dirname, basename, envgetter, runner ) :
                     os.unlink("stdout.%s.tmp"%slot_id)
                 else :
                     # on unix, just do it
-
-                    # we used to setpgrp() but that messes something
-                    # up on python 2.7.3 on mac lion, so we never see
-                    # the child process exit.  So, don't setpgrp...
-                    p = subprocess.Popen( thiscmd, shell=True, env = env)
+                    p = subprocess.Popen( "exec " + thiscmd, shell=True, env = env, preexec_fn = unix_preexec )
                     if 'PDK_TIMEOUT' in env :
                         proc_timeout_start(env['PDK_TIMEOUT'], p)
                         status = p.wait()
+                        print "return from wait, status=",status
                         proc_timeout_terminate()
                         if timeout_proc_kills > 0 :
                             # we tried to kill it for taking too long -
@@ -373,56 +370,79 @@ def run( dirname, basename, envgetter, runner ) :
 # accounting is pretty easy.
 #
 
-# the process we are waiting for.
-timeout_proc = None
-
-# how many times we tried to kill it.  first kill is sigterm, second is
-# sigkill, then we give up waiting
-timeout_proc_kills = 0
-
-# remember the duration so we can say how long it was when it expires
-timeout_duration = None
-
-
-# An exception to raise to abort Popen.wait().
-#
-# at this time, you don't actually catch this exception anywhere -
-# it crashes the whole program.  It is an old-style class to make
-# it less likely that somebody might catch it with "except Exception".
-class timeout_not_going_away:
+if windows :
+    # bug: have to implement timeouts for windows someday.
     pass
 
-## 
-## start the timeout for the child process
-##
-def proc_timeout_start(timeout, p) :
-    global timeout_proc, timeout_proc_kills, timeout_duration
-    timeout_proc = p
+else :
+
+    # We ask subprocess to call this function in the child, before the exec.
+    #
+    # In this case, setpgrp() so we can killpg a runaway test.  Killing just
+    # the test process isn't enough because the test may have child processes
+    # of its own.  
+    #
+    # If the test itself creates new process groups, we have a problem.  It
+    # may be worth looking in to cgroups on linux to deal with that.
+    def unix_preexec() :
+        os.setpgrp()
+
+    # the process we are waiting for.
+    timeout_proc = None
+
+    # how many times we tried to kill it.  first kill is sigterm, second is
+    # sigkill, then we give up waiting
     timeout_proc_kills = 0
-    timeout_duration = timeout
-    signal.signal(signal.SIGALRM, proc_timeout_callback)
-    signal.alarm(int(timeout))
 
-# Kill the process group, but no error if it does not exist.  (In case
-# it exited before we got here.)
-def killpg_maybe( pid, signal ) :
-    print "killpg -%d %d"%(signal,pid)
-    try :
-        os.killpg( pid, signal )
-    except OSError, e:
-        if e.errno != errno.ESRCH :
-            raise
+    # remember the duration so we can say how long it was when it expires
+    timeout_duration = None
 
-#
-# callback that happens when it is time to kill the process
-#
 
-def proc_timeout_callback(sig, stack):
-    global timeout_proc_kills
-    if timeout_proc :
-        if windows :
-            raise "not implemented on windows"
-        else :
+    # An exception to raise to abort Popen.wait().
+    #
+    # at this time, you don't actually catch this exception anywhere -
+    # it crashes the whole program.  It is an old-style class to make
+    # it less likely that somebody might catch it with "except Exception".
+    #
+    # I initially considered this to be so unlikely that I never bothered
+    # to figure out how to handle this exception.  When a machine starts
+    # thrashing (because the working set of all the processes is bigger
+    # than physical memory), it can happen, though.
+    #
+    # b.t.w. This exception kills a pdkrun for a particular directory,
+    # but not the entire test run.  Later tests in that directory may
+    # be missing.
+    class timeout_not_going_away:
+        pass
+
+    ## 
+    ## start the timeout for the child process
+    ##
+    def proc_timeout_start(timeout, p) :
+        global timeout_proc, timeout_proc_kills, timeout_duration
+        timeout_proc = p
+        timeout_proc_kills = 0
+        timeout_duration = timeout
+        signal.signal(signal.SIGALRM, proc_timeout_callback)
+        signal.alarm(int(timeout))
+
+    # Kill the process group, but no error if it does not exist.  (In case
+    # it exited before we got here.)
+    def killpg_maybe( pid, signal ) :
+        print "killpg -%d %d"%(signal,pid)
+        try :
+            os.killpg( pid, signal )
+        except OSError, e:
+            if e.errno != errno.ESRCH :
+                raise
+
+    #
+    # callback that happens when it is time to kill the process
+    #
+
+    def proc_timeout_callback(sig, stack):
+        global timeout_proc_kills
+        if timeout_proc :
             pid = timeout_proc.pid
             print "PID=%d"%pid
             if timeout_proc_kills == 0 :
@@ -435,15 +455,15 @@ def proc_timeout_callback(sig, stack):
                 print "timeout expired yet again - now what?"
                 raise timeout_not_going_away()
 
-        timeout_proc_kills += 1
-        signal.alarm(10)
+            timeout_proc_kills += 1
+            signal.alarm(10)
 
 
-##
-## cancel the timeout for the current child process
-##
+    ##
+    ## cancel the timeout for the current child process
+    ##
 
-def proc_timeout_terminate() :
-    signal.alarm(0)
-    timeout_proc = None
+    def proc_timeout_terminate() :
+        signal.alarm(0)
+        timeout_proc = None
 
