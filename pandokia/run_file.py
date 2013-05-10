@@ -433,6 +433,7 @@ else :
         try :
             os.killpg( pid, signal )
         except OSError, e:
+            print "killpg exception:",e
             if e.errno != errno.ESRCH :
                 raise
 
