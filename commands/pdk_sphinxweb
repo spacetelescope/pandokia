@@ -295,7 +295,7 @@ st=$st$?
 # Construct the index.html in the web directory
 cd $webdir
 
-rm -f index.html
+rm -f index.shtml
 
 (
 	s=0

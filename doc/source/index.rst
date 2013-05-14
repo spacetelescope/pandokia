@@ -24,6 +24,7 @@ Pandokia Documentation
     faq.rst
     programming.rst
     environment.rst
+    tools.rst
 
 Indices and tables
 ==================
