@@ -129,9 +129,12 @@ shunit_plugin_execute() {
 	# alread ends with a slash.
 	test_name=${PDK_TESTPREFIX}${__pdk_file_part}.${_shunit_test_}
 
+	# collect start/end time outside the { } because some shells
+	# don't remember variables that are set within
+        start_time=` date '+%Y-%m-%d %H:%M:%S' `
+
         # run the test, collecting output into the file
         {
-        start_time=` date '+%Y-%m-%d %H:%M:%S' `
 
         # execute the per-test setup function
         setUp
@@ -141,9 +144,10 @@ shunit_plugin_execute() {
 
         # execute the per-test tear-down function
         tearDown
-        end_time=` date '+%Y-%m-%d %H:%M:%S' `
 
         } > $_pdk_output 2>&1
+
+        end_time=` date '+%Y-%m-%d %H:%M:%S' `
 
         # write the test results to the pdk log file
         {
