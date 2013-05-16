@@ -105,7 +105,7 @@ html_theme = 'default'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+html_title = "Pandokia %s" % release
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -174,7 +174,7 @@ htmlhelp_basename = 'pandokiadoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'pandokia.tex', u'pandokia Documentation',
+  ('index', 'pandokia.tex', u'Pandokia',
    u'Mark Sienkiewicz and Victoria Laidler', 'manual'),
 ]
 
@@ -197,3 +197,11 @@ latex_documents = [
 
 # 'dot -Tpdf' doesn't work for us, so use an alternative form
 graphviz_pdf_mode = 'ps2:pdf'
+
+import sys
+for x in sys.modules :
+    if 'quickstart' in x :
+        print 'QUICKSTART', x
+
+for x in sys.modules :
+    print x
