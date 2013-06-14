@@ -1,4 +1,3 @@
-
 ## basic imports
 
 import sys
@@ -35,15 +34,13 @@ classifiers = [
 #
 # if you use setuptools (including easy_install or pip) then
 # the CGI magic that was in earlier versions of pandokia will
-# not work.  You'll have to run your cgi directly from site-packages.
+# not work.
 
 if 'setuptools' in sys.modules :
-    print "SETUPTOOLS HERE"
     from setuptools import setup
     have_setuptools = True
 
 else :
-    print "SETUPTOOLS NOT HERE"
     from distutils.core import setup
     have_setuptools = False
 
@@ -93,6 +90,7 @@ shell_commands = [
     'shunit2_plugin_pdk',       # pandokia plugin for shunit2
     'xtname',                   # here for convenience; not really pandokia
     'pdk_sphinxweb',            # builds a bunch of sphinx documents into a web page
+    'checktabs',                # check .py/.rst files for tabs in indents
     ]
 
 command_list = python_commands + shell_commands
@@ -162,7 +160,7 @@ args = {
     'description' :     'Pandokia - a test management and reporting system',
     'author' :          'Mark Sienkiewicz, Vicki Laidler',
     'author_email':     'help@stsci.edu',
-    'url' :             'https://svn.stsci.edu/trac/ssb/etal/wiki/Pandokia',
+    'url' :             'http://ssb.stsci.edu/testing/',
     'license':          'BSD',
     'platforms':        ['Posix', 'MacOS X'],
     'scripts' :         [ "commands/"+x for x in command_list ],
@@ -284,8 +282,8 @@ if 'install' in d.command_obj :
             fix_script(x)
             pass
 
-    print ''
-    print 'Get the CGI from ', os.path.join(script_dir, 'pdk')
+        print ''
+        print 'Get the CGI from ', os.path.join(script_dir, 'pdk')
 
     # tell the user about the install
     print ''
@@ -297,5 +295,6 @@ if 'install' in d.command_obj :
     print "export PATH PYTHONPATH"
     print ''
 else :
-    print "no install"
+    pass
+    # print "no install"
 

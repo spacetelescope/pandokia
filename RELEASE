@@ -13,7 +13,6 @@ release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr 
 
 echo release=$release
 
-
 svn del -m'replacing branch' $d/$release
 
 svn copy -m'release branch' $d/trunk $d/$release
@@ -26,13 +25,11 @@ cd $release
 
 svn info > stsci_remember_svn_info
 
-find . -name .svn | xargs rm -rf 
+python setup.py sdist
 
-cd ..
+ls -l dist
 
-rm -f /eng/ssb/src/$release.tar.gz
-
-tar zcf /eng/ssb/src/$release.tar.gz $release
+cp dist/* /eng/ssb/src/$release.tar.gz 
 
 
 #####
@@ -53,7 +50,7 @@ rm -rf $work/py
 
 python setup.py install --home $work/py
 
-PYTHONPATH=$work/py/libpython
+PYTHONPATH=$work/py/lib/python
 
 export PYTHONPATH
 

@@ -18,7 +18,6 @@ recurring_prefix = (
     'monthly',
     'numpy',
     'jwst',
-    'ureka_nightly_test',
     )
 
 if not 'pdk_db' in globals() :
@@ -44,7 +43,6 @@ if not 'pdk_db' in globals() :
     # we don't actually have a database and therefore it won't matter.
     except ImportError :
         pass
-
 
 
 enable_magic_html_log = True

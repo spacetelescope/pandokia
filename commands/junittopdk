@@ -102,6 +102,7 @@ def start( name, attr ):
             other_data += 'host: %s\n' % attr['hostname']
 
         if 'timestamp' in attr :
+            # convert ISO times into more readable format Pandokia uses
             other_data += 'start_time: %s\n' % attr['timestamp'].replace('T',' ')
 
     elif name == 'testcase' :

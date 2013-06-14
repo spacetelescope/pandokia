@@ -32,7 +32,6 @@ run time), but you may find it helpful to have some of :
 	nose
 		For running tests in Python that are based on nose.
 
-		http://somethingaboutorange.com/mrl/projects/nose/
 		http://pypi.python.org/pypi/nose/
 
 	py.test
@@ -55,7 +54,7 @@ run time), but you may find it helpful to have some of :
 		does not work with Pandokia, but a patched version is
 		available.
 
-		http://stsdas.stsci.edu/shunit/
+		http://ssb.stsci.edu/testing/shunit2/
 
 		You can find the original patches in the pandokia source
 		code in the directory patches/
@@ -81,7 +80,7 @@ For database systems, there is support for:
 
 	sqlite3
 		The sqlite3 python package is included with the python
-		source code, but the python package is only installed if
+		source code, but the python package is only present if
 		you have the sqlite3 libraries on your system.
 
 		$ python

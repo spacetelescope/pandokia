@@ -251,6 +251,25 @@ recurring_prefix = (
     'monthly',
     )   
 
+#####
+#
+# Some tests write HTML into their log.  If enable_magic_html_log is
+# set to True, the display will offer a link that shows only the
+# html portion of the log.  Click that link to see the log output
+# beginning with <!DOCTYPE or <html and ending with </html>.
+#
+# One of our projects uses mechanize to talk to a Django application;
+# if django shows an error page, you can click the link to see 
+# what it should look like.
+#
+# If you turn this feature on, anybody who writes your tests can
+# insert arbitrary HTML to be displayed on the user's browser.
+# It is a security problem if you cannot trust everybody who 
+# writes your tests.
+#
+enable_magic_html_log = False
+
+
 
 #####
 #
