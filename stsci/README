@@ -1,0 +1,5 @@
+stsci-specific configs - not directly useful to anybody else, but I
+need to keep them under configuration control somewhere.
+
+You can see that I made a config.py and a toplevel.html to customize
+things a bit.
