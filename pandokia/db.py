@@ -229,13 +229,25 @@ class where_dict_base(object) :
                         name = name[0]
                         tbl.define_column( name )
 
-                # fill the table cells
-                for rownum, rowval in enumerate(cursor) :
-                    for colnum, colval in enumerate(rowval) :
-                        tbl.set_value( rownum, colnum, colval )
+                try :
+                    # fill the table cells
+                    for rownum, rowval in enumerate(cursor) :
+                        for colnum, colval in enumerate(rowval) :
+                            tbl.set_value( rownum, colnum, colval )
 
-                # show the table in the format the user asked
-                print tbl.get(format=format, headings=1)
+                    # show the table in the format the user asked
+                    print tbl.get(format=format, headings=1)
+                except self.ProgrammingError as e :
+                    if 'no results to fetch' in str(e) :
+                        pass
+                    else :
+                        print "Programming Error for ",c
+                        print e
+
+                except self.IntegrityError as e :
+                    print "Integrity Error for ",c
+                    print e
+
                 c = ''
 
         self.commit()
