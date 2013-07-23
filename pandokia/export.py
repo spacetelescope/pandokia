@@ -32,9 +32,12 @@ def emit_field( output, name, value ) :
 #   output is a file to write to
 #   where is an SQL where clause, beginning with the word "WHERE "
 #
+
+exportable_fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
+exportable_fields_string =  ','.join(fields)
+
 def do_export( output, where_text, where_dict ) :
     # list of fields to export
-    fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
 
     # fields_zip is the index in the returned record of each name in fields
     # it is 1+ because key_id is not listed
@@ -45,10 +48,26 @@ def do_export( output, where_text, where_dict ) :
 
     sys.stderr.write('begin select\n')
     # 
-    sql = ("SELECT key_id, %s FROM result_scalar " % ','.join(fields) ) +where_text
+    sql = ("SELECT key_id, %s FROM result_scalar " % exportable_fields_string ) +where_text
     c = pdk_db.execute( sql, where_dict)
     sys.stderr.write('begin writing\n')
     for record in c :
+        export_record( output, record )
+    sys.stderr.write('end writing\n')
+
+
+def do_export_qid( output, qid ) :
+    qid = int(qid)
+    qid_query = "SELECT key_id FROM query WHERE qid = %d " % qid
+    c = pdk_db.execute( qid_query )
+    for key_id in c :
+        c1 = pdk_db.execute("SELECT key_id, %s FROM result_scalar WHERE key_id = %d" % ( exportable_fields_string, key_id ) )
+        for r in c1 :
+            export_record(output, r )
+
+# export a single record in the current cursor
+
+def export_record( output, record ) :
 
         key_id = record[0]
         # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
@@ -71,7 +90,6 @@ def do_export( output, where_text, where_dict ) :
             emit_field(output,'log',x[0])
 
         output.write("END\n")
-    sys.stderr.write('end writing\n')
 
 
 def run(args) :
