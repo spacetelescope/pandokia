@@ -61,14 +61,13 @@ if 0 :
     import pandokia.db_sqlite as dbd
     import os
 
-    # Uncomment one of these lines to set a value for db_arg.
+    # Set the value of db_arg 
     #
-    # db_arg = "/some/place/
-    # db_arg = os.path.dirname(os.path.abspath(__file__))
+    db_arg = "/some/place/pdk.db"
 
-    # db_arg is the fully qualified name of the directory where the
-    # sqlite3 database files will be stored.  This directory must
-    # be writable to
+    # db_arg is the fully qualified name of the file where the
+    # sqlite3 database files will be stored.  The file AND the directory
+    # it is in must be writable to
     #        - the uid that runs CGI programs
     #        - anyone who will import data from the command line
     #        - anyone who will administer the database

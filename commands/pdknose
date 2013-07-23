@@ -7,6 +7,9 @@
 
 # This is the entry point that "pdk run" uses to invoke the
 # pandokia-enabled nose.
+#
+# You can't just run nosetests --pdk, because the nosetests on your path
+# might be configured for a different python interpreter
 
 import sys
 import nose

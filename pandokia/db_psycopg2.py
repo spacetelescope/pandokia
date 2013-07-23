@@ -125,29 +125,66 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 '''
 Ubuntu:
 
-sudo apt-get install postgresql-client
-    gets a client
+    sudo apt-get install postgresql-client
+        gets a client
 
-sudo apt-get install python-psycopg2
-    gets the python client
+    sudo apt-get install python-psycopg2
+        gets the python client
 
-sudo apt-get install postgresql
-    gets a server
+    sudo apt-get install postgresql
+        gets a server
 
-sudo -u postgres psql postgres
-    \password postgres
-    ...enter a password...
-        sets password for postgres database user
+    su postgres
 
-    create database pandokia;
-    create user mark;
-    grant all on database pandokia to mark ;
+    psql postgres
+        \password postgres
+        ...enter a password...
+            sets password for postgres database user
 
-/etc/postgresql
-    config
+        create database pandokia;
+        create user mark;
+        grant all on database pandokia to mark ;
 
-/var/lib/postgresql/8.4/main
-    data?
+    /etc/postgresql
+        config
+
+    /var/lib/postgresql/8.4/main
+        data?
+
+
+Fedora:
+
+    yum install postgresql
+        client
+
+    yum install python-psycopg2  
+        python client
+
+    yum install postgresql-server
+        server
+
+    su postgres
+    initdb -D ~postgres/data
+
+    su
+    service postgresql start 
+    
+    su postgres
+
+    psql postgres
+        \password postgres
+        ...enter a password...
+            sets password for postgres database user
+
+
+Create the database:
+
+    su postgres
+    psql postgres
+        create database pandokia;
+        create user mark;
+        grant all on database pandokia to mark ;
+
 
 psql pandokia
     start the interactive client on the pandokia database

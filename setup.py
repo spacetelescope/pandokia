@@ -34,7 +34,7 @@ classifiers = [
 #
 # if you use setuptools (including easy_install or pip) then
 # the CGI magic that was in earlier versions of pandokia will
-# not work.
+# not work.  Your web server must provide a proper PYTHONPATH.
 
 if 'setuptools' in sys.modules :
     from setuptools import setup
@@ -60,7 +60,7 @@ package_list = [
     'pandokia',             # core of pandokia system
     'pandokia.runners',     # "plugin-like" things that run various kinds of tests
     'pandokia.helpers',     # modules to use in running your tests
-    'stsci_regtest',        # legacy STScI IRAF/PyRAF test system
+    'stsci_regtest',        # legacy STScI test system for IRAF packages
 ]
 
 #
@@ -276,24 +276,43 @@ if 'install' in d.command_obj :
     # print 'scripts went to', script_dir
     # print 'python  went to', lib_dir
 
+    # tell the user about the install
+   
+    print ''
+    print 'If you need to change your path for this install:'
+    print ''
+    print '    set path = ( %s $path )' % script_dir
+    print '    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
+    print ''
+    print '    export PATH=%s:$PATH'%script_dir
+    print '    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir
+
+    print ''
+    print 'The CGI is:'
+    print ''
+    print '    ', os.path.join(script_dir, 'pdk')
     if not have_setuptools :
         # hack the scripts for PDK_DIR_HERE
         for x in python_commands :
             fix_script(x)
             pass
+    else :
+        print '    If you did not install pandokia in the default location, you must'
+        print '    ensure that PYTHONPATH is provided by your web server'
+    print ''
 
-        print ''
-        print 'Get the CGI from ', os.path.join(script_dir, 'pdk')
+    import pandokia
+    f= pandokia.cfg.__file__
+    if f.endswith(".pyc") or f.endswith(".pyo") :
+        f = f[:-1]
+    print 'The config file is:'
+    print ''
+    print '    ',f
+    print ''
+    print '    you can find the config file at any time with the command "pdk config"'
+    print ''
 
-    # tell the user about the install
-    print ''
-    print 'set path = ( %s $path )' % script_dir
-    print 'setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
-    print ''
-    print 'PATH=%s:$PATH'%script_dir
-    print "PYTHONPATH=%s:$PYTHONPATH"%lib_dir
-    print "export PATH PYTHONPATH"
-    print ''
+
 else :
     pass
     # print "no install"

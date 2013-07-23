@@ -80,7 +80,7 @@ def noseguard() :
     This prevents importing the file if nose is also loaded.  If pandokia
     is using minipyt as the test runner, nose will not have been imported.
     If nose is in sys.modules, we assume that is because the test file
-    was mistakenly run with pdknose or nosetests.
+    was mistakenly run with nose.
 
     Presumably, this may cause you problems if you are trying to import the
     test into an interactive python.  If so, disable this function with

@@ -2,12 +2,18 @@
 Installing Pandokia
 ===================
 
-You can install Pandokia in Unix/Linux, Macintosh, or Windows machines.  The procedure is the same in all cases.
+Pandokia works on Unix/Linux and Macintosh machines.  The procedure is
+the same in all cases.  There has been some effort toward Windows support,
+but it is likely incomplete.
+
+The sequence is to first install the software, then configure the
+resulting system.
 
 Initial Install
 ---------------
 
-Download either the tar or zip file from https://svn.stsci.edu/trac/ssb/etal#pandokia
+Download either the tar or zip file from
+http://ssb.stsci.edu/testing/pandokia/
 
 Extract the file:
 
@@ -52,7 +58,8 @@ To install the web application, you need to:
 The CGI
 ~~~~~~~~~~~~
 
-You can install Pandokia in any web server that can run CGI scripts.  We use Apache for our normal usage.
+You can install Pandokia in any web server that can run CGI scripts.
+We use Apache for our normal usage.
 
 When you run setup.py, one of the things it will say is something like:
 
@@ -129,7 +136,7 @@ The advantages of Sqlite are:
 
 The disadvantage is:
 
-    - It has very coarse write locking.  If you are running a big transaction, other users may get timeout errors.
+    - It has very coarse write locking.  If you run a big transaction, other users may get timeout errors.
 
 Sqlite3 support is normally built into Python.  You can look for it
 by ::
@@ -159,12 +166,12 @@ The database file and the directory that it is in must be writable to
 
 Apparently, some NFS servers still have buggy file locking, which
 you can avoid by storing the data files locally.  
+
 Create the database tables and indexes with the command:
 
 ::
 
-    pdk sql pandokia/sql/sqlite.sql
-
+    pdk sql sqlite.sql
 
 Pandokia uses "pragma synchronous = normal;" for speed.  Certain
 types of crashes can cause your database to be corrupted.  See
@@ -222,7 +229,7 @@ Create the database tables and indexes with the command:
 
 ::
 
-    pdk sql pandokia/sql/mysql.sql
+    pdk sql mysql.sql
 
 
 Initializing the database : Postgres
@@ -248,7 +255,7 @@ notes on using postgres .
 
 ::
 
-    pdk sql pandokia/sql/postgres.sql
+    pdk sql postgres.sql
 
 
 
@@ -270,9 +277,16 @@ can install Pandokia without any of this, then add it later.
 
  -  fctx (C, C++) - http://fctx.wildbearsoftware.com/
 
-    The fct.h file is included in pandokia, so it is not necessary to install anything.
+    All necessary parts of fctx are included in pandokia, so it is not
+    necessary to install anything to use fctx.
 
- -  pyraf (IRAF) - http://www.stsci.edu/institute/software_hardware/pyraf (used to run IRAF tasks)
+    Their web server has been down for a while.  You can find a
+    copy of the fctx documentation at http://ssb.stsci.edu/testing/fctx/
+    
+
+ -  pyraf (IRAF) - http://www.stsci.edu/institute/software_hardware/pyraf 
+
+    pyraf is used only to run IRAF tasks in the stsci_regtest runner.
 
  -  shunit2 (sh) - specially modified version from http://ssb.stsci.edu/testing/shunit2/
 

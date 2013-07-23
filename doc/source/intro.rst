@@ -190,11 +190,7 @@ illustrated in the more complex diagram below.
 .. figure:: complex_dfd.png
 
    This figure shows the elements of Pandokia in more detail. The dashed
-   line marks the boundary of the machine on which the database
-   resides. All tasks that interact directly with the database are
-   run on this machine.
-
-
+   line marks the boundary of the server that hosts the web interface.
 
 In addition to the standard test-import-browse data flow, some
 additional flows provide enhanced bookkeeping. 
@@ -223,8 +219,9 @@ appropriately configured environment for each test file found
 (locally, we use nose and a home-grown system). When processing a
 directory tree, multiple test runners can be invoked concurrently,
 but only one test runner at a time will be invoked per directory.
-For concurrent runs, the various output files are gathered up into
-a single file for import.
+When running multiple tests concurrently, the system creates
+multiple log files.  All the log files are imported into the
+database to obtain the full results.
 
 The importer processes a test result file and uses the information
 in it to update the various database tables. The missing test
@@ -239,27 +236,14 @@ group of tests, compare results to a previous test run, or click
 through to an individual test report.
 
 
-Interfaces
-----------
-
-Any test runner that produces a Pandokia-compliant test result file
-can be used with the test reporting system. (A nose plugin has been
-written that produces such a file.)
-
-Any reporter or analysis tool that understands the Pandokia database
-schema can be used to query the database, which is presently
-implemented in SQLite.
-
-
 Authors
 -------
    Mark Sienkiewicz (STScI) and Vicki Laidler (CSC/STScI),
    Science Software Branch, Space Telescope Science Institute
 
-   
 Support
 -------
    You can request help on Pandokia by sending email to help@stsci.edu
-   with STSDAS/Pandokia in the subject line. The authors also follow
+   with SSB/Pandokia in the subject line. The authors also follow
    the TIP mailing list (testing-in-python@lists.idyll.org).
 
