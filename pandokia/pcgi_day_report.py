@@ -37,7 +37,7 @@ def rpt1(  ) :
         test_run = form["test_run"]
         try:
             # this will work if only one test_run was specified
-            test_runs = test_run.value
+            test_run = test_run.value
         except:
             pass
     else :
@@ -147,7 +147,12 @@ def rpt2( ) :
     form = pandokia.pcgi.form
 
     if form.has_key("test_run") :
-        test_run = form["test_run"].value
+        test_run = form["test_run"]
+        try:
+            # this will work if only one test_run was specified
+            test_run = test_run.value
+        except:
+            pass
     else :
         # no parameter?  I think somebody is messing with us...
         # no matter - just give them a the list of all the test_runs

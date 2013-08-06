@@ -2,7 +2,7 @@
 # This is a script I use to install pandokia at various places that I use here at stsci.  This is unlikely to be useful to you.
 echo $path
 
-set n=67
+set n=68
 
 rm -rf build
 
