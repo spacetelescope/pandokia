@@ -34,7 +34,12 @@ def rpt1(  ) :
     form = pandokia.pcgi.form
 
     if form.has_key("test_run") :
-        test_run = form["test_run"].value
+        test_run = form["test_run"]
+        try:
+            # this will work if only one test_run was specified
+            test_runs = test_run.value
+        except:
+            pass
     else :
         test_run = '*'
 

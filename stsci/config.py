@@ -13,10 +13,8 @@ cginame = 'https://ssb.stsci.edu/pandokia/pandokia.cgi'
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
 
 recurring_prefix = (
+    'etc_daily',
     'daily',
-    'weekly',
-    'monthly',
-    'numpy',
     'jwst',
     )
 
