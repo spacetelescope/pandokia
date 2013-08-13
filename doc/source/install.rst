@@ -236,7 +236,7 @@ Initializing the database : Postgres
 ...........................................
 
 Postgres provides good performance.  The only significant disadvantage
-is that you need to know (or find someone who knows) how to do MySQL
+is that you need to know (or find someone who knows) how to do Postgres
 database administration.  This is mostly only an issue for the
 initial setup.
 
