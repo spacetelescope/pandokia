@@ -3,6 +3,27 @@ pragma auto_vacuum = 2 ;
 -- do a little vacuuming on each commit (as it would for 1), but
 -- you can use "pragma incremental_vacuum" to force it to vacuum now.
 
+
+-- ok_transactions:
+--  each row corresponds to one transaction (one mouse click on "Flag OK")
+
+CREATE TABLE ok_transactions (
+    trans_id        INTEGER PRIMARY KEY,
+    username        VARCHAR,
+    user_comment    VARCHAR(100),
+    ip_address      VARCHAR,
+    status          VARCHAR
+);
+
+-- ok_items:
+--  each row is a test result that has been OK'd
+
+CREATE TABLE ok_items (
+    trans_id    INTEGER,
+    key_id      INTEGER,
+    status      VARCHAR
+);
+
 -- result_scalar:
 --	each row represents a single test result
 
@@ -45,7 +66,7 @@ CREATE TABLE result_scalar (
                 -- 0 or 1 indicating whether this test had a tda_okfile attribute
 	chronic CHAR(1)
 		-- 0 or 1 indicating whether this test is a chronic problem
-	);
+);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 
 	ON result_scalar ( test_run, project, host, test_name, context );
@@ -74,7 +95,7 @@ CREATE TABLE result_tda (
 	key_id INTEGER,
 	name VARCHAR,
 	value VARCHAR
-	);
+);
 
 CREATE INDEX result_tda_key_id
 	ON result_tda ( key_id ) ;
@@ -90,7 +111,7 @@ CREATE TABLE result_tra (
 	key_id INTEGER,
 	name VARCHAR,
 	value VARCHAR
-	);
+);
 
 CREATE INDEX result_tra_key_id
 	ON result_tra ( key_id ) ;
@@ -106,7 +127,7 @@ CREATE INDEX result_tra_index
 CREATE TABLE result_log (
 	key_id INTEGER,
 	log VARCHAR
-	);
+);
 
 
 CREATE INDEX result_log_index
@@ -119,7 +140,7 @@ CREATE TABLE contact (
 	project	VARCHAR,
 	test_name VARCHAR,
 	email VARCHAR
-	);
+);
 
 CREATE INDEX contact_index 
 	ON contact ( project, test_name );
@@ -139,7 +160,7 @@ CREATE TABLE expected (
 	test_name VARCHAR,
 	context VARCHAR
 		-- project, host, test_name, context as in result_scalar
-	);
+);
 
 CREATE UNIQUE INDEX expected_unique 
 	ON expected ( test_run_type, project, host, test_name, context );
@@ -162,7 +183,7 @@ CREATE TABLE distinct_test_run (
         note VARCHAR(100)
                 -- a brief note about this test run
 		-- set first char to '*' to mark read-only
-	);
+);
 
 
 -- user preferences:
@@ -171,7 +192,7 @@ CREATE TABLE user_prefs (
 	username VARCHAR,	-- user name as authenticated by web server
 	email VARCHAR	-- email address where notices should be sent
 	-- add whatever else we need here
-	);
+);
 
 CREATE UNIQUE INDEX user_prefs_username_index 
 	ON user_prefs ( username );
@@ -186,7 +207,7 @@ CREATE TABLE user_email_pref (
 		-- 'f' = send full list of non-passing tests
 	maxlines INTEGER
 		-- if full list, show at most N tests
-	);
+);
 
 
 -- query_id:
@@ -199,7 +220,7 @@ CREATE TABLE query_id (
 	expires	INTEGER,		-- time_t when it is ok to delete this query
 	username VARCHAR,		-- who claimed this qid
 	notes    VARCHAR
-	);
+);
 
 CREATE INDEX query_id_index 
 	ON query_id ( qid ) ;
@@ -213,7 +234,7 @@ CREATE INDEX query_id_index
 CREATE TABLE query (
 	qid	INTEGER,		-- query number
 	key_id	INTEGER			-- identity of a thing in the list
-	);
+);
 
 CREATE INDEX query_index 
 	ON query ( qid ) ;
@@ -230,7 +251,7 @@ CREATE INDEX query_index
 
 CREATE TABLE delete_queue (
 	key_id INTEGER
-	);
+);
 
 CREATE INDEX delete_queue_key_id ON 
 	delete_queue ( key_id ) ;
@@ -238,13 +259,13 @@ CREATE INDEX delete_queue_key_id ON
 -- hostinfo:
 --      descriptions of various hosts
 CREATE TABLE hostinfo (
-        hostname        VARCHAR(64),
-        os              VARCHAR(64),
-        description     VARCHAR(10240)
-        );
+    hostname        VARCHAR(64),
+    os              VARCHAR(64),
+    description     VARCHAR(10240)
+);
 
 CREATE INDEX hostinfo_index
-        ON hostinfo ( hostname );
+    ON hostinfo ( hostname );
 
 
 -- chronic problem tests:
@@ -266,7 +287,7 @@ CREATE TABLE chronic (
 		-- project, host, test_name, context as in result_scalar
 	xwhen VARCHAR
 		-- indicator of when the test first went bad
-	);
+);
 
 CREATE UNIQUE INDEX chronic_u ON chronic ( test_run_type, project, host, test_name, context );
 

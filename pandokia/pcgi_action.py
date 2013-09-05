@@ -83,14 +83,24 @@ def run( ) :
         # pick out client IP for logging
         # we don't need to validate client because it was done already in the main program
         output.write("<h3>flagging tests as ok</h3>\n")
+        
+        # ip address
         client = os.environ["REMOTE_ADDR"]
+
+        # user who flagged OK
         user = common.current_user()
         if user is None :
             user = 'None'
 
-        for key_id in valid_key_ids(form) :
-            print "Flagging %s<br>"%key_id
-            text_present |= pandokia.flagok.flagok(client, key_id, user)
+        # OK comment
+        comment = form["ok_comment"].value
+
+        text_present |= pandokia.flagok.ok_transaction(
+            client,
+            valid_key_ids(form),
+            user,
+            comment
+        )
 
         pandokia.flagok.commit()
 

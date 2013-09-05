@@ -11,12 +11,28 @@ import pandokia
 
 pdk_db = pandokia.cfg.pdk_db
 
-fdarray = { }
 
 def noflag( name, err ) :
     print 'Flagok not possible for %s: %s<br>'%(cgi.escape(name), err)
 
-def flagok( client, key_id, user) :
+
+def ok_transaction(client, key_ids, user, comment):
+    status = 'new'
+    
+    # insert new transaction into ok_transactions
+
+    c = pdk_db.execute("INSERT INTO ok_transactions (username, user_comment, ip_address, status) values (:1, :2, :3, :4)", (user, comment, client, 'new'))
+    trans_id = c.lastrowid
+
+    #OK each key_id
+    for key_id in key_ids:
+        print "Flagging %s<br>" %key_id
+        flagok(key_id, trans_id)
+
+    return 1   
+
+
+def flagok(key_id, trans_id) :
 
     c = pdk_db.execute('SELECT host, location, test_name FROM result_scalar WHERE key_id = :1 ', (key_id,))
     x = c.fetchone()
@@ -45,6 +61,7 @@ def flagok( client, key_id, user) :
         noflag(test_name, 'host not known')
         return 1
 
+
     if not os.path.isabs(flagok_file) :
         # os.path.join ignores the directory if the filename is full qualified
         flagok_file = os.path.join(os.path.dirname(location),flagok_file)
@@ -52,19 +69,11 @@ def flagok( client, key_id, user) :
     flagfile = pandokia.cfg.flagok_file % host
     print "OK",cgi.escape(test_name),cgi.escape(flagok_file),flagfile,"<br>"
 
-    if not flagfile in fdarray :
-        fdarray[flagfile] = open(flagfile,"a+")
-
-    fdarray[flagfile].write("%s\t%s\t%s\t%s\n"%(client,location,user,flagok_file))
-
     pdk_db.execute("update result_scalar set attn = 'N' where key_id = :1 ",(key_id,))
 
-    return 1
+    pdk_db.execute("INSERT INTO ok_items (key_id, trans_id, status) values (:1, :2, :3)", (key_id, trans_id, 'new'))
+
 
 def commit() :
-        global fdarray
-        for x in fdarray :
-            fdarray[x].close()
-
-        fdarray = { }
         pdk_db.commit()
+

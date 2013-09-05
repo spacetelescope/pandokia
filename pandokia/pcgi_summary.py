@@ -344,11 +344,13 @@ def run ( ) :
         output.write('<input type=submit name="action_remove" value="Remove">')
         output.write('<input type=submit name="action_keep"   value="Keep">')
         output.write(' on this report page<br>')
+        
         output.write('<input type=submit name="action_flagok" value="Flag OK">')
         output.write('<input type=submit name="action_flagok_rem" value="Flag OK + Remove">')
+        output.write(' with comment: <input type=text name=ok_comment value="" size=30><br>')
+        
         output.write('<input type=submit name="action_cattn" value="Clear Attn">')
-        output.write('<input type=submit name="action_sattn" value="Set Attn">')
-        output.write('<br>')
+        output.write('<input type=submit name="action_sattn" value="Set Attn"><br>')
         output.write('<input type=submit name="not_expected" value="Not Expected"> in <input type=text name=arg1 value="%" size=10> test runs')
         output.write('</form>')
 
