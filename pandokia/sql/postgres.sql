@@ -11,6 +11,31 @@
 -- for the key_id in result_scalar.
 CREATE SEQUENCE sequence_key_id ;
 
+
+
+-- ok_transactions:
+--  each row corresponds to one transaction (one mouse click on "Flag OK")
+
+CREATE TABLE ok_transactions (
+    trans_id        INTEGER PRIMARY KEY,
+    username        VARCHAR,
+    user_comment    VARCHAR(100),
+    ip_address      VARCHAR,
+    status          VARCHAR
+);
+
+-- ok_items:
+--  each row is a test result that has been OK'd
+
+CREATE TABLE ok_items (
+    trans_id    INTEGER,
+    key_id      INTEGER,
+    status      VARCHAR
+);
+
+
+
+
 -- result_scalar:
 --	each row represents a single test result
 

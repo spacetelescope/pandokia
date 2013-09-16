@@ -12,6 +12,29 @@
 --	IDENTIFIED BY PASSWORD PASSWORD('....') ;
 --
 
+
+
+
+-- ok_transactions:
+--  each row corresponds to one transaction (one mouse click on "Flag OK")
+
+CREATE TABLE ok_transactions (
+    trans_id        INTEGER AUTO_INCREMENT, PRIMARY KEY ( key_id ),
+    username        VARCHAR(25),
+    user_comment    VARCHAR(500),
+    ip_address      VARCHAR(25),
+    status          VARCHAR(5)
+);
+
+-- ok_items:
+--  each row is a test result that has been OK'd
+
+CREATE TABLE ok_items (
+    trans_id    INTEGER,
+    key_id      INTEGER,
+    status      VARCHAR(5)
+);
+
 -- result_scalar:
 --	each row represents a single test result
 
