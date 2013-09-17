@@ -28,8 +28,7 @@ except AttributeError:
 
 old = '.%s.old' %datetime.date.today().isoformat()
 
-#pdk_updates = '/eng/ssb/tests/pdk_updates/'
-pdk_updates = '/eng/ssb/tests/pdk_updates_tmp/'
+pdk_updates = '/eng/ssb/tests/pdk_updates/'
 old_pdk_updates = os.path.join(pdk_updates, 'old')
 if not os.path.exists(old_pdk_updates):
     os.makedirs(old_pdk_updates)
@@ -142,7 +141,7 @@ def process_webfile(opt, fn):
                     refs_to_commit.append(r)
 
     # do svn commit
-    if len(refs_to_commit) > 0:
+    if len(refs_to_commit) > 0 and opt.commit:
         cmd = 'svn commit %s -m "(%s) %s"' %(
             ' '.join(refs_to_commit),
             t['user'],
