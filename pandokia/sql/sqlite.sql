@@ -10,7 +10,7 @@ pragma auto_vacuum = 2 ;
 CREATE TABLE ok_transactions (
     trans_id        INTEGER PRIMARY KEY,
     username        VARCHAR,
-    user_comment    VARCHAR(100),
+    user_comment    VARCHAR,
     ip_address      VARCHAR,
     status          VARCHAR
 );

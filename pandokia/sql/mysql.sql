@@ -19,8 +19,8 @@
 --  each row corresponds to one transaction (one mouse click on "Flag OK")
 
 CREATE TABLE ok_transactions (
-    trans_id        INTEGER AUTO_INCREMENT, PRIMARY KEY ( key_id ),
-    username        VARCHAR(25),
+    trans_id        INTEGER AUTO_INCREMENT, PRIMARY KEY ( trans_id ),
+    username        VARCHAR(30),
     user_comment    VARCHAR(500),
     ip_address      VARCHAR(25),
     status          VARCHAR(5)

@@ -17,7 +17,14 @@ import datetime, os, re, shutil, sys
 import pandokia
 
 
-pdk_db = pandokia.cfg.pdk_db
+# we expect to run "pdk ok -w hostname.ok" in some pandokia installations that
+# don't have databases defined; this is ok, since this usage doesn't actually
+# use a database for anything
+try:
+    pdk_db = pandokia.cfg.pdk_db
+except AttributeError:
+    pass
+
 
 old = '.%s.old' %datetime.date.today().isoformat()
 
