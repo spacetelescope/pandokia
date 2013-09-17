@@ -256,6 +256,8 @@ def process_okfile(opt, fn, return_refs = False):
 
     print '\tokfile: %s' %fn
 
+    dirname = os.path.dirname(fn)
+
     err = 0
     refs = []
     for line in file:
