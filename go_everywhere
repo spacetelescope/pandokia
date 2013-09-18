@@ -18,7 +18,7 @@ echo tar file $tar
 rm -f $tar
 ( cd .. ; tar cfz $tar pandokia )
 
-for x in arzach jwcalibdev banana bond cadeau herbert thor ssb 
+for x in arzach jwcalibdev banana bond cadeau herbert ssb 
 do
 	echo XXXXX
 	echo $x
