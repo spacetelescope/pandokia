@@ -107,14 +107,18 @@ def process_webfile(opt, fn):
     err = 0
     for ln in lines:
         parts = ln.split()
-        if len(parts) > 3 and parts[0] == 'TRANS':
+        if len(parts) >= 3 and parts[0] == 'TRANS':
             if in_trans:
                 transactions.append(T)
                 T = {}
             parts.pop(0)
             T['ip'] = parts.pop(0)
             T['user'] = parts.pop(0)
-            T['comment'] = ' '.join(parts)
+            T['comment'] = ''
+            try:
+                T['comment'] = ' '.join(parts)
+            except:
+                pass
             T['okfiles'] = []
             in_trans = True
         
