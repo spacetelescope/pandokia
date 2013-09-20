@@ -137,23 +137,45 @@ def run( dirname, envgetter ) :
 # check for a disable file, indicating that we should not run tests in a file
 #
 def file_disabled(dirname, basename) :
+    # dirname = engine/spider/stis/spec/stellar-ext
+    # basename = s_stis_spec_stellar-ext_10759.peng
+
     n=basename.rfind(".")
     if n >= 0 :
         disable_name = basename[:n]
     else :
         disable_name = basename
-    f = dirname+'/'+disable_name
-    try :
-        os.stat(f + '.disable' )
-        return True
-    except OSError :
-        pass
-    try :
-        os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
-        return True
-    except OSError :
-        pass
-    return False
+
+
+    dir_contents = os.listdir(dirname)
+
+    # see if there are any .enable files for this test; if so, only run the test
+    # if there is an enable file for the current context
+    related_enable_files = []
+    for i in dir_contents:
+        if i.startswith(disable_name) and i.endswith('.enable'):
+            related_enable_files.append(i)
+
+    if len(related_enable_files) > 0:
+        # see if enable file for this context exists
+        valid_enable = '%s.%s.enable' %(disable_name, os.environ['PDK_CONTEXT'])
+        if valid_enable in related_enable_files:
+            return False
+        else:
+            return True
+    else:
+        f = dirname+'/'+disable_name
+        try :
+            os.stat(f + '.disable' )
+            return True
+        except OSError :
+            pass
+        try :
+            os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
+            return True
+        except OSError :
+            pass
+        return False
 
 #
 # write a test report for a list of disabled tests.
