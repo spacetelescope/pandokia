@@ -147,7 +147,7 @@ def read_rst() :
             break
         end = line.find(' ', start)
         if end < 0:
-            end = None
+            end = len(line)+1
         columns.append((start, end))
 
     # at this point, columns is a list of (start,end) for each field of the
