@@ -169,16 +169,14 @@ def file_disabled(dirname, basename) :
             os.stat(f + '.disable' )
             return True
         except OSError, e:
-            print
-            print e.args
-            print
+            #print e.args
+            pass
         try :
             os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
             return True
         except OSError, e:
-            print
-            print e.args
-            print
+            #print e.args
+            pass
         return False
 
 #
