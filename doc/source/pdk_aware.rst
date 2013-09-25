@@ -114,6 +114,15 @@ test-driven development mode, to disable tests that you know will
 fail because you haven't fixed the bug or written the code for them
 yet.
 
+You can also disable a test for just one context by creating a \*.CONTEXT.disable file.  For example, if you want to disable a test named foo *only* in the orange context, then you would create a file named foo.orange.disable in the same directory as foo.
+
+.. index:: running tests; enabling tests
+
+Enabling tests
+...............
+
+Support for enable files was added to compliment the disable functionality.  The presense of an enable file supercedes any disable files for a particular test.  The enable files work just like disable files: for some test foo, you can have foo.enable which means that it *always* runs, or you can have foo.whatever.enable, which means that foo only runs when $PDK_CONTEXT has the value of "whatever".  If foo.enable or foo.*.enable exists, all foo.disable and foo.*.disable files are ignored by Pandokia.
+
 .. index:: single: email
 
 Email notifications
