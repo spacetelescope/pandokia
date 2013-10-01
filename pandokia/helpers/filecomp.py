@@ -571,7 +571,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
             args is a dict of keyword args to pass to comparator
                 function, or None.  You may omit args if it is not needed.
 
-        okroot is the bas name of the okfile.  If present, an okfile named
+        okroot is the base name of the okfile.  If present, an okfile named
             okroot+'.okfile' is created.  Normally, you would use the
             basename of the current file plus the test name.
 
@@ -644,6 +644,16 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
     _normalize_list(clist)
 
     for n, x in enumerate(clist) :
+        # make sure we are looking in the right place for the reference file
+        if 'PDK_REFS' in os.environ.keys():
+            PDK_REFS = os.environ['PDK_REFS']
+            here = os.path.abspath(os.curdir)
+            relpath = os.path.relpath(
+                here,
+                os.environ['PDK_TOP']
+            )
+            x['reference'] = os.path.join(PDK_REFS, relpath, x['reference'])
+
         # perform the comparison
         try :
             print "\nCOMPARE:",x['output']
