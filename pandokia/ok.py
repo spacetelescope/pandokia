@@ -31,7 +31,10 @@ old = '.%s.old' %datetime.date.today().isoformat()
 pdk_updates = '/eng/ssb/tests/pdk_updates/'
 old_pdk_updates = os.path.join(pdk_updates, 'old')
 if not os.path.exists(old_pdk_updates):
-    os.makedirs(old_pdk_updates)
+    try:
+        os.makedirs(old_pdk_updates)
+    except:
+        print 'couldn\'t make directory %s' %old_pdk_updates
 
 
 
