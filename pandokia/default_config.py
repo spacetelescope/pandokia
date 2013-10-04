@@ -249,6 +249,7 @@ recurring_prefix = (
     'weekly',
     'monthly',
     'etc_daily',
+    'etc_midday',
     'hst_etc_daily',
     'jwst_etc_daily'
     )   
