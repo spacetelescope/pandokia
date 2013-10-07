@@ -252,7 +252,7 @@ recurring_prefix = (
     'etc_midday',
     'hst_etc_daily',
     'jwst_etc_daily'
-    )   
+)
 
 #####
 #
