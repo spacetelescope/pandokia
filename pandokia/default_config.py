@@ -246,12 +246,11 @@ default_qid_expire_days = 30
 
 recurring_prefix = (
     'daily',
-    'weekly',
-    'monthly',
     'etc_daily',
     'etc_midday',
     'etc_hst_daily',
-    'etc_jwst_daily'
+    'etc_jwst_daily',
+    'jwst',
 )
 
 #####
