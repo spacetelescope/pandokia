@@ -250,8 +250,8 @@ recurring_prefix = (
     'monthly',
     'etc_daily',
     'etc_midday',
-    'hst_etc_daily',
-    'jwst_etc_daily'
+    'etc_hst_daily',
+    'etc_jwst_daily'
 )
 
 #####
