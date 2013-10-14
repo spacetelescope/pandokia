@@ -328,3 +328,5 @@ ALTER TABLE query_id ENGINE = Innodb ;
 ALTER TABLE query ENGINE = Innodb ;
 ALTER TABLE delete_queue ENGINE = Innodb ;
 ALTER TABLE chronic ENGINE = Innodb ;
+ALTER TABLE ok_items ENGINE = Innodb ;
+ALTER TABLE ok_transactions ENGINE = Innodb ;
