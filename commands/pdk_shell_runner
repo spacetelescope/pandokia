@@ -100,6 +100,7 @@ then
 	# the basename.
 	do_untrap
 	./$PDK_FILE > $tmpfile 2>&1 &
+	pid=$!
 	do_trap
 else
 	case "$PDK_FILE"
@@ -107,11 +108,13 @@ else
 	*.sh)
 		do_untrap
 		sh $PDK_FILE > $tmpfile 2>&1 &
+		pid=$!
 		do_trap
 		;;
 	*.csh)	
 		do_untrap
 		csh -f $PDK_FILE > $tmpfile 2>&1 &
+		pid=$!
 		do_trap
 		;;
 	*)
@@ -121,7 +124,7 @@ else
 	esac
 fi
 
-wait
+wait $pid
 
 exitcode=$?
 
