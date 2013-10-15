@@ -62,6 +62,13 @@ class where_dict_base(object) :
             c = pdk_db.execute( "SELECT col FROM tbl %s " % where_text, where_dict)
         '''
 
+        # if the list is a dict, convert it
+        if type(list) == dict :
+            nl = [ ]
+            for x in list:
+                nl.append( (x, list[x]) )
+            list = nl
+
         ns = name_sequence()
 
         and_list = [ ]
