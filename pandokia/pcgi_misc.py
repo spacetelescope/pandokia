@@ -71,3 +71,63 @@ def set_hostinfo() :
 
     print (os, description, host)
 
+
+def expected() :
+    import pandokia.text_table as text_table
+
+    pdk_db = pandokia.cfg.pdk_db
+    input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
+
+    if 'format' in input_query :
+        format = input_query['format'][0]
+    else :
+        format = 'html'
+
+    tbl = text_table.text_table()
+
+    q = { }
+    for x in ( 'test_run_type', 'project', 'host', 'context' ) :
+        if x in input_query :
+            q[x] = input_query[x]
+
+    where_str, where_dict = pdk_db.where_dict( q )
+
+
+    c_t = pdk_db.execute("SELECT DISTINCT test_run_type FROM expected %s ORDER BY test_run_type " 
+            % where_str, where_dict )
+
+    row = 0
+
+    for test_run_type, in c_t :
+
+        prev_project = None
+
+        tbl.set_value(row, 'test_run_type', test_run_type)
+        row = row + 1
+
+        q['test_run_type'] = test_run_type
+
+        where_str, where_dict = pdk_db.where_dict( q )
+
+        c = pdk_db.execute("SELECT DISTINCT  project, host, context, count(*) FROM "
+            "expected %s GROUP BY project, host, context ORDER BY project, host, context "
+            % where_str, where_dict )
+
+        for x in c :
+            if x[0] != prev_project :
+                tbl.set_value(row, 'project', x[0])
+                prev_project = x[0]
+
+            for number, name in enumerate( ( 'host', 'context', 'count' ) ):
+                tbl.set_value(row,name, x[number+1])
+            row = row + 1
+
+    tbl.pad()
+    if format == 'html' :
+        print "content-type: text/html\n"
+        print "<h2>Expected test summary</h2>"
+        tbl.set_html_table_attributes(' border=1 ')
+        print tbl.get_html(headings=1)
+    else :
+        print "content-type: text/plain\n"
+        print tbl.get(format=format, headings=1)

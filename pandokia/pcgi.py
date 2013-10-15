@@ -226,6 +226,11 @@ def run() :
         x.magic_html_log()
         sys.exit(0)
 
+    if query == 'expected' :
+        import pandokia.pcgi_misc as x
+        x.expected()
+        sys.exit(0)
+
     error_1201()
     #
     # You can't get here by following links, so you must have typed in the

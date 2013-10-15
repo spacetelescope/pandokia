@@ -795,6 +795,8 @@ class text_table :
             return self.get_rst(headings=headings)
         elif format == 'trac_wiki' or format == 'tw' :
             return self.get_trac_wiki(headings=headings)
+        else :
+            return "Format %s not recognized in text_table.get" % format
 
     ##
     ## end class text_table
