@@ -54,7 +54,7 @@ Using the "run" runner:
 using py.test
 -------------------------------------------------------------------------------
 
-In your package, create a subsidiary package names "tests" (note
+In your package, create a subsidiary package named "tests" (note
 the 's' in the name).  The tests package should contain python files
 that will be recognized by py.test.
 
@@ -83,9 +83,9 @@ Install your tests in xxx.tests with file names that py.test will recognize.
 using nose
 -------------------------------------------------------------------------------
 
-In your package, create a subsidiary package names "tests" (note
+In your package, create a subsidiary package named "tests" (note
 the 's' in the name).  The tests package should contain python files
-that will be recognized by py.test.
+that will be recognized by nose.
 
 In your __init__.py:  ::
 
@@ -166,16 +166,16 @@ If you have tests written for multiple test frameworks, you can have your
 test function invoke each of the frameworks separately.  For example: ::
 
     def test_pytest( verbose=False ) :
-        ... as in examples above, 
-        ... but using tests.pytest for the test package
+        # ... as in examples above, 
+        # ... but using tests.pytest for the test package
 
     def test_nose( verbose=False ) :
-        ... as above
-        ... but using tests.nose for the test package
+        # ... as above
+        # ... but using tests.nose for the test package
 
     def test_pycode( verbose=False ) :
-        ... as above
-        ... but using tests.pycode for the test package
+        # ... as above
+        # ... but using tests.pycode for the test package
 
     def test( verbose=False ) :
         pt = test_pytest(verbose) 

@@ -34,8 +34,10 @@ Instead, use the run_process function: ::
     # read the file and print it to the stdout being used by the test
     process.cat( [ "myfile.tmp" ] )
 
-It is not necessary to guarantee a unique name for the temp file
-or to delete it before using it.
+Since Pandokia will only run one test at a time in any working directory,
+it is not necessary to guarantee a unique name for the temp file.  Since
+the output file will be created, it is not necessary to delete it
+before using it.
 
 
 Running an external process
