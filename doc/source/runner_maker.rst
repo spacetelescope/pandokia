@@ -1,7 +1,7 @@
 .. index:: single: runners; maker
 
 ===============================================================================
-maker (various languages) - compile a test and then run it
+any - maker - compile a test and then run it
 ===============================================================================
 
 .. contents::

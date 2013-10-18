@@ -1,7 +1,7 @@
 .. index:: single: runners; nose
 
 ===============================================================================
-nose (Python) - using nose to run your tests
+Python - nose - run tests with nose
 ===============================================================================
 
 :abstract:

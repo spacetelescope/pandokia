@@ -1,7 +1,7 @@
 .. index:: single: runners; shell (sh, bash, csh, etc)
 
 ===============================================================================
-shell_runner (various languages) - shell scripts or simple programs
+any - shell_runner - shell scripts or simple programs
 ===============================================================================
 
 :abstract:

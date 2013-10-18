@@ -1,7 +1,7 @@
 .. index:: single: runners; run
 
 ===============================================================================
-run (various languages) - run an external program, for testing compiled code
+any - run - run an external program, for testing compiled code
 ===============================================================================
 
 :abstract:
@@ -11,6 +11,10 @@ run (various languages) - run an external program, for testing compiled code
     you can have your build system (make, Ant, whatever) compile
     and install some number of test programs, then use this
     pandokia runner to execute them.
+
+    Your test framework must write Pandokia-formatted results to
+    the PDK_LOG file.  (If you have a program that returns an
+    exit code for pass/fail, see the shell_runner runner.)
 
 .. contents::
 

@@ -1,7 +1,7 @@
 .. index:: single: runners; minipyt
 
 ===============================================================================
-minipyt (Python) - a simple but reliable test runner
+Python - minipyt - a simple but reliable test runner, built in to Pandokia
 ===============================================================================
 
 :abstract:

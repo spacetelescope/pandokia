@@ -1,7 +1,7 @@
 .. index:: single: runners; fctx
 
 ===============================================================================
-fctx (C) - C unit testing
+C - fctx - unit tests in C and languages callable from C
 ===============================================================================
 
 Overview

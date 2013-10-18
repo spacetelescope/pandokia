@@ -1,7 +1,7 @@
 .. index:: single: runners; STScI Regtests
 
 ===============================================================================
-regtest (IRAF/Pyraf) - an STScI legacy system for IRAF packages
+SPP - regtest - an STScI legacy system for IRAF packages
 ===============================================================================
 
 Overview
