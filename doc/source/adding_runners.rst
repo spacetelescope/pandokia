@@ -163,6 +163,83 @@ At a minimum, you must add::
 You may report values that override the defaults, and you may add
 other fields as described in doc/report_fields.txt.
 
+Using pycode.report in your python-base test runner
+----------------------------------------------------------------------
+
 If you are writing in python, you can use the "reporter" object in
-pandokia.helpers.pycode to write to $PDK_LOG.
+pandokia.helpers.pycode to write properly formatted records to
+$PDK_LOG : ::
+
+    import pandokia.helpers.pycode as pycode
+
+    # initialize one instance of the pycode reporter; if you are
+    # running in pandokia, you don't need any parameters except
+    # the None.
+    rpt = pycode.reporter( None )
+
+    # declare your test name and a dict for the attributes.
+    test_name = 'some_test'
+    tda = { }
+    tra = { }
+
+    # start the test.  tda will not be used until the call to finish()
+    # so more tdas can still be added by the test code.
+    # this call remembers what time the test started.
+    rpt.start( test_name, tda )
+
+    # cause python to redirect sys.stdout and sys.stderr into a StringIO
+    pycode.snarf_stdout()
+
+    # perform the test.  It should fill in attributes in tda[]
+    # and tra[] and set the value of status.
+    foo()
+
+    # capture the redirected stdout
+    log = pycode.end_snarf_stdout()
+
+    # report the result of the currently running test.  This call
+    # knows what time the test finished.
+    rpt.finish( status, tra, log )
+
+    rpt.close()
+
+
+You can also report the test all at once instead of splitting into
+start()/finish() : ::
+
+
+    import pandokia.helpers.pycode as pycode
+
+    # initialize one instance of the pycode reporter; if you are
+    # running in pandokia, you don't need any parameters except
+    # the None.
+    rpt = pycode.reporter( None )
+
+    # declare your test name and a dict for the attributes.
+    test_name = 'some_test'
+    tda = { }
+    tra = { }
+
+    start_time = time.time(0)
+
+    # cause python to redirect sys.stdout and sys.stderr into a StringIO
+    pycode.snarf_stdout()
+
+    # perform the test.  It should fill in attributes in tda[]
+    # and tra[] and set the value of status.
+    foo()
+
+    # capture the redirected stdout
+    log = pycode.end_snarf_stdout()
+
+    # report the result of the test.  Leave out optional args
+    # if you don't want to report them.
+    rpt.report( test_name, status, start_time = start_time,
+        end_time = time.time(0), tra = tra, tda = tda, log = log )
+
+    rpt.close()
+
+This is a primitive tool for writing log files.  Calls to rpt.start()
+and rpt.finish() do not nest, and attempts to write to the same file
+with more than one rpt object are likely to end badly.
 
