@@ -75,6 +75,10 @@ you can't have the %.
 
 Stylistically, I like ":arf" better than "%(arf)s"
 
+Some people like ORMs, but I find them substantially harder to use
+than regular SQL.  Some queries that are easy in SQL are difficult
+or impossible in some ORMs.
+
 What about performance?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -82,6 +86,12 @@ This interface takes a small amount of additional time for each query, but
 the performance reduction from using an interpreted language like Python is
 so large that I don't notice (or care) about the difference.  The portability
 is more important.
+
+This interface has not been benchmarked against common ORM implementations
+such as those available in SqlAlchemy or Django, but those systems use
+much more complex methods for constructing queries.  I conjecture that any
+performance difference favors this interface, but that the total difference
+is insignificant.
 
 Connecting to the databse
 -------------------------------------------------------------------------------
@@ -152,20 +162,24 @@ Schemas
 If you use database-specfic features in your schema, you just have
 to write a separate schema for each database engine.
 
-There are two significant differences in the Pandokia schemas for
-different databases:
+There are a few significant differences in schemas for different
+databases:
 
- - some databases allow VARCHAR without a length, but others do not.
+ - sqlite databases allow VARCHAR without a length, but others do not.
 
  - Different databases use different approaches to autoincrementing
    columns.  See result_scalar.key_id in pandokia/sql/\*.sql to see
    the different approaches.
 
-I have also found that the details of what indexes you want may
-vary between database implementations.
+ - Some databases do not have auto-increment columns.  This abstraction
+   layer cannot hide that for you.
+
+ - The details of what indexes you want may vary between database
+   implementations.
 
 This lacks the "magic" of an ORM automatically generating your
-schema, but is not so bad if you have a small number of tables.
+schema, but is not so bad if you have a small number of tables 
+or a small number of databases.
 
 Dynamically constructed WHERE clauses
 -------------------------------------------------------------------------------
