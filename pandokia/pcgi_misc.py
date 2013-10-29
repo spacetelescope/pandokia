@@ -131,3 +131,48 @@ def expected() :
     else :
         print "content-type: text/plain\n"
         print tbl.get(format=format, headings=1)
+
+def latest() :
+    import pandokia.text_table as text_table
+    pdk_db = pandokia.cfg.pdk_db
+
+    if pandokia.pcgi.output_format == 'html' :
+        sys.stdout.write(common.cgi_header_html)
+        sys.stdout.write(common.page_header())
+    elif pandokia.pcgi.output_format == 'csv' :
+        sys.stdout.write(common.cgi_header_csv)
+
+    postfixes = ( 'latest', 'today', 'yesterday' )
+
+    for postfix in postfixes :
+        sys.stdout.write('<h2>%s</h2>'%postfix)
+        t = text_table.text_table()
+
+        t.define_column('prefix')
+        t.define_column(postfix)
+        t.define_column('n')
+
+        d = { }
+        for row,prefix in enumerate(sorted(common.cfg.recurring_prefix), start=1) :
+
+            t.set_value(row,0,prefix)
+
+            test_run = common.find_test_run(prefix + '_' + postfix)
+            c = pdk_db.execute('SELECT test_run, record_count FROM distinct_test_run WHERE test_run = :1', ( test_run, ) )
+            n = c.fetchone()
+            if n is None :
+                t.set_value(row,1,'')
+                t.set_value(row,2,'')
+                continue
+            (tr, count) = n
+            d['test_run'] = test_run
+            t.set_value(row,1,text=test_run, link=common.selflink(d,"day_report.2"))
+            count_link = common.selflink( { 'count_run' : test_run }, 'action')
+            t.set_value(row,2,text=count, link=count_link)
+
+        if pandokia.pcgi.output_format == 'html' :
+            t.set_html_table_attributes(' border=1 ')
+            sys.stdout.write(t.get_html(headings=1))
+        elif pandokia.pcgi.output_format == 'csv' :
+            sys.stdout.write(t.get_csv())
+

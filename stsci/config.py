@@ -14,8 +14,6 @@ flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
 
 recurring_prefix = (
     'daily',
-    'weekly',
-    'monthly',
     'etc_daily',
     'etc_midday',
     'etc_hst_daily',

@@ -151,6 +151,12 @@ def find_test_run( run ) :
             s= run_latest(prefix)
             return s
 
+    if run.endswith('_today') :
+        prefix = run[0:-len('_today')]
+        if prefix in cfg.recurring_prefix :
+            d = datetime.date.today()
+            return "%s_%04d-%02d-%02d"%(prefix,d.year,d.month,d.day)
+
     if run.endswith('_yesterday') :
         prefix = run[0:-len('_yesterday')]
         if prefix in cfg.recurring_prefix :
