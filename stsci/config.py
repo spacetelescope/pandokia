@@ -19,7 +19,8 @@ recurring_prefix = (
     'etc_daily',
     'etc_midday',
     'etc_hst_daily',
-    'etc_jwst_daily'
+    'etc_jwst_daily',
+    'jwst',
 )
 
 if not 'pdk_db' in globals() :
