@@ -213,11 +213,33 @@ def clean_queries() :
     # placeholder so we don't re-use any of the deleted sequence numbers
     pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+1000))
 
-    c = pdk_db.execute("SELECT qid FROM query_id WHERE expires > 0 AND expires < :1", (now,) )
-    for qid, in c :
-        # delete the records related to the query
-        pdk_db.execute("DELETE FROM query WHERE qid = :1",(qid,))
-        pdk_db.execute("DELETE FROM query_id WHERE qid = :1 ", ( qid, ) )
+    c = pdk_db.execute("SELECT MIN(time) FROM query_id")
+    mt, = c.fetchone()
+    mt = int(mt)
+
+    # do the delete in reasonably large chunks, rather than one at a
+    # time or one giant transaction
+    while mt < now :
+
+        # get a bunch of records
+        c = pdk_db.execute("SELECT qid FROM query_id WHERE  expires > 0 AND expires < :1 LIMIT 400", (mt,) )
+        l = [ ]
+
+        # make a list of the qids
+        for x, in c:
+            l.append(str(int(x)))
+
+        # if none, move on to the next time interval
+        if len(l) == 0 :
+            mt = mt + 43200 # half day
+            continue
+        
+        # make a list for the IN (...) clause
+        l = ','.join(l)
+        
+        # delete both and commit together
+        c = pdk_db.execute("DELETE FROM query    WHERE qid IN ( %s )" % l)
+        c = pdk_db.execute("DELETE FROM query_id WHERE qid IN ( %s ) " % l )
         pdk_db.commit()
 
 
