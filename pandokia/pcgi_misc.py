@@ -153,6 +153,7 @@ def latest() :
         t.define_column('n')
 
         d = { }
+        total = 0
         for row,prefix in enumerate(sorted(common.cfg.recurring_prefix), start=1) :
 
             t.set_value(row,0,prefix)
@@ -165,10 +166,17 @@ def latest() :
                 t.set_value(row,2,'')
                 continue
             (tr, count) = n
+            if count == 0 :
+                count = pandokia.cleaner.recount_test_run ( tr )
+
+            total = total + count
+
             d['test_run'] = test_run
             t.set_value(row,1,text=test_run, link=common.selflink(d,"day_report.2"))
             count_link = common.selflink( { 'count_run' : test_run }, 'action')
             t.set_value(row,2,text=count, link=count_link)
+
+        t.set_value(row + 1, 2, total )
 
         if pandokia.pcgi.output_format == 'html' :
             t.set_html_table_attributes(' border=1 ')
