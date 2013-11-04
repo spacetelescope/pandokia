@@ -490,8 +490,14 @@ def delete(args) :
 def recount( args, verbose=1 ) :
     if len(args) == 0 :
         args = [ '*' ]
+    elif args[0] == '-z' :
+        args = [ ]
+        c = pdk_db.execute("SELECT test_run FROM distinct_test_run WHERE record_count = 0 OR record_count is NULL")
+        for x, in c :
+            args.append(x)
 
     for test_run in args :
+        print "counting",test_run
         test_run = pandokia.common.find_test_run( test_run )
         where_text, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
         c = pdk_db.execute("SELECT test_run FROM distinct_test_run " + where_text, where_dict )
