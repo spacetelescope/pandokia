@@ -147,16 +147,16 @@ def process_webfile(opt, fn):
                 for r in refs:
                     refs_to_commit.append(r)
 
-    # do svn commit
-    if len(refs_to_commit) > 0 and opt.commit:
-        cmd = 'svn commit %s -m "(%s) %s"' %(
-            ' '.join(refs_to_commit),
-            t['user'],
-            t['comment']
-        )
-        ret = os.system(cmd)
-        if not ret == 0:
-            err += 1
+        # do svn commit
+        if len(refs_to_commit) > 0 and opt.commit:
+            cmd = 'svn commit %s -m "(%s) %s"' %(
+                ' '.join(refs_to_commit),
+                t['user'],
+                t['comment']
+            )
+            ret = os.system(cmd)
+            if not ret == 0:
+                err += 1
 
     try:
         os.rename(fn, fn + old)
