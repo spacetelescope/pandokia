@@ -289,17 +289,15 @@ def run ( ) :
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
-            alert(e.target.name);
+            
 
-            if (e.target.name == "action_flagok")
+
+            if (comment == "")
             {
-                if (comment == "")
-                {
-                    alert("Doh!  You forgot to comment!");
-                    return false;
-                }
-                return true;
+                alert("Doh!  You forgot to comment!" + document.forms["testform"]["action_flagok"].value);
+                return false;
             }
+            return true;
 
             /*
             if (fff.name == "action_flagok")
