@@ -342,7 +342,7 @@ def run ( ) :
 
         # show the table, which contains a form
         output.write('''
-        <form action=%s method=post name=testform onsubmit="validate_flag_ok();">
+        <form action=%s method=post name=testform onsubmit="return validate_flag_ok();">
         ''' % ( pandokia.pcgi.cginame,) )
 
 
