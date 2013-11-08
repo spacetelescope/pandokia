@@ -285,16 +285,13 @@ def run ( ) :
         output.write('''
     <script language=javascript type='text/javascript'>
     
-        function validate_flag_ok(e)
+        function validate_flag_ok()
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
-            
-
-
             if (comment == "")
             {
-                alert("Doh!  You forgot to comment!" + document.forms["testform"]["action_flagok"].value);
+                alert("Doh!  You forgot to comment!");
                 return false;
             }
             return true;
