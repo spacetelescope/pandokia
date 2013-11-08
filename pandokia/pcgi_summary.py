@@ -291,7 +291,8 @@ def run ( ) :
 
             if (comment == "")
             {
-                alert("Doh!  You forgot to comment!");
+                alert("Doh!  You forgot to comment! fff.name");
+                
                 return false;
             }
             return true;
