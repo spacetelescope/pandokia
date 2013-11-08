@@ -147,10 +147,22 @@ def process_webfile(opt, fn):
                 for r in refs:
                     refs_to_commit.append(r)
 
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         # do svn commit
         if len(refs_to_commit) > 0 and opt.commit:
+            ref_str = ' '.join(refs_to_commit)
+
+            # add reference files, in case they are new
+            cmd = 'svn add -q %s' %ref_str
+            ret = os.system(cmd)
+            if not ret == 0:
+                err += 1
+
+            # commit reference files
             cmd = 'svn commit %s -m "(%s) %s"' %(
-                ' '.join(refs_to_commit),
+                ref_str,
                 t['user'],
                 t['comment']
             )
