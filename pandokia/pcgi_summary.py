@@ -285,11 +285,11 @@ def run ( ) :
         output.write('''
     <script language=javascript type='text/javascript'>
     
-        function validate_flag_ok(fff)
+        function validate_flag_ok(e)
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
-            if (document.getElementById("action_flagok").value != "")
+            if (e.target.name == "action_flagok")
             {
                 if (comment == "")
                 {
@@ -298,16 +298,6 @@ def run ( ) :
                 }
                 return true;
             }
-
-
-            /*
-            if (comment == "")
-            {
-                alert("Doh!  You forgot to comment!");
-                return false;
-            }
-            return true;
-            */
 
             /*
             if (fff.name == "action_flagok")
