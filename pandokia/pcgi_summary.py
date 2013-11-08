@@ -289,6 +289,8 @@ def run ( ) :
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
+            alert(e.target.name);
+
             if (e.target.name == "action_flagok")
             {
                 if (comment == "")
