@@ -285,7 +285,7 @@ def run ( ) :
         output.write('''
     <script language=javascript type='text/javascript'>
     
-        function validate_flag_ok()
+        function validate_flag_ok(fff)
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
