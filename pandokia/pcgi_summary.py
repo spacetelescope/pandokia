@@ -283,12 +283,20 @@ def run ( ) :
             result_table.set_value(i,"line #",i+1)  
 
         output.write('''
-    <script language=javascript>
+    <script language=javascript type='text/javascript'>
     
         function validate_flag_ok(fff)
         {
             var comment = document.forms["testform"]["ok_comment"].value;
-        
+
+            if (comment == "")
+            {
+                alert("Doh!  You forgot to comment!");
+                return false;
+            }
+            return true;
+
+            /*
             if (fff.name == "action_flagok")
             {
                 if (comment == "")
@@ -298,6 +306,7 @@ def run ( ) :
                 }
             }
             return true;
+            */
         }
     
         function set_all(value)
