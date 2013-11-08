@@ -156,6 +156,8 @@ def process_webfile(opt, fn):
 
             # add reference files, in case they are new
             cmd = 'svn add -q %s' %ref_str
+            print
+            print cmd
             ret = os.system(cmd)
             if not ret == 0:
                 err += 1
@@ -166,6 +168,8 @@ def process_webfile(opt, fn):
                 t['user'],
                 t['comment']
             )
+            print
+            print cmd
             ret = os.system(cmd)
             if not ret == 0:
                 err += 1
