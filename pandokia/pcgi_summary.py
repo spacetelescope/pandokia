@@ -284,6 +284,22 @@ def run ( ) :
 
         output.write('''
     <script language=javascript>
+    
+        function validate_flag_ok(fff)
+        {
+            var comment = document.forms["testform"]["ok_comment"].value;
+        
+            if (fff.name == "action_flagok")
+            {
+                if (comment == "")
+                {
+                    alert("Doh!  You forgot to comment!");
+                    return false;
+                }
+            }
+            return true;
+        }
+    
         function set_all(value)
             {
             len = document.testform.elements.length;
@@ -654,22 +670,6 @@ def column_selector(input_query) :
     # javascript for all the buttons
     output.write("""
 <script type="text/javascript">
-
-    function validate_flag_ok(fff)
-    {
-        var comment = document.forms["testform"]["ok_comment"].value;
-    
-        if (fff.name == "action_flagok")
-        {
-            if (comment == "")
-            {
-                alert("Doh!  You forgot to comment!");
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     function vis_toggle()
         {
