@@ -317,7 +317,7 @@ def run ( ) :
 
         # show the table, which contains a form
         output.write('''
-        <form action=%s method=post name=testform>
+        <form action=%s method=post name=testform onsubmit="validate_flag_ok();">
         ''' % ( pandokia.pcgi.cginame,) )
 
 
@@ -654,6 +654,22 @@ def column_selector(input_query) :
     # javascript for all the buttons
     output.write("""
 <script type="text/javascript">
+
+    function validate_flag_ok(fff)
+    {
+        var comment = document.forms["testform"]["ok_comment"].value;
+    
+        if (fff.name == "action_flagok")
+        {
+            if (comment == "")
+            {
+                alert("Doh!  You forgot to comment!");
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     function vis_toggle()
         {
