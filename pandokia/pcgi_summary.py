@@ -285,14 +285,17 @@ def run ( ) :
         output.write('''
     <script language=javascript type='text/javascript'>
     
-        function validate_flag_ok(fff)
+        function validate_flag_ok(this)
         {
             var comment = document.forms["testform"]["ok_comment"].value;
 
-            if (comment == "")
+            if (this.id == 999)
             {
-                alert("Doh!  You forgot to comment!");
-                return false;
+                if (comment == "")
+                {
+                    alert("Doh!  You forgot to comment!");
+                    return false;
+                }
             }
             return true;
         }
@@ -358,7 +361,7 @@ def run ( ) :
         output.write('<input type=submit name="action_keep"   value="Keep">')
         output.write(' on this report page<br>')
         
-        output.write('<input type=submit name="action_flagok" value="Flag OK">')
+        output.write('<input type=submit name="action_flagok" value="Flag OK" id=999>')
         output.write('<input type=submit name="action_flagok_rem" value="Flag OK + Remove">')
         output.write(' with comment: <input type=text name=ok_comment value="" size=30><br>')
         
