@@ -1,0 +1,13 @@
+tca_cracscomp=/grp/hst/cdbs/comp/acs/
+tca_PYSYN_CDBS=/grp/hst/cdbs/
+tca_ntab=/grp/hst/cdbs/ntab/
+tca_nref=/grp/hst/cdbs/nref/
+tca_cdbs=/grp/hst/cdbs/
+tca_mtab=/grp/hst/cdbs//mtab
+tca_uref=/grp/hst/cdbs/uref/
+tca_jref=/grp/hst/cdbs/jref/
+tca_c=/grp/hst/cdbs
+tca_oref=/grp/hst/cdbs/oref/
+tca_crotacomp=/grp/hst/cdbs/comp/ota/
+tca_cat=sienna
+tca_grass=green

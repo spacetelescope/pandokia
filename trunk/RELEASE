@@ -1,0 +1,73 @@
+# Notes for making a release
+# --
+
+# Source distribution
+
+d=https://svn.stsci.edu/svn/ssb/etal/pandokia/
+
+svn checkout -q $d/trunk pandokia
+
+cd pandokia
+
+release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr -d '"'`
+
+echo release=$release
+
+svn del -m'replacing branch' $d/$release
+
+svn copy -m'release branch' $d/trunk $d/$release
+
+rm -rf $release
+
+svn checkout -q $d/$release
+
+cd $release
+
+svn info > stsci_remember_svn_info
+
+python setup.py sdist
+
+ls -l dist
+
+cp dist/* /eng/ssb/src/$release.tar.gz 
+
+
+#####
+
+# documentation
+
+cd $work
+
+work=`pwd`
+
+release=...
+
+tar xf  /eng/ssb/src/$release.tar.gz  
+
+cd $release
+
+rm -rf $work/py
+
+python setup.py install --home $work/py
+
+PYTHONPATH=$work/py/lib/python
+
+export PYTHONPATH
+
+cd doc
+
+make clean
+
+make html
+
+# install draft document
+
+make install
+
+# install final document
+
+dd=/eng/ssb/websites/ssbpublic/testing/pandokia/$release
+
+mkdir  $dd
+
+cp -r build/html/. $dd/.

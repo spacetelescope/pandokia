@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# This shell script exists only to collect the stdout/stderr so we can insert
+# them into $PDK_LOG.  regress_helper executes a mix of python code and
+# IRAF tasks -- it is not practical to try to make it collect all of its own
+# stdout.  This script is not portable to Windows, but neither is IRAF, so it
+# doesn't matter.
+#
+
+
+# process heirarchy:
+#	parent is pdkrun running one file (right now)
+# 	we are the test runner, ignoring sig 15
+#	child is pdk_stsci_regress_helper, trapping sig 15 and exiting if killed
+#	grandchild is an IRAF task, if the test runs a task
+#
+
+# If pdkrun kills us for a timeout, it sends sig 15 to the pgrp.  We ignore it,
+# but we allow child processes to be killed.  That leaves us writing a proper
+# report at the end.  The python program pdk_stsci_regress_helper traps sig 15
+# and writes the partial report for us to use.  (If none of this works, pdkrun
+# comes along a few seconds later and sends sig 9)
+trap "" 15
+
+tmpfile=pdk.runner.tmp
+
+tmpfile2=pdk.runner.2.tmp
+
+rm -f $tmpfile
+rm -f $tmpfile2
+
+# pdk_stsci_regress_helper traps signal 15 and exits on its own.  If it did not, we would
+# use something like ( trap 15 ; exec pdk_stsci_regress_helper ) to have the child shell
+# release the SIG_IGN for sig 15 then execute the helper
+PDK_LOG=$tmpfile2 pdk_stsci_regress_helper $PDK_DIRECTORY/$PDK_FILE > $tmpfile 2>&1
+
+if [ -f $tmpfile2 ]
+then
+	cat $tmpfile2 >> $PDK_LOG
+	( echo 'log:'
+	sed 's/^/./' < $tmpfile
+	echo ''
+	echo END
+	) >> $PDK_LOG
+else
+	(
+	echo 'test_name='$PDK_TESTPREFIX/`basename $PDK_FILE .xml`
+	echo 'status=E'
+	echo 'end_time='`date +%s`
+	echo 'log:'
+	echo '.pdk_stsci_regress_helper did not produce tmpfile2:'
+	sed 's/^/./' < $tmpfile
+	echo ''
+	echo END
+	) >> $PDK_LOG
+fi
+
+rm -f $tmpfile
+rm -f $tmpfile2
+

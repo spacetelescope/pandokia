@@ -1,0 +1,16 @@
+
+
+START
+test_name=net.cars.engine.diagnostics.selftest.computer.backup.BootTest.spindleAngle
+location=testresults/TEST-net.cars.engine.diagnostics.selftest.computer.backup.BootTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:24
+status=F
+log:
+.message: null
+.type: junit.framework.AssertionFailedError
+.junit.framework.AssertionFailedError: null
+.	at net.cars.engine.diagnostics.selftest.computer.backup.BootTest.spindleAngle(BootTest.java:35)
+.
+
+END

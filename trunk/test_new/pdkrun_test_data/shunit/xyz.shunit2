@@ -1,0 +1,30 @@
+        test_one_equals_one()
+        {
+                echo 'this one passes'
+                assertEquals 1 1
+        }
+
+        test_two_equals_one()
+        {
+                echo 'this one fails'
+                assertEquals 2 1
+        }
+
+        test_foo()
+        {
+                fail "this test always fails"   
+        }
+
+        test_bar()
+        {
+                pdk_error "this test errors"
+        }
+
+        test_with_attr()
+        {
+                pdk_tda one 1
+                x=2
+                pdk_tra filecount $x
+                pdk_tra foo
+        }
+

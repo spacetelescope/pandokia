@@ -1,0 +1,19 @@
+#! python
+
+#
+# pandokia - a test reporting and execution system
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+#
+
+# This script is the same as "pdk run", but pdkrun is such a common operation
+# that I want to be able to type "!pdkr" at my shell.
+#
+
+import sys
+
+# make it think we typed "pdk run".
+sys.argv.insert(1,'run')
+
+# Invoke the actual entry point.
+import pandokia.entry
+sys.exit(pandokia.entry.run())

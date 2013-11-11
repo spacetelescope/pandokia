@@ -1,0 +1,23 @@
+#! python
+
+#
+# pandokia - a test reporting and execution system
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+#
+
+# This is the entry point that "pdk run" uses to invoke the
+# pandokia-enabled nose.
+#
+# You can't just run nosetests --pdk, because the nosetests on your path
+# might be configured for a different python interpreter
+
+import sys
+import nose
+import pandokia.helpers.nose_plugin as p
+
+# This is what you do if pandokia is not registering entry points for
+# the plugins.  It is currently, using dorque_egg_info()
+# sys.exit(nose.main( addplugins=[ p.Pdk() ] ))
+
+sys.exit(nose.main())
+

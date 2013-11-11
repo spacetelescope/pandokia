@@ -1,0 +1,24 @@
+<regtest>
+<level>1</level>
+<title>testfiles 1 </title>
+<pre-exec>
+<command>
+import numpy
+import pyfits
+
+# from section 1.2.2 of the pyfits doc - create an image file
+data = numpy.arange(100,150)
+hdu = pyfits.PrimaryHDU(data) 
+hdulist = pyfits.HDUList( [ hdu ] )
+hdulist.writeto("out/test_5i.fits", clobber=True)
+
+</command>
+</pre-exec>
+<output>
+	<val>
+		<file>out/test_5i.fits</file>
+		<reference>ref/test_5i.fits</file>
+		<comparator>fits</comparator>
+	</val>
+</output>
+</regtest>

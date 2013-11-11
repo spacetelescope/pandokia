@@ -1,0 +1,299 @@
+#!/usr/bin/env python
+'''
+tbconv from_type to_type
+  convert a text table on stdin from one format to another
+
+types are:
+
+  name        in  out description
+
+  awk         y   y   alias for tabs, use with awk
+  csv         y   y   CSV files
+  html            y   HTML table
+  rst         y   y   restructured text, simple table only
+  tabs        y   y   tabs between columns
+  trac_wiki   y   y   table format used in trac wiki
+  tw          y   y   alias for trac_wiki, easier to type
+
+It is difficult work on an RST document with tables in it,  There
+are two table formats, but both are hideous to type.  The
+trac wiki format is WAY easier to edit, but does not look as nice.
+
+Solution: enter the table in trac wiki format, use the vi command
+"!}tbconv tw rst" to convert it to RST.  If you need to edit it
+again, "!}tbconv rst tw" to turn it back.
+
+The trac wiki output format has all columns the same width (even
+though this is not required by the trac wiki), so "!}tbconv tw tw"
+can beautify a trac wiki table.
+
+If you are an emacs user, you can use:
+  move to beginning of table
+  Control-shift-@                    (sets the mark)
+  move to end of table
+  Control-u Meta-| tbconv rst tw RETURN    (pipe region through shell command)
+If you don't know where your Meta key is, press ESCAPE then | for
+Meta-|
+
+
+'''
+
+import sys
+
+#
+# text_table is a general purpose table builder.  You fill in the
+# cells of a table, then collect a string that represents the 
+# table in various formats.
+#
+# It is in pandokia.
+#
+
+import pandokia.text_table as text_table
+
+
+# IMPLEMENTATION OVERVIEW :
+#
+# argv[1] is the name of the input format
+# argv[2] is the name of the output format
+#
+# input_translations and output_translations are dictionaries that map
+# a format name to a function that processes that format.  A translation
+# is basically:
+#   print output_translations[output_format]( input_translations[input_format] )
+#
+# text_table can produce output in various formats.  All of the output
+# formats are things known by text_table, though there is nothing to
+# stop you writing more right here instead of extending the text_table
+# object,
+#
+
+#
+# Here are various functions that read stdin and return a text_table
+#
+
+###
+### trac_wiki
+### tw (shorter name)
+###
+
+#
+# trac wiki tables are a set of lines that look like this:
+#     || col1 || col2 || col3 ||
+#
+# This reader does not enforce strict syntax.  You can get away without
+# the initial / trailing || and it won't care.
+#
+# trac wiki's consider the first blank line to be the end of the table.
+# We just skip blank lines.  This program only does one table at a time,
+# so if you provided input with blank lines, we make the best of it.
+#
+
+def read_trac_wiki() :
+        t = text_table.text_table()
+
+        for row, line in enumerate(sys.stdin) :
+            line = line.strip()
+            if line == "" :
+                continue
+            if line.startswith("||") :
+                line = line[2:]
+            if line.endswith("||") :
+                line = line[:-2]
+            l = line.split("||")
+
+            for col,val in enumerate(l) :
+                t.set_value(row, col, val.strip()  )
+
+        return t
+
+###
+### rst - restructured text, simple table format only
+###
+
+#
+# simple format rst tables look like:
+#
+# ====  =====  ===============  
+# arf   narf   aasdf asdf adsf  
+# asdf  plkhj  qwerty           
+# ====  =====  ===============  
+#
+# The === can also be ---, and each one has to span an entire column.
+# That is, each column ends where the space in the === line is.  We do
+# not check for errors.
+#
+# text_table does not have rowspans and colspans, so it is not possible
+# to read the more complex rst table format.  (I never use it, so I
+# don't care.)
+#
+
+def read_rst() :
+    t = text_table.text_table()
+
+    # pick up the first line, find the column markers
+    #
+    # This is close to the same algorithm that docutils uses; I would
+    # have just re-used the table parser in docutils, but it wasn't worth
+    # the effort to figure out how to make it work.
+
+    line = sys.stdin.readline()
+    line = line.replace('=', '-')
+
+    columns = [ ]
+    end = 0
+    while 1:
+        start = line.find('-', end)
+        if start < 0 :
+            break
+        end = line.find(' ', start)
+        if end < 0:
+            end = len(line)+1
+        columns.append((start, end))
+
+    # at this point, columns is a list of (start,end) for each field of the
+    # table.  The last tuple ends at None, so line[start:end] will run from
+    # start to the end of the string.
+
+    for row, line in enumerate(sys.stdin) :
+        if line.startswith("==") or line.startswith("--") :
+            continue
+        for col, (start,end) in enumerate(columns)  :
+            value = line[start:end]
+            t.set_value(row, col, value.strip())
+
+    return t
+
+
+###
+### CSV files
+###
+
+def read_csv() :
+    import csv
+    input = csv.reader(sys.stdin)
+
+    t = text_table.text_table()
+
+    for row, line in enumerate(input) :
+        for col, val in enumerate(line) :
+            t.set_value(row, col, val)
+
+    return t
+
+###
+### tabs - columns separated by tabs
+###
+
+def read_tabs( separator = "\t" ) :
+    t = text_table.text_table()
+
+    for row, line in enumerate(sys.stdin) :
+        line = line.strip().split(separator)
+        for col, val in enumerate(line) :
+            t.set_value(row, col, val)
+
+    return t
+
+###
+### awk - columns separated by whitespace, as recognized by awk
+###
+
+def read_awk() :
+    return read_tabs( separator = None )
+
+
+###
+### various output formats that text_table already knows
+###
+
+
+# ReStructured Text
+def write_rst(t) :
+    sys.stdout.write(t.get_rst())
+
+# Comma Separated Values (e.g. for spreadsheets)
+def write_csv(t) :
+    sys.stdout.write(t.get_csv())
+
+# columns separated by tabs
+def write_tabs(t) :
+    sys.stdout.write(t.get_awk())
+
+# HTML
+def write_html(t) :
+    sys.stdout.write(t.get_html())
+    sys.stdout.write("\n")
+
+# table format used by trac wiki's; see reader above
+def write_trac_wiki(t) :
+    sys.stdout.write(t.get_trac_wiki())
+
+###
+### jump tables
+###
+
+input_translations = {
+    'awk':          read_awk,
+    'csv':          read_csv,
+    'rst':          read_rst,
+    'tabs':         read_tabs,
+    'trac_wiki':    read_trac_wiki,
+    'tw':           read_trac_wiki,
+
+}
+
+output_translations = {
+    'awk':          write_tabs,
+    'csv':          write_csv,
+    'html':         write_html,
+    'rst':          write_rst,
+    'tabs':         write_tabs,
+    'trac_wiki':    write_trac_wiki,
+    'tw':           write_trac_wiki,
+
+}
+
+###
+### main program
+###
+
+def usage() :
+    print ""
+    print "usage: tbconv input_format output_format < input_file > output_file"
+    print ""
+    print "input formats:"
+    l = [ y for y in input_translations ]
+    l.sort()
+    for x in l :
+        print "    ",x
+    print ""
+    print "output formats:"
+    l = [ y for y in output_translations ]
+    l.sort()
+    for x in l :
+        print "    ",x
+    print ""
+
+if len(sys.argv) != 3 :
+    usage()
+    sys.exit(1)
+
+input_type = sys.argv[1]
+output_type = sys.argv[2]
+
+if not input_type in input_translations :
+    print "Do not know how to read ",input_type
+    usage()
+    sys.exit(1)
+
+if not output_type in output_translations :
+    print "Do not know how to write ",output_type
+    for x in output_translations :
+        print "    ",x
+    sys.exit(1)
+
+t = input_translations[input_type]()
+
+output_translations[output_type](t)
+
+sys.exit(0)

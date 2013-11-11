@@ -1,0 +1,5 @@
+tca_c_cdbs=/grp/hst/cdbs
+tca_jref=/grp/hst/cdbs/jref/
+tca_HI_VICKI=true
+tca_PDK_PROJECT=demo_a
+tca_mtab=/grp/hst/cdbs/mtab/

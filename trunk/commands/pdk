@@ -1,0 +1,47 @@
+#! python
+
+#
+# pandokia - a test reporting and execution system
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+#
+
+# This is the entry point for pandokia invoked as :
+#   - a command line program
+#   - a CGI in the context of a web server
+#
+
+import sys
+import os
+
+# With most web servers, QUERY_STRING is sufficient to recognize
+# you are in a CGI.  With the python CGIHTTPServer object,
+# you may not get a QUERY_STRING if you are running on MS WINDOWS.
+if 'QUERY_STRING' in os.environ or 'GATEWAY_INTERFACE' in os.environ :
+
+    # pdk_dir will be prepended to sys.path if we are run as a CGI.
+    # It is the directory where pandokia was installed.  We have many
+    # different pandokia instances installed (different versions, different
+    # configurations) but all of them just work if you invoke the cgi.
+    #
+    # This assignment to pdk_dir will be modified during the install,
+    # if you use distutils.
+    #
+    # It is not modified if you use pip or easy_install.  The way
+    # setuptools handles scripts, you had to have pdk_dir on sys.path
+    # to get here in the first place.
+    pdk_dir = None
+
+    if pdk_dir :
+        # explicitly put ourself on sys.path so the web server
+        # does not need to pass us a PYTHONPATH
+        sys.path.insert(0,pdk_dir)
+
+    # since we know we are in a web server, call directly into the cgi
+    import pandokia.pcgi
+    pandokia.pcgi.run()
+
+else :
+    # Invoke the command line entry point
+    import pandokia.entry
+    sys.exit(pandokia.entry.run())
+

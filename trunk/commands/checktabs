@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+
+find . -name '*.py' -o -name '*.rst' | grep -v -e '\.svn/' -e '/build/' | ( ex=0
+while read f
+do
+	#
+	# We have GNU grep on all our linux and mac machines, so
+	# it is ok that I used gnu features.
+	#
+	# This regex is	
+	# 	beginning of line, tab
+	# or
+	#	beginning of line, any number of spaces, tab
+	#
+	#
+	if grep --quiet --extended-regexp -e '^(	| *	)' $f
+	then
+		if [ "$ex" = 0 ]
+		then
+			echo PYTHON FILES INDENTED WITH TABS: >&2
+			ex=1
+		fi
+		echo $f >&2
+		if [ -d `dirname $f`/.svn ]
+		then
+			svn log --limit 1 $f | sed 's/^/    /' >&2
+		fi
+	fi
+done
+exit $ex
+)

@@ -1,0 +1,325 @@
+#!/bin/sh
+#
+# Build a web page that contains a bunch of sphinx documents
+#
+# This is not directly related to testing, but this is a convenient
+# place to put it.  Everything I work on has pandokia, and everything I
+# work on needs a pile of sphinx documents built.
+#
+# This script is intended primarily to be used as part of a continuous
+# integration system, so it talks a LOT about what it is doing (expecting
+# that nobody ever looks at the output) and tries to return a proper
+# exit status.
+# 
+#
+echo INSTALL DOCS 
+echo $0 $*
+
+if [ "$*" = "" ]
+then
+	echo 'usage: pdk_sphinxweb /a/b/c'
+	echo '   sphinx builds all documents in the current directory tree into /a/b/c'
+	exit 1
+fi
+
+set -x
+
+webdir=$1
+
+st=0
+
+# BUG: add a way to set this at run time
+suppress_doc_error=true
+
+##########
+# This function builds a document
+#	bdoc type dir 
+#		type is 'pdf' or 'html'
+#		dir is the directory where the document will be stored
+# return is whether there was an error running sphinx
+bdoc() {
+	which=$1
+	dest=$2
+	(
+	echo MAKE $which dest=$dest
+	pwd
+	date 
+
+	bst=''
+
+	if [ "$which" = html ]
+	then
+		make html 
+		bst=$bst$?
+		cp -r build/html $dest
+		bst=$bst$?
+	fi
+
+	if [ "$which" = pdf ]
+	then
+		make latex
+		bst=$bst$?
+		cd build/latex
+		# do not let latex read from stdin
+		make  < /dev/null
+		bst=$bst$?
+		f=`basename *.tex .tex`
+		pdf=$f.pdf
+		echo PDF is $pdf
+		cp $pdf $dest/$pdf
+		bst=$bst$?
+		echo $pdf > $dest/pdfname.txt
+	fi
+
+	date 
+
+	st=`echo $bst | tr -d 0 | cut -c1-1`
+	exit $st
+
+	) < /dev/null
+	return $?
+}
+
+##########
+# Sphinx is very bad about reporting an exit code.  This function
+# looks through the output for stuff that probably should have meant
+# an error.  Run this on the output from bdoc.
+#	doublecheck_sphinx logfile
+# a "success" return means there is a problem to report
+doublecheck_sphinx() {
+	f=$1
+	echo doublecheck_sphinx
+	# any python exception is bad
+	if grep -q '^Traceback' $f
+	then
+		echo traceback
+		return 0
+	fi
+
+	# Sphinx sometimes says SEVERE when something very bad happens.
+	if grep -q SEVERE $f
+	then
+		echo severe
+		return 0
+	fi
+
+	# Sphinx sometimes says ERROR when something very bad happens.
+	if grep -q ERROR $f
+	then
+		echo error
+		return 0
+	fi
+
+	# Sphinx says WARNING for a lot of things that really look
+	# like errors to me.  Exclude one that just means there
+	# were extra files laying around.
+	if grep -v "document isn't included in any toctree" < $f | grep -q WARNING 
+	then
+		echo warning
+		return 0
+	fi
+
+	# Not checking for latex-specific errors because latex DOES
+	# return a correct exit code.
+
+	echo nothing bad
+	# nothing bad found.
+	return 1
+}
+
+##########
+# main program
+
+# index is a file where we collect one line about each document processed
+index_raw=$webdir/index.raw
+
+# stat_summary is a csv file with the status about building each doc as pdf and html.
+# It exists for a later step of the CI system to use in reporting.
+stat_summary=$webdir/stat_summary.csv
+rm -rf $index_raw $stat_summary
+
+# How we indicate errors in the html
+error="<font color=red>error</font>"
+
+echo MAIN LOOP
+# any directory named "doc" or "docs" may contain a document.  I give
+# up trying to achieve any consistency.  For each one we find, we try
+# to recognize if it contains a sphinx document.  If not, we ignore it.
+
+find . '(' '(' -name doc -o -name docs ')' -type d -o  -name .this_is_a_sphinx_doc ')' -print | sed 's?/.this_is_a_sphinx_doc??' | ( 
+	while read docdir
+	do
+		echo LOOK AT $docdir
+
+		# special flag to prevent this doc getting built auomatically
+		if [ -f $docdir/no_auto_build ]
+		then
+			echo skip $docdir - no_auto_build
+			continue
+		fi
+
+		# if there is no makefile then it is not a sphinx document
+		if [ ! -f $docdir/Makefile ]
+		then
+			echo skip $docdir - no Makefile
+			continue
+		fi
+
+		echo DOCS IN $docdir
+
+		# take ./ off the directory name
+		docdir=`echo $docdir | cut -c3-`
+
+		# create a name that has no / in it; we will use this
+		# for some files.  (If you have a/b.c and a.b/c you lose.)
+		flatname=`echo $docdir | tr '/' '.'`
+		echo D=$flatname
+
+		# where to install this document
+		dest=$webdir/$flatname
+
+		# it is probably there already.  replace it.
+		echo REMOVE $dest
+		rm -rf $dest 
+		echo CREATE $dest
+		mkdir -p $dest
+
+		# sub-shell to change to that directory and build the document
+		(
+			dst=0
+
+			cd $docdir
+			st=$?
+
+			# build date
+			date=`date "+%Y-%m-%d %H:%M" `
+
+			echo DEST= $dest
+
+			# If there is an error, we will set one of these
+			# to the $error string
+			herr=''
+			perr=''
+
+			### make html version
+
+			rm -rf build
+
+			echo HTML
+			bdoc html $dest > $dest/html.txt 2>&1
+			if [ $? != 0 ]
+			then
+				herr=$error
+				dst=1
+			fi
+
+			if doublecheck_sphinx $dest/html.txt
+			then
+				herr=$error
+				dst=1
+			fi
+
+			### make pdf version
+
+			rm -rf build
+		
+			echo PDF
+
+			bdoc pdf $dest > $dest/pdf.txt 2>&1
+			if [ $? != 0 ]
+			then
+				perr=$error
+				dst=1
+			fi
+
+			if doublecheck_sphinx $dest/pdf.txt
+			then
+				perr=$error
+				dst=1
+			fi
+
+			# Make the table entry for this document
+			echo TABLE ENTRY
+			cd source
+
+			# title comes from sphinx config
+			title="`python -c 'from conf import latex_documents ; print latex_documents[0][2]' | tr -d '<>&*?|$' `"
+
+			# report into the stat summary for later reporting
+			echo $docdir,$herr,$perr >> $stat_summary
+
+			# we know the name of index.html, but each pdf has a unique name
+			pdfname=`cat $dest/pdfname.txt`
+
+			# be sure there is exactly one line each, so it sorts well later
+tr -d '\n' >> $index_raw << ARF
+			<tr>
+			<td>$title</td>
+			<td><a href="$flatname/html/index.html">html</a> </td>
+			<td><a href="$flatname/$pdfname">pdf</a></td>
+			<td>$date</td>
+			<td><a href="$flatname/html.txt">html log</a> $herr</td>
+			<td><a href="$flatname/pdf.txt">pdf log</a> $perr</td>
+			<td>$docdir</td>
+			</tr>
+ARF
+			echo '' >> $index_raw
+
+			# group writeable 
+			chmod -R 775 $dest
+			st=$st$?
+			# chgrp -R 528 $dest
+
+			# if we are asked to suppress the doc build
+			# error, make it look like they all succeeded.
+			# The error will still be reported on the web
+			# page, but will not show in our exit code.
+			if $suppress_doc_error
+			then
+				dst=0
+			fi
+
+			st=`echo $dst$st | tr -d 0 | cut -c1-1`
+			exit $st
+		)
+		st=$st$?
+		echo LOOP $st
+	done
+
+	st=`echo $st | tr -d 0 | cut -c1-1`
+	exit $st
+)
+st=$st$?
+# end of find | process
+
+# Construct the index.html in the web directory
+cd $webdir
+
+rm -f index.shtml
+
+(
+	s=0
+	if [ -f header.html ] 
+	then
+		cat header.html
+		s=$?
+	fi
+	echo '<table border=1>'
+	s=$s$?
+	# sort by the text title of the document
+	sort -t '>' -k 3 < $index_raw
+	s=$s$?
+	echo '</table>'
+	s=$s$?
+	if [ -f footer.html ]
+	then
+		cat footer.html
+		s=$s$?
+	fi
+	s=`echo $s | tr -d 0 | cut -c1-1`
+	exit $s
+) > index.shtml
+st=$st$?
+
+st=`echo $st | tr -d 0 | cut -c1-1`
+exit $st
