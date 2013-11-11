@@ -138,7 +138,27 @@ def process_webfile(opt, fn):
             err += 1
     transactions.append(T)
 
+
+    ref_repo = False
+    if 'PDK_REFS' in os.environ.keys():
+        PDK_REFS = os.environ['PDK_REFS']
+        ref_repo = True
+        if opt.commit:
+            # we want to commit anything that's modified in the reference file
+            # repository before we process the transactions, in case there are
+            # any uncommitted changes
+            cmd = 'svn commit %s -m "committing uncommitted references"' %PDK_REFS
+            print
+            print cmd
+            ret = os.system(cmd)
+            if not ret == 0:
+                err += 1
+
+
     for t in transactions:
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         refs_to_commit = []
         for okfile in t['okfiles']:
             ret, refs = process_okfile(opt, okfile, return_refs = True)
@@ -155,19 +175,29 @@ def process_webfile(opt, fn):
             ref_str = ' '.join(refs_to_commit)
 
             # add reference files, in case they are new
-            cmd = 'svn add -q %s' %ref_str
-            print
-            print cmd
-            ret = os.system(cmd)
-            if not ret == 0:
-                err += 1
+            for r in refs_to_commit:
+                cmd = 'svn add -q %s' %r
+                print cmd
+                ret = os.system(cmd)
+                if not ret == 0:
+                    err += 1
+
+            sys.stdout.flush()
+            sys.stderr.flush()
 
             # commit reference files
-            cmd = 'svn commit %s -m "(%s) %s"' %(
-                ref_str,
-                t['user'],
-                t['comment']
-            )
+            if ref_repo:
+                cmd = 'svn commit %s -m "(%s) %s"' %(
+                    PDK_REFS,
+                    t['user'],
+                    t['comment']
+                )
+            else:
+                cmd = 'svn commit %s -m "(%s) %s"' %(
+                    ref_str,
+                    t['user'],
+                    t['comment']
+                )
             print
             print cmd
             ret = os.system(cmd)
