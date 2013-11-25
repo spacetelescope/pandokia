@@ -176,7 +176,7 @@ def process_webfile(opt, fn):
 
             # add reference files, in case they are new
             for r in refs_to_commit:
-                cmd = 'svn add -q %s' %r
+                cmd = 'svn add -q %s --parents' %r
                 print cmd
                 ret = os.system(cmd)
                 if not ret == 0:
@@ -281,6 +281,7 @@ def process_database(opt):
             file = open(fn, 'a')
             file.write('\n'.join(lines))
             file.close()
+            print 'generated %s' %fn
 
     # loop over ok_transactions again and see if all associated ok_items have
     # been done; if so, mark transaction status = done
