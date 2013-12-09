@@ -110,13 +110,14 @@ def process_webfile(opt, fn):
     err = 0
     for ln in lines:
         parts = ln.split()
-        if len(parts) >= 3 and parts[0] == 'TRANS':
+        if len(parts) >= 4 and parts[0] == 'TRANS':
             if in_trans:
                 transactions.append(T)
                 T = {}
             parts.pop(0)
             T['ip'] = parts.pop(0)
             T['user'] = parts.pop(0)
+            T['qid'] = parts.pop(0)
             T['comment'] = ''
             try:
                 T['comment'] = ' '.join(parts)
@@ -187,15 +188,17 @@ def process_webfile(opt, fn):
 
             # commit reference files
             if ref_repo:
-                cmd = 'svn commit %s -m "(%s) %s"' %(
+                cmd = 'svn commit %s -m "(%s, QID=%s) %s"' %(
                     PDK_REFS,
                     t['user'],
+                    t['qid'],
                     t['comment']
                 )
             else:
-                cmd = 'svn commit %s -m "(%s) %s"' %(
+                cmd = 'svn commit %s -m "(%s, QID=%s) %s"' %(
                     ref_str,
                     t['user'],
+                    t['qid'],
                     t['comment']
                 )
             print
@@ -222,10 +225,11 @@ def process_webfile(opt, fn):
 def process_database(opt):
 
     # find all transactions in ok_transactions where status = new
-    c = pdk_db.execute("SELECT trans_id, username, user_comment, ip_address, status FROM ok_transactions WHERE status='new'")
-    for trans_id, username, user_comment, ip_address, status in c:
+    c = pdk_db.execute("SELECT trans_id, username, user_comment, ip_address, status, qid FROM ok_transactions WHERE status='new'")
+    for trans_id, username, user_comment, ip_address, status, qid in c:
 
         trans = dict(
+            qid = qid,
             user = username,
             ip = ip_address,
             comment = user_comment,
@@ -274,7 +278,7 @@ def process_database(opt):
             if not os.path.exists(fn):
                 os.system('touch %s' %fn)
 
-            lines = ['\nTRANS %s %s %s' %(trans['ip'], trans['user'], trans['comment'])]
+            lines = ['\nTRANS %s %s %s %s' %(trans['ip'], trans['user'], trans['qid'], trans['comment'])]
             for okfile in okfiles:
                 lines.append(okfile)
 

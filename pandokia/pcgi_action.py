@@ -80,6 +80,8 @@ def run( ) :
         pdk_db.commit()
 
     elif ( 'action_flagok' in form ) or ( 'action_flagok_rem' in form ) :
+        qid = copy_qid(qid)
+
         # pick out client IP for logging
         # we don't need to validate client because it was done already in the main program
         output.write("<h3>flagging tests as ok</h3>\n")
@@ -96,6 +98,7 @@ def run( ) :
         comment = form["ok_comment"].value
 
         text_present |= pandokia.flagok.ok_transaction(
+            qid,
             client,
             valid_key_ids(form),
             user,
@@ -106,7 +109,6 @@ def run( ) :
 
         if 'action_flagok_rem' in form :
             # copy of 'remove' above - expedient for the moment
-            qid = copy_qid(qid)
             for key_id in valid_key_ids(form) :
                 pdk_db.execute('DELETE FROM query WHERE qid = :1 AND key_id = :2 ', (qid, key_id))
             pdk_db.commit()

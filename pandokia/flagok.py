@@ -16,12 +16,12 @@ def noflag( name, err ) :
     print 'Flagok not possible for %s: %s<br>'%(cgi.escape(name), err)
 
 
-def ok_transaction(client, key_ids, user, comment):
+def ok_transaction(qid, client, key_ids, user, comment):
     status = 'new'
     
     # insert new transaction into ok_transactions
 
-    c = pdk_db.execute("INSERT INTO ok_transactions (username, user_comment, ip_address, status) values (:1, :2, :3, :4)", (user, comment, client, 'new'))
+    c = pdk_db.execute("INSERT INTO ok_transactions (username, user_comment, ip_address, status, qid) values (:1, :2, :3, :4, :5)", (user, comment, client, 'new', qid))
     trans_id = c.lastrowid
 
     #OK each key_id
