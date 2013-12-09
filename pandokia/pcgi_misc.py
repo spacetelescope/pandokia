@@ -169,6 +169,9 @@ def latest() :
             if count == 0 :
                 count = pandokia.cleaner.recount_test_run ( tr )
 
+            if count is None :
+                count = 0
+
             total = total + count
 
             d['test_run'] = test_run

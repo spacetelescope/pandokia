@@ -231,6 +231,11 @@ def run() :
         x.expected()
         sys.exit(0)
 
+    if query == 'new' :
+        import pandokia.pcgi_reports as x
+        x. cluster_report()
+        sys.exit(0)
+
     if query == 'latest' :
         import pandokia.pcgi_misc as x
         x.latest()
