@@ -166,8 +166,9 @@ def latest() :
                 t.set_value(row,2,'')
                 continue
             (tr, count) = n
-            if count == 0 :
-                count = pandokia.cleaner.recount_test_run ( tr )
+            if count == 0 or count is None :
+                import pandokia.cleaner as cleaner
+                count = cleaner.recount_test_run ( tr )
 
             if count is None :
                 count = 0

@@ -1,0 +1,26 @@
+:
+#
+case "$1"
+in
+[0-9][0-9][0-9][0-9]-[0-9][0-9])
+	month=$1
+	;;
+*)
+	echo 'badly formed month'
+	echo 'use something like 2012-02'
+	exit 1
+	;;
+esac
+
+d1="01 02 03 04 05 06 07 08 09 10 "
+d2="11 12 13 14 15 16 17 18 19 20 "
+d3="21 22 23 24 25 26 27 28 29 30 31"
+
+for day in $d1 $d2 $d3
+do
+	echo $month-$day
+	pdk delete -test_run daily_$month-$day
+	pdk delete -test_run daily_$month-$day_midday
+	pdk delete -test_run jwst_$month-$day
+	pdk delete -test_run ureka_test_$month-$day
+done
