@@ -12,7 +12,8 @@ CREATE TABLE ok_transactions (
     username        VARCHAR,
     user_comment    VARCHAR,
     ip_address      VARCHAR,
-    status          VARCHAR
+    status          VARCHAR,
+    qid             VARCHAR
 );
 
 -- ok_items:
