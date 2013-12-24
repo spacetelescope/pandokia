@@ -6,6 +6,7 @@ X. install pandokia
 X. declare your test name
 
 	setenv PDK_TEST_RUN xyzzy
+	export PDK_TEST_RUN=xyzzy
 
 X. run tests of the basic data handling
 	pdkrun -r database
