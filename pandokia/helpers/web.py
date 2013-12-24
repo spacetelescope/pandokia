@@ -78,3 +78,27 @@ def rot13_6(a) :
         r = r + x
     return r
 
+#####
+#
+# retrieve a cookie by name from 
+
+def get_cookie( host=None, directory=None, name=None ) :
+    if host == '-' :
+        host = sorted(cookiejar._cookies)[0]
+    if host is None :
+        return cookiejar._cookies
+    elif directory is None :
+        return cookiejar._cookies[host]
+    elif name is None :
+        return cookiejar._cookies[host][directory]
+    else :
+        return cookiejar._cookies[host][directory][name]
+    
+###
+"""
+to do someday:
+
+make an object of this, like
+https://gist.github.com/rduplain/1265409
+"""
+
