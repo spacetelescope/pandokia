@@ -1,3 +1,8 @@
+/*
+* This is a start of an experimental pycode reporter for C.
+* Do not expect this to work at all.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,9 +19,12 @@ int pdk_need_dot_in_name;
 int pdk_pass, pdk_fail, pdk_error, pdk_disable;
 
 /*
-* most severe reported status
+* most severe reported status of the current test
 */
 char pdk_reported_status;
+
+/*
+*/
 
 int pdk_init( char *source_file, char *location, char *test_runner, char *testprefix )
 {
@@ -38,7 +46,7 @@ int pdk_init( char *source_file, char *location, char *test_runner, char *testpr
 	pdk_log_fp = fopen( pdk_log, "a" );
 	if (! pdk_log_fp)
 		{
-		perror("cannot open PDK_LOG file");
+		perror("cannot append to PDK_LOG file");
 		abort();
 		}
 
@@ -65,10 +73,11 @@ int pdk_init( char *source_file, char *location, char *test_runner, char *testpr
 		t = strrchr(s,'.');
 		if (t)
 			*t = 0;
-		u = malloc( strlen(pdk_test_prefix) + strlen(s) + 1 );
+		u = malloc( strlen(pdk_test_prefix) + strlen(t) + 2 );
 		strcpy(u, pdk_testprefix);
-		strcat(u, s);
+		strcat(u, t);
 		free(pdk_testprefix);
+        free(t);
 		pdk_testprefix = u;
 		}
 
@@ -76,6 +85,12 @@ int pdk_init( char *source_file, char *location, char *test_runner, char *testpr
 
 }
 
+
+/*
+* start a test.  Too bad we don't have nested tests like in the
+* python version.  At first, I thought that would be ok, but the
+* more I think about it, the more I don't like it.
+*/
 
 pdk_start( char *test_name, int redirect_output )
 {
@@ -102,11 +117,13 @@ pdk_start( char *test_name, int redirect_output )
 		fprintf(stderr,"redirect_output not implemented\n");
 		abort();
 		}
+
+    pdk_line( "test_name", "", test_name );
 }
 
 
 /*
-	Various functions to set attributes.
+* write a line to the PDK_LOG file
 */
 pdk_line( char *name1, char *name2, char *value )
 {
@@ -130,6 +147,9 @@ pdk_line( char *name1, char *name2, char *value )
 	pdk_reported_status = 'N';
 }
 
+/*
+* various functions to write attributes
+*/
 pdk_tda	( char *name, char *value )
 {
 	pdk_line( "tda_", name, value );
@@ -169,11 +189,17 @@ pdk_tra_double( char *name, double value)
 }
 
 
+/*
+* write the log in string form
+*/
 pdk_log_str( char *log )
 {
 	pdk_line( "log","", log );
 }
 
+/*
+* accept a test status; only move to a more severe level
+*/
 pdk_status( char status )
 {
 	switch (status)
@@ -195,9 +221,15 @@ pdk_status( char status )
 			pdk_reported_status = 'E';
 		break;
 	default:
+        /* wtf? */
+        pdk_reported_status = status;
+        break;
+        }
 }
 
-pdk_finish( );
+pdk_finish( )
+{
 	/*
 	must call this at the end of the test.
 	*/
+}
