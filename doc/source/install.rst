@@ -4,7 +4,7 @@ Installing Pandokia
 
 Pandokia works on Unix/Linux and Macintosh machines.  The procedure is
 the same in all cases.  There has been some effort toward Windows support,
-but it is likely incomplete.
+but it is incomplete.
 
 The sequence is to first install the software, then configure the
 resulting system.

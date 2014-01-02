@@ -15,7 +15,7 @@ classifiers = [
     'License :: OSI Approved :: BSD License',
     'Natural Language :: English',
     'Operating System :: POSIX',
-    'Operating System :: Microsoft :: Windows',
+   # 'Operating System :: Microsoft :: Windows',
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Unix',
     'Programming Language :: Python :: 2.6',
@@ -47,6 +47,8 @@ else :
 ## detect our environment
 #
 # A flag for whether this is a MS Windows machine
+#
+# n.b. Windows support is strictly experimental and incomplete.
 
 import platform
 # print platform.python_version()

@@ -59,6 +59,8 @@ pdk webserver
     start up a development web server.  The root of the server is the
     current directory.  It serves pages on port localhost:7070.
 
+fuller documentation is available at http://ssb.stsci.edu/testing/pandokia/
+
 '''
 import os
 import sys
