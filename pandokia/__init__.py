@@ -13,7 +13,7 @@ describe pandokia a little
 import os
 
 # setup.py searches for this exact form of the next line:
-__version__ = "1.2rc8"
+__version__ = "1.2.1rc1"
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
