@@ -9,9 +9,13 @@ __all__ = [
     'db_module',
     'db_driver',
     'PandokiaDB',
+    'thread_safe',
     ]
 
 import MySQLdb as db_module
+
+# from dbapi
+thread_safe = MySQLdb.threadsafety
 
 import pandokia.db
 
