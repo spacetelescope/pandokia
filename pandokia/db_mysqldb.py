@@ -15,7 +15,7 @@ __all__ = [
 import MySQLdb as db_module
 
 # from dbapi
-thread_safe = MySQLdb.threadsafety
+thread_safe = db_module.threadsafety
 
 import pandokia.db
 
