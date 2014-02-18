@@ -29,7 +29,7 @@ except ImportError :
     import pysqlite2.dbapi2 as db_module
 
 # from dbapi
-threadsafety = sqlite3.threadsafety
+threadsafety = db_module.threadsafety
 
 #
 # Since we were in a hurry to get it working, we use certain sqlite3
