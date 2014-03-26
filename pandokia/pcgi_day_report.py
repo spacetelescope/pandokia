@@ -220,11 +220,6 @@ def rpt2( ) :
 
             l = [ ]
             prev = common.run_previous( recurring_prefix, test_run )
-
-            print 
-            print 'prev = %s' %prev
-            print
-            
             if prev :
                 l.append( common.self_href( query_dict = {  'test_run' : prev } , linkmode='day_report.2', text=prev ) )
 

@@ -640,6 +640,10 @@ def recurring_test_run(test_run) :
         prefix = '%s_%s'%(l[0],l[1])
         if prefix in cfg.recurring_prefix :
             return prefix
+    if len(l) > 3 :
+        prefix = '%s_%s_%s'%(l[0],l[1],l[2])
+        if prefix in cfg.recurring_prefix :
+            return prefix
     return None
 
 ######
