@@ -447,6 +447,7 @@ else :
             pid = timeout_proc.pid
             print "PID=%d"%pid
             if timeout_proc_kills == 0 :
+                os.system('ps -fp %s' %pid)
                 print "timeout expired - terminate after %s"%str(timeout_duration)
                 os.system('top -b -n 1')
                 os.system('ps -efl')
