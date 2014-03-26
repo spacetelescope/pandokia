@@ -446,13 +446,20 @@ else :
         if timeout_proc :
             pid = timeout_proc.pid
             print "PID=%d"%pid
+            sys.stdout.flush()
             if timeout_proc_kills == 0 :
                 os.system('ps -fp %s' %pid)
+                sys.stdout.flush()
                 print "timeout expired - terminate after %s"%str(timeout_duration)
+                sys.stdout.flush()
                 os.system('top -b -n 1')
+                sys.stdout.flush()
                 os.system('ps -efl')
+                sys.stdout.flush()
                 os.system('sleep 5')
+                sys.stdout.flush()
                 os.system('ps -efl')
+                sys.stdout.flush()
                 killpg_maybe( pid, signal.SIGTERM )
                 os.system('top -b -n 1')
             elif timeout_proc_kills == 1 :
