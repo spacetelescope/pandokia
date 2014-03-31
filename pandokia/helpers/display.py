@@ -74,3 +74,39 @@ import traceback
 def get_stack() :
     return ''.join(traceback.format_stack())
 
+
+#####
+#
+# show keys of a nested dict/list structure
+#
+
+def print_dict_keys(d, depth = 0) :
+    for x in sorted(d.keys()) :
+        showitem(x, d[x], depth)
+
+def showitem( name, item, depth ) :
+        ty = str(type(item))
+        ty = ty.replace('<type ','').replace('>','').replace("'",'')
+        if 'numpy.ndarray' in ty :
+            ty = ty + ' ' + str( item.shape )+' = ' + str(item.size)
+        s = '\t'*depth
+        if name != '' :
+            s = s + name + ' '
+        s = s + ty
+        if isinstance(item, dict) :
+            print s+'(%d)'%len(item)
+            print_dict_keys(item, depth+1)
+        elif isinstance(item, tuple) :
+            print s+'(%d)' % len(item)
+            print_list(item, depth+1)
+        elif isinstance(item, list) :
+            print s+'(%d)' % len(item)
+            print_list(item, depth+1)
+        else :
+            print s
+
+def print_list(l, depth=0) :
+    for x in l :
+        showitem( '', x, depth )
+
+
