@@ -25,9 +25,25 @@ def dprint( d, indent=0, follow='' ) :
         s = s + indent_str + ( '%-*s :' % (maxlen,"'%s'"%x) )
         if isinstance(d[x], dict) :
             s = s + "\n" + dprint(d[x], indent+1, follow=',')
+        elif isinstance(d[x], list) :
+            s = s + "\n" + lprint(d[x], indent+1, follow=',')
         else :
             s = s + " " + repr(d[x])+",\n"
     s = s + indent_str + '}' + follow + '\n'
+    return s
+
+def lprint( l, indent=0, follow='' ) :
+    indent_str='    ' * indent
+    s = indent_str + '[\n'
+    for x in l :
+        s = s + indent_str
+        if isinstance(x, dict) :
+            s = s + "\n" + dprint(x, indent+1, follow=',')
+        elif isinstance(x, list) :
+            s = s + "\n" + lprint(x, indent+1, follow=',')
+        else :
+            s = s + repr(x)+",\n"
+    s = s + indent_str + ']' + follow + '\n'
     return s
 
 #####
