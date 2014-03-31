@@ -79,6 +79,7 @@ python_commands = [
     'pdkpytest',                # run py.test with pdk plugin
     'junittopdk',               # convert junit/xml to pandokia format
     'tbconv',                   # table conversion among various formats
+    'pywhere',                  # show where a python module is
      ]
 
 shell_commands = [
