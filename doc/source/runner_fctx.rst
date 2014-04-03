@@ -7,19 +7,22 @@ C - fctx - unit tests in C and languages callable from C
 Overview
 -------------------------------------------------------------------------------
 
-FCTX is a C unit test framework.  Everything you need to compile and run tests is included with Pandokia.
-See http://fctx.wildbearsoftware.com/ or http://ssb.stsci.edu/testing/fctx for FCTX documentation.
+FCTX is a C unit test framework.  Everything you need to compile
+and run tests is included with Pandokia.  It used to come from
+http://fctx.wildbearsoftware.com/ , but that site has been down for
+some time, so we have documentation at http://ssb.stsci.edu/testing/fctx .
+The github repository is at https://github.com/imb/fctx .
 
 In FCTX terms, the Pandokia interface is implemented as a "custom
 logger".  To make your tests Pandokia-capable, you need to include
-pandokia_fct.h and use CL_FCT_BGN and CL_FCT_END to bracket your
-program instead of FCT_BGN and FCT_END.
+pandokia_fct.h instead of fct.h, which causes the custom logger
+to be installed.
 
 Here is a simple example: ::
 
     #include "pandokia_fct.h"
 
-    CL_FCT_BGN()
+    FCT_BGN()
     {
         FCT_QTEST_BGN(test_name_1)
         {
@@ -36,12 +39,13 @@ Here is a simple example: ::
          FCT_QTEST_END();
 
     }
-    CL_FCT_END()
+    FCT_END()
 
-This example is minimal.  You can also use the more advanced features, such
-as fixtures, suites, conditional tests, and advanced checks.  See the FCTX
-documentation for details.
-
+This example is minimal, though it is adequate for many purposes.
+In principle, you can also use the more advanced features of FCTX
+such as fixtures, suites, conditional tests, and advanced checks,
+though those features are not heavily tested with Pandokia.  See
+the FCTX documentation for details.
 
 Compiling the test program
 -----------------------------------------------------------------------------
@@ -79,12 +83,12 @@ The pandokia plugin does not accept any command line parameters;
 it takes values from the environment, or it uses defaults.  The
 default pandokia log file is named "PDK_LOG".
 
-Using with the "run" test runner
+Using with the "run" test runner, option A
 -----------------------------------------------------------------------------
 
 The "run" test runner just runs an external program that is pdk-aware.  You
-would have your normal build system compile the test (as shown above),
-then define the test something like this:
+would have your normal build system compile/install the test somewhere
+and then define the test as a shell script something like this:
 
 pdk_runners: ::
 
@@ -102,12 +106,36 @@ file that pandokia finds, not the name of the executable that
 contains the tests.  In this example, there are two tests found:
 xyzzy/test_name_1 and xyzzy/test_name_2.
 
+Using with the "run" test runner, option B
+-----------------------------------------------------------------------------
+
+You could have your build system compile the tests directly in the
+directory of tests, so that you might run the commands ::
+
+    make all
+    pdkrun .
+
+To do this, list each file in pdk_runners: ::
+
+    test_one    run
+    test_two    run
+
+and use a makefile like this: ::
+
+    all: test_one test_two
+
+    test_one: test_one.c
+        cc -o test_one -I `pdk maker` test_one.c
+
+    test_two: test_two.c
+        cc -o test_two -I `pdk maker` test_two.c
+
 
 Using with the "maker" test runner
 -----------------------------------------------------------------------------
 
 If you use the "maker" test runner, you may be able to include your C
-code directly in the test directory.  Pandokia can compile and run it
+source code directly in the test directory.  Pandokia can compile and run it
 for you.
 
 pdk_runners: ::
