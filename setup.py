@@ -80,6 +80,7 @@ python_commands = [
     'junittopdk',               # convert junit/xml to pandokia format
     'tbconv',                   # table conversion among various formats
     'pywhere',                  # show where a python module is
+    'json_pp',                  # json pretty printer
      ]
 
 shell_commands = [
