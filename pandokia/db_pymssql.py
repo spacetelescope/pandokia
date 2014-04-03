@@ -5,6 +5,33 @@
 # pymssql database driver - for Microsoft SQL Server
 #
 
+###
+### WARNING: pymssql can only have _one_ active cursor at a time.  This
+### limits the portability of this database layer unless we work out
+### a solution.
+###
+#
+# Ideas:
+#
+# db.execute() returns a cursor.  Each cursor could track if it is
+# still in use.  (i.e. It is in use until the __del__ is called.)
+# Then when we call db.execute() and a cursor is already active, we
+# make a new connection and return a cursor off the new connection.  
+# This hoses up transactions, though...
+#
+# db.execute() returns a cursor.  Internally, we duplicate the
+# functions of a cursor and fill it with c.fetchall() before
+# returning it.  It may use a lot of memory for the list, but
+# if you are aware of this and do not intend to process all
+# the data, you might make a shorter query.
+#
+# db.execute() only has one cursor.  If it determines that the
+# cursor is still in use when you run db.execute() again, it
+# throws an exception.  Applications have to "del c" to get
+# rid of the cursor before db.execute() again.
+#
+
+
 __all__ = [ 
     'db_module',
     'db_driver',
@@ -12,12 +39,14 @@ __all__ = [
     'thread_safe',
     ]
 
-raise NotImplementedError()
-
 # http://pymssql.org/
 # https://pypi.python.org/pypi/pymssql/2.1.0
 
 import pymssql as db_module
+
+# use this when something is so specific to the database that you
+# can't avoid writing per-database code
+db_driver = 'pymssql'
 
 # from dbapi
 thread_safe = db_module.threadsafety
@@ -26,13 +55,9 @@ import pandokia.db
 
 # debugging 
 _tty = None
-# _tty = open("/dev/tty","w")
+_tty = open("/dev/tty","w")
 
 import os
-
-# use this when something is so specific to the database that you
-# can't avoid writing per-database code
-db_driver = 'pymssql'
 
 import re
 
@@ -108,7 +133,17 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # return the cursor
         return c
 
-    ## how much table space is this database using
+    ## how much table space is this database using, in bytes
     ## not portable to other DB
     def table_usage( self ) :
-        raise NotImplementedError()
+        c = self.db.cursor()
+        c.execute("sp_spaceused")
+        n = c.fetchone()
+        num, unit = n[1].split()
+        if unit == "KB" :
+            unit=1024
+        elif unit == "MB" :
+            unit= 1024*1024
+        elif unit == "GB" :
+            unit = 1024*1024*1024
+        return float(n[0]) * unit
