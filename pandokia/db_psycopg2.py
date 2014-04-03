@@ -50,6 +50,13 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     def open( self ) :
         self.db = db_module.connect( ** ( self.db_access_arg ) )
 
+    def start_transaction( self ) :
+        if self.db is None :
+            self.open()
+        self.execute("START TRANSACTION")
+        # bug: should we use one the options at
+        # http://www.postgresql.org/docs/9.1/static/sql-start-transaction.html
+
     def commit(self):
         if self.db is None :
             return

@@ -44,6 +44,12 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     def open( self ) :
         self.db = db_module.connect( ** ( self.db_access_arg ) )
+        self.execute("SET autocommit=0")
+
+    def start_transaction( self ) :
+        if self.db is None :
+            self.open()
+        self.execute("START TRANSACTION WITH CONSISTENT SNAPSHOT")
 
     def commit(self):
         if self.db is None :

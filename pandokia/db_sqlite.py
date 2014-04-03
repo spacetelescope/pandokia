@@ -89,6 +89,11 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # turns into a linear search of the table.
         self.db.execute("PRAGMA case_sensitive_like = true;")
 
+    def start_transaction( self ) :
+        if self.db is None :
+            self.open()
+        self.execute("BEGIN TRANSACTION")
+
     def commit(self):
         if self.db is None :
             return
