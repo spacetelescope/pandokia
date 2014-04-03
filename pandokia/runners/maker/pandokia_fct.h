@@ -266,13 +266,22 @@ static fct_logger_types_t custlogs[] =
 
 
 /*
-* Tests that use custom loggers must use a modified replacement for
-* FCT_BGN/FCT_END.  It installs the custom logger so that fctx can
-* know about it.
+* Replace FCT_BGN with our own modified FCT_BGN in order to install
+* our custom logger.  pandokia_intercept_logger() implicitly does
+* --logger pdk if it sees the pandokia environment set up.
 */
-#define CL_FCT_BGN() FCT_BGN() {  fctlog_install(custlogs); pandokia_intercept_logger();
+#undef FCT_BGN
+#define FCT_BGN() FCT_BGN_FN(main) fctlog_install(custlogs); pandokia_intercept_logger();
 
-#define CL_FCT_END() } FCT_END()
+/*
+* These are the macros suggested when using custom loggers.  I find
+* that using different macros is not really a good idea because tests
+* don't switch between custom and non-custom environments well.  I
+* don't recommend these any more, but they are here for backward
+* compatibility.
+*/
+#define CL_FCT_BGN() FCT_BGN()
+#define CL_FCT_END() FCT_END()
 
 /*
 *
