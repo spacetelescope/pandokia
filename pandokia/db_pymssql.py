@@ -152,3 +152,25 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         elif unit == "GB" :
             unit = 1024*1024*1024
         return float(n[0]) * unit
+
+
+##########
+#
+"""
+MS SQL Server notes
+
+
+show databases
+    select name from master..sysdatabases
+
+show tables
+    select * from information_schema.tables
+
+describe tablename
+    exec sp_columns tablename
+
+    sp_help @tablename
+
+
+
+"""
