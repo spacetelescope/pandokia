@@ -19,7 +19,7 @@ import re
 
 # from dbapi.  psycopg2 is level 2 (can use same db connection in
 # multiple threads).
-threadsafety = psycopg2.threadsafety
+threadsafety = db_module.threadsafety
 
 
 import pandokia.db
