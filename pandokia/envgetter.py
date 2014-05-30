@@ -177,9 +177,10 @@ class DirLevel(object):
             try:
                 if re.match(pat['pathkey'],key) and ':' in val:
                     m=re.search(pat['pathval'],self.final[key])
-                    newval=val.replace(m.group(1),
+                    if m :
+                        newval=val.replace(m.group(1),
                                        self.container.defdict[key])
-                    self.final[key]=newval
+                        self.final[key]=newval
 
             except TypeError:
                 pass

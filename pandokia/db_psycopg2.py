@@ -198,6 +198,17 @@ Create the database:
         create user mark;
         grant all on database pandokia to mark ;
 
+        alter user NAME password 'PSWD';
+
+Finding the config file:
+
+    psql postgres
+        show config_file;
+
+    "pg_ctl reload" or "kill -HUP server" after editing config
+    server is the process running "postmaster"
+    (didn't work for me)
+
 
 psql pandokia
     start the interactive client on the pandokia database
