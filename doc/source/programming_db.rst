@@ -71,7 +71,8 @@ that any dbapi database can use.
 I would like your sql to be allowed to say " where a like 'arf%' ",
 but the % will not correctly pass through some of the dbapi
 implementations.  Since this interface is intended to be portable,
-you can't have the %.
+you can't have the %.  You have to do " where a like :1 " and pass
+'arf%' as a parameter.
 
 Stylistically, I like ":arf" better than "%(arf)s"
 
@@ -137,6 +138,13 @@ Without pandokia
     db = pandokia.db_psycopg2.PandokiaDB( access_arg )
         # access_arg is the same as you would use with psycopg2
 
+ - using pymssql (Microsoft SQL Server): ::
+
+    import pandokia.db_pymssql
+
+    db = pandokia.db_pymssql.PandokiaDB( access_arg )
+        # access_arg is the same as you would use with pymssql
+
 The object does not connect to the database when you create it.
 You can call db.open() to explicitly connect, or it will connect
 to the database the first time it needs the connection.
@@ -151,6 +159,8 @@ Without pandokia, if you have a Django settings.py module
     import pyetc.etc_web.settings as settings
 
     db = dbm.db_from_django( settings )
+
+This works for mysql and sqlite.
 
 The object does not connect to the database when you create it.
 You can call db.open() to explicitly connect, or it will connect
@@ -255,6 +265,11 @@ ProgrammingError is a problem such as a syntax error in your SQL. ::
     except db.ProgrammingError as e :
         ...
 
+DBAPI implementations can raise other exceptions that are not yet
+implemented by the pandokia interface.
+
+Postgres will raise an exception if you get an error from one SQL
+statement and to not rollback() before executing more statements.
 
 Table Usage
 -------------------------------------------------------------------------------
