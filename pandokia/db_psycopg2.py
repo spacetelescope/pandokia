@@ -224,5 +224,8 @@ psql
         like show databases
     \d tablename
         like describe tablename
+    \connect name
+        like "use name"
+
 
 '''

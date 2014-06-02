@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2011, 2014, Association of Universities for Research in Astronomy (AURA) 
 #
 # mysql database driver
 #
@@ -44,6 +44,13 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     def __init__( self, access_arg ) :
         self.db_access_arg = access_arg
+        # the mysqldb package I have installed chokes if you give
+        # it unicode strings.  So convert any unicode back to str.
+        for x in access_arg :
+            if isinstance( access_arg[x], unicode) :
+                self.db_access_arg[str(x)] = str(access_arg[x])
+            else :
+                self.db_access_arg[str(x)] = access_arg[x]
 
     def open( self ) :
         self.db = db_module.connect( ** ( self.db_access_arg ) )
@@ -143,3 +150,12 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     # mysql does not use database sequences because it can do auto-increments fields
     next = None
+
+"""
+When first installed, there is a user named "root" with no password.
+
+update mysql.user set password = password('xxx') where ...whatever...
+
+select user, host, password from mysql.user;
+
+"""

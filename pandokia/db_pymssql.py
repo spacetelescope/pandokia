@@ -55,7 +55,7 @@ import pandokia.db
 
 # debugging 
 _tty = None
-_tty = open("/dev/tty","w")
+# _tty = open("/dev/tty","w")
 
 import os
 
@@ -75,6 +75,8 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db_access_arg = access_arg
 
     def open( self ) :
+        if access_arg.get('password',1) is None :
+            raise Exception("password specified as None")
         self.db = db_module.connect( ** ( self.db_access_arg ) )
 
     def start_transaction( self ) :
@@ -175,5 +177,8 @@ describe tablename
     sp_help @tablename
 
 
+change password
+
+    ALTER LOGIN username  WITH PASSWORD = 'newpassword' OLD_PASSWORD = 'oldpassword'
 
 """
