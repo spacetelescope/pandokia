@@ -207,14 +207,18 @@ class where_dict_base(object) :
     # run a big sequence of SQL commands
     #
     def sql_commands(self, s, format='rst') :
-        # s is a single string, maybe with newlines
+        # s is a single string, maybe with newlines.  Split it into a
+        # list of lines.
+        s = s.split('\n')
 
+        # tear comments out of all lines.  hmmm... don't use -- in a
+        # string constant...
         import re
         comment = re.compile('--.*$')
+        s = [ comment.sub('',x).strip() for x in s ]
 
-        # tear out comments 
-        s = s.split('\n')
-        s = [ comment.sub('',x).rstrip() for x in s ]
+        # turns on and off for conditional processing
+        active = True
 
         c = ''
         line = 0
@@ -222,7 +226,29 @@ class where_dict_base(object) :
             line = line + 1
             if x == '' :
                 continue
+
+            # This implements the ++driver convention.  A line that
+            # begins with ++name begins a section that is only performed
+            # when using that database driver.  A line that contains just ++
+            # beings a section that is performed for all drivers.
+            if x.startswith("++") :
+                x=x[2:].split()
+                if len(x) == 0 :
+                    active = True
+                    continue
+                if self.pandokia_driver_name in x :
+                    active = True
+                    continue
+                active = False
+                continue
+
+            if not active :
+                continue
+
+            # gather the line 
             c = c + x + '\n'
+
+            # end of a command.
             if c.endswith(';\n') :
                 # perform the command
                 cursor = self.execute(c)
@@ -236,14 +262,16 @@ class where_dict_base(object) :
                         name = name[0]
                         tbl.define_column( name )
 
+                # Display the results, if any
                 try :
                     # fill the table cells
                     for rownum, rowval in enumerate(cursor) :
                         for colnum, colval in enumerate(rowval) :
                             tbl.set_value( rownum, colnum, colval )
 
-                    # show the table in the format the user asked
-                    print tbl.get(format=format, headings=1)
+                    if len(tbl.rows) > 0 :
+                        # show the table in the format the user asked
+                        print tbl.get(format=format, headings=1)
                 except self.ProgrammingError as e :
                     if 'no results to fetch' in str(e) :
                         pass

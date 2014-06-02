@@ -73,6 +73,9 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError
 
+    # name of this driver.  could be a constant.
+    pandokia_driver_name = __module__.split('db_')[1]
+
     db = None
 
     def __init__( self, access_arg ) :
