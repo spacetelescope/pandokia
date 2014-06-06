@@ -81,11 +81,15 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     db = None
 
     def __init__( self, access_arg ) :
-        access_arg = os.path.abspath( access_arg )
+        if isinstance( access_arg, dict ) :
+            access_arg['database'] = os.path.abspath( access_arg['database'] )
+        else :
+            access_arg = { "database" : os.path.abspath( access_arg ) }
+
         self.db_access_arg = access_arg
 
     def open( self ) :
-        self.db = db_module.connect( self.db_access_arg )
+        self.db = db_module.connect( **self.db_access_arg )
         self.db.execute("PRAGMA synchronous = NORMAL;")
         self.db.text_factory = str;
 
