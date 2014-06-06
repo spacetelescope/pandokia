@@ -65,6 +65,8 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError
+    OperationalError = db_module.OperationalError
+    DatabaseError    = db_module.DatabaseError
 
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
