@@ -104,7 +104,7 @@ doublecheck_sphinx() {
 	fi
 
 	# Sphinx sometimes says ERROR when something very bad happens.
-	if grep -q ERROR $f
+	if grep -v "Unexpected indentation" < $f | grep -q ERROR
 	then
 		echo error
 		return 0
@@ -113,7 +113,7 @@ doublecheck_sphinx() {
 	# Sphinx says WARNING for a lot of things that really look
 	# like errors to me.  Exclude one that just means there
 	# were extra files laying around.
-	if grep -v "document isn't included in any toctree" < $f | grep -q WARNING 
+	if grep -v "document isn't included in any toctree" | grep -v "ERROR: Unexpected indentation" < $f | grep -q WARNING 
 	then
 		echo warning
 		return 0
