@@ -29,7 +29,7 @@ webdir=$1
 st=0
 
 # BUG: add a way to set this at run time
-suppress_doc_error=true
+suppress_doc_error=false
 
 ##########
 # This function builds a document
