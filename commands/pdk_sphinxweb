@@ -96,35 +96,40 @@ doublecheck_sphinx() {
 		return 0
 	fi
 
-	# Sphinx sometimes says SEVERE when something very bad happens.
-	if grep -q SEVERE $f
+	if grep -q '^build succeeded' $f
 	then
-		echo severe
-		return 0
+		echo 'build succeeded'
+		return 1
 	fi
 
-	# Sphinx sometimes says ERROR when something very bad happens.
-	if grep -v "Unexpected indentation" < $f | grep -q ERROR
-	then
-		echo error
-		return 0
-	fi
+    if false
+    then
+	    # Sphinx sometimes says SEVERE when something very bad happens.
+	    if grep -q SEVERE $f
+	    then
+		    echo severe
+		    return 0
+	    fi
 
-	# Sphinx says WARNING for a lot of things that really look
-	# like errors to me.  Exclude one that just means there
-	# were extra files laying around.
-	if grep -v "document isn't included in any toctree" | grep -v "ERROR: Unexpected indentation" < $f | grep -q WARNING 
-	then
-		echo warning
-		return 0
-	fi
+	    # Sphinx sometimes says ERROR when something very bad happens.
+	    if grep -v "Unexpected indentation" < $f | grep -q ERROR
+	    then
+		    echo error
+		    return 0
+	    fi
 
-	# Not checking for latex-specific errors because latex DOES
-	# return a correct exit code.
-
-	echo nothing bad
-	# nothing bad found.
-	return 1
+	    # Sphinx says WARNING for a lot of things that really look
+	    # like errors to me.  Exclude one that just means there
+	    # were extra files laying around.
+	    if grep -v "document isn't included in any toctree" | grep -v "Unexpected indentation" < $f | grep -q WARNING 
+	    then
+		    echo warning
+		    return 0
+	    fi
+	    
+    	# Not checking for latex-specific errors because latex DOES
+    	# return a correct exit code.
+    fi
 }
 
 ##########
