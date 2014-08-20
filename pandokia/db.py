@@ -164,6 +164,7 @@ class where_dict_base(object) :
         if cols is None :
             c = self.execute('SELECT * FROM %s LIMIT 1'%tablename )
             cols = [ x[0] for x in c.description ]
+            c.close()
 
         colstr = ','.join(cols)
         
@@ -183,6 +184,7 @@ class where_dict_base(object) :
         c = self.execute('select %s from %s %s order by %s'%(colstr, tablename, where, colstr) )
         for x in c :
             cc.writerow( [ y for y in x ] )
+        c.close()
 
         if not isinstance(fname,str) :
             f.close()
@@ -199,6 +201,7 @@ class where_dict_base(object) :
         c = self.execute(query)
         for x in c :
             cc.writerow( [ y for y in x ] )
+        c.close()
 
         if not isinstance(fname,str) :
             f.close()
@@ -282,6 +285,8 @@ class where_dict_base(object) :
                 except self.IntegrityError as e :
                     print "Integrity Error for ",c
                     print e
+
+                cursor.close()
 
                 c = ''
 
