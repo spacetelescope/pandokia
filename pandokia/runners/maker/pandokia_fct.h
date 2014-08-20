@@ -273,6 +273,12 @@ static fct_logger_types_t custlogs[] =
 #undef FCT_BGN
 #define FCT_BGN() FCT_BGN_FN(main) fctlog_install(custlogs); pandokia_intercept_logger();
 
+#undef FCT_BGN_FN
+#define FCT_BGN_FN(_FNNAME_)            \
+    int _FNNAME_(int argc, char* argv[])\
+    {                                   \
+        FCT_INIT(argc, argv)
+
 /*
 * These are the macros suggested when using custom loggers.  I find
 * that using different macros is not really a good idea because tests
