@@ -266,18 +266,18 @@ static fct_logger_types_t custlogs[] =
 
 
 /*
-* Replace FCT_BGN with our own modified FCT_BGN in order to install
+* Replace FCT_BGN_FN with our own modified FCT_BGN_FN in order to install
 * our custom logger.  pandokia_intercept_logger() implicitly does
 * --logger pdk if it sees the pandokia environment set up.
 */
-#undef FCT_BGN
-#define FCT_BGN() FCT_BGN_FN(main) fctlog_install(custlogs); pandokia_intercept_logger();
 
 #undef FCT_BGN_FN
 #define FCT_BGN_FN(_FNNAME_)            \
     int _FNNAME_(int argc, char* argv[])\
     {                                   \
-        FCT_INIT(argc, argv)
+        FCT_INIT(argc, argv)		\
+	fctlog_install(custlogs); 	\
+	pandokia_intercept_logger();
 
 /*
 * These are the macros suggested when using custom loggers.  I find
