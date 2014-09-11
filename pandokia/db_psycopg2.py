@@ -53,7 +53,11 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db_access_arg = access_arg
 
     def open( self ) :
-        self.db = db_module.connect( ** ( self.db_access_arg ) )
+        if self.db is None :
+            self.db = db_module.connect( ** ( self.db_access_arg ) )
+            return
+
+        # bug: see if the connection timed out, and reconnect it
 
     def start_transaction( self ) :
         if self.db is None :

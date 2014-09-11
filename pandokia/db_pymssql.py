@@ -77,9 +77,20 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db_access_arg = access_arg
 
     def open( self ) :
-        if access_arg.get('password',1) is None :
-            raise Exception("password specified as None")
-        self.db = db_module.connect( ** ( self.db_access_arg ) )
+        if self.db is None :
+            if access_arg.get('password',1) is None :
+                raise Exception("password specified as None")
+            self.db = db_module.connect( ** ( self.db_access_arg ) )
+            return
+
+        # bug: check that the connection is still alive here.
+
+        # wow: http://stackoverflow.com/questions/6179737/sql-server-user-session-time-out
+        # "Similarly, a SQL Server session never times out, even if
+        # not used for days. The application has to explicitly close the
+        # connection for its sessions to terminate."
+        #
+        # Hmm, but what about a crash / failover in the HA system?
 
     def start_transaction( self ) :
         if self.db is None :

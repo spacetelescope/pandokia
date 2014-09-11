@@ -89,14 +89,21 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         self.db_access_arg = access_arg
 
     def open( self ) :
-        self.db = db_module.connect( **self.db_access_arg )
-        self.db.execute("PRAGMA synchronous = NORMAL;")
-        self.db.text_factory = str;
+        if self.db is None :
+            self.db = db_module.connect( **self.db_access_arg )
+            self.db.execute("PRAGMA synchronous = NORMAL;")
+            self.db.text_factory = str;
 
-        # must have case_sensitive_like so LIKE 'arf%' can use the
-        # indexes.  With non-case-sensitive like, any LIKE clause
-        # turns into a linear search of the table.
-        self.db.execute("PRAGMA case_sensitive_like = true;")
+            # must have case_sensitive_like so LIKE 'arf%' can use the
+            # indexes.  With non-case-sensitive like, any LIKE clause
+            # turns into a linear search of the table.
+            self.db.execute("PRAGMA case_sensitive_like = true;")
+            return
+
+        # other database drivers may test for a timed-out connection here,
+        # but sqlite is just an open file on the local disk.  There is no
+        # timing out of connections
+        return
 
     def start_transaction( self ) :
         if self.db is None :

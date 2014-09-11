@@ -55,8 +55,31 @@ class PandokiaDB(pandokia.db.where_dict_base) :
                 self.db_access_arg[str(x)] = access_arg[x]
 
     def open( self ) :
-        self.db = db_module.connect( ** ( self.db_access_arg ) )
-        self.execute("SET autocommit=0")
+        # If the user explicitly calls open(), then we know they want
+        # a connection.  
+        #
+        # If we never had a connection, open one.  We're done.
+        #
+        if self.db is None :
+            self.db = db_module.connect( ** ( self.db_access_arg ) )
+            self.execute("SET autocommit=0")
+            return
+        
+        # if we already have a connection, presumably the user has called
+        # this open() again to ensure an open connection.  We can re-use
+        # the connection if it is still open.  If it has timed out,
+        # we open it again.  Notice that this call to open is protecting
+        # against idle timeouts, not server crashes.
+        try :
+            self.db.ping()
+            return
+        except db_module.DatabaseError :
+            self.db.close()
+            self.db = None
+            self.db = db_module.connect( ** ( self.db_access_arg ) )
+            self.execute("SET autocommit=0")
+            return
+        # NOTREACHED
 
     def start_transaction( self ) :
         if self.db is None :
