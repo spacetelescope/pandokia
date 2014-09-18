@@ -13,13 +13,21 @@ release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr 
 
 echo release=$release
 
+edit pandokia/__init__.py to have a real release number
+
+svn commit -m'release ' pandokia/__init__.py
+
+release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr -d '"'`
+
+echo release=$release
+
 svn del -m'replacing branch' $d/$release
 
-svn copy -m'release branch' $d/trunk $d/$release
+svn copy -m'release branch' $d/trunk $d/branches/$release
 
 rm -rf $release
 
-svn checkout -q $d/$release
+svn checkout -q $d/branches/$release
 
 cd $release
 
@@ -30,6 +38,18 @@ python setup.py sdist
 ls -l dist
 
 cp dist/* /eng/ssb/src/$release.tar.gz 
+
+python setup.py sdist upload
+
+cd ..
+
+edit pandokia/__init__.py to have a dev release number
+
+svn commit -m'next dev release number' pandokia/__init__.py
+
+release=pandokia-`grep __version__ pandokia/__init__.py | awk '{print $3}' | tr -d '"'`
+
+echo release=$release
 
 
 #####
