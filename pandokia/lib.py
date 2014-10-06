@@ -4,6 +4,8 @@
 #
 # Assorted functions that are useful in more than one place
 
+import time
+
 
 #
 # determine the host name, for reporting purposes
@@ -27,3 +29,36 @@ def gethostname( ) :
     # bug: decided when to use fqdn or not; override hostname in config; etc
 
 
+
+def decode_time_float( istr ) :
+    try :
+        tyme = float(istr)
+    except ValueError :
+        if '.' in istr :
+            l = istr.split('.',1)
+        else :
+            l = [ istr ]
+
+        try :
+            d = time.strptime( l[0], "%Y-%m-%d %H:%M:%S" )
+            tyme = time.mktime(d)
+        except ValueError :
+            try :
+                d = time.strptime( l[0], "%Y-%m-%dT%H:%M:%S" )
+                tyme = time.mktime(d)
+            except ValueError :
+                return None
+
+        if len(l) > 1 :
+            a = l[1]
+            frac = float(int(a)) / int( '1'+'0'*len(a) )
+            tyme = tyme + frac
+
+    return tyme
+
+def decode_time_str( istr ) :
+    try :
+        tyme = float(istr)
+    except ValueError :
+        return istr
+    return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(tyme)) + '.' + ("%03d" % ( int( tyme - int(tyme) ) * 1000 ))

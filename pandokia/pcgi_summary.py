@@ -8,6 +8,7 @@ import cgi
 import re
 import copy
 import time
+import pandokia.lib as lib
 
 import pandokia.text_table as text_table
 
@@ -457,6 +458,8 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     result_table.define_column("context",   link=sort_link+"Ucontext")
     result_table.define_column("test_name", link=sort_link+"Utest_name")
     result_table.define_column("contact",   link=sort_link+"Ucontact")
+    result_table.define_column("start",     link=sort_link+"Ustart")
+    result_table.define_column("duration",  link=sort_link+"Uduration")
     if cmp_run != "" :
         result_table.define_column("diff",  link=sort_link+"Udiff")
         result_table.define_column("other", link=sort_link+"Uother")
@@ -478,7 +481,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         # find the result of this test
         #
 
-        c1 = pdk_db.execute("SELECT test_run, project, host, context, test_name, status, attn, test_runner FROM result_scalar WHERE key_id = :1 ", (key_id,) )
+        c1 = pdk_db.execute("SELECT test_run, project, host, context, test_name, status, attn, test_runner, start_time, end_time FROM result_scalar WHERE key_id = :1 ", (key_id,) )
 
         y = c1.fetchone()   # unique index
 
@@ -486,7 +489,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
             # this can only happen if somebody deletes tests from the database after we populate the qid
             continue
 
-        (test_run, project, host, context, test_name, status, attn, runner) = y
+        (test_run, project, host, context, test_name, status, attn, runner, start_time, end_time ) = y
 
         # if we are comparing to another run, find the other one; 
         # suppress lines that are different - should be optional
@@ -532,6 +535,13 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
         result_table.set_value(rowcount,"test_name",text=test_name, link=this_link )
 
         result_table.set_value(rowcount,"contact",common.get_contact(project, test_name, 'str'))
+
+        start_time = lib.decode_time_float(start_time)
+        end_time   = lib.decode_time_float(end_time)
+        result_table.set_value(rowcount,"start", lib.decode_time_str(start_time))
+        if start_time is not None and end_time is not None :
+            result_table.set_value(rowcount,"duration", "%.3f" % (end_time - start_time) )
+            
 
         if status == "P" :
             result_table.set_value(rowcount,"stat",status, link=this_link)
@@ -625,7 +635,7 @@ def column_selector(input_query) :
     qid_block(qid)
 
     # these columns are common to every test
-    l0 = [ 'runner', 'attn', 'test_run', 'project', 'host', 'context', 'test_name', 'contact', 'diff', 'other', 'stat' ]
+    l0 = [ 'runner', 'attn', 'test_run', 'project', 'host', 'context', 'test_name', 'contact', 'diff', 'other', 'stat', 'start', 'duration' ]
 
     # make diff, other only required when compare ?
     # compare totally loses the column selections
