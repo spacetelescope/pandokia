@@ -31,6 +31,8 @@ def gethostname( ) :
 
 
 def decode_time_float( istr ) :
+    if istr is None :
+        return None
     try :
         tyme = float(istr)
     except ValueError :
@@ -57,6 +59,8 @@ def decode_time_float( istr ) :
     return tyme
 
 def decode_time_str( istr ) :
+    if istr is None :
+        return None
     try :
         tyme = float(istr)
     except ValueError :
