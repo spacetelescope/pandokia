@@ -5,6 +5,7 @@
 # Assorted functions that are useful in more than one place
 
 import time
+import datetime
 
 
 #
@@ -66,3 +67,12 @@ def decode_time_str( istr ) :
     except ValueError :
         return istr
     return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(tyme)) + '.' + ("%03d" % ( int( tyme - int(tyme) ) * 1000 ))
+
+def time_diff( max, min ) :
+    max = decode_time_float( max )
+    min = decode_time_float( min )
+    if max is None :
+        return None
+    if min is None :
+        return None
+    return datetime.timedelta( seconds= int(max - min ) )

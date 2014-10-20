@@ -12,6 +12,7 @@ import time
 
 import pandokia.text_table as text_table
 import urllib
+import pandokia.lib as lib
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
@@ -47,14 +48,19 @@ def rpt1(  ) :
 
     # c = db.execute("SELECT DISTINCT test_run FROM result_scalar WHERE test_run GLOB ? ORDER BY test_run DESC ",( test_run,))
     where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
-    sql = "SELECT test_run, valuable, record_count, note FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
+    sql = "SELECT test_run, valuable, record_count, note, min_time, max_time FROM distinct_test_run %s ORDER BY test_run DESC "%where_str
     c = pdk_db.execute( sql, where_dict)
 
     table = text_table.text_table()
+    table.set_html_table_attributes("border=1")
+
     table.define_column('addval',   showname='')
     table.define_column('run',      showname='test_run')
     table.define_column('tree',     showname='')
     table.define_column('del',      showname='')
+    table.define_column('min',      showname='start')
+    table.define_column('max',      showname='end')
+    table.define_column('tdiff',    showname='duration')
     table.define_column('count',    showname='records')
     table.define_column('note',     showname='note')
 
@@ -73,7 +79,7 @@ def rpt1(  ) :
 
 
     row = 0
-    for x, val, record_count, note in c :
+    for x, val, record_count, note, min_time, max_time in c :
         if x is None :
             continue
         tquery["test_run"] = x
@@ -99,7 +105,26 @@ def rpt1(  ) :
         else :
             table.set_value(row, 'note', text=note)
 
+        if min_time is not None and max_time is not None :
+            table.set_value(row, 'tdiff', str( lib.time_diff( max_time, min_time ) ) )
 
+            min_time = str(min_time).split('.')[0]
+            max_time = str(max_time).split('.')[0]
+            t1 = min_time.split()
+            t2 = max_time.split()
+            if t1[0] == t2[0] and len(t2) > 1 :
+                max_time = t2[1]
+            table.set_value(row, 'min', text=min_time)
+            table.set_value(row, 'max', text=max_time)
+        else :
+            if min_time is not None :
+                min_time = str(min_time).split('.')[0]
+                table.set_value(row, 'min', text=min_time)
+            if max_time is not None :
+                max_time = str(max_time).split('.')[0]
+                table.set_value(row, 'max', text=max_time)
+            table.set_value(row, 'tdiff', '' )
+        
         # update the count field 
         # https://ssb.stsci.edu/pandokia/c41.cgi?query=action&count_run=daily_2011-08-24
 
@@ -118,6 +143,16 @@ def rpt1(  ) :
         sys.stdout.write(table.get_html(headings=1))
         sys.stdout.write("<br>Click on the ! to mark a test run as too valuable to delete\n")
         sys.stdout.write("<br>Click on record count to check the count and update it\n")
+        sys.stdout.write("""<style>
+table {
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 2px solid black;
+    padding: 3px;
+}
+</style>
+""")
     elif pandokia.pcgi.output_format == 'csv' :
         sys.stdout.write(common.cgi_header_csv)
         sys.stdout.write(table.get_csv())

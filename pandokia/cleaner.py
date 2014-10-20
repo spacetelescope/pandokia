@@ -514,13 +514,14 @@ def recount( args, verbose=1 ) :
                 print "no test run found matching",test_run
 
 def recount_test_run( test_run ) :
-    c = pdk_db.execute("SELECT COUNT(*) FROM result_scalar WHERE test_run = :1",(test_run,))
+    c = pdk_db.execute("SELECT COUNT(*), MIN(start_time), MAX(end_time) FROM result_scalar WHERE test_run = :1",(test_run,))
     x = c.fetchone()
     count = x[0]
     if count == 0 :
         pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(test_run,))
     else :
-        pdk_db.execute("UPDATE distinct_test_run SET record_count = :1 WHERE test_run = :2 ", (count,test_run) )
+        pdk_db.execute("UPDATE distinct_test_run SET record_count = :1, min_time = :2, max_time = :3 WHERE test_run = :4 ", 
+            (count, x[1], x[2], test_run) )
     pdk_db.commit()
     return count
 
