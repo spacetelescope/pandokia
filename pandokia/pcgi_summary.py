@@ -458,7 +458,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     result_table.define_column("context",   link=sort_link+"Ucontext")
     result_table.define_column("test_name", link=sort_link+"Utest_name")
     result_table.define_column("contact",   link=sort_link+"Ucontact")
-    #result_table.define_column("start",     link=sort_link+"Ustart")
+    result_table.define_column("start",     link=sort_link+"Ustart")
     result_table.define_column("duration",  link=sort_link+"Uduration")
     if cmp_run != "" :
         result_table.define_column("diff",  link=sort_link+"Udiff")
@@ -538,7 +538,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
 
         start_time = lib.decode_time_float(start_time)
         end_time   = lib.decode_time_float(end_time)
-        result_table.set_value(rowcount,"start", lib.decode_time_str(start_time))
+        #result_table.set_value(rowcount,"start", lib.decode_time_str(start_time))
         if start_time is not None and end_time is not None :
             result_table.set_value(rowcount,"duration", "%.3f" % (end_time - start_time) )
             
