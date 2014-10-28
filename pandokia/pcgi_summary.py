@@ -635,7 +635,7 @@ def column_selector(input_query) :
     qid_block(qid)
 
     # these columns are common to every test
-    l0 = [ 'runner', 'attn', 'test_run', 'project', 'host', 'context', 'test_name', 'contact', 'diff', 'other', 'stat', 'start', 'duration' ]
+    l0 = [ 'runner', 'attn', 'test_run', 'project', 'host', 'context', 'test_name', 'contact', 'diff', 'other', 'stat', 'duration' ]
 
     # make diff, other only required when compare ?
     # compare totally loses the column selections
