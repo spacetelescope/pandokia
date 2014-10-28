@@ -458,7 +458,7 @@ def get_table( qid, sort_link, cmp_run, cmptype , show_attr):
     result_table.define_column("context",   link=sort_link+"Ucontext")
     result_table.define_column("test_name", link=sort_link+"Utest_name")
     result_table.define_column("contact",   link=sort_link+"Ucontact")
-    result_table.define_column("start",     link=sort_link+"Ustart")
+    #result_table.define_column("start",     link=sort_link+"Ustart")
     result_table.define_column("duration",  link=sort_link+"Uduration")
     if cmp_run != "" :
         result_table.define_column("diff",  link=sort_link+"Udiff")
