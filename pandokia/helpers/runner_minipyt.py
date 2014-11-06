@@ -549,7 +549,9 @@ def process_file( filename, test_name = None, test_args = None ) :
     # print "PUSHED",None
 
     if test_name is not None :
-        rpt = pycode.reporter( test_name )
+        # if we have an explicit test name, then we are run outside
+        # pdkrun.  We need to set the defaults.
+        rpt = pycode.reporter( test_name, setdefault=True )
     else :
         rpt = pycode.reporter( filename )
 
