@@ -94,7 +94,8 @@ def sort_test_list(l, test_order) :
 
 def show_dot(status, name, log) :
     if status == 'P' :
-        dots_file.write('.')
+        if dots_mode != 'N' :
+            dots_file.write('.')
     else :
         if dots_mode == 'N' :
             dots_file.write(' %s: %s\n'%(name,status) )
@@ -733,7 +734,7 @@ def process_file( filename, test_name = None, test_args = None ) :
     # now that we have closed it, we can't allow anyone else to use it.
     pycode.cached_rpt = None
 
-    if dots_mode :
+    if dots_mode != 'N':
         dots_file.write('\n')
         dots_file.flush()
 

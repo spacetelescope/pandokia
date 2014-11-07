@@ -307,7 +307,7 @@ def peek_snarfed_stdout() :
 # is at http://github.com/198d/sclara
 #
 # At the time Sclara was announced, it did not have any documentation,
-# so I'm not entierly sure what it is for, but I think the principal
+# so I'm not entirely sure what it is for, but I think the principal
 # difference is that I intend this for dynamically generated tests.
 # That is, something like:
 #    for x in list :
@@ -331,6 +331,16 @@ def peek_snarfed_stdout() :
 # up, that's their problem.)
 cached_rpt = None
 
+# counter to make with-type tests come out sequential
+with_counter = 0
+
+# stack of with_counter for nested tests
+with_counter_stack = [ ]
+
+# set with_seq to the field width to use if you want sequential
+# numbers in the test names.  e.g. with_seq=2 makes the test name
+# "xxx" show up as "01-xxx"
+with_seq = 0
 
 # A generic class, for reasons explained below.
 class _pycode_with(object) :
@@ -371,8 +381,11 @@ class _pycode_with(object) :
             import runner_minipyt as m
             runner_minipyt = m
 
-        # name is just our base name.  
-        self.name = name
+        # name is just our base name.
+        if with_seq :
+            self.name = "%0*d-%s"%( with_seq, with_counter, name)
+        else :
+            self.name = name
 
         # Remember the report object we were created with.
         if rpt is None :
@@ -422,6 +435,11 @@ class _pycode_with(object) :
             raise Exception("Object not reusable")
         self.expired = True
 
+        if 1 :
+            global with_counter
+            with_counter_stack.append( with_counter + 1 )
+            with_counter = 0
+
         # Constructing our name.  It will be stacked on the minipyt
         # name stack to obtain a more full test name -- even
         # if we are not running in minipyt, that is where we store
@@ -464,6 +482,10 @@ class _pycode_with(object) :
         # take our name off the stack
         if runner_minipyt.currently_running_test_name.pop() != self.name :
             raise Exception("Internal inconsistency in pycode context manager - name stack is messed up")
+
+        # restore the with_counter for this level
+        global with_counter
+        with_counter = with_counter_stack.pop()
 
         # If there is no exception, the test passes
         if extype is None :
@@ -533,7 +555,10 @@ class setup(_pycode_with) :
 ##### a tool for running with-type tests from the packagename.test() function
 #####
 
-def package_test( parent, test_package, test_modules, verbose=False ) :
+def package_test( parent, test_package, test_modules, verbose=False, silent=False ) :
+
+    if silent :
+        verbose = False
 
     import pandokia.helpers.runner_minipyt as runner_minipyt
     runner_minipyt.dots_mode = ''
@@ -550,8 +575,9 @@ def package_test( parent, test_package, test_modules, verbose=False ) :
     failed = cached_rpt.status_count.get('F',0)
     error  = cached_rpt.status_count.get('E',0)
 
-    print cached_rpt.report_view_sep
-    print "Pass: %d  Fail: %d  Error: %d"%( passed, failed, error )
+    if not silent :
+        print cached_rpt.report_view_sep
+        print "Pass: %d  Fail: %d  Error: %d"%( passed, failed, error )
 
     if ( failed == 0 ) and ( error == 0 ) :
         return 0
