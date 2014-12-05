@@ -8,7 +8,7 @@ import sys, linecache
 # variable names found in this set will not be displayed
 default_ignore_vars = set( [ '__builtins__', '__doc__' ] )
 
-def backtrace( show_globals=True, ignore_vars=None) :
+def exc( show_globals=True, ignore_vars=None, write=None) :
     """
     Print the usual traceback information, followed by a listing of all the
     local variables in each frame.
@@ -94,9 +94,21 @@ def backtrace( show_globals=True, ignore_vars=None) :
 
     # duplicate the exception string at the end
     rval.append( rval[0] )
+
+    if hasattr(write,'write') :
+        for x in rval :
+            write.write(x)
+            write.write("\n")
     return rval
-        
-        
+
+
+def here(*l, **kw) :
+    try :
+        raise AssertionError()
+    except AssertionError :
+        exc(*l, **kw)
+
+
 if __name__ == '__main__':
     #A simplistic demonstration of the kind of problem this approach can help
     #with. Basically, we have a simple function which manipulates all the
@@ -131,7 +143,9 @@ if __name__ == '__main__':
             pad4(data)
             print "STILL HERE"
         except:
-            for x in backtrace() :
+            for x in exc() :
                 print x
 
     cause_exc()
+
+    here()
