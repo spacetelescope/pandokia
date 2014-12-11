@@ -78,7 +78,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     def open( self ) :
         if self.db is None :
-            if access_arg.get('password',1) is None :
+            if self.db_access_arg.get('password',1) is None :
                 raise Exception("password specified as None")
             self.db = db_module.connect( ** ( self.db_access_arg ) )
             return
