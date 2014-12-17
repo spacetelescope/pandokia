@@ -23,6 +23,23 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
     # get the traceback
     tb = excinfo[2]
 
+    # The traceback does not have everything we want.  Run to the
+    # end of the stack to find the frame of the last item on the
+    # traceback.
+    while 1:
+        if not tb.tb_next:
+            break
+        tb = tb.tb_next
+
+    # follow the frames backwards to find the top of the real stack
+    stack = []
+    f = tb.tb_frame
+    while f:
+        stack.append(f)
+        print dir(f), f.f_code.co_name, f.f_lineno, f.f_trace
+        f = f.f_back
+    stack.reverse()
+
     # get text of the exception
     exception_str = repr(excinfo[1])
 
@@ -30,19 +47,20 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
     del excinfo
 
     #
-    rval = [ 'Backtrace:', exception_str, '' ]
+    rval = [ '', exception_str, '' ]
 
     # now walking the stack
-    while tb is not None :
+    for frame in stack :
 
-        frame = tb.tb_frame
+        # frame = tb.tb_frame
         filename = frame.f_code.co_filename
         name = frame.f_code.co_name
 
         # note that frame.f_code.f_lineno has continued changing
 	    # during the code that eventually calls this function, so we
 	    # have to get it from the traceback.
-        lineno = tb.tb_lineno
+
+        # lineno = tb.tb_lineno
 
         rval.append( "%s : %s - %s " % ( filename, lineno, name) )
 
@@ -93,7 +111,8 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
         tb = tb.tb_next
 
     # duplicate the exception string at the end
-    rval.append( rval[0] )
+    rval.append( exception_str )
+    rval.append( '' )
 
     if hasattr(write,'write') :
         for x in rval :
@@ -102,9 +121,11 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
     return rval
 
 
+def foo():
+        raise AssertionError()
 def here(*l, **kw) :
     try :
-        raise AssertionError()
+        foo()
     except AssertionError :
         exc(*l, **kw)
 
@@ -146,6 +167,15 @@ if __name__ == '__main__':
             for x in exc() :
                 print x
 
-    cause_exc()
+    # cause_exc()
 
-    here()
+    def a() :
+        b()
+    def b() :
+        c()
+    def c() :
+        d()
+    def d() :
+        cause_exc()
+
+    a()
