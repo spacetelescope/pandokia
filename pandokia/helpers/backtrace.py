@@ -10,12 +10,27 @@ default_ignore_vars = set( [ '__builtins__', '__doc__' ] )
 
 def exc( show_globals=True, ignore_vars=None, write=None) :
     """
-    Print the usual traceback information, followed by a listing of all the
-    local variables in each frame.
+    Print the usual traceback information, followed by a listing of the
+    current values of variables visible to each frame.
+
+    l = pandokia.helpers.backtrace.exc( write=sys.stdout )
+        get stack trace as list
+
+    pandokia.helpers.backtrace.exc( write=sys.stdout )
+        show stack trace on stdout
+
+    l = pandokia.helpers.backtrace.exc( show_globals = False )
+        ignore global variables in the report
+
+    l = pandokia.helpers.backtrace.exc( ignore_vars = set( 'a', 'b' ) )
+        do not display variables named "a" and "b" in trace
+    
     """
 
     if ignore_vars is None :
         ignore_vars = default_ignore_vars
+    else :
+        ignore_vars = set( [ x for x in ignore_vars ])
     
     # get the location of the most recent exception
     excinfo = sys.exc_info()
@@ -31,42 +46,43 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
             break
         tb = tb.tb_next
 
-    # follow the frames backwards to find the top of the real stack
+    # Follow the frames backwards to find the top of the real stack.
+    # At the same time, gather a list of the frames (in reverse order).
     stack = []
     f = tb.tb_frame
     while f:
         stack.append(f)
-        print dir(f), f.f_code.co_name, f.f_lineno, f.f_trace
         f = f.f_back
+
+    # Reverse it (to get it in forward order).
     stack.reverse()
 
-    # get text of the exception
+    # Get text of the exception.
     exception_str = repr(excinfo[1])
 
-    # do not hang on to the excinfo
+    # Do not hang on to the excinfo; let the garbage collector have it.
     del excinfo
 
-    #
+    # rval is the list of lines to print for the report.
     rval = [ '', exception_str, '' ]
 
-    # now walking the stack
+    # now walking the stack, using the previously collected list.
     for frame in stack :
 
-        # frame = tb.tb_frame
         filename = frame.f_code.co_filename
         name = frame.f_code.co_name
 
         # note that frame.f_code.f_lineno has continued changing
-	    # during the code that eventually calls this function, so we
-	    # have to get it from the traceback.
-
-        # lineno = tb.tb_lineno
+	    # during the code that eventually calls this function.  We
+	    # have to get the line number from the traceback.
+        lineno = frame.f_lineno
 
         rval.append( "%s : %s - %s " % ( filename, lineno, name) )
 
-        # from traceback.py
+        # just like in traceback.py
         linecache.checkcache(frame.f_code.co_filename)
 
+        # but print a few lines before and after
         for x in range( max(lineno - 3, 0), lineno + 4 ) :
             line = linecache.getline(filename, x, frame.f_globals)
             if line:
@@ -108,7 +124,6 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
             rval.append(sss)
         
         rval.append('')
-        tb = tb.tb_next
 
     # duplicate the exception string at the end
     rval.append( exception_str )
