@@ -12,10 +12,15 @@ import nose.plugins.base # for the plugin interface
 import nose.case
 
 import unittest #for tda/tra stuff
-from StringIO import StringIO as p_StringO    #for stdout capturing
-from cStringIO import OutputType as c_StringO
 import traceback
 import platform
+
+if sys.version > '3':
+    from io import StringIO as p_StringO    #for stdout capturing
+    from io import OutputType as c_StringO
+else:
+    from StringIO import StringIO as p_StringO
+    from cStringIO import OutputType as c_StringO
 
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
@@ -119,7 +124,7 @@ class Pdk(nose.plugins.base.Plugin):
         hostname = platform.node()
         if '.' in hostname :
             hostname = hostname.split('.',1)[0]
-        if 'PDK_HOST' in os.environ.keys():
+        if 'PDK_HOST' in list(os.environ.keys()):
             hostname = os.environ['PDK_HOST']
 
         try:
@@ -157,7 +162,7 @@ class Pdk(nose.plugins.base.Plugin):
                 test_prefix = '',
                 )
 
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
@@ -250,22 +255,22 @@ class Pdk(nose.plugins.base.Plugin):
 
         if isinstance(test, nose.case.MethodTestCase):
             try:
-                tda = test.test.im_self.tda
+                tda = test.test.__self__.tda
             except AttributeError:
                 tda = dict()
 
             try:
-                tra = test.test.im_self.tra
+                tra = test.test.__self__.tra
             except AttributeError:
                 tra = dict()
 
         elif isinstance(test, nose.case.FunctionTestCase):
             try:
-                tda = test.test.func_globals['tda']
+                tda = test.test.__globals__['tda']
             except KeyError:
                 tda = dict()
             try:
-                tra = test.test.func_globals['tra']
+                tra = test.test.__globals__['tra']
             except KeyError:
                 tra = dict()
 

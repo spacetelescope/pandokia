@@ -61,7 +61,7 @@ def find_locations( file ) :
             location = find_module_location(x)
             l.append( location ) 
         except ImportError :
-            print "Cannot find module",x
+            print("Cannot find module",x)
             # we can't generate a test result of error because 
             # we don't know the test name
     f.close()

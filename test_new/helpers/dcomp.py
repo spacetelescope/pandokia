@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import pandokia.helpers.pycode as pycode
 import pandokia.helpers.dict_comp as dict_comp
 import pandokia.helpers.display as display
@@ -51,12 +53,12 @@ with pycode.test('flatten') :
         with pycode.test(name) as t :
             dict_out = dict_comp.flatten(dict_in)
             
-            print "IN"
-            print display.dprint(dict_in)
-            print "OUT"
-            print display.dprint(dict_out)
+            print("IN")
+            print(display.dprint(dict_in))
+            print("OUT")
+            print(display.dprint(dict_out))
 
-            print t.full_name
+            print(t.full_name)
 
     doit( 'a', dict_a)
 

@@ -2,6 +2,7 @@
 #
 # bug: this probably only works on unix.
 #
+from __future__ import print_function
 
 import subprocess
 import os
@@ -116,7 +117,7 @@ def start( args, env=None, callback=None, cookie=None, slot=None ) :
         slot = await_process_slot()
     assert process_slot[slot] is None 
 
-    print "START",args
+    print("START",args)
     proc_struct = _run_proc(args, env, slot)
 
     proc_struct.callback = callback
@@ -210,7 +211,7 @@ else :
         """
         try :
             (pid, status) = os.wait()
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.ECHILD :
                 #
                 # If there are no more child processes, everything must be done.
@@ -269,7 +270,7 @@ def _run_proc( args, env, slot ) :
 
     f_out.flush()
 
-    print args
+    print(args)
     if windows :
         # on Windows:
         #   shell=True to make it search the path
@@ -291,7 +292,7 @@ def _run_proc( args, env, slot ) :
 
 if __name__ == '__main__' :
     def print_count(cookie, status) :
-        print "callback",cookie, status, status >> 8
+        print("callback",cookie, status, status >> 8)
 
     count = 0
     for x in [

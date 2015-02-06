@@ -6,6 +6,7 @@
 #
 # sqlite3 database driver
 #
+from __future__ import print_function
 
 __all__ = [
     'db_module',
@@ -15,8 +16,12 @@ __all__ = [
     ]
 
 # system imports
+import sys
 import os
-import cStringIO
+if sys.version > '3':
+    import io as StringIO
+else:
+    import cStringIO as StringIO
 
 # need some common code
 import pandokia.db
@@ -124,9 +129,9 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # explain the query plan using the database-dependent syntax
     #
     def explain_query( self, text, query_dict=None ) :
-        print "TEXT",text
-        print "DICT", query_dict
-        f = cStringIO.StringIO()
+        print("TEXT",text)
+        print("DICT", query_dict)
+        f = StringIO.StringIO()
         c = self.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
         for x in c :
             f.write(str(x))

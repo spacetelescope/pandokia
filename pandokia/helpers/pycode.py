@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import os
 import pandokia.lib
 import datetime
@@ -130,7 +132,7 @@ class reporter(object) :
             # host - required
             #   what the user provided, else the real host name without the domain
             if host is None :
-                if 'PDK_HOST' in os.environ.keys():
+                if 'PDK_HOST' in list(os.environ.keys()):
                     host = os.environ['PDK_HOST']
                 else:
                     host = pandokia.lib.gethostname()
@@ -257,8 +259,11 @@ class reporter(object) :
 ###
 
 # intentionally not using cStringIO
-import StringIO
 import sys
+if sys.version > '3':
+    import io
+else:
+    import StringIO as io
 
 save_stdout= [ ] 
 save_stderr= [ ]
@@ -270,7 +275,7 @@ def snarf_stdout( tagname=None ) :
     save_stderr.append( sys.stderr )
     save_tagname.append( tagname )
 
-    sys.stdout = sys.stderr = StringIO.StringIO()
+    sys.stdout = sys.stderr = io.StringIO()
 
 def end_snarf_stdout( tagname=None ) :
     s = sys.stdout.getvalue()
@@ -291,7 +296,7 @@ def end_snarf_stdout( tagname=None ) :
 
 def peek_snarfed_stdout() :
     'returns current text of snarfed stdout, non-destructively'
-    if isinstance(sys.stdout, StringIO.StringIO ) :
+    if isinstance(sys.stdout, io.StringIO ) :
         return sys.stdout.getvalue()
     else :
         return None
@@ -378,7 +383,7 @@ class _pycode_with(object) :
         try :
             runner_minipyt
         except NameError :
-            import runner_minipyt as m
+            from . import runner_minipyt as m
             runner_minipyt = m
 
         # name is just our base name.
@@ -506,7 +511,7 @@ class _pycode_with(object) :
         # If there was a fail/error, show the exception and the
         # stack trace in the log
         if status != 'P' :
-            print str(exvalue)
+            print(str(exvalue))
             traceback.print_tb( extraceback )
 
         # capture the log
@@ -570,14 +575,14 @@ def package_test( parent, test_package, test_modules, verbose=False, silent=Fals
     for x in test_modules :
         x = parent + '.' +  test_package + '.' + x
         with test(x) as t :
-            exec "import %s" % x
+            exec("import %s" % x)
     passed = cached_rpt.status_count.get('P',0)
     failed = cached_rpt.status_count.get('F',0)
     error  = cached_rpt.status_count.get('E',0)
 
     if not silent :
-        print cached_rpt.report_view_sep
-        print "Pass: %d  Fail: %d  Error: %d"%( passed, failed, error )
+        print(cached_rpt.report_view_sep)
+        print("Pass: %d  Fail: %d  Error: %d"%( passed, failed, error ))
 
     if ( failed == 0 ) and ( error == 0 ) :
         return 0

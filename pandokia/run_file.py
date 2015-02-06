@@ -78,7 +78,7 @@ def read_runner_glob ( dirname ) :
     # read the pdk_runners from the directory we are interested in.
     try :
         f=open(dirname+"/pdk_runners","r")
-    except IOError, e :
+    except IOError as e :
         if e.errno == errno.ENOENT :
             return parent_list
         raise
@@ -152,7 +152,7 @@ def get_prefix( envgetter, dirname ) :
     if prefix.startswith("/") or prefix.startswith("\\") :
         prefix = prefix[1:]
 
-    if 'PDK_TESTPREFIX' in os.environ :
+    if 'PDK_TESTPREFIX' in list(os.environ.keys()) :
         e = os.environ['PDK_TESTPREFIX'] 
         if not ( e.endswith('/') or e.endswith('.') ) :
             e += '/'
@@ -250,7 +250,7 @@ def run( dirname, basename, envgetter, runner ) :
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
-                print 'COMMAND :', repr(thiscmd), '(for file %s)'% full_filename, datetime.datetime.now()
+                print('COMMAND :', repr(thiscmd), '(for file %s)'% full_filename, datetime.datetime.now())
                 sys.stdout.flush()
                 sys.stderr.flush()
                 if windows :
@@ -277,7 +277,7 @@ def run( dirname, basename, envgetter, runner ) :
                     if 'PDK_TIMEOUT' in env :
                         proc_timeout_start(env['PDK_TIMEOUT'], p)
                         status = p.wait()
-                        print "return from wait, status=",status
+                        print("return from wait, status=",status)
                         proc_timeout_terminate()
                         if timeout_proc_kills > 0 :
                             # we tried to kill it for taking too long -
@@ -297,7 +297,7 @@ def run( dirname, basename, envgetter, runner ) :
                     # subprocess does not tell you if there was a core
                     # dump, but there is nothing we can do about it.
 
-                print "COMMAND EXIT:",status,datetime.datetime.now()
+                print("COMMAND EXIT:",status,datetime.datetime.now())
 
         else :
             # BUG: no timeout! - fortunately, this is a minor issue
@@ -310,9 +310,9 @@ def run( dirname, basename, envgetter, runner ) :
             # this file is executing in, which is normally not
             # preferred because a problem in the test runner, or even
             # in the test, could potentially kill the pandokia meta-runner.
-            print "RUNNING INTERNALLY (for file %s)"%full_filename
+            print("RUNNING INTERNALLY (for file %s)"%full_filename)
             runner_mod.run_internally(env)
-            print "DONE RUNNING INTERNALLY"
+            print("DONE RUNNING INTERNALLY")
 
         stat_summary = { }
         for x in pandokia.cfg.statuses :
@@ -338,7 +338,7 @@ def run( dirname, basename, envgetter, runner ) :
             f.close()
 
         common.print_stat_dict( stat_summary )
-        print ""
+        print("")
         if summary_file : 
             # The summary file has a similar format to the log, but there is
             # a "START" line after each record.   If somebody accidentally 
@@ -352,7 +352,7 @@ def run( dirname, basename, envgetter, runner ) :
             f.close()
 
     else :
-        print "NO RUNNER FOR",dirname +"/"+basename,"\n"
+        print("NO RUNNER FOR",dirname +"/"+basename,"\n")
 
     os.chdir(save_dir)
 
@@ -429,11 +429,11 @@ else :
     # Kill the process group, but no error if it does not exist.  (In case
     # it exited before we got here.)
     def killpg_maybe( pid, signal ) :
-        print "killpg -%d %d"%(signal,pid)
+        print("killpg -%d %d"%(signal,pid))
         try :
             os.killpg( pid, signal )
-        except OSError, e:
-            print "killpg exception:",e
+        except OSError as e:
+            print("killpg exception:",e)
             if e.errno != errno.ESRCH :
                 raise
 
@@ -445,12 +445,12 @@ else :
         global timeout_proc_kills
         if timeout_proc :
             pid = timeout_proc.pid
-            print "PID=%d"%pid
+            print("PID=%d"%pid)
             sys.stdout.flush()
             if timeout_proc_kills == 0 :
                 os.system('ps -fp %s' %pid)
                 sys.stdout.flush()
-                print "timeout expired - terminate after %s"%str(timeout_duration)
+                print("timeout expired - terminate after %s"%str(timeout_duration))
                 sys.stdout.flush()
                 os.system('top -b -n 1')
                 sys.stdout.flush()
@@ -463,10 +463,10 @@ else :
                 killpg_maybe( pid, signal.SIGTERM )
                 os.system('top -b -n 1')
             elif timeout_proc_kills == 1 :
-                print "timeout expired again - kill"
+                print("timeout expired again - kill")
                 killpg_maybe( pid, signal.SIGKILL )
             elif timeout_proc_kills == 2 :
-                print "timeout expired yet again - now what?"
+                print("timeout expired yet again - now what?")
                 raise timeout_not_going_away()
 
             timeout_proc_kills += 1

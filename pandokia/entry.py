@@ -62,6 +62,8 @@ pdk webserver
 fuller documentation is available at http://ssb.stsci.edu/testing/pandokia/
 
 '''
+from __future__ import print_function
+
 import os
 import sys
 
@@ -81,7 +83,7 @@ def run( argv = sys.argv ) :
     # Ok, not a CGI, so it must be a command line of the form
     # pdk command [ args ]
     if len(argv) < 1 :
-        print __doc__
+        print(__doc__)
         return
 
     cmd = argv[1]
@@ -124,7 +126,7 @@ def run( argv = sys.argv ) :
         f= pandokia.cfg.__file__
         if f.endswith(".pyc") or f.endswith(".pyo") :
             f = f[:-1]
-        print f
+        print(f)
         return 0
 
     if cmd == 'delete' :
@@ -156,7 +158,7 @@ def run( argv = sys.argv ) :
         return x.export_environment(args)
 
     if cmd == 'help' or cmd == '-h' or cmd == '--help' :
-        print __doc__
+        print(__doc__)
         return
 
     if cmd == 'import' :
@@ -195,8 +197,8 @@ def run( argv = sys.argv ) :
 
     if cmd == 'version' or cmd == '--version' or cmd == '-v' or cmd == '-V' :
         import pandokia
-        print "pandokia",pandokia.__version__
-        print os.path.dirname(pandokia.__file__)
+        print("pandokia",pandokia.__version__)
+        print(os.path.dirname(pandokia.__file__))
         return 0
 
     if cmd == 'webserver' :
@@ -205,7 +207,7 @@ def run( argv = sys.argv ) :
 
     if cmd == 'maker' :
         import pandokia.runners as x
-        print os.path.join( os.path.dirname(x.__file__), 'maker' )
+        print(os.path.join( os.path.dirname(x.__file__), 'maker' ))
         return 0
 
     if cmd == 'query' :

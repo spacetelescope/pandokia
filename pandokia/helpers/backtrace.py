@@ -73,8 +73,8 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
         name = frame.f_code.co_name
 
         # note that frame.f_code.f_lineno has continued changing
-	    # during the code that eventually calls this function.  We
-	    # have to get the line number from the traceback.
+        # during the code that eventually calls this function.  We
+        # have to get the line number from the traceback.
         lineno = frame.f_lineno
 
         rval.append( "%s : %s - %s " % ( filename, lineno, name) )
@@ -92,15 +92,15 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
                     rval.append(' .' + line[:-1])
         rval.append('')
 
-	    # want to explain which are global and which are local; get
-	    # all keys of all variables, sorted.
+        # want to explain which are global and which are local; get
+        # all keys of all variables, sorted.
         if show_globals :
             g = frame.f_globals
         else :
             g = { }
         l = frame.f_locals
 
-        keys = sorted( set( l.keys() + g.keys() ) - ignore_vars )
+        keys = sorted( set( list(l.keys()) + list(g.keys()) ) - ignore_vars )
 
         # show them
         for key in keys :
@@ -175,12 +175,12 @@ if __name__ == '__main__':
 
     def cause_exc() :
         try:
-            print "HERE"
+            print("HERE")
             pad4(data)
-            print "STILL HERE"
+            print("STILL HERE")
         except:
             for x in exc() :
-                print x
+                print(x)
 
     # cause_exc()
 

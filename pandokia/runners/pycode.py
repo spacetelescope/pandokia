@@ -17,7 +17,7 @@ def command( env ) :
     name=os.path.basename(env['PDK_FILE'])
     if name.endswith('.py') :
         name = name[:-3]
-        print name
+        print(name)
     else :
         raise AssertionError('pycode test %s: python file names must end .py' %env['PDK_FILE'])
     return 'python -c "import %s as t; t.pycode(1)"'%name

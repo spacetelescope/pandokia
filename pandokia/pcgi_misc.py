@@ -2,21 +2,20 @@
 # pandokia - a test reporting and execution system
 # Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
 #
+from __future__ import absolute_import, print_function
 
 import sys
 import cgi
 
-import urllib
-
 import pandokia
 import pandokia.pcgi
-import common
+from . import common
 
 def hostinfo( ) :
 
     admin = common.current_user() in common.cfg.admin_user_list 
 
-    print common.cgi_header_html
+    print(common.cgi_header_html)
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
@@ -27,16 +26,16 @@ def hostinfo( ) :
         if description is None :
             description = ''
 
-        print '<b>%s</b><br>'%cgi.escape(host)
+        print('<b>%s</b><br>'%cgi.escape(host))
 
         cols = len(os)
         if cols < 40 :
             cols = 40
         if admin :
-            print "<form action=%s method=POST>"%common.get_cgi_name()
-            print "<input type=hidden name=query value=set_hostinfo>"
-            print "<input type=hidden name=host value=%s>"%host
-        print '<input type=text cols=%d name=os value="%s">'%(cols,cgi.escape(os,True))
+            print("<form action=%s method=POST>"%common.get_cgi_name())
+            print("<input type=hidden name=query value=set_hostinfo>")
+            print("<input type=hidden name=host value=%s>"%host)
+        print('<input type=text cols=%d name=os value="%s">'%(cols,cgi.escape(os,True)))
 
         l = [ len(s) for s in description.split('\n') ]
         cols = max(l)
@@ -45,10 +44,10 @@ def hostinfo( ) :
         rows = len(l)
         if rows < 4 :
             rows = 4
-        print "<br><textarea name=description rows=%d cols=%d>%s</textarea>"%(rows,cols, cgi.escape(description))
+        print("<br><textarea name=description rows=%d cols=%d>%s</textarea>"%(rows,cols, cgi.escape(description)))
         if admin :
-            print "<br><input type=submit value='change'>"
-            print "</form>"
+            print("<br><input type=submit value='change'>")
+            print("</form>")
 
 def set_hostinfo() :
 
@@ -58,7 +57,7 @@ def set_hostinfo() :
         pandokia.pcgi.error_1201()
         return
 
-    print "content-type: text/plain\n"
+    print("content-type: text/plain\n")
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
     os = input_query['os'][0]
@@ -69,7 +68,7 @@ def set_hostinfo() :
     pandokia.cfg.pdk_db.execute("INSERT INTO hostinfo ( os, description, hostname ) VALUES ( :1, :2, :3 )",(os, description, host))
     pandokia.cfg.pdk_db.commit()
 
-    print (os, description, host)
+    print((os, description, host))
 
 
 def expected() :
@@ -124,13 +123,13 @@ def expected() :
 
     tbl.pad()
     if format == 'html' :
-        print "content-type: text/html\n"
-        print "<h2>Expected test summary</h2>"
+        print("content-type: text/html\n")
+        print("<h2>Expected test summary</h2>")
         tbl.set_html_table_attributes(' border=1 ')
-        print tbl.get_html(headings=1)
+        print(tbl.get_html(headings=1))
     else :
-        print "content-type: text/plain\n"
-        print tbl.get(format=format, headings=1)
+        print("content-type: text/plain\n")
+        print(tbl.get(format=format, headings=1))
 
 def latest() :
     import pandokia.text_table as text_table

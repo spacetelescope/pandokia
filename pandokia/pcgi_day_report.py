@@ -11,7 +11,6 @@ import copy
 import time
 
 import pandokia.text_table as text_table
-import urllib
 import pandokia.lib as lib
 
 import pandokia
@@ -34,7 +33,7 @@ def rpt1(  ) :
 
     form = pandokia.pcgi.form
 
-    if form.has_key("test_run") :
+    if "test_run" in form :
         test_run = form["test_run"].value
     else :
         test_run = '*'
@@ -176,7 +175,7 @@ def rpt2( ) :
 
     form = pandokia.pcgi.form
 
-    if form.has_key("test_run") :
+    if "test_run" in form :
         test_run = form["test_run"].value
     else :
         # no parameter?  I think somebody is messing with us...
@@ -193,16 +192,16 @@ def rpt2( ) :
     context = None
     chronic = '0'
 
-    if form.has_key("project") :
+    if "project" in form :
         projects = form.getlist("project")
 
-    if form.has_key("host") :
+    if "host" in form :
        host = form.getlist("host")
 
-    if form.has_key("context") :
+    if "context" in form :
        context = form.getlist("context")
 
-    if form.has_key("chronic") :
+    if "chronic" in form :
        chronic = form.getlist("chronic")[0]
 
     c = pdk_db.execute("SELECT note, valuable FROM distinct_test_run WHERE test_run = :1",(test_run,))

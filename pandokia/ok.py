@@ -11,6 +11,7 @@
 # by spaces.  The first field is the name of the output file, and the
 # second field is the name of the reference file.  If the second field
 # is missing, the reference file has the same name in the directory "ref/".
+from __future__ import print_function
 
 from optparse import OptionParser
 import datetime, os, re, shutil, sys
@@ -34,7 +35,7 @@ if not os.path.exists(old_pdk_updates):
     try:
         os.makedirs(old_pdk_updates)
     except:
-        print 'couldn\'t make directory %s' %old_pdk_updates
+        print('couldn\'t make directory %s' %old_pdk_updates)
 
 
 
@@ -75,12 +76,12 @@ def run(args):
 
     # validate user input
     if opt.process_webfile and len(args) < 1:
-        print 'ERROR: missing argument (hostname.ok)'
+        print('ERROR: missing argument (hostname.ok)')
         sys.exit(1)
 
     fn = None
     if len(args) > 1:
-        print 'ERROR: too many arguments'
+        print('ERROR: too many arguments')
         sys.exit(1)
     elif len(args) == 1:
         fn = args[0]
@@ -129,19 +130,19 @@ def process_webfile(opt, fn):
         elif len(parts) == 1:
             okfile = ln
             if not web_re.match(okfile):
-                print 'invalid okfile %s %s %s' %(T['ip'], T['user'], okfile)
+                print('invalid okfile %s %s %s' %(T['ip'], T['user'], okfile))
                 err += 1
                 continue
             else:
                 T['okfiles'].append(ln)
         else:
-            print 'invalid input in web file: %s' %ln
+            print('invalid input in web file: %s' %ln)
             err += 1
     transactions.append(T)
 
 
     ref_repo = False
-    if 'PDK_REFS' in os.environ.keys():
+    if 'PDK_REFS' in list(os.environ.keys()):
         PDK_REFS = os.environ['PDK_REFS']
         ref_repo = True
         if opt.commit:
@@ -149,8 +150,8 @@ def process_webfile(opt, fn):
             # repository before we process the transactions, in case there are
             # any uncommitted changes
             cmd = 'svn commit %s -m "committing uncommitted references"' %PDK_REFS
-            print
-            print cmd
+            print()
+            print(cmd)
             ret = os.system(cmd)
             if not ret == 0:
                 err += 1
@@ -178,7 +179,7 @@ def process_webfile(opt, fn):
             # add reference files, in case they are new
             for r in refs_to_commit:
                 cmd = 'svn add -q %s --parents' %r
-                print cmd
+                print(cmd)
                 ret = os.system(cmd)
                 if not ret == 0:
                     err += 1
@@ -201,8 +202,8 @@ def process_webfile(opt, fn):
                     t['qid'],
                     t['comment']
                 )
-            print
-            print cmd
+            print()
+            print(cmd)
             ret = os.system(cmd)
             if not ret == 0:
                 err += 1
@@ -210,9 +211,9 @@ def process_webfile(opt, fn):
     try:
         os.rename(fn, fn + old)
         os.system('mv %s %s' %(fn + old, old_pdk_updates))
-    except Exception, e:
-        print 'failed to backup %s' %fn
-        print e
+    except Exception as e:
+        print('failed to backup %s' %fn)
+        print(e)
         err += 1
 
     return err
@@ -263,7 +264,7 @@ def process_database(opt):
                         do_ok = False
 
                 if do_ok:
-                    if host not in trans['hosts'].keys():
+                    if host not in trans['hosts']:
                         trans['hosts'][host] = []
                     trans['hosts'][host].append(okfile)
 
@@ -285,7 +286,7 @@ def process_database(opt):
             file = open(fn, 'a')
             file.write('\n'.join(lines))
             file.close()
-            print 'generated %s' %fn
+            print('generated %s' %fn)
 
     # loop over ok_transactions again and see if all associated ok_items have
     # been done; if so, mark transaction status = done
@@ -306,12 +307,12 @@ def process_database(opt):
 def process_okfile(opt, fn, return_refs = False):
     try:
         file = open(fn)
-    except Exception, e:
-        print '\tcannot open %s' %fn
-        print '\t', e
+    except Exception as e:
+        print('\tcannot open %s' %fn)
+        print('\t', e)
         return 1, None
 
-    print '\tokfile: %s' %fn
+    print('\tokfile: %s' %fn)
 
     dirname = os.path.dirname(fn)
 
@@ -323,7 +324,7 @@ def process_okfile(opt, fn, return_refs = False):
             continue
         line = line.split()
         if not len(line) == 2:
-            print '\tinvalid input in okfile %s: %s' %(fn, line)
+            print('\tinvalid input in okfile %s: %s' %(fn, line))
             err += 1
             continue
 
@@ -343,9 +344,9 @@ def process_okfile(opt, fn, return_refs = False):
 
     try:
         os.unlink(fn)
-    except IOError, e:
-        print '\tcannot remove %s' %fn
-        print '\t', e
+    except IOError as e:
+        print('\tcannot remove %s' %fn)
+        print('\t', e)
         err += 1
 
     if return_refs:
@@ -368,7 +369,7 @@ def doit(src, dest, verbose) :
     # still represent the real problem that the user needs to know about.
 
     if not os.path.exists(src):
-        print "source (output from test) does not exist:",src
+        print("source (output from test) does not exist:",src)
         return 1
 
     # Make sure the "old" reference file is not there.  If you do multiple
@@ -382,10 +383,10 @@ def doit(src, dest, verbose) :
     try :
         os.rename(dest, dest+old)
 
-    except Exception, e:
+    except Exception as e:
         if os.path.exists(dest) :
-            print "cannot rename",dest," to ",dest+old
-            print e
+            print("cannot rename",dest," to ",dest+old)
+            print(e)
             return 1
 
     # The destination file must not be there.
@@ -418,10 +419,10 @@ def doit(src, dest, verbose) :
     # ok, maybe not, but maybe we can copy the file
     try :
         shutil.copyfile(src, dest)
-    except IOError, e :
+    except IOError as e :
         # ok, we are now out of options - it didn't work
-        print "cannot copy",src,"to",dest
-        print e
+        print("cannot copy",src,"to",dest)
+        print(e)
 
     return 1
 

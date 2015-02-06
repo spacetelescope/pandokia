@@ -32,7 +32,7 @@ import pandokia.helpers.pycode as pycode
 """
     
 
-from __future__ import division
+
 import os
 import sys
 import glob
@@ -43,8 +43,10 @@ import numbers
 from   pandokia.helpers.filecomp import safe_rm
 import pandokia.helpers.display as display
 
-# looking ahead to python 3
-string_type = basestring
+if sys.version > '3':
+	string_type = str
+else:
+	string_type = basestring
 
 ##########
 #
@@ -136,7 +138,7 @@ def write_output( file_base, data_dict, interesting_fields ) :
 def read_reference( fn ) :
     try :
         fp = open(fn,"r")
-    except IOError, e :
+    except IOError as e :
         if e.errno == errno.ENOENT :
             raise NoReferenceFile(fn)
         raise
@@ -318,7 +320,7 @@ def dictionary_comp(
                         this_fail = True
 
                 # If the reference is zero, use absolute difference instead.
-                except ZeroDivisionError, e:
+                except ZeroDivisionError as e:
                     discrep = ( data - ref )
                     if (abs(discrep) > tol):
                         failed.append(k)
@@ -332,8 +334,8 @@ def dictionary_comp(
                 this_fail = True
 
         ## comparing non-number, non-string, non-dict, non-list
-	    ## If you use json for your data, this just means booleans
-	    ## or two different types
+        ## If you use json for your data, this just means booleans
+        ## or two different types
         else:
             # neither string nor number - all we have for comparing is equality
             if data != ref :
@@ -346,7 +348,7 @@ def dictionary_comp(
             fail = True
 
         # Report this element in the tra if it failed, or if we are
-	    # reporting all elements.
+        # reporting all elements.
         if this_fail or not fail_only :
             # Report the computed value and the reference value as tra.
             tra[k]=str(data)
@@ -405,15 +407,15 @@ def dictionary_comp(
             if k in failed_set :
                 tt.set_value( row, 'F', '*' )
 
-        print tt.get_rst(headings=1)
+        print(tt.get_rst(headings=1))
 
         if missing:
             m=list(missing)
             m.sort()
-            print "Missing keys:", m
+            print("Missing keys:", m)
 
         if fail :
-            print "FAILED"
+            print("FAILED")
 
     if no_reference_file:
         raise no_reference_file

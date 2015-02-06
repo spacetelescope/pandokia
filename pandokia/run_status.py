@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import platform
 
@@ -243,7 +245,7 @@ else :
             m = status_block('pdk_statusfile')
             m.set_my_record(int(s))
             while 1 :
-                print ">"
+                print(">")
                 l = sys.stdin.readline().strip()
                 if l[0] in '0123456789' :
                     n = int(l.split()[0])
@@ -251,7 +253,7 @@ else :
                 elif l[0] == 's' :
                     m.set_status_text(l[1:])
                 else :
-                    print "?"
+                    print("?")
 
 
     import time
@@ -267,7 +269,7 @@ else :
         '''
 
         # If we don't have a statusfile, it doesn't matter
-        if not 'PDK_STATUSFILE' in os.environ :
+        if not 'PDK_STATUSFILE' in list(os.environ.keys()) :
             return
 
         # If we don't want one for some reason
@@ -276,7 +278,7 @@ else :
 
         # find what slot we are in
         if slot is None :
-            if 'PDK_PROCESS_SLOT' in os.environ :
+            if 'PDK_PROCESS_SLOT' in list(os.environ.keys()) :
                 slot = int( os.environ['PDK_PROCESS_SLOT'] )
             else :
                 slot = 0

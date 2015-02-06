@@ -41,7 +41,7 @@ def do_export( output, where_text, where_dict ) :
 
     # fields_zip is the index in the returned record of each name in fields
     # it is 1+ because key_id is not listed
-    fields_zip = zip( range(1,1+len(fields)), fields )
+    fields_zip = list(zip( list(range(1,1+len(fields))), fields ))
 
     # tell the reader to forget any defaults
     output.write( "START\n" )

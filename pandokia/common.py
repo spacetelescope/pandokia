@@ -6,15 +6,22 @@
 #
 # common.py - bunch of library functions used by parts of pandokia
 #
+from __future__ import print_function
 
-import cStringIO
+import sys
 import datetime
 import time
 import os
 import os.path
 import re
-import urllib
 import types
+
+if sys.version > '3':
+    import io as StringIO
+    import urllib.parse as url_parse
+else:
+    import cStringIO as StringIO
+    import urllib as url_parse
 
 import pandokia
 cfg = pandokia.cfg
@@ -36,7 +43,7 @@ def check_auth() :
 
     # If the web server checked them with BasicAuth, we will use that:
 
-    if ( "AUTH_TYPE" in os.environ ) and ( os.environ["AUTH_TYPE"] == 'Basic' ) :
+    if ( "AUTH_TYPE" in lis(os.environ.keys()) ) and ( os.environ["AUTH_TYPE"] == 'Basic' ) :
         if cfg.user_list is None :
             # If there is no user_list in the config, any authenticated user is accepted.
             auth_ok = 1
@@ -71,7 +78,7 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    l = [ 'query=' + urllib.quote_plus(linkmode) ]
+    l = [ 'query=' + url_parse.quote_plus(linkmode) ]
     for i in sorted(query_dict.keys()) :
         v = query_dict[i]
         if v is None :
@@ -79,7 +86,7 @@ def selflink( query_dict, linkmode ) :
         if not isinstance(v,list) :
             v = [ v ]
         for v in v :
-            l.append( i + '=' + urllib.quote_plus(str(v)) )
+            l.append( i + '=' + url_parse.quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
 #
@@ -131,7 +138,7 @@ def expand_test_run( run ) :
     if run != s :
         return s
     where_str, where_dict = pandokia.cfg.pdk_db.where_dict( [ ( 'test_run', run ) ] )
-    print 'SELECT test_run FROM distinct_test_run %s' % where_str
+    print('SELECT test_run FROM distinct_test_run %s' % where_str)
     c = pandokia.cfg.pdk_db.execute( 'SELECT test_run FROM distinct_test_run %s' % where_str, where_dict )
     l = [ ]
     for x, in c :
@@ -310,7 +317,7 @@ def get_contact( project, test_name, mode='str') :
 var_pattern = re.compile("(%[^;]*);")
 
 def expand(text, dictlist = [ ] , valid = None, format='' ) :
-    result = cStringIO.StringIO()
+    result = StringIO.StringIO()
     textlist = re.split(var_pattern, text)
     for x in textlist :
         if x.startswith('%') :
@@ -337,10 +344,14 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
                 if this_format == '' or this_format == 'text' :
                     result.write(str(val))
                 elif this_format == 'cgi' :
-                    if isinstance(val, basestring) :
-                        val = urllib.quote_plus(val)
+                    if sys.version > '3':
+                        is_string = isinstance(val, str)
+                    else:
+                        is_string = isinstance(val, basestring)
+                    if is_string :
+                        val = url_parse.quote_plus(val)
                     else :
-                        val = urllib.urlencode(val)
+                        val = url_parse.urlencode(val)
                     result.write(val)
                 elif this_format == 'html' :
                     val = cgi.escape(str(val),quote=True)
@@ -386,7 +397,7 @@ cgi_header_html = "content-type: text/html\n\n"
 current_user_name = None
 
 def current_user() :
-    if 'REMOTE_USER' in os.environ :
+    if 'REMOTE_USER' in list(os.environ.keys()) :
         return os.environ["REMOTE_USER"]
     return 'Nobody'
 
@@ -624,9 +635,9 @@ def print_stat_dict(stat_summary) :
                     name = pandokia.cfg.status_names.get(x,x)
                     s.append( "%s=%d"%(name, stat_summary[x]) )
         if len(s) > 0 :
-            print " ".join(s)
+            print(" ".join(s))
         else :
-            print "Nothing to report"
+            print("Nothing to report")
 
 ######
 

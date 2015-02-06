@@ -2,6 +2,7 @@
 # pandokia - a test reporting and execution system
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
 #
+from __future__ import absolute_import, print_function
 
 import sys
 import cgi
@@ -10,14 +11,17 @@ import copy
 import time
 import os
 
-import urllib
+if sys.version > '3':
+    import urllib.parse as url_parse
+else:
+    import urllib as url_parse
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
-import common
+from . import common
 
 
 # the left-pointing arrow that appears where we offer to remove a
@@ -51,7 +55,7 @@ def treewalk ( ) :
     # gather up all the expected parameters
     #
 
-    if form.has_key("test_name") :
+    if "test_name" in form :
         test_name = form["test_name"].value
         if test_name == '' :
             test_name = '*'
@@ -196,7 +200,7 @@ def treewalk ( ) :
         row = row + 1
 
 
-    print header_table.get_html()
+    print(header_table.get_html())
 
     ### start of "Test Prefix: line"
 
@@ -244,8 +248,8 @@ def treewalk ( ) :
     ### end of "Test Prefix: line"
 
     ### offer the form to compare with other runs
-    print cmp_form(query, comparing)
-    print "<p>"
+    print(cmp_form(query, comparing))
+    print("<p>")
 
     ### show the table
 
@@ -389,7 +393,7 @@ def treewalk ( ) :
             if x is None :
                 continue
             lquery[field] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
+            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+url_parse.urlencode(lquery)+"'>"+x+"</a><br>")
 
 
     output.write("")
@@ -453,12 +457,12 @@ def linkout( ) :
             ( now, expire ) )
         newqid = c.lastrowid
 
-    print "content-type: text/plain\n"
-    print "QID ",newqid
+    print("content-type: text/plain\n")
+    print("QID ",newqid)
     pdk_db.commit()
 
     if oldqid is not None :
-        print "WITH QID=",oldqid
+        print("WITH QID=",oldqid)
         more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(oldqid)
     else :
         more_where = None
@@ -496,7 +500,7 @@ def linkout( ) :
 
     url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
 
-    if form.has_key('add_attributes') :
+    if 'add_attributes' in form :
         x = int(form['add_attributes'].value)
         if x :
             url += ('&show_attr=%d'%x)

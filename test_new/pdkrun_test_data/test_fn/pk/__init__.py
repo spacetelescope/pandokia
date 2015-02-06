@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 def test_pytest( verbose=False ) :
     #
     import os, sys, pytest
@@ -48,12 +50,12 @@ def test_pycode( verbose=False ) :
     )
 
 def test( verbose=False ) :
-    print "PYCODE"
+    print("PYCODE")
     pc = test_pycode(verbose)
-    print "NOSE"
+    print("NOSE")
     no = test_nose(verbose)
-    print "PYTEST"
+    print("PYTEST")
     pt = test_pytest(verbose)
-    print "FINISHED"
+    print("FINISHED")
     return pt | no | pc
 

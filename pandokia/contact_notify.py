@@ -215,7 +215,7 @@ def formatlist(inlist,failcount,hostcount,hostfail,limit_to_project=None):
     """
 
     #Get the max width for each case so we can prettyprint
-    cols=zip(*inlist)
+    cols=list(zip(*inlist))
 
     # ???
     maxwid=[str(max([len(x) for x in c])) for c in cols]

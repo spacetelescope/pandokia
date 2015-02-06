@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import time
 import pandokia.helpers.minipyt as mph
@@ -19,8 +21,8 @@ mkfile('30m', 1800)
 mkfile('1d', 86400 * 2)
 
 # take int to make the text compare of the log file work
-print "60m age:",int(fc.file_age('60m'))
-print "30m age:",int(fc.file_age('30m'))
+print("60m age:",int(fc.file_age('60m')))
+print("30m age:",int(fc.file_age('30m')))
 
 @mph.test
 def f_older_p() :

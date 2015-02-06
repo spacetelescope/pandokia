@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pandokia.helpers.minipyt as mpt
 
 
@@ -29,16 +30,16 @@ class init_e(object) :
 class base(object) :
     minipyt_test = 0
     def __init__(self) :
-        print "__init__",str(self)
+        print("__init__",str(self))
 
     def __del__(self) :
-        print "__del__",str(self)
+        print("__del__",str(self))
 
     def setUp(self) :
-        print "setUp"
+        print("setUp")
 
     def tearDown(self) :
-        print "tearDown"
+        print("tearDown")
 
     def test_p1(self) :
         assert True

@@ -1,6 +1,7 @@
 #
 # This is an example pandokia pycode test.
 
+from __future__ import print_function
 import datetime # needed for this example, but not necessarily always
 
 import pandokia.helpers.pycode
@@ -24,7 +25,7 @@ def pycode(mode) :
     if mode != 1 :
         raise AssertionError("Do not know pycode mode %s"%str(mode))
 
-    print "Beginning pycode tests"
+    print("Beginning pycode tests")
 
     ####
     # initialize for reporting - if pandokia is running your tests
@@ -62,5 +63,5 @@ def pycode(mode) :
 
     ####
     #
-    print "Finished pycode tests"
+    print("Finished pycode tests")
 

@@ -6,13 +6,18 @@
 
 #-----------------------------------80 cols-------------------------------------##################### 132 cols #####################
 # text_table
+from __future__ import print_function
 
 __all__ = [ "text_table" ]
 
-import cStringIO as StringIO
+import sys
 import cgi
-import urllib
 import csv
+
+if sys.version > '3':   
+    import io as StringIO
+else:
+    import cStringIO as StringIO
 
 #
 # A text_table contains a list of text_table_row.  
@@ -305,7 +310,7 @@ class text_table :
             o = self._row_col_cell(row, col)
             try :
                 o.sort_key = func(o.text)
-            except Exception, e :
+            except Exception as e :
                 o.sort_key = o.text
                 fail = fail + 1
         conv = len(self.rows) - fail
@@ -845,24 +850,24 @@ if __name__ =="__main__":
     t.pad()
 
 
-    print ""
+    print("")
     s = t.get_html()
-    print s
-    print ""
+    print(s)
+    print("")
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
+    print("")
     t.sort( [ -1,2 ] )
     s = t.get_awk()
-    print s
-    print ""
+    print(s)
+    print("")
     t.sort( [ 0 ] )
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
-    print t.get_csv()
+    print("")
+    print(t.get_csv())
 
     t = text_table()
     t.set_value(0,0,'4')
@@ -874,21 +879,21 @@ if __name__ =="__main__":
     t.set_value(6,0,'B')
     t.set_value(7,0,'A')
     t.set_sort_key(0, float)
-    print "XX"
-    print t.get_awk()
-    print "XX"
+    print("XX")
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=True )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=False )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     
-    print ""
+    print("")
     s = t.get_rst()
-    print s
+    print(s)
 
-    print ""
+    print("")
     s = t.get_trac_wiki()
-    print s
+    print(s)
 

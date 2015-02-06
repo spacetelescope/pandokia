@@ -1,5 +1,6 @@
 
 # a place for testing little hacks - this is whatever I wanted to try out today
+from __future__ import print_function
 
 import pandokia
 import pandokia.text_table
@@ -25,4 +26,4 @@ def run(args ) :
 
     t = cursor_to_table( c )
 
-    print t.get_rst()
+    print(t.get_rst())

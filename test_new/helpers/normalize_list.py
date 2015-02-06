@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import json
 import pprint
 import difflib
@@ -17,7 +19,7 @@ with pycode.test('normalize_tuples') :
 
     result = json.dumps( l, indent=4, sort_keys=True, default=str )
 
-    print result
+    print(result)
 
     ref = """
 [

@@ -1,9 +1,10 @@
+from __future__ import print_function
 import random
 import unittest2
 
 This line causes a syntax error on import!
 
-print "this is a print statement that runs when import_fail.py is imported"
+print("this is a print statement that runs when import_fail.py is imported")
 
 class TestSequenceFunctions(unittest2.TestCase):
 

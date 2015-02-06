@@ -92,7 +92,7 @@ def run(args) :
             # when you run ps
             pass
         elif opt == '--help':
-            print helpstr
+            print(helpstr)
             return ( 0, { } )
         elif opt == '--log' :
             log = optarg
@@ -134,7 +134,7 @@ def run(args) :
     os.environ['PDK_HOST'] = host
 
     initialized_status_file = 0
-    if not 'PDK_STATUSFILE' in os.environ :
+    if not 'PDK_STATUSFILE' in list(os.environ.keys()) :
         status_file_name = os.getcwd() + '/pdk_statusfile'
         import pandokia.run_status
         if parallel is None :
@@ -170,8 +170,8 @@ def run(args) :
         for x in args :
             try :
                 file_stat = os.stat(x)
-            except OSError, e:
-                print x, e
+            except OSError as e:
+                print(x, e)
                 continue
 
             lstat = { }
@@ -191,7 +191,7 @@ def run(args) :
                 if runner is not None :
                     ( err, lstat ) = pandokia.run_file.run(dirname, basename, envgetter, runner )
                 else :
-                    print "no runner for ",x
+                    print("no runner for ",x)
                     err = 1
             else :
                 lstat = { }
@@ -201,8 +201,8 @@ def run(args) :
                 t_stat[y] = t_stat.get(y,0) + lstat[y]
 
         if n_things_run > 1 :
-            print ""
-            print "Summary:"
+            print("")
+            print("Summary:")
             common.print_stat_dict(t_stat)
 
     if initialized_status_file :
@@ -218,16 +218,16 @@ def default_project() :
 def default_test_run() :
     import datetime
     d = datetime.datetime.now()
-    if 'USER' in os.environ :
+    if 'USER' in list(os.environ.keys()) :
         user = os.environ['USER']
-    elif 'USERNAME' in os.environ :
+    elif 'USERNAME' in list(os.environ.keys()) :
         user = os.environ['USERNAME']
     else :
         import getpass
         user = getpass.getuser()
     fmt = 'user_' + user + '_%Y-%m-%d-%H-%M-%S'
     d = d.strftime( fmt )
-    print "DEFAULT TEST RUN",d
+    print("DEFAULT TEST RUN",d)
     return d
 
 def export_environment(args) :

@@ -1,31 +1,32 @@
+from __future__ import print_function
 from pandokia.helpers.minipyt import *
 
-print "minipyt disables test"
+print("minipyt disables test")
 
 @test
 def function_active() :
-    print "test"
+    print("test")
 
 @test
 @disable
 def function_disable() :
-    print "test"
+    print("test")
 
 class class_active(object) :
     # can't decorate classes in py2.5, so do this:
     __test__ = 1
 
     def setUp(self) :
-        print "test"
+        print("test")
 
     def test1(self) :
-        print "test"
+        print("test")
 
     def test2(self) :
-        print "test"
+        print("test")
 
     def test3(self) :
-        print "test"
+        print("test")
 
 class class_disable(object) :
     # can't decorate classes in py2.5, so do this:
@@ -33,16 +34,16 @@ class class_disable(object) :
     __disable__ = 1
 
     def setUp(self) :
-        print "test"
+        print("test")
 
     def test1(self) :
-        print "test"
+        print("test")
 
     def test2(self) :
-        print "test"
+        print("test")
 
     def test3(self) :
-        print "test"
+        print("test")
 
 
 class class_partial(object) :
@@ -50,16 +51,16 @@ class class_partial(object) :
     __test__ = 1
 
     def setUp(self) :
-        print "test"
+        print("test")
 
     @disable
     def test1(self) :
-        print "test"
+        print("test")
 
     @disable
     def test2(self) :
-        print "test"
+        print("test")
 
     def test3(self) :
-        print "test"
+        print("test")
 

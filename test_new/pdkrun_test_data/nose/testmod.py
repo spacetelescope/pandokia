@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 tda=dict()
 tra=dict()
 def setup():
@@ -6,10 +8,10 @@ def setup():
 
 def testpass():
     tda['c']=3
-    print "passing"
+    print("passing")
     assert True
 
 def testfail():
     tra['d']=4
-    print "failing"
+    print("failing")
     assert False

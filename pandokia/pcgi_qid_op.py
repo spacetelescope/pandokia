@@ -6,6 +6,7 @@
 #
 # operations on a qid
 #
+from __future__ import absolute_import, print_function
 
 import sys
 import cgi
@@ -14,15 +15,13 @@ import copy
 import time
 import os
 
-import urllib
-
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
-import common
+from . import common
 
 
 
@@ -121,10 +120,10 @@ def run( ) :
 def qid_list( ) :
     import datetime
 
-    print "content-type: text/html\n"
-    print common.page_header()
+    print("content-type: text/html\n")
+    print(common.page_header())
 
-    print "<h1>Interesting QID</h1>"
+    print("<h1>Interesting QID</h1>")
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
@@ -183,4 +182,4 @@ def qid_list( ) :
 
         row = row + 1
 
-    print t.get_html()
+    print(t.get_html())

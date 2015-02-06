@@ -6,6 +6,7 @@ the appoprirate specific subsections of the pdk_environment files.
 By its nature, this information is expected to be site-specific.
 Users may need or wish to tailor it for their specific test situation."""
 
+from __future__ import print_function
 import platform
 
 #Hierarchy: this is an ordered list that specifies the order
@@ -78,10 +79,10 @@ class PlatformType(object):
             
     def query(self):
         """For debugging purposes"""
-        print self.os
-        print self.osver
-        print self.cpu
-        print self.hostname
+        print(self.os)
+        print(self.osver)
+        print(self.cpu)
+        print(self.hostname)
 
     def getsecname(self, index):
         """The real UI: returns the section name corresponding to the ith
@@ -94,4 +95,4 @@ class PlatformType(object):
 if __name__ == '__main__':
     p=PlatformType()
     for i in range(4):
-        print p.getsecname(i)
+        print(p.getsecname(i))

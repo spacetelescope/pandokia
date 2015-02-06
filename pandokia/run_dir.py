@@ -24,10 +24,10 @@ def run( dirname, envgetter ) :
 
     try :
         dir_list = os.listdir( dirname )
-    except Exception, e:
-        print "Cannot search for tests in ",dirname
-        print e
-        print ""
+    except Exception as e:
+        print("Cannot search for tests in ",dirname)
+        print(e)
+        print("")
         return 1, {}
 
     dir_list.sort()
@@ -41,19 +41,19 @@ def run( dirname, envgetter ) :
         full_name = os.path.join(dirname,basename)
         try :
             file_stat = os.stat(full_name)
-        except OSError, e :
+        except OSError as e :
             if e.errno == errno.ENOENT :
                 # not an error for somebody to delete a file between when
                 # we start the test and end the test.  most commonly,
                 # this is a temp file or something, not a test.
                 continue
-            print "Cannot stat file ",full_name
-            print e
+            print("Cannot stat file ",full_name)
+            print(e)
             was_error = 1
             continue
-        except Exception, e :
-            print "Cannot stat file ",full_name
-            print e
+        except Exception as e :
+            print("Cannot stat file ",full_name)
+            print(e)
             was_error = 1
             continue
 
@@ -74,12 +74,12 @@ def run( dirname, envgetter ) :
         # actually going to do anything here.  This suppresses all
         # output completely for directories that do not have any tests.
         if not printed_dirname :
-            print "directory",dirname
+            print("directory",dirname)
             printed_dirname=1
 
         # If the file is disabled, skip it
         if file_disabled(dirname, basename) :
-            print "Disabled : %s/%s"%(dirname,basename)
+            print("Disabled : %s/%s"%(dirname,basename))
             m = pandokia.run_file.get_runner_mod( runner )
 
             env = { }
@@ -118,16 +118,16 @@ def run( dirname, envgetter ) :
             was_error |= err
             for x in lstat :
                 t_stat[x] = t_stat.get(x,0) + lstat[x]
-        except Exception, e:
+        except Exception as e:
             xstr=traceback.format_exc()
-            print "Exception running file %s/%s: %s"%(dirname, basename, e)
-            print xstr
-            print ''
+            print("Exception running file %s/%s: %s"%(dirname, basename, e))
+            print(xstr)
+            print('')
             was_error = 1
 
     # print the status summary for the directory.
-    print ""
-    print "%s:"%dirname
+    print("")
+    print("%s:"%dirname)
     common.print_stat_dict(t_stat)
 
     return ( was_error, t_stat )
@@ -168,13 +168,13 @@ def file_disabled(dirname, basename) :
         try :
             os.stat(f + '.disable' )
             return True
-        except OSError, e:
+        except OSError as e:
             #print e.args
             pass
         try :
             os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
             return True
-        except OSError, e:
+        except OSError as e:
             #print e.args
             pass
         return False

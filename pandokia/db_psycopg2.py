@@ -28,8 +28,12 @@ import pandokia.db
 _tty = None
 # _tty = open("/dev/tty","w")
 
-import cStringIO as StringIO
+import sys
 import os
+if sys.version > '3':
+    import io as StringIO
+else:
+    import cStringIO as StringIO
 
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code

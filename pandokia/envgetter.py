@@ -29,8 +29,14 @@ The top of the tree is defined by the presence of a file named pandokia_top.
 This file is not read; it's just detected. If it is never detected, it will
 go all the way to the top of the file system.
 """
+from __future__ import print_function
+
 import os, sys, re
-import ConfigParser
+if sys.version > '3':
+    import configparser
+else:
+    import ConfigParser as configparser
+
 from pandokia.env_platforms import PlatformType
 
 import pandokia.common as common
@@ -120,7 +126,7 @@ class DirLevel(object):
                             self.container.counter:self.container.counter}
             self.container.counter+=1
             if self.container.context is not None:
-                print "update with context",self.container.context
+                print("update with context",self.container.context)
 
         else:
 
@@ -235,7 +241,7 @@ class DirLevel(object):
         if not full:
             klist = [k for k in self.final if k not in self.container.defdict]
         else:
-            klist = self.final.keys()
+            klist = list(self.final.keys())
 
         klist.sort()
 
@@ -326,11 +332,11 @@ class EnvGetter(object):
         """Return remembered "top" of environment.
         Raise exception if more than one node thinks it is the top."""
         
-        tlist=[v.name for v in self.nodes.values() if v.istop]
+        tlist=[v.name for v in list(self.nodes.values()) if v.istop]
         if len(tlist) == 1:
             return tlist.pop()
         else:
-            raise(ValueError("More than one toplevel dectected: %s"%str(tlist)))
+            raise ValueError("More than one toplevel dectected: %s" % str(tlist))
 
     def export(self,dirname,format=None,fh=None,full=False):
         """User interface to export an environment. Delegates to
@@ -343,7 +349,7 @@ class EnvGetter(object):
 def parsefile(fname,platform=''):
     """Helper function: Make a configparser, parse the file,
     return the dictionary."""
-    cfg=ConfigParser.SafeConfigParser()
+    cfg=configparser.SafeConfigParser()
     cfg.optionxform=str #retain case sensitivity!!
     cfg.read(fname)
     ans={}
@@ -351,7 +357,7 @@ def parsefile(fname,platform=''):
     try:
         for key,val in cfg.items('default'):
             ans[key]=val
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
         pass #ok to have no defaults
     #Apply any platform-specific overrides
     
@@ -359,7 +365,7 @@ def parsefile(fname,platform=''):
         try:
             for key,val in cfg.items(section):
                 ans[key]=val
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             pass #defaults are OK
         except TypeError:
             pass #we didn't get a platform

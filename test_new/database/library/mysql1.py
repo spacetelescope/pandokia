@@ -1,17 +1,17 @@
-import d_open
+from __future__ import absolute_import
+
+from . import d_open
 dbx = d_open.mysql(1)
 
 minipyt_test_order = 'alpha'
 
-import shared
+from . import shared
 shared.dbx = dbx
+from .shared import *
 
-from shared import *
-
-import csv_t
+from . import csv_t
 csv_t.dbx = dbx
-
-from csv_t import *
+from .csv_t import *
 
 import pandokia.helpers.minipyt as minipyt
 
@@ -28,5 +28,5 @@ def t020_sequence() :
 
 @minipyt.test
 def t020_implicit_sequence() :
-    assert dbx.next is None
+    assert next(dbx) is None
 

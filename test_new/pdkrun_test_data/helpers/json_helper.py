@@ -1,6 +1,6 @@
 # tests of the examples doc/source/helper_json.rst
 
-
+from __future__ import print_function
 import pandokia.helpers.minipyt as mph
 
 @mph.nottest
@@ -14,7 +14,7 @@ def json_string() :
 
     l = [ { 'a' : 1, 'b' : 2 }, [ 1, 2 ] ]
     result = json.dumps( l, indent=4, sort_keys=True, default=str )
-    print result
+    print(result)
 
     ref = """
     [

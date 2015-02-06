@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 tda=dict()
 tra=dict()
 def setup():
@@ -8,10 +10,10 @@ def testpass():
     # this is a buggy test, not a buggy plugin.  tda is a global, so it
     # is not cleared before the next test.
     tda['c']=3
-    print "passing"
+    print("passing")
     assert True
 
 def testfail():
     tra['d']=4
-    print "failing"
+    print("failing")
     assert False

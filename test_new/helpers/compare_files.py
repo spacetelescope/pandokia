@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os.path
 import json
 import time
@@ -122,8 +123,8 @@ def assert_file_older() :
 @mph.test
 def file_age() :
     n = filecomp.file_age( 'times_o' )
-    print "o",n
+    print("o",n)
     assert int( n / 120) == int( 10 * 3600 / 120 ), 'file age is within 2 minutes of right'
     n = filecomp.file_age( 'times_n' )
-    print "n",n
+    print("n",n)
     assert int( n / 120) == int(  5 * 3600 / 120 ), 'file age is within 2 minutes of right'

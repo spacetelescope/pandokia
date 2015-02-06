@@ -13,11 +13,11 @@ describe pandokia a little
 import os
 
 # setup.py searches for this exact form of the next line:
-__version__ = "1.3.8dev"
+__version__ = "2.0"
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
-if 'PDK_CONFIG' in os.environ :
+if 'PDK_CONFIG' in list(os.environ.keys()) :
     import pandokia.helpers.importer as i
     cfg = i.importer( 'pandokia.config', os.environ['PDK_CONFIG'] )
 else :

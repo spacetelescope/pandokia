@@ -4,15 +4,20 @@
 #
 # User Preference page
 #
+from __future__ import absolute_import, print_function
 
 import sys
 import cgi
-import urllib
 import pandokia
 import pandokia.text_table as text_table
 import pandokia.pcgi
-import common
+from . import common
 
+if sys.version > '3':
+    import urllib.parse as url_parse
+else:
+    import urllib as url_parse
+    
 cfg = pandokia.cfg
 
 output = sys.stdout
@@ -132,7 +137,7 @@ def show(user) :
             continue
         tb.set_value(row, 'project', project)
 
-        project = urllib.quote(project)
+        project = url_parse.quote(project)
         # projects will be a list of all the projects we are submitting in the form
         output.write('<input type=hidden name=projects value="%s">'%project)
 
@@ -273,7 +278,7 @@ def list_users() :
     c = cfg.pdk_db.execute(" SELECT DISTINCT username FROM user_email_pref WHERE "
         " username NOT IN ( SELECT username FROM user_prefs ) " )
     for x, in c :
-        print "user %s not in user_prefs table - adding<br>"%cgi.escape(x)
+        print("user %s not in user_prefs table - adding<br>"%cgi.escape(x))
         cfg.pdk_db.execute("INSERT INTO user_prefs ( username ) VALUES ( :1 )", (x,))
     cfg.pdk_db.commit()
 

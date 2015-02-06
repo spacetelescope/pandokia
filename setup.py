@@ -1,5 +1,5 @@
 ## basic imports
-
+from __future__ import print_function
 import sys
 import os
 import os.path
@@ -227,7 +227,7 @@ def fix_script(name) :
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
-    os.chmod(fname + '.py', 0755)
+    os.chmod(fname + '.py', 493) # This is 755 in octalrm
 
 # py.test and nose use setuptools to find their plugins, but whenever
 # I go near setuptools, it always causes problems for me.  You
@@ -282,39 +282,39 @@ if 'install' in d.command_obj :
 
     # tell the user about the install
    
-    print ''
-    print 'If you need to change your path for this install:'
-    print ''
-    print '    set path = ( %s $path )' % script_dir
-    print '    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
-    print ''
-    print '    export PATH=%s:$PATH'%script_dir
-    print '    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir
+    print('')
+    print('If you need to change your path for this install:')
+    print('')
+    print('    set path = ( %s $path )' % script_dir)
+    print('    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir)
+    print('')
+    print('    export PATH=%s:$PATH'%script_dir)
+    print('    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir)
 
-    print ''
-    print 'The CGI is:'
-    print ''
-    print '    ', os.path.join(script_dir, 'pdk')
+    print('')
+    print('The CGI is:')
+    print('')
+    print('    ', os.path.join(script_dir, 'pdk'))
     if not have_setuptools :
         # hack the scripts for PDK_DIR_HERE
         for x in python_commands :
             fix_script(x)
             pass
     else :
-        print '    If you did not install pandokia in the default location, you must'
-        print '    ensure that PYTHONPATH is provided by your web server'
-    print ''
+        print('    If you did not install pandokia in the default location, you must')
+        print('    ensure that PYTHONPATH is provided by your web server')
+    print('')
 
     import pandokia
     f= pandokia.cfg.__file__
     if f.endswith(".pyc") or f.endswith(".pyo") :
         f = f[:-1]
-    print 'The config file is:'
-    print ''
-    print '    ',f
-    print ''
-    print '    you can find the config file at any time with the command "pdk config"'
-    print ''
+    print('The config file is:')
+    print('')
+    print('    ',f)
+    print('')
+    print('    you can find the config file at any time with the command "pdk config"')
+    print('')
 
 
 else :

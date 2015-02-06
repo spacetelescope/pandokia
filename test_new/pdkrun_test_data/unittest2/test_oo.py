@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest2
 
 def plus2(x):
@@ -15,14 +16,14 @@ class test_1(unittest2.TestCase) :
     a = plus2(4)
 
     def __init__( self, arg = '' ) :
-        print "TEST1 INIT"
+        print("TEST1 INIT")
         super(test_1, self).__init__(arg)
-        print "ARG=",arg
+        print("ARG=",arg)
         self.b = plus2(6)
 
     def setUp( self ) :
         # called before each test
-        print 'test setup'
+        print('test setup')
         self.c = plus2(8)
 
     # methods named 'test_*' are tests
@@ -39,7 +40,7 @@ class test_1(unittest2.TestCase) :
         assert self.c == 10
 
     def test_d( self ) :
-        print "example of a failing test"
+        print("example of a failing test")
         self.tra['c'] = self.c
         assert self.c == 12
 
@@ -53,7 +54,7 @@ class test_1(unittest2.TestCase) :
 
     def tearDown( self ) :
         # called after each test
-        print 'test teardown'
+        print('test teardown')
 
 if __name__ == '__main__' :
     unittest2.main()

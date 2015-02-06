@@ -143,7 +143,7 @@ def unique_fields( list_of_dict ) :
     for x in l1 :
         if x in d :
             del d[x]
-    l2 = d.keys()
+    l2 = list(d.keys())
     l2.sort()
     return l1 + l2
 

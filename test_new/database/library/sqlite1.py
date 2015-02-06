@@ -1,24 +1,22 @@
+from __future__ import absolute_import
 import os
 
-import d_open
+from . import d_open
 
 import pandokia.db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 
 dbx = d_open.sqlite(1)
-
 dbx.execute('drop table if exists test_table')
 
-import shared
+from . import shared
 shared.dbx = dbx
+from .shared import *
 
-from shared import *
-
-import csv_t
+from . import csv_t
 csv_t.dbx = dbx
-
-from csv_t import *
+from .csv_t import *
 
 import pandokia.helpers.minipyt as minipyt
 
@@ -34,5 +32,5 @@ def t020_sequence() :
 
 @minipyt.test
 def t020_implicit_sequence() :
-    assert dbx.next is None
+    assert next(dbx) is None
 

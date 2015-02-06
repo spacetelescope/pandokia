@@ -1,14 +1,14 @@
-import d_open
+from __future__ import absolute_import
+
+from . import d_open
 dbx = d_open.postgres(0)
 
 minipyt_test_order = 'alpha'
 
-import csv_t
+from . import csv_t
 csv_t.dbx = dbx
+from .csv_t import *
 
-from csv_t import *
-
-import shared2
+from . import shared2
 shared2.dbx = dbx
-
-from shared2 import *
+from .shared2 import *

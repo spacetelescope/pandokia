@@ -4,6 +4,7 @@
 #
 
 # import Python modules that we need
+from __future__ import absolute_import, print_function
 import os, os.path, sys, time, string, getopt, tempfile, shutil
 import platform
 import traceback
@@ -12,8 +13,8 @@ import traceback
 import pyraf, iraf
 
 # import the rest of the Regression Test modules
-import configuration, task
-from comparison import Comparison
+from . import configuration, task
+from .comparison import Comparison
 
 # import some PyRAF and IRAF modules and basic packages
 from pyraf.irafpar import makeIrafPar, IrafParList
@@ -46,7 +47,7 @@ killed = False
 def killed_func(sig,stk):
     global killed 
     killed = True
-    print "KILLED"
+    print("KILLED")
     raise pdk_stsci_regtest_killed
 
 import signal
@@ -55,7 +56,7 @@ signal.signal(signal.SIGTERM, killed_func)
 #######
 
 
-import pdk_report
+from . import pdk_report
 pdkr = pdk_report.report()
 
 class Regress:
@@ -102,7 +103,7 @@ class Regress:
 
         # if it ends in .xml, it is a test definition
         if ext != ".xml":
-            print "ERROR: ",file," is not .xml file"
+            print("ERROR: ",file," is not .xml file")
             return
 
         # in pandokia, we know that the current directory is always 
@@ -123,12 +124,12 @@ class Regress:
             #
             self.runtest(file, pdkr)
 
-        except Exception, e:
+        except Exception as e:
             xstr=traceback.format_exc()
             pdkr.set("status","E")
             pdkr.set_tra('exception',str(e))
-            print "Exception running test:",e
-            print xstr
+            print("Exception running test:",e)
+            print(xstr)
 
         pdkr.end_time()
 
@@ -165,12 +166,12 @@ class Regress:
             config = configuration.regtest_read (file)
         except:
             xstr=traceback.format_exc()
-            print "can't read configuration file",file
-            print xstr
+            print("can't read configuration file",file)
+            print(xstr)
             self.writelog ("?", "Couldn't read configuration file", file)
             return
 
-        if config.has_key("attributes") :
+        if "attributes" in config :
             for x in config["attributes"] :
                 pdkr.set_tda(x,value)
 
@@ -191,8 +192,8 @@ class Regress:
                     os.unlink (output["fname"])
 
             # Run any pre-execution commands in the configuration file
-            if config.has_key ("pre-exec"):
-                print ".begin pre-exec"
+            if "pre-exec" in config:
+                print(".begin pre-exec")
                 sys.stdout.flush()
 
                 for code in config["pre-exec"]:
@@ -200,8 +201,8 @@ class Regress:
                     if code[0] == '@':
                         efile = open (code[1:], 'r')
                         try:
-                            exec efile
-                        except Exception, e:
+                            exec(efile)
+                        except Exception as e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
@@ -212,8 +213,8 @@ class Regress:
 
                     else:
                         try:
-                            exec code
-                        except Exception, e:
+                            exec(code)
+                        except Exception as e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
@@ -221,7 +222,7 @@ class Regress:
                                            code)
                             crash=True
 
-                print ".end pre-exec"
+                print(".end pre-exec")
                 sys.stdout.flush()
 
 
@@ -230,7 +231,7 @@ class Regress:
             # implemented the test in python.  Now that we are using nose,
             # that is less important, but we have it for compatibility with
             # old tests.
-            if ( not killed ) and ( not crash ) and ( config.has_key("taskname") and config['taskname'].strip() != '' ) :
+            if ( not killed ) and ( not crash ) and ( "taskname" in config and config['taskname'].strip() != '' ) :
 
                 msg = "Executing task: %s" % (config["taskname"])
                 self.writelog (".", msg, "")
@@ -266,18 +267,18 @@ class Regress:
                     err = task.run (taskname, pfile, config["output"], self.log)
 
                 except AttributeError:
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     #Not an iraf task; try it again as vanilla python
-                    print "VANILLA PYTHON"
+                    print("VANILLA PYTHON")
                     pdkr.set_tda("vanilla_python", "T")
 
                     for out in config["output"]:
                         if out["file"] == 'STDOUT':
-                            print "setting stdout to %s"%out["fname"]
+                            print("setting stdout to %s"%out["fname"])
                             sys.stdout=open(out["fname"],'w')
                     try:
                         err=eval("%s('%s')"%(config['taskname'],config['pfile']))
-                    except Exception, e:
+                    except Exception as e:
                         xstr=traceback.format_exc()
                         self.writelog("?","EXCEPTION: " + str(e))
                         self.writelog("?", xstr)
@@ -296,9 +297,9 @@ class Regress:
 
             # Run any post-execution commands in the configuration file
             # This happens whether earlier stuff worked or not
-            if ( not killed ) and ( config.has_key ("post-exec") ):
+            if ( not killed ) and ( "post-exec" in config ):
 
-                print ".begin post-exec"
+                print(".begin post-exec")
                 sys.stdout.flush()
 
                 for code in config["post-exec"]:
@@ -306,8 +307,8 @@ class Regress:
                     if code[0] == '@':
                         efile = open (code[1:], 'r')
                         try:
-                            exec efile
-                        except StandardError, e:
+                            exec(efile)
+                        except Exception as e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
@@ -318,8 +319,8 @@ class Regress:
 
                     else:
                         try:
-                            exec code
-                        except StandardError, e:
+                            exec(code)
+                        except Exception as e:
                             xstr=traceback.format_exc()
                             self.writelog ("?", str(e))
                             self.writelog ("?", xstr)
@@ -327,7 +328,7 @@ class Regress:
                                            code)
                             crash=True
 
-                print ".end post-exec"
+                print(".end post-exec")
                 sys.stdout.flush()
 
             if ( killed ) or ( crash ) :
@@ -347,20 +348,20 @@ class Regress:
 
                 for output in config["output"]:
 
-                    if not output.has_key ("maxdiff"):
+                    if "maxdiff" not in output:
                         output["maxdiff"] = 2.e-7
 
                     # Set ignorekeys to blank if not included in xml file
-                    if not output.has_key ("ignorekeys"):
+                    if "ignorekeys" not in output:
                         output["ignorekeys"] = ""
 
                     # Set ignorecomm to blank if not included in xml file
-                    if not output.has_key("ignorecomm"):
+                    if "ignorecomm" not in output:
                         output["ignorecomm"] = ""
 
                     # Split the ascii_ignore items on commas
                     for k in ["ignore_wstart","ignore_wend"]:
-                        if output.has_key(k):
+                        if k in output:
                             output[k] = output.get(k).split(',')
                         else:
                             output[k] = []
@@ -435,7 +436,7 @@ class Regress:
                     self.writelog ("!", "Regression test ERROR",
                                    config["title"])
 
-        except Exception, e :
+        except Exception as e :
             # there should be no exception to catch.  If we get one, we want to
             # declare the test a failure and collect some useful information about
             # what happened.
@@ -463,7 +464,7 @@ class Regress:
 
         # Format log file message
 
-        other = string.join (map (str, args), ",")
+        other = string.join (list(map (str, args)), ",")
         if other != "":
             line = "%s %s (%s)" % (code, msg, other)
         else:
