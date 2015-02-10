@@ -11,7 +11,10 @@ import cgi
 import pandokia
 import pandokia.text_table as text_table
 import pandokia.pcgi
-from . import common
+try:
+    from . import common
+except ValueError:
+    import common
 
 if sys.version > '3':
     import urllib.parse as url_parse

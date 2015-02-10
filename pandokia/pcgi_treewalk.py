@@ -21,7 +21,10 @@ pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
-from . import common
+try:
+    from . import common
+except ValueError:
+    import common
 
 
 # the left-pointing arrow that appears where we offer to remove a

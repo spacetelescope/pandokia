@@ -21,9 +21,10 @@ pdk_db = pandokia.cfg.pdk_db
 import pandokia.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
-from . import common
-
-
+try:
+    from . import common
+except ValueError:
+    import common
 
 def run( ) :
     # 

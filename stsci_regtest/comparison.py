@@ -17,8 +17,11 @@ R. Jedrzejewski, 3 October 2007
 
 from __future__ import absolute_import, print_function
 import re, os
-from . import datespec  # for ascii comparisons
 import tempfile  #}
+try:
+    from . import datespec  # for ascii comparisons
+except ValueError:
+    import datespec
 
 import sys
 

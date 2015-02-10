@@ -13,8 +13,12 @@ import traceback
 import pyraf, iraf
 
 # import the rest of the Regression Test modules
-from . import configuration, task
-from .comparison import Comparison
+try:
+    from . import configuration, task
+    from .comparison import Comparison
+except:
+    import configuration, task
+    from comparison import Comparison
 
 # import some PyRAF and IRAF modules and basic packages
 from pyraf.irafpar import makeIrafPar, IrafParList

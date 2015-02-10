@@ -9,7 +9,10 @@ import cgi
 
 import pandokia
 import pandokia.pcgi
-from . import common
+try:
+    from . import common
+except ValueError:
+    import common
 
 def hostinfo( ) :
 
