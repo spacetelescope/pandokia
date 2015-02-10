@@ -113,12 +113,12 @@ else :
                 f=open(file,'rb')
 
             # first line is header to recognize the data file
-            n = f.readline()   
+            n = f.readline().decode('latin-1')
             if n[8:] != 'PDKRUN status monitor 000\n' :
                 raise Exception('Not a PDKRUN status monitor file: %s'%file)
 
             # second line is about record sizes
-            n = f.readline().strip()
+            n = f.readline().decode('latin-1').strip()
             n = n.split(' ')
 
             self.header_size      = int(n[0])
@@ -134,7 +134,7 @@ else :
             self.status_text_offset = self.valid_flag_size
 
             # what a "locked" flag looks like
-            self.locked_valid_flag = 'X' * self.valid_flag_size
+            self.locked_valid_flag = b'X' * self.valid_flag_size
 
             # how big is the whole file
             file_size = self.record_size * self.n_records + self.header_size 
@@ -186,7 +186,7 @@ else :
                     return 'changed'
                 return None
 
-            return s
+            return s.decode('latin-1')
 
         def set_my_record( self, n ) :
             if n >= self.n_records :
@@ -212,7 +212,7 @@ else :
                 value = value + (' ' * (blocklen - len(value) + 1))
 
             # limit the value
-            value = value[0:blocklen]
+            value = value[0:blocklen].encode('latin-1')
 
             # stuff it into the shared memory
             s= self.mem[ start + offset : start + offset + blocklen ] = value
@@ -224,7 +224,9 @@ else :
                 n = 0
 
             # set the new valid flag
-            self.mem[ start : start + self.valid_flag_size ] = "%*d"%(self.valid_flag_size,n)
+            value = "%*d" % (self.valid_flag_size,n)
+            value = value.encode('latin-1')
+            self.mem[ start : start + self.valid_flag_size ] = value
 
 
     if __name__ == '__main__' :
