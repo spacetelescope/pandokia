@@ -21,6 +21,7 @@ def t020_csv() :
     out = io.StringIO()
     dbx.table_to_csv( 'test_table', out )
     s = out.getvalue().replace('\r','')
+    out.close()
     if s != csv_of_table :
         import difflib
         for x in difflib.context_diff(s.split('\n'), csv_of_table.split('\n') ) :

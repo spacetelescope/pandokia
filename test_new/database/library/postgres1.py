@@ -1,19 +1,19 @@
 from __future__ import absolute_import
 
-from . import d_open
+import d_open
 import os
 
 minipyt_test_order = 'alpha'
 
 dbx = d_open.postgres(1)
 
-from . import shared
+import shared
 shared.dbx = dbx
-from .shared import *
+from shared import *
 
-from . import csv_t
+import csv_t
 csv_t.dbx = dbx
-from .csv_t import *
+from csv_t import *
 
 import pandokia.helpers.minipyt as minipyt
 
