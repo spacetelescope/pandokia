@@ -32,7 +32,7 @@ if not re.match('^[a-zA-Z0-9]+$',runner_name) :
 try :
     s = "import %s%s as runner" % ( prefix, runner_name)
     exec( s )
-except ImportError, e :
+except ImportError as e :
     sys.stderr.write("Cannot import %s%s:\n%s\n" % ( prefix, runner_name, str(e)) )
     sys.stderr.write("sys.path=[\n")
     for x in sys.path :
