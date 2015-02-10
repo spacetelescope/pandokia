@@ -12,7 +12,7 @@ cfg = {
 # mysql database:
 #   create user 'pandokia_test'@'localhost' identified by 'xyzzy' ;
 #   create database test_pandokia;
-'test_database_mysqldb_enable' : True,
+'test_database_mysqldb_enable' : False,
 'test_database_mysqldb' :
 	{
 		'host' : 'localhost',
