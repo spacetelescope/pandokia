@@ -171,7 +171,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     # how much disk space is used
     def table_usage( self ) :
-        return os.path.getsize(self.db_access_arg)
+        return os.path.getsize(self.db_access_arg['database'])
 
     # sqlite has no "next" function - it has implicit sequences and lastrowid
     next = None
