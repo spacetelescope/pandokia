@@ -1,0 +1,16 @@
+
+
+START
+test_name=net.cars.engine.CarburateurTest.mix
+location=testresults/TEST-net.cars.engine.CarburateurTest.xml
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=F
+log:
+.message: Mix should be exactly 25. expected:<25> but was:<20>
+.type: junit.framework.AssertionFailedError
+.junit.framework.AssertionFailedError: Mix should be exactly 25. expected:<25> but was:<20>
+.	at net.cars.engine.CarburateurTest.mix(CarburateurTest.java:34)
+.
+
+END

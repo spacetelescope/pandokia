@@ -1,0 +1,56 @@
+if false
+then
+	(
+	for x in arzach banana bond cadeau herbert thor ssb
+	do
+		echo XXXXX
+		echo $x
+		ssh $x " iraf ; pdk -V" 
+		ssh $x " irafx ; pdk -V"
+		ssh $x " irafdev ; pdk -V"
+	done
+
+	echo XXXXX
+	echo arzach again - earlier python versions
+	ssh arzach " irafdev 2.5.4 ; pdk -V"
+	ssh arzach " irafdev 2.6.5 ; pdk -V"
+
+	) >> versions.tmp
+
+	grep ^pandokia < versions.tmp | grep -v '^pandokia 1.2rc3' > mismatch.tmp
+
+	if [ -s mismatch.tmp ]
+	then
+		echo SOME WRONG VERSIONS
+		cat mismatch.tmp
+		err=1
+	fi
+fi
+
+
+wdir=/eng/ssb/pandokia_dev/
+rm $wdir/log/*
+
+test_run=pdk_alive
+
+do_ssh() {
+	host=$1
+	iraf=$2
+	ver=$3
+	echo RUN $host $iraf $ver
+	ssh $host "$iraf $ver ; pdkrun -r --context $iraf$ver --test_run $test_run --log $wdir/log $wdir/pandokia/test_new/pdkrun_test_data"
+}
+
+for x in arzach banana bond cadeau herbert thor ssb
+do
+	do_ssh $x iraf
+	do_ssh $x irafx
+	do_ssh $x irafdev
+done
+
+do_ssh $x irafdev 2.5.4
+do_ssh $x irafdev 2.6.5
+
+rm versions.tmp mismatch.tmp
+
+exit $err

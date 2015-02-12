@@ -1,0 +1,27 @@
+How to run these tests
+--
+
+X. install pandokia
+
+X. declare your test name
+
+	setenv PDK_TEST_RUN xyzzy
+	export PDK_TEST_RUN=xyzzy
+
+X. run tests of the basic data handling
+	pdkrun -r database
+
+X. run pdkrun to generate the test data on pdkrun
+
+	( cd pdkrun_test_data ; ./gen_test_data ; pdk import PDK* )
+	# This uses pdkrun to produce input to the next stage.	The
+	# resulting PDK_LOG files are NOT the results of testing pandokia.
+
+X. test the pdkrun results 
+
+	pdkrun -r pdkrun
+
+	pdk import PDK*
+
+	# these ARE results of testing pandokia; it tests pdkrun,
+	# various runners, and the import mechanism

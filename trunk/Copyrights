@@ -1,0 +1,89 @@
+Pandokia is covered by this copyright and license:
+
+	Copyright 2009-2013 by Association of Universities for Research in Astronmy (AURA)
+
+	Redistribution and use in source and binary forms, with or
+	without modification, are permitted provided that the following
+	conditions are met:
+
+	1. Redistributions of source code must retain the above copyright
+	notice, this list of conditions and the following disclaimer.
+
+	2. Redistributions in binary form must reproduce the above
+	copyright notice, this list of conditions and the following
+	disclaimer in the documentation and/or other materials provided
+	with the distribution.
+
+	3. The name of AURA and its representatives may not be used to
+	endorse or promote products derived from this software without
+	specific prior written permission.
+
+	THIS SOFTWARE IS PROVIDED BY AURA ``AS IS'' AND ANY EXPRESS OR
+	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+	PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AURA BE LIABLE FOR ANY
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+	GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+	INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+	NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+	THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+pandokia/runners/maker/fct.h is taken from FCTX, available from
+http://fctx.wildbearsoftware.com/
+
+	Copyright (c) 2008 Ian Blumel.  All rights reserved.
+
+	FCTX (Fast C Test) Unit Testing Framework
+
+	Copyright (c) 2008, Ian Blumel (ian.blumel@gmail.com)
+	All rights reserved.
+
+	This license is based on the BSD License.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are
+	met:
+
+	    * Redistributions of source code must retain the above copyright
+	    notice, this list of conditions and the following disclaimer.
+
+	    * Redistributions in binary form must reproduce the above copyright
+	    notice, this list of conditions and the following disclaimer in
+	    the documentation and/or other materials provided with the
+	    distribution.
+
+	    * Neither the name of, Ian Blumel, nor the names of its
+	    contributors may be used to endorse or promote products derived
+	    from this software without specific prior written permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+	IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+	TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+	PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+	OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+	PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+	LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+	NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+delta.png, papa.png
+	http://commons.wikimedia.org/wiki/File:ICS_Delta.svg
+	http://en.wikipedia.org/wiki/File:ICS_Papa.svg
+
+	Both contain the notation: This file is ineligible for copyright
+	and therefore in the public domain, because it consists entirely
+	of information that is common property and contains no original
+	authorship.
+
+
+The JUNIT/XML sample files in test_new/tools/junit_xml/testresults came from 
+http://junitpdfreport.sourceforge.net/ .  The source code contains
+the note "This software is OSI Certified Open Source Software", but
+otherwise contains no copyright notice.
+

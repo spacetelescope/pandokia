@@ -1,0 +1,15 @@
+mysql:
+	If you need to create a database:
+
+		create database test_db character set 'ascii';
+
+	it uses a table called "test_table"
+
+	create a file named ./access_mysql that contains a line like
+		hostname;username;password;db_name
+
+
+sqlite:
+
+	no special setup needed - uses a local file
+

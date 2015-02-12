@@ -1,0 +1,149 @@
+
+
+START
+test_name=pytest_tests.FromUnit.testfail
+location=tmp/pytest.xml
+status=F
+log:
+.message: test failure
+.self = <pytest_tests.FromUnit testMethod=testfail>
+.
+.    def testfail(self):
+.        self.tra=dict(c=3)
+.>       self.failIf(True)
+.E       AssertionError: True is not False
+.
+.pytest_tests.py:13: AssertionError
+
+END
+test_name=pytest_tests.FromUnit.testpass
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestFromClass.testpass
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestFromClass.testfail
+location=tmp/pytest.xml
+status=F
+log:
+.message: test failure
+.self = <pytest_tests.TestFromClass object at 0x101757190>
+.
+.    def testfail(self):
+.        self.tra=dict(c=3)
+.>       assert False
+.E       assert False
+.
+.pytest_tests.py:26: AssertionError
+
+END
+test_name=pytest_tests.TestClassSetup.testpass
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestClassSetup.testfail
+location=tmp/pytest.xml
+status=F
+log:
+.message: test failure
+.self = <pytest_tests.TestClassSetup object at 0x101757510>
+.
+.    def testfail(self):
+.        # tra_c is getting reported in this test; I do not know if this is a bug or not.
+.        self.tra['d']=4
+.>       assert False
+.E       assert False
+.
+.pytest_tests.py:46: AssertionError
+
+END
+test_name=pytest_tests.TestSetupErrors.testpass
+location=tmp/pytest.xml
+status=E
+log:
+.message: test setup failure
+.cls = <class 'pytest_tests.TestSetupErrors'>
+.
+.    @classmethod
+.    def setup_class(cls):
+.>       raise Exception("Exception from setup")
+.E       Exception: Exception from setup
+.
+.pytest_tests.py:52: Exception
+
+END
+test_name=pytest_tests.TestSetupFirstTestErrors.test1
+location=tmp/pytest.xml
+status=F
+log:
+.message: test failure
+.self = <pytest_tests.TestSetupFirstTestErrors object at 0x1017577d0>
+.
+.    def test1(self) :
+.>       raise Exception("Exception from test1")
+.E       Exception: Exception from test1
+.
+.pytest_tests.py:65: Exception
+
+END
+test_name=pytest_tests.TestSetupFirstTestErrors.test2
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestSetupSecondTestErrors.test1
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestSetupSecondTestErrors.test2
+location=tmp/pytest.xml
+status=F
+log:
+.message: test failure
+.self = <pytest_tests.TestSetupSecondTestErrors object at 0x101757ed0>
+.
+.    def test2(self):
+.>       raise Exception("Exception from test2")
+.E       Exception: Exception from test2
+.
+.pytest_tests.py:81: Exception
+
+END
+test_name=pytest_tests.TestTeardownErrors.testpass
+location=tmp/pytest.xml
+status=P
+log:
+.
+
+END
+test_name=pytest_tests.TestTeardownErrors.testpass
+location=tmp/pytest.xml
+status=E
+log:
+.message: test setup failure
+.cls = <class 'pytest_tests.TestTeardownErrors'>
+.
+.    @classmethod
+.    def teardown_class(cls):
+.>       raise Exception("Exception from teardown")
+.E       Exception: Exception from teardown
+.
+.pytest_tests.py:94: Exception
+
+END

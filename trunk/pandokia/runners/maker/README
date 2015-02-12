@@ -1,0 +1,25 @@
+fct.h
+	Taken unmodified from fctx-1.6.1; this is here as a convenience
+	so you do not have to install it separately.  A test written
+	for fctx can run with just this file.  For a complete fctx 
+	distribution, see
+
+	http://fctx.wildbearsoftware.com/
+
+	It is subject to a BSD license, noted at the top of the file.
+
+	The fctx web site has been down for a while, so we have installed
+	a copy of the documentation at
+
+	http://ssb.stsci.edu/testing/fctx/user/
+
+pandokia_fct.h
+	Pandokia custom logger for fctx.  See comments at the top for
+	how to write pandokia-capable tests.
+
+pdk_c_logger.c
+pdk_c_logger.h
+	Tools for a C program to write pandokia logs directly.	You would
+	use this if you want to write your tests without a test framework
+	(like fctx) and write your test results directly.
+

@@ -1,0 +1,211 @@
+# shunit2 plugin for pandokia
+#
+# ** This requires shunit2 2.1.6plugin as modified at stsci.
+# see http://stsdas.stsci.edu/shunit
+#
+
+#-----------------------------------------------------------------------------
+# helper functions to be used by pandokia-aware tests
+#
+
+# log a pandokia attribute.  All attributes logged for a particular test
+# are part of the pandokia test report for that test.
+#
+# arg1 is the name of the attribute, INCLUDING the prefix "tda_" or "tra_"
+# arg2 is the value
+#
+#   pdk_attribute tda_thing 1
+#
+# Attributes are not multi-line values; newlines are deleted if necessary.
+#
+
+pdk_attribute() {
+	# skip the disk I/O if we are not running in a pandokia context
+	if [ "${PDK_LOG-}" != "" ]
+	then
+		case "$1"
+		in
+		t[dr]a_*)
+			( echo "$1=$2" | tr -d '\n' ; echo '' ) >> $PDK_LOG
+			;;
+		*)
+			# have to do something for this case; might as well
+			# assume a TRA
+			( echo "tra_$1=$2" | tr -d '\n' ; echo '' ) >> $PDK_LOG
+			;;
+		esac
+	fi
+}
+
+pdk_tda() {
+	pdk_attribute tda_"$1" "$2"
+}
+
+pdk_tra() {
+	pdk_attribute tra_"$1" "$2"
+}
+
+# declare that the test result is Error.  shunit2 does not have this
+# natively, so we call it fail for shunit2 and then change the status
+# to E for pandokia.
+pdk_error() {
+	echo "PDK_ERROR"
+ 	_shunit_assertFail "$*"
+
+	# E is the most severe status, so we don't need to guard against
+	# moving to a lower status.
+	_shunit_last_test_status='E'
+}
+
+
+#-----------------------------------------------------------------------------
+
+shunit_plugin_init() {
+
+	# when we run in the context of pandokia, the environment PDK_FILE 
+	# is the name of the file we are running tests from.  Pandokia
+	# will run only a single file in any invocation of shunit, so
+	# we can use PDK_FILE to derive that part of the test name.
+	if [ -z "${PDK_LOG:-}" ]
+	then
+		echo 'pandokia plugin activated but no pandokia context present -- faking it for testing' >&2
+
+		# name of the file we are processing
+		__pdk_file_part=`basename $__shunit_script .sh`
+
+		# imaginary prefix
+		PDK_TESTPREFIX='prefix/'
+
+		# test log file
+		PDK_LOG=PDK_arf
+
+		export PDK_TESTPREFIX PDK_LOG 
+	else 
+
+		case "$PDK_FILE"
+		in
+		'')
+			# this only happens when the test file alters
+			# PDK_FILE; this has the effect of hiding the
+			# file name from the test name.  Normally, this
+			# is not the right thing to do in pandokia, but
+			# there are contexts where it makes sense in shunit2.
+			 __pdk_file_part=''
+			;;
+		*.sh)     
+			__pdk_file_part=`basename $PDK_FILE .sh` 
+			;;
+		*.shunit)
+			__pdk_file_part=`basename $PDK_FILE .shunit` 
+			;;
+		*.shunit2)
+			__pdk_file_part=`basename $PDK_FILE .shunit2` 
+			;;
+		*)                
+			__pdk_file_part=`basename $PDK_FILE` 
+			;;
+		esac
+	fi
+
+}
+
+
+#-----------------------------------------------------------------------------
+# Pandokia collects a lot of information about the test:
+# 	- stdout/stderr
+#	- start/end time
+#	- pandokia attributes (through pdk_attribute above)
+# 
+
+shunit_plugin_execute() {
+
+	_shunit_test_="$1"
+
+        # this output file is safe to use because __shunit_tmpDir is a
+        # unique temporary directory created for this process.
+        _pdk_output=${__shunit_tmpDir}/pdk_test_ouput
+
+	# the test name as pandokia knows it.  Recall that the prefix
+	# alread ends with a slash.
+	test_name=${PDK_TESTPREFIX}${__pdk_file_part}.${_shunit_test_}
+
+	# collect start/end time outside the { } because some shells
+	# don't remember variables that are set within
+        start_time=` date '+%Y-%m-%d %H:%M:%S' `
+
+        # run the test, collecting output into the file
+        {
+
+        # execute the per-test setup function
+        setUp
+
+        # execute the test
+        eval ${_shunit_test_}
+
+        # execute the per-test tear-down function
+        tearDown
+
+        } > $_pdk_output 2>&1
+
+        end_time=` date '+%Y-%m-%d %H:%M:%S' `
+
+        # write the test results to the pdk log file
+        {
+        echo 'test_name='${test_name}
+        echo 'test_runner=shunit2'
+
+	# shunit2 status and pandokia status are _almost_ identical.
+	# Fix the minor differences.
+	case "$_shunit_last_test_status"
+	in
+	U)	# unspecified means there were no assertions performed;
+		# we assume that means Pass
+		echo 'status=P'
+		;;
+	[PFE])	# these statuses are the same in pandokia and shunit
+		echo 'status='$_shunit_last_test_status 
+		;;
+	S)	# in pandokia, tests are "Disabled" not "Skipped"
+		echo 'status=D' 
+		;;
+	esac
+
+        echo 'start_time='$start_time
+        echo 'end_time='$end_time
+	if [ -s ${__shunit_tmpDir}/pdk_test_ouput ]
+	then
+		echo 'log:'
+		sed 's/^/./' < ${__shunit_tmpDir}/pdk_test_ouput
+		echo ''
+		echo ''
+	fi
+        echo 'END'
+        } >> $PDK_LOG
+
+        rm -f  ${__shunit_tmpDir}/pdk_test_ouput
+
+	# You don't normally do progress tracking in pandokia.  Instead,
+	# you read the information out of the test report.
+	# echo ${test_name}: $_shunit_last_test_status
+
+ 	# this is important:  tell shunit that we generated a report
+	# for this test, otherwise it generates another report of its own.
+	__shunit_reportGenerated=${SHUNIT_TRUE}
+
+}
+
+#-----------------------------------------------------------------------------
+
+shunit_plugin_final_report() {
+	# The pandokia plugin writes the report as a record for each test.
+	# There is nothing left to do here.
+	:
+}
+
+#-----------------------------------------------------------------------------
+
+shunit_plugin_finish() {
+	# the pandokia plugin does not require finalization
+	:
+}
+

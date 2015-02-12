@@ -1,0 +1,85 @@
+PAGEHEADER
+
+<p>
+Documentation is available on the group wiki: 
+<a href="https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia">
+https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
+</a>
+
+ADMINLINK
+
+<p>
+<ul>
+
+<li> <a href="CGINAME?query=day_report.2&test_run=jwst_latest">Latest JWST Report</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=etc_hst_daily_latest">Latest HST pyetc</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=etc_jwst_daily_latest">Latest JWST pyetc</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest">Latest Daily Report</a>
+	<ul>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=astrolib">astrolib</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=drizzlepac">drizzlepac</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=hstcal">hstcal</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=jwst">jwst</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsci_python">stsci_python</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsdas">stsdas</a>
+	<li>
+	<form action=CGINAME method=GET>
+		<input type=hidden name=query value='day_report.2'>
+		<input type=text name=test_run value='daily_latest'>
+	</form>
+	<li> <a href="CGINAME?query=treewalk&test_run=daily_latest">Latest Daily Report </a> (tree walker)
+	</ul>
+
+<hr>
+
+<li> <a href="CGINAME?query=day_report.1&test_run=-me">Just your test runs</a>
+
+<hr>
+<li> <a href="CGINAME?query=qid_list">List of interesting QID</a>
+<li> QID :
+	<form action=CGINAME method=GET>
+	<input type=hidden name=query value=summary>
+	<input type=text name=qid>
+	</form>
+<li> key_id :
+	<form action=CGINAME method=GET>
+	<input type=hidden name=query value=detail>
+	<input type=text name=key_id>
+	</form>
+<hr>
+<li> Lists of Test Runs:
+	<ul>
+		<li> <a href="CGINAME?query=day_report.1&test_run=%">All</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=daily_%">Daily only</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=user_%">user_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=run_%">run_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=ops_%">ops_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=release_%">release_%</a>
+		<li>	<form action=CGINAME method=GET>
+			<input type=hidden name=query value='day_report.1'>
+			<input type=text name=test_run value='user_%'>
+			</form>
+	</ul>
+
+<hr>
+<li> <a href=CGINAME?query=prefs>User Preferences</a>  (use to select what email you want)
+<hr>
+<li>
+Enter your own tree walk parameters:<br>
+(do not submit this form with all fields set to "%" - the query is too slow)
+	<form action=CGINAME method=GET>
+	test_run: <input type=text name=test_run value="%"> <br>
+	project: <input type=text name=project value="%"> <br>
+	host: <input type=text name=host value="%"> <br>
+	test_name: <input type=text name=test_name value="%"> <br>
+	<input type=hidden name=query value=treewalk>
+	<input type=submit name="submit" value="treewalk">
+	</form>
+</ul>
+<hr>
+
+<hr>
+
+<a href="CGINAME?query=expected">expected tests summary</a>
+
+</form>

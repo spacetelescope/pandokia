@@ -1,0 +1,5 @@
+shared*.py	none
+csv_t.py	none
+d_open.py	none
+*.py		minipyt
+clean.sh	none

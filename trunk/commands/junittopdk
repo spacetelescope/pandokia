@@ -1,0 +1,271 @@
+#! python
+"""junittopdk [options] FILES | pdk import -
+
+Convert junix/xml files into pandokia format.  This is an experimental
+feature.  It does not import directly into the database.
+
+These options exist to specify information that is not stored
+in the junit/xml data format:
+
+        -test_run   xxx
+        -host       xxx
+        -context    xxx
+        -project    xxx
+
+These other options exist:
+
+        -prefix xxx
+            put the specified prefix on the front of each test
+            name.
+
+        -h
+            show this message
+
+It is preferred to use a test runner that writes pandokia format
+if possible, because junit/xml does not collect all the data we
+want.
+
+"""
+
+# Convert junit/xml format into pandokia format
+#
+# junittopdk [options] FILES | pdk import -
+#
+# You might run this on the machine where you ran the test and
+# then transmit the pandokia files to the server.
+#
+import sys
+import xml.parsers.expat as expat
+
+
+# this will be set to True if the program sees something unexpected.
+# I don't have a good JUnit/XML spec (in a format that I can
+# understand -- I don't normally use XML, so XML Schema is not useful).
+# Detect anything that the program might misinterpret and warn the user
+# about it.
+confused_about_junit_xml = False
+
+
+# The XML library is callback-based.  These globals are used by the
+# callbacks to keep straight what the current state is.
+
+# status is the pandokia status ( one of 'P', 'F', 'E', 'D' ) or
+# None if not known yet
+status=None
+
+# log is a string that is collecting the log field
+log=None
+
+# true if we are in the middle of a <xx> </xx> that is reporting a
+# test status, false otherwise.
+in_status = False
+
+# name of the XML file we are reading from - pandokia thinks location
+# is where the test is, but we don't have that information available.
+location=''
+
+# pandokia test names are apparently more complicated than JUnit/XML
+# test names.  This allows us to place a particular junit report at
+# an arbitrary location in the test hierarchy
+test_prefix=''
+
+# a pandokia test result contains information that is not available
+# in the JUnit/XML format.  If the user specified it on the command
+# line, we use it here
+other_data = ''
+
+# Sometimes we should ignore the data that comes between markup
+# elements, other times not.  This flag is set according to where we
+# are in the xml syntax.
+ignore_cdata = False
+
+def reset_state() :
+    global status, log, in_status, location, test_prefix, ignore_cdata
+    status = None
+    log = None
+    in_status = False
+    location = ''
+    test_prefix = ''
+    ignore_cdata = False
+
+
+# called by expat when a <xx> is encountered in the XML
+def start( name, attr ):
+    global status, log, in_status, other_data, test_prefix, ignore_cdata
+
+    if name == 'testsuite' :
+        # the whole file is wrapped in a single <testsuite>
+
+        # here are some things that py.test and nose do not
+        # appear to report in xml mode, but some other sources do
+        if 'hostname' in attr :
+            other_data += 'host: %s\n' % attr['hostname']
+
+        if 'timestamp' in attr :
+            # convert ISO times into more readable format Pandokia uses
+            other_data += 'start_time: %s\n' % attr['timestamp'].replace('T',' ')
+
+    elif name == 'testcase' :
+        # start of a test case
+        status = None
+        log = ''
+        fd.write( "test_name=%s%s.%s\n"%(test_prefix, attr['classname'],attr['name']) )
+        fd.write( "location=%s\n" % location )
+        fd.write( other_data )
+
+    elif name == 'failure' :
+        do_status( 'F', name, attr )
+
+    elif name == 'skipped' :
+        # they say "skipped", we say "disabled"
+        do_status( 'D', name, attr )
+
+    elif name == 'error' :
+        do_status( 'E', name, attr )
+
+    elif name == 'property' :
+        # looks like the TCA that Vicki wants, but I have no place to put it
+        pass 
+
+    elif name == 'properties' :
+        pass
+
+    elif name == 'system-out' :
+        # JUnit reports a single stdout/stderr for the whole test
+        # run, but pandokia wants it per-test.  We don't know what
+        # to do with this, so just ignore it.
+        ignore_cdata = True
+
+    elif name == 'system-err' :
+        ignore_cdata = True
+
+    else :
+        confused_about_junit_xml = True
+        sys.stderr.write('# unknown START %s %s\n' % (name, attr ) )
+
+# called by expat when </xx> is encountered in the xml
+def end( name ) :
+    global in_status
+
+    if name == 'testsuite' :
+        pass
+
+    elif name == 'testcase' :
+
+        #
+        if status is None :
+            fd.write("status=P\n" )
+        else :
+            fd.write("status=%s\n"%status )
+
+        # 
+        fd.write("log:\n." )
+        fd.write('\n.'.join(log.split('\n')) )
+        fd.write("\n\n")
+
+        #
+        fd.write("END\n" )
+
+    elif name == 'failure' :
+        in_status = 0
+
+    elif name == 'skipped' :
+        in_status = 0
+
+    elif name == 'error' :
+        in_status = 0
+
+    elif name == 'property' :
+        pass
+
+    elif name == 'properties' :
+        pass
+
+    elif name == 'system-out' :
+        ignore_cdata = False
+
+    elif name == 'system-err' :
+        ignore_cdata = False
+
+    else :
+        confused_about_junit_xml = True
+        sys.stderr.write("# unknown END %s\n"%name )
+
+# called in between markup tags
+def data( d ) :
+    if ignore_cdata :
+        return
+
+    if in_status :
+        # if we are in a status tag, we have some output to collect
+        global log
+        log += d
+
+    elif d.strip() == '' :
+        # there are tabs/spaces/newlines between the tags that do
+        # not mean anything.
+        pass
+
+    else :
+        # don't expect this -- if we get here, then this program
+        # does not fully understand the data format
+        confused_about_junit_xml = True
+        sys.stderr.write("# DATA OUTSIDE TEST %s\n"%d)
+
+# common code for setting status
+def do_status( st, name, attr ) :
+    global status, log, in_status
+    in_status = 1
+    status = st
+    for x in sorted([ x for x in attr]) :
+        log += "%s: %s\n"%(x,attr[x])
+
+# output to stdout
+fd = sys.stdout
+
+
+#####
+##### main program
+#####
+
+if __name__ == '__main__' :
+    import pandokia.helpers.easyargs as easyargs
+
+    opt, args = easyargs.get( {
+        '-test_run' :   '=',
+        '-host'     :   '=',
+        '-context'  :   '=',
+        '-project'  :   '=',
+        '-prefix'   :   '=',
+        '-h'        :   '',
+        }, sys.argv[1:] )
+
+    if opt['-h'] :
+        print __doc__
+        sys.exit(0)
+
+    for x in args :
+        fd.write( "\n\nSTART\n" )
+        reset_state()
+
+        other_data = ''
+        for y in ( 'test_run', 'host', 'context', 'project' ) :
+            if '-' + y in opt :
+                other_data += '%s: %s\n' % ( y, opt[ '-'+y ] )
+
+        if '-prefix' in opt :
+            test_prefix += opt['-prefix'] + '.'
+
+        parser = expat.ParserCreate( )
+
+        parser.StartElementHandler = start  # called for <thing x="1">
+        parser.EndElementHandler = end      # called for </thing>
+        parser.buffer_text = True           # make it call CharacterDataHandler only once
+        parser.CharacterDataHandler = data  # called for data
+
+        location = x
+        parser.ParseFile( open(x) )
+
+        if confused_about_junit_xml :
+            sys.stderr.write("Your JUnit/XML data is not understood by this program.  This could mean your JUnit is corrupted, but it could mean that I do not fully understand this data format.\n")
+            sys.exit(2)

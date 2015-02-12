@@ -1,0 +1,11 @@
+# "snout" is not really a good name for this test runner because
+# it runs more than just doctests.  It runs any test that nose
+# recognizes.
+#
+# The thing that makes the snout runner different is that it runs
+# the tests on _installed_ software, while the pdknose runner runs
+# the tests on files stored in the test directory.
+#
+test.test_generators
+test.test_netrc
+test.test_sort

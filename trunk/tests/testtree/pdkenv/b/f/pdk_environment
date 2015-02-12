@@ -1,0 +1,6 @@
+[default]
+cdbs = /grp/hst/cdbs/
+mtab = $cdbs/mtab
+PYSYN_CDBS = $cdbs
+tca = cat grass
+

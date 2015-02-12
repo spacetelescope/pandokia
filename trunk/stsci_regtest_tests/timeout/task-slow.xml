@@ -1,0 +1,51 @@
+<RegTest>
+
+<title>timeout a task</title>
+
+<pre-exec>
+
+<!-- 
+	make a fifo
+	start a slow process writing to the fifo (no reader yet)
+-->
+
+<command>
+print "make fifo"
+os.system('rm -rf fifo ; mkfifo fifo; ls -l fifo')
+os.system('sleep 20 > fifo &')
+</command>
+
+<!-- 
+	load the utilities package
+-->
+<command>
+import pyraf.iraffunctions
+pyraf.iraffunctions.clExecute('utilities')
+pyraf.iraffunctions.clExecute('?')
+</command>
+
+</pre-exec>
+
+
+<!--
+	detab the fifo
+
+	since there is nothing being written, the detab task blocks
+	waiting to read the fifo.  Eventually, it gets killed by
+	the timeout.
+-->
+<taskname>detab</taskname>
+<pfile>task-slow.par</pfile>
+
+<output>
+  	<val>
+	<file>STDOUT</file>
+	<reference>task-slow.ref</reference>
+	<comparator>ascii</comparator>	
+	</val>
+
+
+</output>
+
+</RegTest>
+

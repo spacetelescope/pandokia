@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+#
+# simple json pretty printer
+#
+import json
+import sys
+
+def do_file( fd ) :
+    s = fd.read()
+    j_in = json.loads( s )
+    j_out = json.dumps(j_in, sort_keys=True, indent=4, separators= (',', ': ') )
+    sys.stdout.write( j_out )
+    sys.stdout.write( "\n" )
+
+if len(sys.argv) > 1 :
+    for x in sys.argv[1:] :
+        if x == '-h' or x == '--help' :
+            print "json_pp < input > output "
+            print "json_pp file > output"
+            print "   if you give multiple files, the output is a number of json"
+            print "   records concatenated together"
+            continue
+        f = open( x, "r" )
+        do_file( f )
+        f.close
+else :
+    do_file( sys.stdin )
+

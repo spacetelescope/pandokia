@@ -1,0 +1,10 @@
+Test that the regtest system can correctly timeout tests that take too long.
+
+pre-exec-slow.xml
+	this test has an infinite loop in the pre-exec
+
+task-slow.xml
+task-slow.par
+	This test takes 20 seconds to detab a file.
+	We have no reference files because the compare never happens.
+

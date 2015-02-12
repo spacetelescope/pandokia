@@ -1,0 +1,13 @@
+
+
+START
+test_name=net.cars.documents.AssuranceTest.covered
+location=testresults/TEST-net.cars.documents.AssuranceTest.xml
+host: MY_HOST
+host: x86-linux1
+start_time: 2006-10-02 19:37:23
+status=P
+log:
+.
+
+END

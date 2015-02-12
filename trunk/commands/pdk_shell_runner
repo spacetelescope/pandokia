@@ -1,0 +1,165 @@
+#!/bin/sh
+#
+# This implements a Pandokia test_runner that executes a shell script
+# as the test.  The test name is derived from the basename of the file name.
+# The test result is derived from the exit code.
+# 0 : pass
+# 1-127 : fail
+# >= 128 : error
+#
+# This script only works with the environment provided by the pandokia
+# meta-runner.  It is not intended for you to run it directly.
+
+
+# We want this script to ignore signals that come from other places,
+# but we want the test we are running to respond to them.  Thanks to
+# details of the trap command, we have to turn our trap on/off/on
+# to make it work right.  See the race described below.
+do_trap() {
+	trap "" 2 3 15
+}
+
+do_untrap() {
+	trap - 2 3 15
+}
+
+do_trap
+
+# datefmt is a format for the date(1) command to use to report the
+# start/end time.
+#
+# This format is fairly portable:
+datefmt='+%Y-%m-%d %H:%M:%S'
+#  It looks like:
+#	2009-06-17 12:18:13
+#
+# If you have GNU date, you could use one of these instead:
+#
+# datefmt='+%Y-%m-%d %H:%M:%S.%N'
+#	2009-06-17 12:17:08.316247933
+#
+# datefmt='+%s.%N'
+#	1245255446.459466663
+#
+# datefmt='+%s'
+#	1245255452
+
+
+# Compute the test name.  In this case, the test name is the
+# same as the basename of the file, minus any extension.  If you want
+# to allow multiple tests in a single file, you would have to do something
+# like this for each of them.
+
+case "$PDK_FILE"
+in
+*.sh)
+	test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE .sh`
+	;;
+*.csh)
+	test_name=${PDK_TESTPREFIX}/`basename $PDK_FILE .csh`
+	;;
+*)
+	test_name=${PDK_TESTPREFIX}/$PDK_FILE
+	;;
+esac
+
+
+# Report things about this test that we know already and that
+# have not been entered into the log file by the meta-runner.
+(
+echo 'test_name='$test_name
+echo 'start_time='`date "$datefmt"`
+) >> $PDK_LOG
+
+
+tmpfile=pdk.runner.tmp
+
+# Run the shell script, gathering output into a temp file.  The
+# sequence here is :
+#
+# - clear all signal traps right before we run the test itself
+# - run the test in the background
+# - re-instate all the signal traps immediately
+# - wait for the background process
+#
+# This means that we do our waiting with signals blocked, except
+# for a tiny window around the time we start the test.  I can't really
+# do anything about that except re-write this part with some other
+# programming language that would allow me to change the signal
+# handling between the fork/exec.  [ Notice that ( trap ; cmd )
+# will "restore" the signal handling to "all blocked" because
+# that is the initial state of the shell interpreting the ( )
+# commands. ]
+
+echo '' > $tmpfile
+
+if [ -x $PDK_FILE ]
+then
+	# In fact, you can use any language here, not just sh.
+	# We can say ./ because we know that pdkrun always gives us just
+	# the basename.
+	do_untrap
+	./$PDK_FILE > $tmpfile 2>&1 &
+	pid=$!
+	do_trap
+else
+	case "$PDK_FILE"
+	in
+	*.sh)
+		do_untrap
+		sh $PDK_FILE > $tmpfile 2>&1 &
+		pid=$!
+		do_trap
+		;;
+	*.csh)	
+		do_untrap
+		csh -f $PDK_FILE > $tmpfile 2>&1 &
+		pid=$!
+		do_trap
+		;;
+	*)
+		echo 'pdk_shell_runner: $PDK_FILE not executable and do not know interpreter to use' > $tmpfile
+		( exit 128 )
+		;;
+	esac
+fi
+
+wait $pid
+
+exitcode=$?
+
+# analyze the exit code
+#       0 = "pass"
+#   1-127 = "fail"
+# 128-255 = aborted on signal, so "error"
+#
+if [ $exitcode -eq 0 ]
+then
+	rpt=P
+else
+	if [ $exitcode -lt 128 ]
+	then
+		rpt=F
+	else
+		rpt=E
+	fi
+fi
+
+#
+# Now that we know the results of the test, write them
+# to the log file.
+(
+	echo 'end_time='`date "$datefmt"`
+	echo 'status='$rpt
+	echo 'tra_exitcode='$exitcode
+	echo 'log:'
+	sed 's/^/./' < $tmpfile
+	# one blank line in case $tmpfile does not end with newline
+	echo ''		
+	# one blank line terminates the log: entry.
+	echo ''	
+	# end the record for this test.
+	echo END
+) >> $PDK_LOG
+
+rm -f $tmpfile

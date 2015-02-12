@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" >
+<title>Pandokia</title>
+</head>
+<body>
+PAGEHEADER
+
+<p>
+
+<ul>
+<li> Lists of Test Runs:
+	<ul>
+		<li> <a href="CGINAME?query=day_report.1&amp;test_run=*">All</a>
+		<li> <a href="CGINAME?query=day_report.1&amp;test_run=daily_*">daily_*</a>
+		<li> <a href="CGINAME?query=day_report.1&amp;test_run=user_*">user_*</a> - test runs that took the default name
+		<li>	<form action=CGINAME method=GET>
+			<input type=hidden name=query value='day_report.1'>
+			<input type=text name=test_run value='daily_*'>
+			enter a pattern here
+			</form>
+	</ul>
+
+
+<hr>
+
+<li> <a href="CGINAME?query=day_report.2&amp;test_run=daily_latest">Latest Daily Report</a> (table)
+	<ul>
+	<li>
+	<form action=CGINAME method=GET>
+		<input type=hidden name=query value='treewalk.linkout'>
+		<input type=hidden name=project value='*'>
+		<input type=hidden name=host value='*'>
+		<input type=hidden name=test_name value ='*'>
+		<input type=hidden name=status value='[FEM]'>
+		<input type=text name=test_run value='daily_latest'>
+	</form>
+	<li> problem:  
+	  <a href="CGINAME?query=treewalk&amp;project=*&amp;test_run=daily_latest&amp;host=*&amp;test_name=*&amp;status=[FEM]">tree</a>
+	  <a href="CGINAME?query=treewalk.linkout&amp;project=*&amp;test_run=daily_latest&amp;host=*&amp;test_name=*&amp;status=[FEM]">list</a>
+	or <li> <a href="CGINAME?query=treewalk&amp;test_run=daily_latest">Latest Daily Report </a> (tree walker)
+	</ul>
+
+<hr>
+
+<li> <a href="CGINAME?query=qid_list">List of interesting QID</a>
+<li> key_id :
+        <form action=CGINAME method=GET>
+        <input type=hidden name=query value=detail>
+        <input type=text name=key_id>
+        </form>
+<hr>
+
+<hr>
+<a href="CGINAME?query=prefs">User Preferences</a>
+
+<hr>
+<li>
+Enter your own tree walk parameters:<br>
+(if you have a lot of data, it can be very slow to submit this form with all fields set to "*")
+	<form action=CGINAME method=GET>
+	test_run: <input type=text name=test_run value="*"> <br>
+	project: <input type=text name=project value="*"> <br>
+	host: <input type=text name=host value="*"> <br>
+	test_name: <input type=text name=test_name value="*"> <br>
+	<input type=hidden name=query value=treewalk>
+	<input type=submit name="submit" value="treewalk">
+	</form>
+</ul>
+<hr>
+
+<a href="CGINAME?query=expected">expected tests summary</a>
+
+</ul>
+</body>
+</html>

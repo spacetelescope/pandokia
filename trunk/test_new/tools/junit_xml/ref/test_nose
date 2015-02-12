@@ -1,0 +1,77 @@
+
+
+START
+test_name=nose_tests.FromUnit.testfail
+location=tmp/nose.xml
+status=F
+log:
+.message: True is not False
+.type: exceptions.AssertionError
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7.1/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/Users/sienkiew/work/pandokia/test_new/tools/junit_xml/nose_tests.py", line 13, in testfail
+.    self.failIf(True)
+.  File "/usr/stsci/pyssgdev/Python-2.7.1/lib/python2.7/unittest/case.py", line 593, in deprecated_func
+.    return original_func(*args, **kwargs)
+.  File "/usr/stsci/pyssgdev/Python-2.7.1/lib/python2.7/unittest/case.py", line 399, in assertFalse
+.    raise self.failureException(msg)
+.AssertionError: True is not False
+.
+
+END
+test_name=nose_tests.FromUnit.testpass
+location=tmp/nose.xml
+status=P
+log:
+.
+
+END
+test_name=nose_tests.TestClassSetup.testfail
+location=tmp/nose.xml
+status=F
+log:
+.message: 
+.type: exceptions.AssertionError
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7.1/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-1.1.2-py2.7.egg/nose/case.py", line 197, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/test_new/tools/junit_xml/nose_tests.py", line 48, in testfail
+.    assert False
+.AssertionError
+.
+
+END
+test_name=nose_tests.TestClassSetup.testpass
+location=tmp/nose.xml
+status=P
+log:
+.
+
+END
+test_name=nose_tests.TestFromClass.testfail
+location=tmp/nose.xml
+status=F
+log:
+.message: 
+.type: exceptions.AssertionError
+.Traceback (most recent call last):
+.  File "/usr/stsci/pyssgdev/Python-2.7.1/lib/python2.7/unittest/case.py", line 318, in run
+.    testMethod()
+.  File "/usr/stsci/pyssgdev/2.7/nose-1.1.2-py2.7.egg/nose/case.py", line 197, in runTest
+.    self.test(*self.arg)
+.  File "/Users/sienkiew/work/pandokia/test_new/tools/junit_xml/nose_tests.py", line 25, in testfail
+.    assert False
+.AssertionError
+.
+
+END
+test_name=nose_tests.TestFromClass.testpass
+location=tmp/nose.xml
+status=P
+log:
+.
+
+END

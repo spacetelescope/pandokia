@@ -1,0 +1,59 @@
+
+Each directory a, b, c, etc contains a test case with these files:
+
+environment
+	common environment file
+
+environment.$context
+	context-specific environment file (happens after common file)
+
+output.irafdev		<- output for context=irafdev on any machine
+output.irafx.gaudete	<- output for context=irafx on gaudete
+output.irafx.thor	<- output for context=irafx on thor
+	output of dictionary created for that directory, similar to
+	the output of /usr/bin/env
+
+
+If you don't see the .irafx. files, there is no file for that context in that tree.
+
+
+
+
+The grammar is something like this.  Use and/or modify as convenient.
+
+* block_name		<- start of block, name has no spaces
+var=value		<- variable assignment; to end of line for now
+var=value
+;			<- end of block.  use it or ignore it
+
+
+* next_block_name	<- start of next block
+var=value
+;
+
+
+TOPLEVEL		<- if the environment file contains this line, it
+			   is at the top level of the directory hierarchy
+
+
+blank lines ignored
+# is a comment
+
+blocks are processed in the order you find them
+vars are processed in the order you find them
+
+the name of the block can be 
+	"all" to apply everywhere
+	"host=xyz" to apply on host named xyz
+		host name is platform.node().split(".")[0]
+
+( let's say we'll think about generalizing this to os, cpu, or whatever
+if necessary)
+
+( let's say we'll think about "host=xyz|abc" at some point.)
+
+
+b.t.w.  We will want a way to say "get all the environment information from
+above here" so you can pick a subdirectory out of the tree to run it yourself.
+It might insert PDK_TESTPREFIX into the environment it reports.
+
