@@ -96,6 +96,21 @@ class PandokiaDB(pandokia.db.where_dict_base) :
             return
         self.db.rollback()
 
+    def rollback_or_reconnect(self):
+        if self.db :
+            try :
+                self.db.rollback()
+                return
+            except self.OperationalError :
+                print "rollback or reconnect - reconnect"
+                # We know of
+                # (2006, 'MySQL server has gone away')
+                # (2013, 'Lost connection to MySQL server during query')
+                # but any error will do, really.
+                self.db.close()
+                self.db = None
+        self.open()
+
     #
     # explain the query plan using the database-dependent syntax
     #

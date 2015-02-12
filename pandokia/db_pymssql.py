@@ -107,6 +107,9 @@ class PandokiaDB(pandokia.db.where_dict_base) :
             return
         self.db.rollback()
 
+    def rollback_or_reconnect(self):
+        raise NotImplemented('rollback_or_reconnect not implemented')
+
     #
     # execute a query in a portable way
     # (this capability not offered by dbapi)
