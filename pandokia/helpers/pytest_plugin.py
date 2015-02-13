@@ -25,7 +25,7 @@ import pytest
 import _pytest
 
 # I know this plugin doesn't work in py.test 2.1
-if tuple(pytest.__version__.split('.')) < (2,2,0) :
+if tuple(pytest.__version__.split('.')) < ('2','2','0') :
     raise Exception("The py.test plugin for Pandokia requires at least py.test 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
