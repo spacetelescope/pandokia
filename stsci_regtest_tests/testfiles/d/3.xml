@@ -3,7 +3,7 @@
 <title>testfiles 3 </title>
 <pre-exec>
 <command>
-print "testfiles 3 ok"
+print("testfiles 3 ok")
 open("test_3.out","w").close()
 </command>
 </pre-exec>
