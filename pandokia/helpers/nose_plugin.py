@@ -15,20 +15,11 @@ import unittest #for tda/tra stuff
 import traceback
 import platform
 
-if sys.version > '3':
-    from io import StringIO as p_StringO    #for stdout capturing
-    from io import OutputType as c_StringO
-else:
-    from StringIO import StringIO as p_StringO
-    from cStringIO import OutputType as c_StringO
-
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
 
-
 def get_stdout():
-    if isinstance(sys.stdout, c_StringO) or \
-           isinstance(sys.stdout, p_StringO):
+    if 'getvalue' in dir(sys.stdout) and callable(getattr(sys.stdout, 'getvalue')):
         return sys.stdout.getvalue()
     return None
 
