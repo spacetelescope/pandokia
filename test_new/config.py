@@ -3,8 +3,7 @@
 # import test configuration
 import os
 import pandokia.helpers.importer as i
-import pdb ## DBG
-pdb.set_trace() ## DBG
+
 tc = i.importer( 'test_config', os.environ['PDK_TOP']+'/config' )
 config = tc.cfg
 
