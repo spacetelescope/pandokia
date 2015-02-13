@@ -487,7 +487,7 @@ class Regress:
 
         # display the log entry stdout too, for use when trying to
         # analyze problems
-        # print "log:  ",line
+        # print("log:  ",line)
 
 
 #----------------------------------------------------------------------
