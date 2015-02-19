@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import os.path
 import pandokia.lib
 import datetime
 import traceback
@@ -383,7 +384,10 @@ class _pycode_with(object) :
         try :
             runner_minipyt
         except NameError :
-            from . import runner_minipyt as m
+            try:
+                from . import runner_minipyt as m
+            except ValueError:
+                import runner_minipyt as m
             runner_minipyt = m
 
         # name is just our base name.
@@ -427,11 +431,10 @@ class _pycode_with(object) :
             this_file = l[0][1]
             for x in l :
                 if x[1] != this_file or x[3] == 'package_test' :
-                    self.location = x[1]
+                    self.location = os.path.abspath(x[1])
                     break
             if '__init__' in self.location :
                 open("/dev/tty","w").write(str(l))
-
     # 
     def __enter__(self) :
         # do not allow the user to reuse this object; they have to
