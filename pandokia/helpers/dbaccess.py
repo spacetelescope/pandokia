@@ -111,13 +111,11 @@ def load_identity( test_run = None, project = None, context = None, host = None,
 
     # convert the list to sql and make the query
     hc_where, hc_where_dict = pdk_db.where_dict ( select )
-
     c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " + hc_where, hc_where_dict )
 
     l = [ ]
     for x in c :
         l.append( load_part_2( x, ignore_log ) )
-
     return l
 
 ##########
