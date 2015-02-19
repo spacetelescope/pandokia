@@ -44,7 +44,7 @@ quiet = 0
 
 # This is just a struct to store all the information about a process
 
-class process:
+class process(object):
     pid=None
     slot=None
     stdout_filename=None
