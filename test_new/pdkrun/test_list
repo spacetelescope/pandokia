@@ -1,9 +1,9 @@
 # get a list of the test names from the user interface to update this file
-pdkrun_test_data/shunit/xyz.shunit2.test_one_equals_one	
-pdkrun_test_data/shunit/xyz.shunit2.test_two_equals_one	
-pdkrun_test_data/shunit/xyz.shunit2.test_foo	
-pdkrun_test_data/shunit/xyz.shunit2.test_bar	
-pdkrun_test_data/shunit/xyz.shunit2.test_with_attr	
+pdkrun_test_data/shunit/xyz.test_one_equals_one	
+pdkrun_test_data/shunit/xyz.test_two_equals_one	
+pdkrun_test_data/shunit/xyz.test_foo	
+pdkrun_test_data/shunit/xyz.test_bar	
+pdkrun_test_data/shunit/xyz.test_with_attr	
 pdkrun_test_data/minipyt/assert_on_import_f	
 pdkrun_test_data/minipyt/assert_on_import_p	
 pdkrun_test_data/minipyt/attr.class_setup_exception	
