@@ -3,7 +3,7 @@ a plugin for capturing test output from py.test
 """
 
 # debugging
-class tty:
+class tty(object):
     def write(self, s) :
         pass
 tty = tty()
@@ -32,7 +32,7 @@ if tuple(pytest.__version__.split('.')) < ('2','2','0') :
 import pandokia.helpers.pycode
 
 # basically a C struct
-class data_item :
+class data_item(object) :
     pass
 
 # contains various state information set by command line or whatever
@@ -157,18 +157,32 @@ def pytest_configure(config):
 # timeout was
 current_timeout = None
 
-# an exception to raise when a test takes too long
-class TimeoutError:
-    '''An exception for this plugin to use internally for timeouts.
-
-    This is an old-style class so that user code can't catch it with
-        except Exception, e:
-            ...
-    '''
-    def __init__(self, timeout) :
-        self.timeout = timeout
-    def __str__(self) :
-        return "time out after %s seconds"%self.timeout
+if sys.version > '3':
+    # an exception to raise when a test takes too long
+    class TimeoutError(Exception):
+        '''An exception for this plugin to use internally for timeouts.
+    
+        This is an old-style class so that user code can't catch it with
+            except Exception, e:
+                ...
+        '''
+        def __init__(self, timeout) :
+            self.timeout = timeout
+        def __str__(self) :
+            return "time out after %s seconds"%self.timeout
+else:
+    # an exception to raise when a test takes too long
+    class TimeoutError:
+        '''An exception for this plugin to use internally for timeouts.
+    
+        This is an old-style class so that user code can't catch it with
+            except Exception, e:
+                ...
+        '''
+        def __init__(self, timeout) :
+            self.timeout = timeout
+        def __str__(self) :
+            return "time out after %s seconds"%self.timeout
 
 # A signal handler for the alarm.  Remove the signal handler and raise
 # the exception to indicate a timeout.
