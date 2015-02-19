@@ -39,7 +39,7 @@ def pad_list( l, n, value=None ) :
 ###
 ###
 
-class text_table_cell :
+class text_table_cell(object) :
 
     """
     private - single cell of a text_table
@@ -78,7 +78,7 @@ class text_table_cell :
 ###
 ###
 
-class text_table_row :
+class text_table_row(object) :
 
     """
     private - single row of a text_table
@@ -136,7 +136,7 @@ class text_table_row :
 ## by just stuffing values into them, then number_of_columns may not
 ## match the actual number of columns. [[ check if this is still accurate ]]
 
-class text_table :
+class text_table(object) :
 
     """
     text_table - a row/column table creator
