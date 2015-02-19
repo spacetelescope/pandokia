@@ -17,7 +17,10 @@ import pandokia.common
 from collections import defaultdict
 import subprocess
 
-from . import text_table
+try:
+    from . import text_table
+except ValueError:
+    import text_table
 
 #A dictionary of test runs for easy storage.
 test_runs = {}
