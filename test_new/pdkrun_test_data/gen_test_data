@@ -16,4 +16,3 @@ rm -f PDK_*
 P=4
 
 pdkrun -r --parallel $P --test_run pdkrun_test .
-
