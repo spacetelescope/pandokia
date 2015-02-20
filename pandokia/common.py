@@ -43,7 +43,7 @@ def check_auth() :
 
     # If the web server checked them with BasicAuth, we will use that:
 
-    if ( "AUTH_TYPE" in lis(os.environ.keys()) ) and ( os.environ["AUTH_TYPE"] == 'Basic' ) :
+    if ( "AUTH_TYPE" in list(os.environ.keys()) ) and ( os.environ["AUTH_TYPE"] == 'Basic' ) :
         if cfg.user_list is None :
             # If there is no user_list in the config, any authenticated user is accepted.
             auth_ok = 1
