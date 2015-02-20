@@ -181,9 +181,12 @@ CREATE TABLE distinct_test_run (
 	record_count INTEGER,
 		-- how many records in this test run
 		-- if 0 or NULL, we dont know
-        note VARCHAR(100)
-                -- a brief note about this test run
+    note VARCHAR,
+        -- a brief note about this test run
 		-- set first char to '*' to mark read-only
+	min_time VARCHAR,
+    max_time VARCHAR
+		-- earliest start, latest end
 );
 
 
