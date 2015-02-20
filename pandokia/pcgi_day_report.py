@@ -112,7 +112,7 @@ def rpt1(  ) :
             max_time = str(max_time).split('.')[0]
             t1 = min_time.split()
             t2 = max_time.split()
-            if t1[0] == t2[0] and len(t2) > 1 :
+            if len(t2) > 1 and len(t1) > 1 and t1[0] == t2[0] and len(t2) > 1 :
                 max_time = t2[1]
             table.set_value(row, 'min', text=min_time)
             table.set_value(row, 'max', text=max_time)
