@@ -80,8 +80,8 @@ CREATE TABLE result_scalar (
 		-- "R" for "problem resolved"
 	has_okfile CHAR(1),
 		-- 0 or 1 indicating whether this test had a tda_okfile attribute
-        chronic CHAR(1)
-                -- 0 or 1 indicating whether this test is a chronic problem
+    chronic CHAR(1)
+        -- 0 or 1 indicating whether this test is a chronic problem
 	);
 
 CREATE UNIQUE INDEX result_scalar_test_identity 
@@ -206,7 +206,7 @@ CREATE TABLE distinct_test_run (
 		-- a brief note about this test run
 		-- set first char to '*' to mark read-only
 	min_time VARCHAR(26),
-        max_time VARCHAR(26)
+    max_time VARCHAR(26)
 		-- earliest start, latest end
 	);
 
@@ -240,7 +240,7 @@ CREATE TABLE user_email_pref (
 --	time is used to know when we can purge the record
 
 CREATE TABLE query_id (
-	qid 		INTEGER AUTO_INCREMENT,
+	qid 	INTEGER AUTO_INCREMENT,
 			PRIMARY KEY ( qid ),
 			-- unique number of query
 	time	INTEGER,		-- time_t a cgi last touched this query
