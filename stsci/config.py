@@ -18,6 +18,7 @@ recurring_prefix = (
     'etc_midday',
     'etc_hst_daily',
     'etc_jwst_daily',
+    'pandeia_latest',
     'jwst',
 )
 
