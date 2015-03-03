@@ -21,6 +21,10 @@ import pandokia.common as common
 
 cfg = pandokia.cfg
 
+if sys.version_info[0] < 3:
+    string_types = basestring
+else:
+    string_types = str
 
 ##########
 #
@@ -44,12 +48,8 @@ def run() :
 
     if cfg.server_maintenance:
         sys.stdout.write("content-type: text/html\n\n\nWeb page unavailable because of pandokia server maintenance<p>\n\n")
-        if sys.version > '3':
-            is_string = isinstance(cfg.server_maintenance,str)
-        else:
-            is_string = isinstance(cfg.server_maintenance,basestring)
             
-        if is_string:
+        if isinstance(cfg.server_maintenance, string_types) :
             sys.stdout.write("%s\n"%cfg.server_maintenance)
         sys.exit(0)
 
@@ -254,12 +254,12 @@ def run() :
     
     if cfg.debug or ( common.current_user() in common.cfg.admin_user_list ) :
         print("YOU ARE ADMIN, DEBUG FOLLOWS")
-        for x in form:
-            if isinstance(form[x],list) :
-                for y in form[x]:
-                    print(x, y,"<br>")
+        for y in form:
+            if isinstance(form[y],list) :
+                for z in form[y]:
+                    print(y, z,"<br>")
             else :
-                print(x, form[x],"<br>")
+                print(y, form[y],"<br>")
 
 #
 def error_1201() :

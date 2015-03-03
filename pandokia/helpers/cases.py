@@ -2,7 +2,6 @@
 to easily write tests."""
 
 import unittest
-import os
 from pandokia.helpers import filecomp
 
 class FileTestCase(unittest.TestCase):

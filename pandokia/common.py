@@ -16,12 +16,14 @@ import os.path
 import re
 import types
 
-if sys.version > '3':
-    import io as StringIO
-    import urllib.parse as url_parse
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
     import urllib as url_parse
+    string_types = basestring
+else:
+    import io as StringIO
+    import urllib.parse as url_parse
+    string_types = str
 
 import pandokia
 cfg = pandokia.cfg
@@ -344,11 +346,7 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
                 if this_format == '' or this_format == 'text' :
                     result.write(str(val))
                 elif this_format == 'cgi' :
-                    if sys.version > '3':
-                        is_string = isinstance(val, str)
-                    else:
-                        is_string = isinstance(val, basestring)
-                    if is_string :
+                    if isinstance(val, string_types) :
                         val = url_parse.quote_plus(val)
                     else :
                         val = url_parse.urlencode(val)

@@ -43,6 +43,7 @@ __all__ = [
 # https://pypi.python.org/pypi/pymssql/2.1.0
 
 import pymssql as db_module
+import re
 
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code
@@ -56,10 +57,6 @@ import pandokia.db
 # debugging 
 _tty = None
 # _tty = open("/dev/tty","w")
-
-import os
-
-import re
 
 class PandokiaDB(pandokia.db.where_dict_base) :
 
@@ -144,7 +141,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
         if ( _tty is not None ) and not ( statement.startswith('EXPLAIN') ) :
             _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
-            _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
+            ##_tty.write(explain_query( statement, parameters ) +"\nWARN: ")
             c.execute("SHOW WARNINGS")
             for x in c :
                 _tty.write(str(x)+"\n")

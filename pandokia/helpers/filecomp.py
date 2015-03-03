@@ -87,8 +87,8 @@ def cmp_example( the_file, reference_file, msg=None, quiet=False, attr_prefix=No
     You can then use it by calling file_compare()
 
     '''
-    if ( not quiet ) and ( header_message is not None ) :
-        sys.stdout.write(header_message)
+    if ( not quiet ) and ( msg is not None ) :
+        sys.stdout.write(msg)
 
     safe_rm('filecomp.tmp')
 
@@ -142,7 +142,6 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
         return False
 
     blksize=65536
-    offset=0
     while 1 :
         d1 = f1.read(blksize)
         d2 = f2.read(blksize)
@@ -724,7 +723,6 @@ def ensure_dir(name) :
 ### checking age of files
 ###
 
-import os
 import time
 
 def file_age(f) :

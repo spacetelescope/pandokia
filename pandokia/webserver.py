@@ -7,11 +7,11 @@ from __future__ import print_function
 import sys
 import os
 
-if sys.version > '3':
-    from http.server import CGIHTTPRequestHandler, HTTPServer
-else:
+if sys.version_info[0] < 3:
     from CGIHTTPServer import CGIHTTPRequestHandler
     from BaseHTTPServer import HTTPServer
+else:
+    from http.server import CGIHTTPRequestHandler, HTTPServer
 
 class my_handler( CGIHTTPRequestHandler ) :
 

@@ -13,7 +13,6 @@ tty = tty()
 
 import os, time, datetime, sys, re, types
 import os.path
-import traceback
 import platform
 import signal
 
@@ -142,7 +141,7 @@ def pytest_configure(config):
                 test_prefix = '')
 
         except IOError as e:
-            sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
+            sys.stderr.write("Error opening log file %s: %s\n"%(filename,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
     else:
@@ -157,9 +156,9 @@ def pytest_configure(config):
 # timeout was
 current_timeout = None
 
-if sys.version > '3':
+if sys.version_info[0] < 3:
     # an exception to raise when a test takes too long
-    class TimeoutError(Exception):
+    class TimeoutError:
         '''An exception for this plugin to use internally for timeouts.
     
         This is an old-style class so that user code can't catch it with
@@ -172,7 +171,7 @@ if sys.version > '3':
             return "time out after %s seconds"%self.timeout
 else:
     # an exception to raise when a test takes too long
-    class TimeoutError:
+    class TimeoutError(Exception):
         '''An exception for this plugin to use internally for timeouts.
     
         This is an old-style class so that user code can't catch it with

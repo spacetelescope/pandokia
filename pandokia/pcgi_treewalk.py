@@ -11,10 +11,10 @@ import copy
 import time
 import os
 
-if sys.version > '3':
-    import urllib.parse as url_parse
-else:
+if sys.version_info[0] < 3:
     import urllib as url_parse
+else:
+    import urllib.parse as url_parse
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db

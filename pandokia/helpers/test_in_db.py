@@ -93,7 +93,7 @@ def perform_db_tests( query, expected_results ) :
     with pycode.test( 'all' ) :
         if len(all_tests) != 0 :
             print("Not all tests examined:")
-            for x in sorted( [ x for x in all_test ] ) :
+            for x in sorted( [ x for x in all_tests ] ) :
                 print("   ",x)
             assert 0
 

@@ -14,10 +14,10 @@ import sys
 import cgi
 import csv
 
-if sys.version > '3':   
-    import io as StringIO
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
+else:
+    import io as StringIO
 
 #
 # A text_table contains a list of text_table_row.  
@@ -817,7 +817,6 @@ def sequence_to_table( l ) :
     return t
 
 if __name__ =="__main__":
-    import sys
     t=text_table()
     t.set_html_table_attributes("border=1 bgcolor=blue")
 

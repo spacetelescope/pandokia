@@ -4,7 +4,6 @@ import getopt
 import os
 import os.path
 import stat
-import errno
 import pandokia.common as common
 
 helpstr = '''

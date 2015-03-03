@@ -16,10 +16,10 @@ try:
 except ValueError:
     import common
 
-if sys.version > '3':
-    import urllib.parse as url_parse
-else:
+if sys.version_info[0] < 3:
     import urllib as url_parse
+else:
+    import urllib.parse as url_parse
     
 cfg = pandokia.cfg
 

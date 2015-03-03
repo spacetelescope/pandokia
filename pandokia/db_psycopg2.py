@@ -29,17 +29,14 @@ _tty = None
 # _tty = open("/dev/tty","w")
 
 import sys
-import os
-if sys.version > '3':
-    import io as StringIO
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
+else:
+    import io as StringIO
 
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code
 db_driver = 'psycopg2'
-
-import re
 
 class PandokiaDB(pandokia.db.where_dict_base) :
 

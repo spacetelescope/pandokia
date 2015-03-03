@@ -1,4 +1,3 @@
-import sys
 import os
 import pandokia.helpers.pycode as pycode
 

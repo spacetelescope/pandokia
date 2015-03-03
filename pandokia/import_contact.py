@@ -16,9 +16,7 @@
 #
 from __future__ import print_function
 
-import pandokia.common as common
 import sys
-
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 

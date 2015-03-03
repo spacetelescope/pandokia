@@ -8,8 +8,6 @@ import cgi
 import pandokia
 import os.path
 
-import pandokia
-
 pdk_db = pandokia.cfg.pdk_db
 
 
@@ -17,9 +15,7 @@ def noflag( name, err ) :
     print('Flagok not possible for %s: %s<br>'%(cgi.escape(name), err))
 
 
-def ok_transaction(qid, client, key_ids, user, comment):
-    status = 'new'
-    
+def ok_transaction(qid, client, key_ids, user, comment):    
     # insert new transaction into ok_transactions
 
     c = pdk_db.execute("INSERT INTO ok_transactions (username, user_comment, ip_address, status, qid) values (:1, :2, :3, :4, :5)", (user, comment, client, 'new', qid))

@@ -23,12 +23,11 @@ import pandokia.db
 _tty = None
 # _tty = open("/dev/tty","w")
 
-import os
 import sys
-if sys.version > '3':
-    import io as StringIO
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
+else:
+    import io as StringIO
 
 # use this when something is so specific to the database that you
 # can't avoid writing per-database code
@@ -53,7 +52,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
         for x in access_arg :
-            if sys.version > '3':
+            if sys.version_info[0] >= 3:
                 self.db_access_arg[str(x)] = access_arg[x]
             elif isinstance( access_arg[x], unicode) :
                 self.db_access_arg[str(x)] = str(access_arg[x])
@@ -151,7 +150,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
         if ( _tty is not None ) and not ( statement.startswith('EXPLAIN') ) :
             _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
-            _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
+            _tty.write(self.explain_query( statement, parameters ) +"\nWARN: ")
             c.execute("SHOW WARNINGS")
             for x in c :
                 _tty.write(str(x)+"\n")

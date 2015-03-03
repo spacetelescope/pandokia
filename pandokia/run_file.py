@@ -412,11 +412,11 @@ else :
     # b.t.w. This exception kills a pdkrun for a particular directory,
     # but not the entire test run.  Later tests in that directory may
     # be missing.
-    if sys.version > '3':
-        class timeout_not_going_away(object):
+    if sys.version_info[0] < 3:
+        class timeout_not_going_away:
             pass
     else:
-        class timeout_not_going_away:
+        class timeout_not_going_away(object):
             pass
 
     ## 

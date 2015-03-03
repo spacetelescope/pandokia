@@ -32,10 +32,10 @@ go all the way to the top of the file system.
 from __future__ import print_function
 
 import os, sys, re
-if sys.version > '3':
-    import configparser
-else:
+if sys.version_info[0] < 3:
     import ConfigParser as configparser
+else:
+    import configparser
 
 from pandokia.env_platforms import PlatformType
 

@@ -8,9 +8,8 @@
 #
 from __future__ import print_function
 
-import sys
 import re
-import types
+import sys
 import pandokia.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')   
@@ -292,7 +291,6 @@ class where_dict_base(object) :
 
 
 def cmd_dump_table( args ) :
-    import sys
     import pandokia
     for x in args :
         pandokia.cfg.pdk_db.table_to_csv( x,sys.stdout, )
@@ -325,7 +323,6 @@ def sql_files( files ) :
             pdk_db.sql_commands(f.read(), format=format)
             f.close()
     else :
-        import sys
         pdk_db.sql_commands(sys.stdin.read(), format=format)
 
     return 0

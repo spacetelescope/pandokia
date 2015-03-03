@@ -34,14 +34,10 @@ def emit_field( output, name, value ) :
 #
 
 exportable_fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
-exportable_fields_string =  ','.join(fields)
+exportable_fields_string =  ','.join(exportable_fields)
 
 def do_export( output, where_text, where_dict ) :
     # list of fields to export
-
-    # fields_zip is the index in the returned record of each name in fields
-    # it is 1+ because key_id is not listed
-    fields_zip = list(zip( list(range(1,1+len(fields))), fields ))
 
     # tell the reader to forget any defaults
     output.write( "START\n" )
@@ -69,27 +65,32 @@ def do_export_qid( output, qid ) :
 
 def export_record( output, record ) :
 
-        key_id = record[0]
-        # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
-        for x, name in fields_zip :
-            if record[x] is not None :
-                emit_field(output,name,record[x])
+    key_id = record[0]
 
-        # and now the other tables
-        c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
-        for x in c1 :
-            emit_field(output,'tda_'+x[0],x[1])
-        
-        c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
-        for x in c1 :
-            emit_field(output,'tra_'+x[0],x[1])
+    # fields_zip is the index in the returned record of each name in exportable_fields
+    # it is 1+ because key_id is not listed
+    fields_zip = list(zip( list(range(1,1+len(exportable_fields))), exportable_fields ))
 
-        c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
-        x = c1.fetchone()
-        if x is not None :
-            emit_field(output,'log',x[0])
+    # we used sqlite3.Row to create rows so that we can loop over the named fields to emit them
+    for x, name in fields_zip :
+        if record[x] is not None :
+            emit_field(output,name,record[x])
 
-        output.write("END\n")
+    # and now the other tables
+    c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1",(key_id,))
+    for x in c1 :
+        emit_field(output,'tda_'+x[0],x[1])
+    
+    c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1",(key_id,))
+    for x in c1 :
+        emit_field(output,'tra_'+x[0],x[1])
+
+    c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1",(key_id,))
+    x = c1.fetchone()
+    if x is not None :
+        emit_field(output,'log',x[0])
+
+    output.write("END\n")
 
 
 def run(args) :

@@ -7,10 +7,6 @@
 from __future__ import print_function
 
 import sys
-import cgi
-import re
-import copy
-import time
 
 import pandokia.text_table as text_table
 import pandokia.cleaner as cleaner

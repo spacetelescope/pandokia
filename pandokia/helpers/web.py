@@ -1,14 +1,15 @@
 import sys
-if sys.version > '3':
-    import urllib.parse as url_parse
-    import urllib.request as url_request
-    cookiejar = http.cookiejar.LWPCookieJar()
-    cookie_processor = urllib.request.HTTPCookieProcessor(cookiejar)   
-else:
+if sys.version_info[0] < 3:
     import urllib as url_parse
     import urllib2 as url_request
-    cookiejar = cookielib.LWPCookieJar()
-    cookie_processor = urllib2.HTTPCookieProcessor(cookiejar)
+    import cookielib as cookie_lib
+else:
+    import urllib.parse as url_parse
+    import urllib.request as url_request
+    import http.cookiejar as cookie_lib
+        
+cookiejar = cookie_lib.LWPCookieJar()
+cookie_processor = url_request.HTTPCookieProcessor(cookiejar)
 
 def GET( url, args=None, cred=None ) :
     """do http get

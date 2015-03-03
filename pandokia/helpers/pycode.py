@@ -261,10 +261,10 @@ class reporter(object) :
 
 # intentionally not using cStringIO
 import sys
-if sys.version > '3':
-    import io
-else:
+if sys.version_info[0] < 3:
     import StringIO as io
+else:
+    import io
 
 save_stdout= [ ] 
 save_stderr= [ ]

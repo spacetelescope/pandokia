@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import time
 import platform
 
 test_mode = None
@@ -231,7 +232,6 @@ else :
 
     if __name__ == '__main__' :
         import sys
-        import time
         s = sys.stdin.readline().strip() 
 
         if s == 'i' :
@@ -257,8 +257,6 @@ else :
                 else :
                     print("?")
 
-
-    import time
 
     mem = None
 

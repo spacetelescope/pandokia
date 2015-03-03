@@ -9,10 +9,10 @@ import sys
 import pandokia.common as common
 import pandokia
 
-if sys.version > '3':
-    import io as StringIO
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
+else:
+    import io as StringIO
 
 exit_status = 0
 line_count = 0

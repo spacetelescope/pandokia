@@ -18,10 +18,10 @@ __all__ = [
 # system imports
 import sys
 import os
-if sys.version > '3':
-    import io as StringIO
-else:
+if sys.version_info[0] < 3:
     import cStringIO as StringIO
+else:
+    import io as StringIO
 
 # need some common code
 import pandokia.db

@@ -7,16 +7,13 @@ from __future__ import print_function
 
 import sys
 import cgi
-import re
-import copy
 import time
 import os
 
 import pandokia
-import pandokia.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
-from . import common
+import common
 
 pdk_db = pandokia.cfg.pdk_db
 

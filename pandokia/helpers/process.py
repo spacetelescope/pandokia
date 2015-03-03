@@ -54,7 +54,7 @@ def run_pyraf_task( taskname, pfile, output_file="output_file", tda=None ) :
     err = command( ParList=pfile, Stderr=output_file )
     if err :
         e = RunPyrafTaskException("IRAF task %s exited with error %s"% (taskname, err) )
-        e.pyraf_task = task
+        e.pyraf_task = taskname
         e.pyraf_error = err
 
 

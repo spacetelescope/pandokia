@@ -51,7 +51,7 @@ def complex_readpass() :
     return s.strip()
 
 # Database: SQLITE
-if 0 :
+if 1 : ## DBG was 0
     #           http://www.sqlite.org/
     #
     # sqlite3 - ships with python
@@ -63,7 +63,8 @@ if 0 :
 
     # Set the value of db_arg 
     #
-    db_arg = "/some/place/pdk.db"
+    ## db_arg = "/some/place/pdk.db" (DBG)
+    db_arg = "/Users/bsimon/Code/stsci_python/pandokia/pdk.db" ## DBG
 
     # db_arg is the fully qualified name of the file where the
     # sqlite3 database files will be stored.  The file AND the directory

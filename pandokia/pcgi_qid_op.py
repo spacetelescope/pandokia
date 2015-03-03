@@ -10,10 +10,6 @@ from __future__ import absolute_import, print_function
 
 import sys
 import cgi
-import re
-import copy
-import time
-import os
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db

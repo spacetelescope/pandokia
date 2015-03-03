@@ -7,7 +7,6 @@ import traceback
 import imp
 import os.path
 import time
-import gc
 import copy
 import collections
 
@@ -678,10 +677,10 @@ def process_file( filename, test_name = None, test_args = None ) :
         except AttributeError :
             pass
 
-        if sys.version > '3':
-            is_callable = isinstance(pycode_fn, collections.Callable)
-        else:
+        if sys.version_info[0] < 3:
             is_callable = callable(pycode_fn)
+        else:
+            is_callable = isinstance(pycode_fn, collections.Callable)
 
         if is_callable :
             print('old-style pycode test detected')
