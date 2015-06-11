@@ -5,7 +5,7 @@
 
 # import Python modules that we need
 from __future__ import absolute_import, print_function
-import os, os.path, sys, time, string, getopt, tempfile, shutil
+import os, os.path, sys, time, getopt, tempfile, shutil
 import platform
 import traceback
 
@@ -468,7 +468,8 @@ class Regress:
 
         # Format log file message
 
-        other = string.join (list(map (str, args)), ",")
+        args = list(map (str, args))
+        other = ",".join (args)
         if other != "":
             line = "%s %s (%s)" % (code, msg, other)
         else:
