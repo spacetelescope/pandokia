@@ -1,5 +1,4 @@
 import os
-import string
 
 from pyraf import iraf
 
@@ -95,7 +94,7 @@ def run (taskname, pfile, output, log):
 def write_exc_to_log (exc, log):
 
     log.write("? Exception in task.run():\n")
-    exc=string.split(str(exc),"\n")
+    exc=str(exc).split("\n")
     for i in range(len(exc)):
         log.write ("? "+exc[i]+"\n")
 

@@ -45,7 +45,6 @@ pdk check_expected [ -p project ] [ -h host ]
 
 import sys
 import os
-import string
 import datetime
 
 import pandokia.common as common
