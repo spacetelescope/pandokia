@@ -11,6 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+from __future__ import print_function
 import sys, os, os.path, re
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -201,7 +202,7 @@ graphviz_pdf_mode = 'ps2:pdf'
 import sys
 for x in sys.modules :
     if 'quickstart' in x :
-        print 'QUICKSTART', x
+        print('QUICKSTART', x)
 
 for x in sys.modules :
-    print x
+    print(x)
