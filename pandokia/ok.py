@@ -70,6 +70,10 @@ def run(args):
         '--commit', dest = 'commit', default = False, action = 'store_true',
         help = 'commit okified reference file(s) to svn'
     )
+    parser.add_option(
+        '--commit-git', dest = 'commit_git', default = False, action = 'store_true',
+        help = 'commit and push okified reference file(s) to git'
+    )
 
     opt, args = parser.parse_args(args)
 
@@ -206,6 +210,24 @@ def process_webfile(opt, fn):
             ret = os.system(cmd)
             if not ret == 0:
                 err += 1
+
+        # do git commit and push
+        if len(refs_to_commit) > 0 and opt.commit_git:
+            ref_str = ' '.join(refs_to_commit)
+
+            # commit reference files
+            if ref_repo:
+                os.chdir(PDK_REFS)
+                cmd = 'git commit -a -m "(%s, QID=%s) %s"' %(
+                    t['user'],
+                    t['qid'],
+                    t['comment']
+                )
+                print
+                print cmd
+                ret = os.system(cmd)
+                if not ret == 0:
+                    err += 1
 
     try:
         os.rename(fn, fn + old)
