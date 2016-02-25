@@ -86,7 +86,7 @@ else :
 
         assert header_size == len(header)
 
-        f.write(('%08x'%time.time())[0:8])
+        f.write(('%08x'%int(time.time()))[0:8])
         f.write(header[8:])
 
         # write a blank record for everybody - use a \n between and
