@@ -12,14 +12,19 @@ import nose.plugins.base # for the plugin interface
 import nose.case
 
 import unittest #for tda/tra stuff
-from io import StringIO as p_StringO    #for stdout capturing
-from io import OutputType as c_StringO
 import traceback
 import platform
 
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
 
+p_StringO = None
+c_StringO = None
+try:
+    from StringIO import StringIO as p_StringO    #for stdout capturing
+    from cStringIO import OutputType as c_StringO
+except ImportError:
+    from io import StringIO as c_StringO
 
 def get_stdout():
     if isinstance(sys.stdout, c_StringO) or \
