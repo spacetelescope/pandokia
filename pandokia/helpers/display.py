@@ -13,7 +13,7 @@ def dprint( d, indent=0, follow='' ) :
     print nested dictionaries in a nicely indented format
     """
     indent_str='    ' * indent
-    l = d.keys()
+    l = list(d.keys())
     l.sort()
     s = indent_str + '{\n'
     maxlen=0

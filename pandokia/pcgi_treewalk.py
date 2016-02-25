@@ -10,14 +10,14 @@ import copy
 import time
 import os
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
-import common
+from . import common
 
 
 # the left-pointing arrow that appears where we offer to remove a
@@ -51,7 +51,7 @@ def treewalk ( ) :
     # gather up all the expected parameters
     #
 
-    if form.has_key("test_name") :
+    if "test_name" in form :
         test_name = form["test_name"].value
         if test_name == '' :
             test_name = '*'
@@ -389,7 +389,7 @@ def treewalk ( ) :
             if x is None :
                 continue
             lquery[field] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
+            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.parse.urlencode(lquery)+"'>"+x+"</a><br>")
 
 
     output.write("")
@@ -444,7 +444,7 @@ def linkout( ) :
     now = time.time()
     expire = now+common.cfg.default_qid_expire_days*86400
 
-    if pdk_db.next :
+    if pdk_db.__next__ :
         newqid = pdk_db.next('sequence_qid')
         c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ", 
             ( newqid, now, expire ) )
@@ -496,7 +496,7 @@ def linkout( ) :
 
     url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
 
-    if form.has_key('add_attributes') :
+    if 'add_attributes' in form :
         x = int(form['add_attributes'].value)
         if x :
             url += ('&show_attr=%d'%x)

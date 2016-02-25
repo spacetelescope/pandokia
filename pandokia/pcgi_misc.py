@@ -6,11 +6,11 @@
 import sys
 import cgi
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import pandokia
 import pandokia.pcgi
-import common
+from . import common
 
 def hostinfo( ) :
 

@@ -9,7 +9,7 @@ no_unittest2 = False
 try :
     import unittest2
     from unittest2.main import TestProgram
-except ImportError, e :
+except ImportError as e :
     no_unittest2 = e
 
 

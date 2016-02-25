@@ -9,6 +9,7 @@ import os.path
 import time
 import gc
 import copy
+import collections
 
 # In python 2.6 and later, this prevents writing the .pyc files on import.
 # I normally don't want the .pyc files cluttering up the test directories.
@@ -677,7 +678,7 @@ def process_file( filename, test_name = None, test_args = None ) :
         except AttributeError :
             pass
 
-        if callable(pycode_fn) :
+        if isinstance(pycode_fn, collections.Callable) :
             print 'old-style pycode test detected'
             pycode_fn(1, rpt=rpt)
 

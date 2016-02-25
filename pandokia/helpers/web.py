@@ -1,9 +1,9 @@
-import urllib2
-import cookielib
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
+import urllib.request, urllib.parse, urllib.error
 
-cookiejar = cookielib.LWPCookieJar()
-cookie_processor = urllib2.HTTPCookieProcessor(cookiejar)
+cookiejar = http.cookiejar.LWPCookieJar()
+cookie_processor = urllib.request.HTTPCookieProcessor(cookiejar)
 
 def GET( url, args=None, cred=None ) :
     """do http get
@@ -18,21 +18,21 @@ def GET( url, args=None, cred=None ) :
     arg_string = ''
 
     if not args is None :
-        arg_string = "?" + urllib.urlencode( args )
+        arg_string = "?" + urllib.parse.urlencode( args )
 
     if not cred is None :
         ( host, realm, username, password ) = cred
-        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler = urllib.request.HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)
 
     if auth_handler :
-        opener = urllib2.build_opener(cookie_processor, auth_handler)
+        opener = urllib.request.build_opener(cookie_processor, auth_handler)
     else :
-        opener = urllib2.build_opener(cookie_processor )
-    urllib2.install_opener(opener)
+        opener = urllib.request.build_opener(cookie_processor )
+    urllib.request.install_opener(opener)
 
     print "URL",url
-    f = urllib2.urlopen(url + arg_string)
+    f = urllib.request.urlopen(url + arg_string)
     return f
 
 def POST( url, args={ }, cred=None ):
@@ -49,20 +49,20 @@ def POST( url, args={ }, cred=None ):
 
     if not cred is None :
         ( host, realm, username, password ) = cred
-        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler = urllib.request.HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)
 
     if auth_handler :
-        opener = urllib2.build_opener(cookie_processor, auth_handler)
+        opener = urllib.request.build_opener(cookie_processor, auth_handler)
     else :
-        opener = urllib2.build_opener(cookie_processor )
+        opener = urllib.request.build_opener(cookie_processor )
 
-    urllib2.install_opener(opener)
+    urllib.request.install_opener(opener)
 
     print "URL",url
-    data = urllib.urlencode(args)
-    req = urllib2.Request(url, data)
-    f = urllib2.urlopen(req)
+    data = urllib.parse.urlencode(args)
+    req = urllib.request.Request(url, data)
+    f = urllib.request.urlopen(req)
     return f
 
 

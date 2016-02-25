@@ -8,7 +8,7 @@ import sys
 import pandokia.common as common
 import pandokia
 
-import cStringIO as StringIO
+import io as StringIO
 
 
 exit_status = 0
@@ -143,7 +143,7 @@ all_test_runs = { }
 class test_result(object):
 
     def _lookup(self,name,default=None) :
-        if self.dict.has_key(name) :
+        if name in self.dict :
             return self.dict[name]
         if default != None :
             return default
@@ -254,18 +254,18 @@ class test_result(object):
 
         # if this database engine does not have a usable auto-increment
         # field, get a key_id from the sequence in the database
-        if db.next :
+        if db.__next__ :
             key_id = db.next('sequence_key_id')
         else :
             key_id = None
 
         try :
             res = self.try_insert(db, key_id)
-            if not db.next :
+            if not db.__next__ :
                 key_id = res.lastrowid
             insert_count += 1
 
-        except db.IntegrityError, e:
+        except db.IntegrityError as e:
             db.rollback()
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
@@ -375,7 +375,7 @@ def run(args, hack_callback = None) :
                     x["project"] = default_project
                 if not "test_runner" in x :
                     x["test_runner"] = default_test_runner
-            except Exception, e:
+            except Exception as e:
                 print e, line_count
                 continue
 

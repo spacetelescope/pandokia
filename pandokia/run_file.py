@@ -78,7 +78,7 @@ def read_runner_glob ( dirname ) :
     # read the pdk_runners from the directory we are interested in.
     try :
         f=open(dirname+"/pdk_runners","r")
-    except IOError, e :
+    except IOError as e :
         if e.errno == errno.ENOENT :
             return parent_list
         raise
@@ -432,7 +432,7 @@ else :
         print "killpg -%d %d"%(signal,pid)
         try :
             os.killpg( pid, signal )
-        except OSError, e:
+        except OSError as e:
             print "killpg exception:",e
             if e.errno != errno.ESRCH :
                 raise

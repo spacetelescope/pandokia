@@ -28,7 +28,7 @@ import pandokia.db
 _tty = None
 # _tty = open("/dev/tty","w")
 
-import cStringIO as StringIO
+import io as StringIO
 import os
 
 # use this when something is so specific to the database that you

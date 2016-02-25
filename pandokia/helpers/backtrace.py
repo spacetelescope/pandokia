@@ -100,7 +100,7 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
             g = { }
         l = frame.f_locals
 
-        keys = sorted( set( l.keys() + g.keys() ) - ignore_vars )
+        keys = sorted( set( list(l.keys()) + list(g.keys()) ) - ignore_vars )
 
         # show them
         for key in keys :

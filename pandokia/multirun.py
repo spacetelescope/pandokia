@@ -210,7 +210,7 @@ else :
         """
         try :
             (pid, status) = os.wait()
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.ECHILD :
                 #
                 # If there are no more child processes, everything must be done.

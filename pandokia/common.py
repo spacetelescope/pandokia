@@ -7,13 +7,13 @@
 # common.py - bunch of library functions used by parts of pandokia
 #
 
-import cStringIO
+import io
 import datetime
 import time
 import os
 import os.path
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import types
 
 import pandokia
@@ -71,7 +71,7 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    l = [ 'query=' + urllib.quote_plus(linkmode) ]
+    l = [ 'query=' + urllib.parse.quote_plus(linkmode) ]
     for i in sorted(query_dict.keys()) :
         v = query_dict[i]
         if v is None :
@@ -79,7 +79,7 @@ def selflink( query_dict, linkmode ) :
         if not isinstance(v,list) :
             v = [ v ]
         for v in v :
-            l.append( i + '=' + urllib.quote_plus(str(v)) )
+            l.append( i + '=' + urllib.parse.quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
 #
@@ -310,7 +310,7 @@ def get_contact( project, test_name, mode='str') :
 var_pattern = re.compile("(%[^;]*);")
 
 def expand(text, dictlist = [ ] , valid = None, format='' ) :
-    result = cStringIO.StringIO()
+    result = io.StringIO()
     textlist = re.split(var_pattern, text)
     for x in textlist :
         if x.startswith('%') :
@@ -337,10 +337,10 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
                 if this_format == '' or this_format == 'text' :
                     result.write(str(val))
                 elif this_format == 'cgi' :
-                    if isinstance(val, basestring) :
-                        val = urllib.quote_plus(val)
+                    if isinstance(val, str) :
+                        val = urllib.parse.quote_plus(val)
                     else :
-                        val = urllib.urlencode(val)
+                        val = urllib.parse.urlencode(val)
                     result.write(val)
                 elif this_format == 'html' :
                     val = cgi.escape(str(val),quote=True)

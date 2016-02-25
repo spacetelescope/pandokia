@@ -41,7 +41,7 @@ def complex_readpass() :
             f.write(s)
             f.close()
             import os
-            os.chmod(d+pf,0600)
+            os.chmod(d+pf,0o600)
         except :
             pass
         f=open(d+pf)

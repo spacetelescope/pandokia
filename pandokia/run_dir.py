@@ -24,7 +24,7 @@ def run( dirname, envgetter ) :
 
     try :
         dir_list = os.listdir( dirname )
-    except Exception, e:
+    except Exception as e:
         print "Cannot search for tests in ",dirname
         print e
         print ""
@@ -41,7 +41,7 @@ def run( dirname, envgetter ) :
         full_name = os.path.join(dirname,basename)
         try :
             file_stat = os.stat(full_name)
-        except OSError, e :
+        except OSError as e :
             if e.errno == errno.ENOENT :
                 # not an error for somebody to delete a file between when
                 # we start the test and end the test.  most commonly,
@@ -51,7 +51,7 @@ def run( dirname, envgetter ) :
             print e
             was_error = 1
             continue
-        except Exception, e :
+        except Exception as e :
             print "Cannot stat file ",full_name
             print e
             was_error = 1
@@ -118,7 +118,7 @@ def run( dirname, envgetter ) :
             was_error |= err
             for x in lstat :
                 t_stat[x] = t_stat.get(x,0) + lstat[x]
-        except Exception, e:
+        except Exception as e:
             xstr=traceback.format_exc()
             print "Exception running file %s/%s: %s"%(dirname, basename, e)
             print xstr
@@ -168,13 +168,13 @@ def file_disabled(dirname, basename) :
         try :
             os.stat(f + '.disable' )
             return True
-        except OSError, e:
+        except OSError as e:
             #print e.args
             pass
         try :
             os.stat(f+'.'+os.environ['PDK_CONTEXT'] + '.disable' )
             return True
-        except OSError, e:
+        except OSError as e:
             #print e.args
             pass
         return False

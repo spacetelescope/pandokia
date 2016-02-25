@@ -23,7 +23,7 @@ import pandokia.db
 _tty = None
 # _tty = open("/dev/tty","w")
 
-import cStringIO as StringIO
+import io as StringIO
 import os
 
 # use this when something is so specific to the database that you
@@ -49,7 +49,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
         for x in access_arg :
-            if isinstance( access_arg[x], unicode) :
+            if isinstance( access_arg[x], str) :
                 self.db_access_arg[str(x)] = str(access_arg[x])
             else :
                 self.db_access_arg[str(x)] = access_arg[x]

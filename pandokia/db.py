@@ -81,7 +81,7 @@ class where_dict_base(object) :
             else :
                 # If value is a list, the query is to match any of the values.
                 # If it is not a list, we have a list of 1 value.
-                if not isinstance( value, types.ListType ) :
+                if not isinstance( value, list ) :
                     value = [ value ]
 
                 # print "VALUE", name, value

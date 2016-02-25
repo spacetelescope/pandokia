@@ -59,7 +59,7 @@ def perform_db_tests( query, expected_results ) :
 
                     c = expect[f]
     
-                    if isinstance(c, basestring) :
+                    if isinstance(c, str) :
                         if expect[f] != data[f] :
                             print "expect ",expect[f]
                             print "found  ",data[f]

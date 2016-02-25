@@ -29,7 +29,7 @@ def generate_directories( dir ) :
     try :
         # Now we look at all the subdirectories.
         dir_list = os.listdir( dir )
-    except ( OSError, IOError ) , e:
+    except ( OSError, IOError ) as e:
         # various errors listing the directory mean we skip it
         print e
         return
@@ -46,7 +46,7 @@ def generate_directories( dir ) :
         try :
             # lstat - not recursing into symlinks
             file_stat = os.lstat(full_name)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.ENOENT :
                 print "cannot lstat",full_name
                 print e
@@ -144,7 +144,7 @@ def run( dirs, envgetter, max_procs=None ) :
         fn = "%s.%s.summary"%( os.environ['PDK_LOG'], str(x))
         try :
             f = open(fn,"r")
-        except IOError, e:
+        except IOError as e:
             # It is possible for a process slot to run a process without
             # creating a log file.  (e.g. when there is a directory that 
             # does not contain any tests.)  So, if there is no file, that

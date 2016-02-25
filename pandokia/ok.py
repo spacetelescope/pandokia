@@ -145,7 +145,7 @@ def process_webfile(opt, fn):
 
 
     ref_repo = False
-    if 'PDK_REFS' in os.environ.keys():
+    if 'PDK_REFS' in list(os.environ.keys()):
         PDK_REFS = os.environ['PDK_REFS']
         ref_repo = True
         if opt.commit:
@@ -232,7 +232,7 @@ def process_webfile(opt, fn):
     try:
         os.rename(fn, fn + old)
         os.system('mv %s %s' %(fn + old, old_pdk_updates))
-    except Exception, e:
+    except Exception as e:
         print 'failed to backup %s' %fn
         print e
         err += 1
@@ -285,7 +285,7 @@ def process_database(opt):
                         do_ok = False
 
                 if do_ok:
-                    if host not in trans['hosts'].keys():
+                    if host not in list(trans['hosts'].keys()):
                         trans['hosts'][host] = []
                     trans['hosts'][host].append(okfile)
 
@@ -295,7 +295,7 @@ def process_database(opt):
 
         # for each host in trans['hosts'].keys(), update host.ok (create if
         # doesn't exist)
-        for host, okfiles in trans['hosts'].items():
+        for host, okfiles in list(trans['hosts'].items()):
             fn = os.path.join(pdk_updates, '%s.ok' %host)
             if not os.path.exists(fn):
                 os.system('touch %s' %fn)
@@ -328,7 +328,7 @@ def process_database(opt):
 def process_okfile(opt, fn, return_refs = False):
     try:
         file = open(fn)
-    except Exception, e:
+    except Exception as e:
         print '\tcannot open %s' %fn
         print '\t', e
         return 1, None
@@ -365,7 +365,7 @@ def process_okfile(opt, fn, return_refs = False):
 
     try:
         os.unlink(fn)
-    except IOError, e:
+    except IOError as e:
         print '\tcannot remove %s' %fn
         print '\t', e
         err += 1
@@ -404,7 +404,7 @@ def doit(src, dest, verbose) :
     try :
         os.rename(dest, dest+old)
 
-    except Exception, e:
+    except Exception as e:
         if os.path.exists(dest) :
             print "cannot rename",dest," to ",dest+old
             print e
@@ -440,7 +440,7 @@ def doit(src, dest, verbose) :
     # ok, maybe not, but maybe we can copy the file
     try :
         shutil.copyfile(src, dest)
-    except IOError, e :
+    except IOError as e :
         # ok, we are now out of options - it didn't work
         print "cannot copy",src,"to",dest
         print e

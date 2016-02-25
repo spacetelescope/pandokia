@@ -170,7 +170,7 @@ def run(args) :
         for x in args :
             try :
                 file_stat = os.stat(x)
-            except OSError, e:
+            except OSError as e:
                 print x, e
                 continue
 

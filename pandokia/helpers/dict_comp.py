@@ -32,7 +32,7 @@ import pandokia.helpers.pycode as pycode
 """
     
 
-from __future__ import division
+
 import os
 import sys
 import glob
@@ -44,7 +44,7 @@ from   pandokia.helpers.filecomp import safe_rm
 import pandokia.helpers.display as display
 
 # looking ahead to python 3
-string_type = basestring
+string_type = str
 
 ##########
 #
@@ -136,7 +136,7 @@ def write_output( file_base, data_dict, interesting_fields ) :
 def read_reference( fn ) :
     try :
         fp = open(fn,"r")
-    except IOError, e :
+    except IOError as e :
         if e.errno == errno.ENOENT :
             raise NoReferenceFile(fn)
         raise
@@ -318,7 +318,7 @@ def dictionary_comp(
                         this_fail = True
 
                 # If the reference is zero, use absolute difference instead.
-                except ZeroDivisionError, e:
+                except ZeroDivisionError as e:
                     discrep = ( data - ref )
                     if (abs(discrep) > tol):
                         failed.append(k)

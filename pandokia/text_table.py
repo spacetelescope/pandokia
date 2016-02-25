@@ -9,9 +9,9 @@
 
 __all__ = [ "text_table" ]
 
-import cStringIO as StringIO
+import io as StringIO
 import cgi
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import csv
 
 #
@@ -305,7 +305,7 @@ class text_table :
             o = self._row_col_cell(row, col)
             try :
                 o.sort_key = func(o.text)
-            except Exception, e :
+            except Exception as e :
                 o.sort_key = o.text
                 fail = fail + 1
         conv = len(self.rows) - fail

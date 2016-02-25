@@ -12,9 +12,9 @@ import pandokia.lib as lib
 
 import pandokia.text_table as text_table
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import pandokia.pcgi
-import common
+from . import common
 
 import pandokia
 
@@ -666,14 +666,14 @@ def column_selector(input_query) :
             checked=' checked '
         else :
             checked = ''
-        output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
+        output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.parse.quote(t),urllib.parse.quote(t)) )
 
 
     # all the other parameters that got us here go as hiddens
     for x in input_query :
         if not x in exclude_cgi_params_from_selector :
             for y in input_query[x] :
-                output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+                output.write('<input type=hidden name=%s value=%s>'%(x,urllib.parse.quote(y)))
     output.write('<input type=hidden name=show_attr value=1>')
 
     # buttons at the bottom of the form

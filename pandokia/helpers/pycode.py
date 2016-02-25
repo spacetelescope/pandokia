@@ -130,7 +130,7 @@ class reporter(object) :
             # host - required
             #   what the user provided, else the real host name without the domain
             if host is None :
-                if 'PDK_HOST' in os.environ.keys():
+                if 'PDK_HOST' in list(os.environ.keys()):
                     host = os.environ['PDK_HOST']
                 else:
                     host = pandokia.lib.gethostname()
@@ -257,7 +257,7 @@ class reporter(object) :
 ###
 
 # intentionally not using cStringIO
-import StringIO
+import io
 import sys
 
 save_stdout= [ ] 
@@ -270,7 +270,7 @@ def snarf_stdout( tagname=None ) :
     save_stderr.append( sys.stderr )
     save_tagname.append( tagname )
 
-    sys.stdout = sys.stderr = StringIO.StringIO()
+    sys.stdout = sys.stderr = io.StringIO()
 
 def end_snarf_stdout( tagname=None ) :
     s = sys.stdout.getvalue()
@@ -291,7 +291,7 @@ def end_snarf_stdout( tagname=None ) :
 
 def peek_snarfed_stdout() :
     'returns current text of snarfed stdout, non-destructively'
-    if isinstance(sys.stdout, StringIO.StringIO ) :
+    if isinstance(sys.stdout, io.StringIO ) :
         return sys.stdout.getvalue()
     else :
         return None
@@ -378,7 +378,7 @@ class _pycode_with(object) :
         try :
             runner_minipyt
         except NameError :
-            import runner_minipyt as m
+            from . import runner_minipyt as m
             runner_minipyt = m
 
         # name is just our base name.
@@ -570,7 +570,7 @@ def package_test( parent, test_package, test_modules, verbose=False, silent=Fals
     for x in test_modules :
         x = parent + '.' +  test_package + '.' + x
         with test(x) as t :
-            exec "import %s" % x
+            exec("import %s" % x)
     passed = cached_rpt.status_count.get('P',0)
     failed = cached_rpt.status_count.get('F',0)
     error  = cached_rpt.status_count.get('E',0)

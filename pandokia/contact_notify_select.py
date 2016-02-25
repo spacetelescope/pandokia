@@ -13,7 +13,7 @@ pdk_db = pandokia.cfg.pdk_db
 import pandokia.helpers.easyargs as easyargs
 
 import pandokia.common
-import text_table
+from . import text_table
 from collections import defaultdict
 import subprocess
 
@@ -124,17 +124,17 @@ def get_test_summary(test_run,project):
         sum_dict[host][context] = sum_dict[host].get(context,{})
         sum_dict[host][context][status] = sum_dict[host][context].get(status,0) + 1
 
-    for host in sum_dict.keys():
-        for context in sum_dict[host].keys():
-            for status in sum_dict[host][context].keys():
+    for host in list(sum_dict.keys()):
+        for context in list(sum_dict[host].keys()):
+            for status in list(sum_dict[host][context].keys()):
                 all_hosts[status] = all_hosts.get(status,0) + sum_dict[host][context][status]
     sum_dict['All'] = all_hosts
 
-    for host in sum_dict.keys():
+    for host in list(sum_dict.keys()):
         if host == 'All':
             sum_dict[host]['T'] = sum(sum_dict[host].values())
         else:
-            for context in sum_dict[host].keys():
+            for context in list(sum_dict[host].keys()):
                 sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())
     test_summary[(test_run,project)] = sum_dict
     #print sum_dict
@@ -149,7 +149,7 @@ def create_summary(test_run,project):
     for col_name in cols:
         sum_table.define_column(col_name)
     test_summary = get_test_summary(test_run, project)
-    hosts = test_summary.keys()
+    hosts = list(test_summary.keys())
     hosts.sort()
     #for i, host in enumerate(hosts):
     #if host == 'All':
@@ -159,7 +159,7 @@ def create_summary(test_run,project):
         sum_table.set_value(0,i+2, test_summary['All'].get(status,0))
     for i, host in enumerate(hosts):
         if host != 'All':
-            contexts = test_summary[host].keys()
+            contexts = list(test_summary[host].keys())
             contexts.sort()
             sum_table.set_value(i,0,host)
             for j, context in enumerate(contexts):
@@ -297,7 +297,7 @@ def build_report_table(test_run,project,maxlines):
     ## construct the table of tests that had problems in some places
 
     # sorted list of affected host/context names
-    hc_list = hc_array.keys()
+    hc_list = list(hc_array.keys())
     hc_list.sort()
 
     # process the data for each host

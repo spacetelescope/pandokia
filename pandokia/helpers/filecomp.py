@@ -290,7 +290,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     files_are_same = True
 
     for val in kwargs.get('ignore_wstart',[]):
-        if ignore_raw.has_key('wstart'):
+        if 'wstart' in ignore_raw:
             ignore_raw['wstart'].append(val)
         else:
             ignore_raw['wstart']=[val]
@@ -298,7 +298,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
         ignore.append(pattern)
 
     for val in kwargs.get('ignore_wend',[]):
-        if ignore_raw.has_key('wend'):
+        if 'wend' in ignore_raw:
             ignore_raw['wend'].append(val)
         else:
             ignore_raw['wend']=[val]
@@ -508,7 +508,7 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False,
             update_okfile(okfh, name, ref)
 
         #Last of all, raise the AssertionError that defines a failed test
-        raise(AssertionError("files are different: %s, %s\n"%(name,ref)))
+        raise AssertionError
 
     #and return the True/False (Pass/Fail) status
     return r
@@ -645,7 +645,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
     for n, x in enumerate(clist) :
         # make sure we are looking in the right place for the reference file
-        if 'PDK_REFS' in os.environ.keys():
+        if 'PDK_REFS' in list(os.environ.keys()):
             PDK_REFS = os.environ['PDK_REFS']
             here = os.path.abspath(os.curdir)
             relpath = os.path.relpath(
@@ -668,13 +668,13 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
                  **x['args'] )
 
         # assertion error means the test fails
-        except AssertionError, e :
+        except AssertionError as e :
             print "FAIL"
             if ret_exc is None :
                 ret_exc = e
 
         # any other exception means the test errors
-        except Exception, e:
+        except Exception as e:
             print "ERROR", e
             traceback.print_exc()
             if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :

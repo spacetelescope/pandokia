@@ -143,7 +143,7 @@ def unique_fields( list_of_dict ) :
     for x in l1 :
         if x in d :
             del d[x]
-    l2 = d.keys()
+    l2 = list(d.keys())
     l2.sort()
     return l1 + l2
 
@@ -192,7 +192,7 @@ def make_qid( tests=None, key_ids=None ) :
 
     now = time.time()
     expire = now + ( 30 * 86400 )
-    if pdk_db.next :
+    if pdk_db.__next__ :
         newqid = pdk_db.next('sequence_qid')
         c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ",
             ( newqid, now, expire ) )

@@ -80,7 +80,7 @@ def run(args) :
         # insert to the expected table; if the record is already there, it's ok.
         try : 
             pdk_db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )', ( test_run_type, project, host, context, test_name ))
-        except pdk_db.IntegrityError, e:
+        except pdk_db.IntegrityError as e:
             if debug :
                 print "exception", e
             pass
