@@ -506,7 +506,7 @@ class _pycode_with(object) :
         # If there was a fail/error, show the exception and the
         # stack trace in the log
         if status != 'P' :
-            print str(exvalue)
+            print(str(exvalue))
             traceback.print_tb( extraceback )
 
         # capture the log
@@ -576,8 +576,8 @@ def package_test( parent, test_package, test_modules, verbose=False, silent=Fals
     error  = cached_rpt.status_count.get('E',0)
 
     if not silent :
-        print cached_rpt.report_view_sep
-        print "Pass: %d  Fail: %d  Error: %d"%( passed, failed, error )
+        print(cached_rpt.report_view_sep)
+        print("Pass: %d  Fail: %d  Error: %d"%( passed, failed, error ))
 
     if ( failed == 0 ) and ( error == 0 ) :
         return 0

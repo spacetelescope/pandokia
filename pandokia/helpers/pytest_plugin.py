@@ -294,7 +294,7 @@ def pytest_runtest_setup(item):
             # set the alarm
             signal.alarm(item.pandokia.timeout)
         else :
-            print "Warning: Test timeouts not implemented on Windows"
+            print("Warning: Test timeouts not implemented on Windows")
 
     ## done pytest_runtest_setup
 

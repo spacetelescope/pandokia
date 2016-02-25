@@ -327,9 +327,9 @@ def test_history( ) :
     tb.set_value(row, 1, test_name)
     row += 1
 
-    print tb.get_html()
+    print(tb.get_html())
 
-    print "<br>"
+    print("<br>")
 
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
@@ -346,7 +346,7 @@ def test_history( ) :
         if test_run == r_test_run :
             tb.set_value(row, 0, '->')
         row = row + 1
-    print tb.get_html()
+    print(tb.get_html())
 
 
 ##

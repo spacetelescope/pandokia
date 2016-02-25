@@ -95,11 +95,11 @@ class PyrafTest(object):
         # exception info, if any.
         f=open(self.parfile.replace('.par','.stdout'))
         task_output=f.read()
-        print task_output
+        print(task_output)
         f.close()
 
         if self._error is not None:
-            print str(self._error) # also backtrace?
+            print(str(self._error)) # also backtrace?
 
             
     def checkfile(self, fname, comparator=None, **kwds):

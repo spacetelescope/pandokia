@@ -175,12 +175,12 @@ if __name__ == '__main__':
 
     def cause_exc() :
         try:
-            print "HERE"
+            print("HERE")
             pad4(data)
-            print "STILL HERE"
+            print("STILL HERE")
         except:
             for x in exc() :
-                print x
+                print(x)
 
     # cause_exc()
 

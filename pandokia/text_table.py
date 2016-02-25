@@ -845,24 +845,24 @@ if __name__ =="__main__":
     t.pad()
 
 
-    print ""
+    print("")
     s = t.get_html()
-    print s
-    print ""
+    print(s)
+    print("")
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
+    print("")
     t.sort( [ -1,2 ] )
     s = t.get_awk()
-    print s
-    print ""
+    print(s)
+    print("")
     t.sort( [ 0 ] )
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
-    print t.get_csv()
+    print("")
+    print(t.get_csv())
 
     t = text_table()
     t.set_value(0,0,'4')
@@ -874,21 +874,21 @@ if __name__ =="__main__":
     t.set_value(6,0,'B')
     t.set_value(7,0,'A')
     t.set_sort_key(0, float)
-    print "XX"
-    print t.get_awk()
-    print "XX"
+    print("XX")
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=True )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=False )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     
-    print ""
+    print("")
     s = t.get_rst()
-    print s
+    print(s)
 
-    print ""
+    print("")
     s = t.get_trac_wiki()
-    print s
+    print(s)
 

@@ -25,9 +25,9 @@ def run( dirname, envgetter ) :
     try :
         dir_list = os.listdir( dirname )
     except Exception as e:
-        print "Cannot search for tests in ",dirname
-        print e
-        print ""
+        print("Cannot search for tests in ",dirname)
+        print(e)
+        print("")
         return 1, {}
 
     dir_list.sort()
@@ -47,13 +47,13 @@ def run( dirname, envgetter ) :
                 # we start the test and end the test.  most commonly,
                 # this is a temp file or something, not a test.
                 continue
-            print "Cannot stat file ",full_name
-            print e
+            print("Cannot stat file ",full_name)
+            print(e)
             was_error = 1
             continue
         except Exception as e :
-            print "Cannot stat file ",full_name
-            print e
+            print("Cannot stat file ",full_name)
+            print(e)
             was_error = 1
             continue
 
@@ -74,12 +74,12 @@ def run( dirname, envgetter ) :
         # actually going to do anything here.  This suppresses all
         # output completely for directories that do not have any tests.
         if not printed_dirname :
-            print "directory",dirname
+            print("directory",dirname)
             printed_dirname=1
 
         # If the file is disabled, skip it
         if file_disabled(dirname, basename) :
-            print "Disabled : %s/%s"%(dirname,basename)
+            print("Disabled : %s/%s"%(dirname,basename))
             m = pandokia.run_file.get_runner_mod( runner )
 
             env = { }
@@ -120,14 +120,14 @@ def run( dirname, envgetter ) :
                 t_stat[x] = t_stat.get(x,0) + lstat[x]
         except Exception as e:
             xstr=traceback.format_exc()
-            print "Exception running file %s/%s: %s"%(dirname, basename, e)
-            print xstr
-            print ''
+            print("Exception running file %s/%s: %s"%(dirname, basename, e))
+            print(xstr)
+            print('')
             was_error = 1
 
     # print the status summary for the directory.
-    print ""
-    print "%s:"%dirname
+    print("")
+    print("%s:"%dirname)
     common.print_stat_dict(t_stat)
 
     return ( was_error, t_stat )

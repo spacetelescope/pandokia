@@ -196,7 +196,7 @@ def treewalk ( ) :
         row = row + 1
 
 
-    print header_table.get_html()
+    print(header_table.get_html())
 
     ### start of "Test Prefix: line"
 
@@ -244,8 +244,8 @@ def treewalk ( ) :
     ### end of "Test Prefix: line"
 
     ### offer the form to compare with other runs
-    print cmp_form(query, comparing)
-    print "<p>"
+    print(cmp_form(query, comparing))
+    print("<p>")
 
     ### show the table
 
@@ -453,12 +453,12 @@ def linkout( ) :
             ( now, expire ) )
         newqid = c.lastrowid
 
-    print "content-type: text/plain\n"
-    print "QID ",newqid
+    print("content-type: text/plain\n")
+    print("QID ",newqid)
     pdk_db.commit()
 
     if oldqid is not None :
-        print "WITH QID=",oldqid
+        print("WITH QID=",oldqid)
         more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(oldqid)
     else :
         more_where = None

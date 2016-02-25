@@ -35,10 +35,10 @@ def delete_are_you_sure(  ) :
     sys.stdout.write(common.page_header())
 
     if pandokia.cleaner.check_valuable(test_run) :
-        print "valuable test run - There should not be a link that comes here"
+        print("valuable test run - There should not be a link that comes here")
         return
 
-    print "Delete data for:<br>"
+    print("Delete data for:<br>")
     tt = text_table.text_table()
     tt.set_html_table_attributes("border=1")
     tt.set_value(0,0,'test_run')
@@ -49,19 +49,19 @@ def delete_are_you_sure(  ) :
     tt.set_value(2,1,host)
     tt.set_value(3,0,'context')
     tt.set_value(3,1,context)
-    print tt.get_html()
-    print "<br>"
+    print(tt.get_html())
+    print("<br>")
 
     where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ),  ('project', project), ('context', context), ('host', host) ] )
 
-    print where_str,"<br>"
-    print where_dict,"<br>"
+    print(where_str,"<br>")
+    print(where_dict,"<br>")
     c = pdk_db.execute('SELECT count(*) FROM result_scalar %s'%where_str, where_dict)
     (x,) = c.fetchone()
-    print x, "records<br>"
+    print(x, "records<br>")
 
-    print '<a href="%s">Confirm delete</a>'%common.selflink( { 'test_run' : test_run,
-        'project' : project, 'context' : context, 'host' : host }, 'delete_run.conf' )
+    print('<a href="%s">Confirm delete</a>'%common.selflink( { 'test_run' : test_run,
+        'project' : project, 'context' : context, 'host' : host }, 'delete_run.conf' ))
 
 
 def delete_confirmed( ) :
@@ -79,7 +79,7 @@ def delete_confirmed( ) :
     sys.stdout.write(common.page_header())
 
     if pandokia.cleaner.check_valuable(test_run) :
-        print "valuable test run - There should not be a link that comes here"
+        print("valuable test run - There should not be a link that comes here")
         return
 
     my_run_prefix = 'user_' + common.current_user()
@@ -87,11 +87,11 @@ def delete_confirmed( ) :
     admin = common.current_user() in common.cfg.admin_user_list
 
     if not ( admin or test_run.startswith(my_run_prefix) ) :
-        print "You (%s) can't do that"%common.current_user()
+        print("You (%s) can't do that"%common.current_user())
 
     else :
 
-        print "Deleteing..."
+        print("Deleteing...")
         sys.stdout.flush()
 
         # make a dummy record, so we know that we can never delete the
@@ -99,19 +99,19 @@ def delete_confirmed( ) :
         pandokia.cleaner.block_last_record()
 
         # delete_run is chatty, so we <pre> around it
-        print "<pre>"
+        print("<pre>")
 
-        print "working..."
+        print("working...")
         sys.stdout.flush()
 
         cleaner.delete_by_query( where_str, where_dict )
 
         if project == '*' and context == '*' and host == '*' :
-            print "delete from index"
+            print("delete from index")
             pdk_db.execute("DELETE FROM distinct_test_run WHERE test_run = :1",(test_run,))
             pdk_db.commit()
 
-        print "done."
+        print("done.")
 
-        print "</pre>"
+        print("</pre>")
         sys.stdout.flush()

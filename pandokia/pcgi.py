@@ -202,13 +202,13 @@ def run() :
         sys.exit(0)
 
     if query == 'killproc' :
-        print "content-type: text/html"
-        print ""
+        print("content-type: text/html")
+        print("")
         pid = form['pid'].value
         sig = form['sig'].value
         if common.current_user() in common.cfg.admin_user_list :
             os.kill(int(pid),int(sig))
-        print "done"
+        print("done")
         sys.exit(0)
 
     if query == 'hostinfo' :
@@ -248,13 +248,13 @@ def run() :
     # friendly response.
     
     if cfg.debug or ( common.current_user() in common.cfg.admin_user_list ) :
-        print "YOU ARE ADMIN, DEBUG FOLLOWS"
+        print("YOU ARE ADMIN, DEBUG FOLLOWS")
         for x in form:
             if isinstance(form[x],list) :
                 for y in form[x]:
-                    print x, y,"<br>"
+                    print(x, y,"<br>")
             else :
-                print x, form[x],"<br>"
+                print(x, form[x],"<br>")
 
 #
 def error_1201() :

@@ -92,7 +92,7 @@ def run(args) :
             # when you run ps
             pass
         elif opt == '--help':
-            print helpstr
+            print(helpstr)
             return ( 0, { } )
         elif opt == '--log' :
             log = optarg
@@ -171,7 +171,7 @@ def run(args) :
             try :
                 file_stat = os.stat(x)
             except OSError as e:
-                print x, e
+                print(x, e)
                 continue
 
             lstat = { }
@@ -191,7 +191,7 @@ def run(args) :
                 if runner is not None :
                     ( err, lstat ) = pandokia.run_file.run(dirname, basename, envgetter, runner )
                 else :
-                    print "no runner for ",x
+                    print("no runner for ",x)
                     err = 1
             else :
                 lstat = { }
@@ -201,8 +201,8 @@ def run(args) :
                 t_stat[y] = t_stat.get(y,0) + lstat[y]
 
         if n_things_run > 1 :
-            print ""
-            print "Summary:"
+            print("")
+            print("Summary:")
             common.print_stat_dict(t_stat)
 
     if initialized_status_file :
@@ -227,7 +227,7 @@ def default_test_run() :
         user = getpass.getuser()
     fmt = 'user_' + user + '_%Y-%m-%d-%H-%M-%S'
     d = d.strftime( fmt )
-    print "DEFAULT TEST RUN",d
+    print("DEFAULT TEST RUN",d)
     return d
 
 def export_environment(args) :

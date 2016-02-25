@@ -120,7 +120,7 @@ class DirLevel(object):
                             self.container.counter:self.container.counter}
             self.container.counter+=1
             if self.container.context is not None:
-                print "update with context",self.container.context
+                print("update with context",self.container.context)
 
         else:
 

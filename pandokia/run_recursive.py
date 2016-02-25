@@ -20,7 +20,7 @@ def generate_directories( dir ) :
     #
 
     if not os.path.isdir(dir) :
-        print "WARNING: ",dir," is not a directory"
+        print("WARNING: ",dir," is not a directory")
         return
 
     # The first directory we can yield is the one we are starting in.
@@ -31,7 +31,7 @@ def generate_directories( dir ) :
         dir_list = os.listdir( dir )
     except ( OSError, IOError ) as e:
         # various errors listing the directory mean we skip it
-        print e
+        print(e)
         return
 
     dir_list.sort()
@@ -48,8 +48,8 @@ def generate_directories( dir ) :
             file_stat = os.lstat(full_name)
         except OSError as e:
             if e.errno != errno.ENOENT :
-                print "cannot lstat",full_name
-                print e
+                print("cannot lstat",full_name)
+                print(e)
             continue
 
         if not stat.S_ISDIR(file_stat.st_mode) :
@@ -93,7 +93,7 @@ def run( dirs, envgetter, max_procs=None ) :
         try :
             max_procs = int(max_procs)
         except ValueError :
-            print "cannot convert ",max_procs," to integer - running one process at a time"
+            print("cannot convert ",max_procs," to integer - running one process at a time")
             max_procs = 1
         pandokia.multirun.set_max_procs(max_procs)
 
@@ -174,8 +174,8 @@ def run( dirs, envgetter, max_procs=None ) :
             pass
 
 
-    print ""
-    print "Summary of entire run:"
+    print("")
+    print("Summary of entire run:")
     common.print_stat_dict(stat_summary)
 
     # bug: multirun is not reporting exit status back to us, so we have no

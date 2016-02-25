@@ -13,7 +13,7 @@ pdk_db = pandokia.cfg.pdk_db
 
 
 def noflag( name, err ) :
-    print 'Flagok not possible for %s: %s<br>'%(cgi.escape(name), err)
+    print('Flagok not possible for %s: %s<br>'%(cgi.escape(name), err))
 
 
 def ok_transaction(qid, client, key_ids, user, comment):
@@ -26,7 +26,7 @@ def ok_transaction(qid, client, key_ids, user, comment):
 
     #OK each key_id
     for key_id in key_ids:
-        print "Flagging %s<br>" %key_id
+        print("Flagging %s<br>" %key_id)
         flagok(key_id, trans_id)
 
     return 1   
@@ -67,7 +67,7 @@ def flagok(key_id, trans_id) :
         flagok_file = os.path.join(os.path.dirname(location),flagok_file)
 
     flagfile = pandokia.cfg.flagok_file % host
-    print "OK",cgi.escape(test_name),cgi.escape(flagok_file),flagfile,"<br>"
+    print("OK",cgi.escape(test_name),cgi.escape(flagok_file),flagfile,"<br>")
 
     pdk_db.execute("update result_scalar set attn = 'N' where key_id = :1 ",(key_id,))
 

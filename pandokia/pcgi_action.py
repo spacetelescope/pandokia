@@ -122,7 +122,7 @@ def run( ) :
         pdk_db.commit()
 
     elif 'claim_qid' in form :
-        print "CLAIM", common.current_user()
+        print("CLAIM", common.current_user())
         pdk_db.execute("UPDATE query_id SET username = :1 WHERE qid = :2 ",(common.current_user(), qid))
         pdk_db.commit()
 
@@ -132,10 +132,10 @@ def run( ) :
             expire = pandokia.never_expires
             if 0 :
                 s = "SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id " % ( qid, ) 
-                print "S=%s<br>"%s
+                print("S=%s<br>"%s)
                 c = pdk_db.execute( s ) 
                 for x in c :
-                    print x, "<br>"
+                    print(x, "<br>")
             pdk_db.execute("""UPDATE distinct_test_run SET valuable=1 WHERE test_run IN 
                 ( SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id )
                 """ % ( qid, ) )
@@ -156,7 +156,7 @@ def run( ) :
             v = 'valuable'
         else :
             v = 'not valuable'
-        print "Test run",test_run," marked as ",v
+        print("Test run",test_run," marked as ",v)
 
     elif 'note' in form :
         text_present = 1
@@ -164,15 +164,15 @@ def run( ) :
         test_run = str(form['test_run'].value)
         pdk_db.execute("UPDATE distinct_test_run SET note = :1 WHERE test_run = :2",(v,test_run))
         pdk_db.commit()
-        print "Note set"
+        print("Note set")
 
     elif 'count_run' in form :
         text_present = 1
         import pandokia.cleaner as cleaner
-        print "<pre>"
+        print("<pre>")
         test_run = str(form['count_run'].value)
         cleaner.recount( [ test_run ] )
-        print "</pre>"
+        print("</pre>")
 
     elif 'edit_comment' in form :
         text_present = 1
@@ -195,7 +195,7 @@ def run( ) :
 
     else :
         no_redirect = 1
-        print form
+        print(form)
 
     if qid is not None :
         if text_present :

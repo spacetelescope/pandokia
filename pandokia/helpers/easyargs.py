@@ -191,6 +191,6 @@ if __name__ == '__main__' :
     l = [x for x in args]
     l.sort()
     for x in l :
-        print x,args[x]
-    print rest
+        print(x,args[x])
+    print(rest)
 

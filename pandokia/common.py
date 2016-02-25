@@ -131,7 +131,7 @@ def expand_test_run( run ) :
     if run != s :
         return s
     where_str, where_dict = pandokia.cfg.pdk_db.where_dict( [ ( 'test_run', run ) ] )
-    print 'SELECT test_run FROM distinct_test_run %s' % where_str
+    print('SELECT test_run FROM distinct_test_run %s' % where_str)
     c = pandokia.cfg.pdk_db.execute( 'SELECT test_run FROM distinct_test_run %s' % where_str, where_dict )
     l = [ ]
     for x, in c :
@@ -624,9 +624,9 @@ def print_stat_dict(stat_summary) :
                     name = pandokia.cfg.status_names.get(x,x)
                     s.append( "%s=%d"%(name, stat_summary[x]) )
         if len(s) > 0 :
-            print " ".join(s)
+            print(" ".join(s))
         else :
-            print "Nothing to report"
+            print("Nothing to report")
 
 ######
 

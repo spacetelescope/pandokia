@@ -169,9 +169,9 @@ def run ( ) :
     if pandokia.pcgi.output_format == 'html' :
         # HTML OUTPUT
 
-        print "content-type: text/html\n\n"
+        print("content-type: text/html\n\n")
 
-        print common.page_header()
+        print(common.page_header())
 
         #
         # main heading
@@ -389,22 +389,22 @@ def run ( ) :
         # CSV OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_csv(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_csv(headings=1))
 
     elif pandokia.pcgi.output_format == 'rst' :
         # RST OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_rst(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_rst(headings=1))
 
     elif pandokia.pcgi.output_format == 'awk' :
         # AWK OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_awk(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_awk(headings=1))
 
 
 ##########
@@ -627,11 +627,11 @@ exclude_cgi_params_from_selector = set( ( 'S', 'show_attr', 'format' ) )
 def column_selector(input_query) :
 
     qid = int(input_query["qid"][0])
-    print "content-type: text/html\n\n"
+    print("content-type: text/html\n\n")
 
     # page header
-    print common.page_header()
-    print "<h1>Column Selector</h1>"
+    print(common.page_header())
+    print("<h1>Column Selector</h1>")
     qid_block(qid)
 
     # these columns are common to every test

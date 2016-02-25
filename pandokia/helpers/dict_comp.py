@@ -405,15 +405,15 @@ def dictionary_comp(
             if k in failed_set :
                 tt.set_value( row, 'F', '*' )
 
-        print tt.get_rst(headings=1)
+        print(tt.get_rst(headings=1))
 
         if missing:
             m=list(missing)
             m.sort()
-            print "Missing keys:", m
+            print("Missing keys:", m)
 
         if fail :
-            print "FAILED"
+            print("FAILED")
 
     if no_reference_file:
         raise no_reference_file

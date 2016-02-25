@@ -128,8 +128,8 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # explain the query plan using the database-dependent syntax
     #
     def explain_query( self, text, query_dict=None ) :
-        print "TEXT",text
-        print "DICT", query_dict
+        print("TEXT",text)
+        print("DICT", query_dict)
         f = io.StringIO()
         c = self.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
         for x in c :

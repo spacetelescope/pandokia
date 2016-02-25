@@ -369,7 +369,7 @@ def sendmail(addy, subject, text):
         addy = getpass.getuser()
         #then don't irritate people by sending test emails; send them
         #all to the user running the test instead
-    print "mail to ",addy
+    print("mail to ",addy)
     sub = subprocess.Popen( [ 'mail', '-s', subject, addy ], shell=False, stdin=subprocess.PIPE)
     sub.stdin.write(text)
     sub.stdin.close()
@@ -389,7 +389,7 @@ def run(args):
     opt, args = easyargs.get( argspec, args )
 
     if opt['--help'] :
-        print """
+        print("""
 -r
 --test_run
     specify a list of test runs to report on
@@ -399,7 +399,7 @@ def run(args):
     specify a subject for the email
 
 other parameters are users to send email to (not email addresses)
-"""
+""")
         return 0
 
     if '-r' in opt :
@@ -417,7 +417,7 @@ other parameters are users to send email to (not email addresses)
                 users.append( (user, email) )
                 found=1
             if not found :
-                print "No email address known for user",user
+                print("No email address known for user",user)
     else:
         # get a list of all the (user, email) from the user prefs
         query = """SELECT username, email FROM user_prefs"""
@@ -441,7 +441,7 @@ other parameters are users to send email to (not email addresses)
         if len(msg) > 0 and email :
             sendmail(email, subject, '%s\n\n\nThis report created for %s'%(msg, email))
         else :
-            print "suppress blank email to ", email
+            print("suppress blank email to ", email)
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')

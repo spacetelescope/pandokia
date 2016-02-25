@@ -273,7 +273,7 @@ def list_users() :
     c = cfg.pdk_db.execute(" SELECT DISTINCT username FROM user_email_pref WHERE "
         " username NOT IN ( SELECT username FROM user_prefs ) " )
     for x, in c :
-        print "user %s not in user_prefs table - adding<br>"%cgi.escape(x)
+        print("user %s not in user_prefs table - adding<br>"%cgi.escape(x))
         cfg.pdk_db.execute("INSERT INTO user_prefs ( username ) VALUES ( :1 )", (x,))
     cfg.pdk_db.commit()
 

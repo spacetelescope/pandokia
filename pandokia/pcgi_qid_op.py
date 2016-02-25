@@ -121,10 +121,10 @@ def run( ) :
 def qid_list( ) :
     import datetime
 
-    print "content-type: text/html\n"
-    print common.page_header()
+    print("content-type: text/html\n")
+    print(common.page_header())
 
-    print "<h1>Interesting QID</h1>"
+    print("<h1>Interesting QID</h1>")
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
@@ -183,4 +183,4 @@ def qid_list( ) :
 
         row = row + 1
 
-    print t.get_html()
+    print(t.get_html())

@@ -243,7 +243,7 @@ else :
             m = status_block('pdk_statusfile')
             m.set_my_record(int(s))
             while 1 :
-                print ">"
+                print(">")
                 l = sys.stdin.readline().strip()
                 if l[0] in '0123456789' :
                     n = int(l.split()[0])
@@ -251,7 +251,7 @@ else :
                 elif l[0] == 's' :
                     m.set_status_text(l[1:])
                 else :
-                    print "?"
+                    print("?")
 
 
     import time
