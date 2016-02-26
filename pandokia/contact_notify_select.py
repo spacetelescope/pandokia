@@ -13,7 +13,7 @@ pdk_db = pandokia.cfg.pdk_db
 import pandokia.helpers.easyargs as easyargs
 
 import pandokia.common
-from . import text_table
+from pandokia.text_table import text_table
 from collections import defaultdict
 import subprocess
 

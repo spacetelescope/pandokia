@@ -14,8 +14,6 @@ import copy
 import time
 import os
 
-import urllib.request, urllib.parse, urllib.error
-
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 

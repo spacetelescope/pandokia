@@ -13,7 +13,6 @@ import cgi
 import os
 import os.path
 import sys
-import urllib.request, urllib.parse, urllib.error
 import cgitb
 
 import pandokia

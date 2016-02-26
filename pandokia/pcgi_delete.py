@@ -11,7 +11,6 @@ import copy
 import time
 
 import pandokia.text_table as text_table
-import urllib.request, urllib.parse, urllib.error
 import pandokia.cleaner as cleaner
 
 import pandokia

@@ -10,7 +10,6 @@
 __all__ = [ "text_table" ]
 
 import cgi
-import urllib.request, urllib.parse, urllib.error
 import csv
 
 try:

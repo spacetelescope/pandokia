@@ -10,7 +10,10 @@ import copy
 import time
 import os
 
-import urllib.request, urllib.parse, urllib.error
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
@@ -389,7 +392,7 @@ def treewalk ( ) :
             if x is None :
                 continue
             lquery[field] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.parse.urlencode(lquery)+"'>"+x+"</a><br>")
+            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urlencode(lquery)+"'>"+x+"</a><br>")
 
 
     output.write("")

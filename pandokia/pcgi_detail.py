@@ -11,9 +11,6 @@ import time
 import datetime
 
 import pandokia.text_table as text_table
-
-import urllib.request, urllib.parse, urllib.error
-
 import pandokia.pcgi
 import pandokia.common as common
 

@@ -7,7 +7,12 @@
 
 import sys
 import cgi
-import urllib.request, urllib.parse, urllib.error
+
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 import pandokia
 import pandokia.text_table as text_table
 import pandokia.pcgi
@@ -132,7 +137,7 @@ def show(user) :
             continue
         tb.set_value(row, 'project', project)
 
-        project = urllib.parse.quote(project)
+        project = quote(project)
         # projects will be a list of all the projects we are submitting in the form
         output.write('<input type=hidden name=projects value="%s">'%project)
 

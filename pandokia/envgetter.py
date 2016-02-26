@@ -32,7 +32,7 @@ go all the way to the top of the file system.
 import os, sys, re
 
 try:
-    import ConfigParser
+    import ConfigParser as configparser
 except ImportError:
     import configparser
 

@@ -6,8 +6,6 @@
 import sys
 import cgi
 
-import urllib.request, urllib.parse, urllib.error
-
 import pandokia
 import pandokia.pcgi
 from . import common

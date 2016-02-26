@@ -44,10 +44,9 @@ pdk check_expected [ -p project ] [ -h host ]
 import sys
 import os
 import string
-import urllib.request, urllib.parse, urllib.error
 import datetime
-import pandokia.common as common
 
+import pandokia.common as common
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
