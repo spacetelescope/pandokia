@@ -30,7 +30,12 @@ This file is not read; it's just detected. If it is never detected, it will
 go all the way to the top of the file system.
 """
 import os, sys, re
-import configparser
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser
+
 from pandokia.env_platforms import PlatformType
 
 import pandokia.common as common

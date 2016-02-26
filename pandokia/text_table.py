@@ -9,11 +9,14 @@
 
 __all__ = [ "text_table" ]
 
-import io as StringIO
 import cgi
 import urllib.request, urllib.parse, urllib.error
 import csv
 
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
 #
 # A text_table contains a list of text_table_row.  
 # Each text_table_row contains a list of text_table_cell.  

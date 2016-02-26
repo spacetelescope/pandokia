@@ -16,7 +16,12 @@ __all__ = [
 
 # system imports
 import os
-import io
+
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
+
 
 # need some common code
 import pandokia.db
@@ -130,7 +135,7 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     def explain_query( self, text, query_dict=None ) :
         print("TEXT",text)
         print("DICT", query_dict)
-        f = io.StringIO()
+        f = StringIO.StringIO()
         c = self.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
         for x in c :
             f.write(str(x))

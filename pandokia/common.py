@@ -7,14 +7,23 @@
 # common.py - bunch of library functions used by parts of pandokia
 #
 
-import io
 import datetime
 import time
 import os
 import os.path
 import re
-import urllib.request, urllib.parse, urllib.error
 import types
+
+try:
+    from io import StringIO as cStringIO
+except ImportError:
+    import cStringIO
+
+try:
+    from urllib.parse import quote_plus, urlencode
+except ImportError:
+    from urllib import urlencode, quote_plus
+
 
 import pandokia
 cfg = pandokia.cfg
@@ -71,7 +80,7 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    l = [ 'query=' + urllib.parse.quote_plus(linkmode) ]
+    l = [ 'query=' + quote_plus(linkmode) ]
     for i in sorted(query_dict.keys()) :
         v = query_dict[i]
         if v is None :
@@ -79,7 +88,7 @@ def selflink( query_dict, linkmode ) :
         if not isinstance(v,list) :
             v = [ v ]
         for v in v :
-            l.append( i + '=' + urllib.parse.quote_plus(str(v)) )
+            l.append( i + '=' + quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
 #
@@ -289,8 +298,8 @@ def get_contact( project, test_name, mode='str') :
 #
 # format is one of:
 #       text    substitute the string exactly with no changes
-#       cgi     if value is a string, urllib.quote_plus(value)
-#               else urllib.urlencode(value)
+#       cgi     if value is a string, quote_plus(value)
+#               else urlencode(value)
 #       html    cgi.escape(string, quote=True)
 #       ''      default format
 #
@@ -310,7 +319,7 @@ def get_contact( project, test_name, mode='str') :
 var_pattern = re.compile("(%[^;]*);")
 
 def expand(text, dictlist = [ ] , valid = None, format='' ) :
-    result = io.StringIO()
+    result = cStringIO.StringIO()
     textlist = re.split(var_pattern, text)
     for x in textlist :
         if x.startswith('%') :
@@ -337,10 +346,10 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
                 if this_format == '' or this_format == 'text' :
                     result.write(str(val))
                 elif this_format == 'cgi' :
-                    if isinstance(val, str) :
-                        val = urllib.parse.quote_plus(val)
+                    if isinstance(val, basestring) :
+                        val = quote_plus(val)
                     else :
-                        val = urllib.parse.urlencode(val)
+                        val = urlencode(val)
                     result.write(val)
                 elif this_format == 'html' :
                     val = cgi.escape(str(val),quote=True)
