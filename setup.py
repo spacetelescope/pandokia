@@ -294,7 +294,7 @@ if 'install' in d.command_obj :
     print('')
     print('The CGI is:')
     print('')
-    print('    ', os.path.join(script_dir, 'pdk'))
+    print('    %s'%os.path.join(script_dir, 'pdk'))
     if not have_setuptools :
         # hack the scripts for PDK_DIR_HERE
         for x in python_commands :
@@ -311,7 +311,7 @@ if 'install' in d.command_obj :
         f = f[:-1]
     print('The config file is:')
     print('')
-    print('    ',f)
+    print('    %s'%f)
     print('')
     print('    you can find the config file at any time with the command "pdk config"')
     print('')
