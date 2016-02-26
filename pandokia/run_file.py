@@ -287,17 +287,19 @@ def run( dirname, basename, envgetter, runner ) :
                         status = p.wait()
 
                 # subprocess gives you weird status values
+                cause = "unknown"
                 if status > 0 :
-                    status="exit %d"%(status >> 8)
-                    if status != 0 :
-                        return_status = 1
+                    cause = "exit"
+                elif status != 0 :
+                    return_status = 1
                 else :
                     return_status = 1
-                    status="signal %d" % ( - status )
+                    cause = "signal"
+                    status=( - status )
                     # subprocess does not tell you if there was a core
                     # dump, but there is nothing we can do about it.
 
-                print("COMMAND EXIT: %d %s"%(status,datetime.datetime.now()))
+                print("COMMAND EXIT: %s %s %s"%(cause,status,datetime.datetime.now()))
 
         else :
             # BUG: no timeout! - fortunately, this is a minor issue
