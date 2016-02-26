@@ -120,7 +120,7 @@ def run( ) :
         pdk_db.commit()
 
     elif 'claim_qid' in form :
-        print("CLAIM", common.current_user())
+        print("CLAIM %s"% common.current_user())
         pdk_db.execute("UPDATE query_id SET username = :1 WHERE qid = :2 ",(common.current_user(), qid))
         pdk_db.commit()
 
@@ -133,7 +133,7 @@ def run( ) :
                 print("S=%s<br>"%s)
                 c = pdk_db.execute( s ) 
                 for x in c :
-                    print(x, "<br>")
+                    print("%s<br>"%x)
             pdk_db.execute("""UPDATE distinct_test_run SET valuable=1 WHERE test_run IN 
                 ( SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id )
                 """ % ( qid, ) )
@@ -154,7 +154,7 @@ def run( ) :
             v = 'valuable'
         else :
             v = 'not valuable'
-        print("Test run",test_run," marked as ",v)
+        print("Test run %s marked as %s"%(test_run,v))
 
     elif 'note' in form :
         text_present = 1

@@ -45,7 +45,7 @@ def run(args) :
 
     test_run_pattern = common.find_test_run( test_run_pattern )
 
-    print("test_run_pattern = ",test_run_pattern)
+    print("test_run_pattern = %s"%test_run_pattern)
 
     l = [ ('test_run', test_run_pattern ) ]
 
@@ -59,7 +59,7 @@ def run(args) :
 
     if debug :
         for x in l :
-            print("	",x)
+            print("	%s"%x)
         print("?")
         sys.stdin.readline()
 
@@ -76,12 +76,12 @@ def run(args) :
             continue
 
         if debug :
-            print("expect ",test_run_type, project, host, context, test_name)
+            print("expect %s %s %s %s %s"%(test_run_type, project, host, context, test_name))
         # insert to the expected table; if the record is already there, it's ok.
         try : 
             pdk_db.execute('insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )', ( test_run_type, project, host, context, test_name ))
         except pdk_db.IntegrityError as e:
             if debug :
-                print("exception", e)
+                print("exception %s"% e)
             pass
     pdk_db.commit()

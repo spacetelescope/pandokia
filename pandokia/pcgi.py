@@ -251,9 +251,9 @@ def run() :
         for x in form:
             if isinstance(form[x],list) :
                 for y in form[x]:
-                    print(x, y,"<br>")
+                    print("%s %s<br>"%(x, y))
             else :
-                print(x, form[x],"<br>")
+                print("%s %s<br>"%(x, form[x]))
 
 #
 def error_1201() :

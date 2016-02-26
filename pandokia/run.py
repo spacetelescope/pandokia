@@ -171,7 +171,7 @@ def run(args) :
             try :
                 file_stat = os.stat(x)
             except OSError as e:
-                print(x, e)
+                print("%s %s"%(x, e))
                 continue
 
             lstat = { }
@@ -191,7 +191,7 @@ def run(args) :
                 if runner is not None :
                     ( err, lstat ) = pandokia.run_file.run(dirname, basename, envgetter, runner )
                 else :
-                    print("no runner for ",x)
+                    print("no runner for %s"%x)
                     err = 1
             else :
                 lstat = { }
@@ -227,7 +227,7 @@ def default_test_run() :
         user = getpass.getuser()
     fmt = 'user_' + user + '_%Y-%m-%d-%H-%M-%S'
     d = d.strftime( fmt )
-    print("DEFAULT TEST RUN",d)
+    print("DEFAULT TEST RUN %s"%d)
     return d
 
 def export_environment(args) :

@@ -67,7 +67,7 @@ def flagok(key_id, trans_id) :
         flagok_file = os.path.join(os.path.dirname(location),flagok_file)
 
     flagfile = pandokia.cfg.flagok_file % host
-    print("OK",cgi.escape(test_name),cgi.escape(flagok_file),flagfile,"<br>")
+    print("OK %s %s %s<br>"%(cgi.escape(test_name),cgi.escape(flagok_file),flagfile))
 
     pdk_db.execute("update result_scalar set attn = 'N' where key_id = :1 ",(key_id,))
 

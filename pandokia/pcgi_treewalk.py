@@ -457,11 +457,11 @@ def linkout( ) :
         newqid = c.lastrowid
 
     print("content-type: text/plain\n")
-    print("QID ",newqid)
+    print("QID %d"%newqid)
     pdk_db.commit()
 
     if oldqid is not None :
-        print("WITH QID=",oldqid)
+        print("WITH QID=%d"%oldqid)
         more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(oldqid)
     else :
         more_where = None

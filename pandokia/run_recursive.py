@@ -20,7 +20,7 @@ def generate_directories( dir ) :
     #
 
     if not os.path.isdir(dir) :
-        print("WARNING: ",dir," is not a directory")
+        print("WARNING: %s is not a directory"%dir)
         return
 
     # The first directory we can yield is the one we are starting in.
@@ -48,7 +48,7 @@ def generate_directories( dir ) :
             file_stat = os.lstat(full_name)
         except OSError as e:
             if e.errno != errno.ENOENT :
-                print("cannot lstat",full_name)
+                print("cannot lstat %s"%full_name)
                 print(e)
             continue
 
@@ -93,7 +93,7 @@ def run( dirs, envgetter, max_procs=None ) :
         try :
             max_procs = int(max_procs)
         except ValueError :
-            print("cannot convert ",max_procs," to integer - running one process at a time")
+            print("cannot convert %d to integer - running one process at a time"%maxprocs)
             max_procs = 1
         pandokia.multirun.set_max_procs(max_procs)
 

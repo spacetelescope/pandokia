@@ -88,8 +88,8 @@ def run(args) :
     # normalize the test run, so they can say stuff like "daily_latest"
     test_run = common.find_test_run( test_run )
 
-    print("TYPE ",test_run_type)
-    print("test_run",test_run)
+    print("TYPE %s"%test_run_type)
+    print("test_run %s"%test_run)
 
     if test_run.endswith('latest') :
         print("this test run name is probably a mistake")
@@ -127,7 +127,7 @@ def run(args) :
 
     for ( project, host, test_name, context ) in c :
         if verbose > 2 :
-            print("CHECK",project, host, test_name)
+            print("CHECK %s %s %s"%(project, host, test_name))
 
         c1 = pdk_db.execute("""SELECT status FROM result_scalar 
                 WHERE test_run = :1 AND project = :2 AND host = :3 AND 
@@ -138,7 +138,7 @@ def run(args) :
         if c1.fetchone() is None :
             # it wasn't there
             if verbose :
-                print("        MISSING:", project, host, test_name)
+                print("        MISSING: %s %s %s"%(project, host, test_name))
             pdk_db.execute("""INSERT INTO result_scalar 
                 ( test_run, project, host, context, test_name, status, attn ) 
                 VALUES ( :1, :2, :3, :4, :5, :6, :7 )""",
@@ -155,4 +155,4 @@ def run(args) :
     pdk_db.commit()
 
 
-    print("detected ",detected)
+    print("detected %d"%detected)

@@ -180,7 +180,7 @@ class where_dict_base(object) :
 
         print(colstr)
 
-        print("ORDER",colstr)
+        print("ORDER %s"%colstr)
         c = self.execute('select %s from %s %s order by %s'%(colstr, tablename, where, colstr) )
         for x in c :
             cc.writerow( [ y for y in x ] )
@@ -279,11 +279,11 @@ class where_dict_base(object) :
                     if 'no results to fetch' in str(e) :
                         pass
                     else :
-                        print("Programming Error for ",c)
+                        print("Programming Error for %s"%c)
                         print(e)
 
                 except self.IntegrityError as e :
-                    print("Integrity Error for ",c)
+                    print("Integrity Error for %s"%c)
                     print(e)
 
                 cursor.close()
@@ -311,9 +311,9 @@ def sql_files( files ) :
         files = files[1:]
         if arg in ( '-html', '-csv', '-awk', '-rst', '-text', '-trac_wiki', '-tw' ) :
             format = arg[1:]
-            print("FORMAT",format)
+            print("FORMAT %s"%format)
         else :
-            print(arg, "unrecognized")
+            print("%s unrecognized"%arg)
             return 1
 
     if len(files) > 0 :

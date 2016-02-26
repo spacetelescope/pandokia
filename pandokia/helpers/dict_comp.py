@@ -410,7 +410,7 @@ def dictionary_comp(
         if missing:
             m=list(missing)
             m.sort()
-            print("Missing keys:", m)
+            print("Missing keys: %s"% m)
 
         if fail :
             print("FAILED")

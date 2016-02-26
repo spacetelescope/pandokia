@@ -16,31 +16,31 @@ def set_chronic( test_run_type, test_run=None, project=None, context=None, host=
     
     )
 
-    print(where_str, where_dict) 
+    print("%s %s" % (where_str, where_dict))
 
     sql = "SELECT test_run, project, context, host, test_name, status FROM result_scalar %s ORDER BY test_run DESC " % where_str
 
     n = 0
     c = pdk_db.execute(sql, where_dict) 
     for x in c :
-        print("EXAMINE",x)
+        print("EXAMINE %s"%x)
         n = n + 1
         try :
             date = common.looks_like_a_date( test_run )
             if date is None :
                 print("NO DATE")
                 continue
-            print("DATE",date)
+            print("DATE %s"%date)
             
-            print("WANT CHRONIC",x)
+            print("WANT CHRONIC %s"%x)
             pdk_db.execute("INSERT INTO chronic ( test_run_type, project, context, host, test_name, xwhen ) values ( :1, :2, :3, :4, :5, :6 )",
                 ( test_run_type, x[1], x[2], x[3], x[4], date ) )
-            print("CHRONIC",x)
+            print("CHRONIC %s"%x)
         except pdk_db.IntegrityError as e :
             pass
     pdk_db.commit()
 
-    print("TOTAL WAS",n)
+    print("TOTAL WAS %d"%n)
 
 
 def check_chronic( test_run_type, test_run=None, project=None, context=None, host=None ) :
@@ -61,14 +61,14 @@ def check_chronic( test_run_type, test_run=None, project=None, context=None, hos
     
     )
 
-    print(where_str, where_dict) 
+    print("%s %s"%(where_str, where_dict))
 
     sql = "SELECT project, context, host, test_name, xwhen FROM chronic %s" % where_str
 
 
     c = pdk_db.execute(sql, where_dict)
     for x in c :
-        print(x, today_time)
+        print("%s %s"%(x, today_time))
         project, context, host, test_name, xwhen = x
 
         c1 = pdk_db.execute( "SELECT key_id, status FROM result_scalar WHERE test_run = :1 AND project = :2 AND context = :3 AND host = :4 AND test_name = :5 ",
@@ -85,7 +85,7 @@ def check_chronic( test_run_type, test_run=None, project=None, context=None, hos
         if status == 'P' or status == 'D' :
             res = 'F'
         else :
-            print("    ",xwhen)
+            print("    %s"%xwhen)
             xwhen = common.parse_time( xwhen )
             if xwhen is None :
                 res = 'C'
@@ -96,7 +96,7 @@ def check_chronic( test_run_type, test_run=None, project=None, context=None, hos
                     res = 'N'
 
         if res == 'C' :
-            print("chronic", key_id)
+            print("chronic %d"%key_id)
             pdk_db.execute("UPDATE result_scalar SET chronic = '1' WHERE key_id = :1",(key_id, ) )
             pdk_db.commit()
         elif res == 'F' :

@@ -662,10 +662,10 @@ def process_file( filename, test_name = None, test_args = None ) :
 
             # call the appropriate runner
             if type(ob) == function :
-                print('function', name, 'as', rname)
+                print('function %s as %s'% (name, rname))
                 run_test_function( rpt, module, rname, ob )
             else :
-                print('class', name, 'as', rname)
+                print('class %s as %s'% (name, rname))
                 run_test_class( rpt, module, name, ob, test_order )
 
         # look for a pycode function - call it if necessary
@@ -751,8 +751,8 @@ def main(arg) :
     if debug :
         print(len(arg))
         for x in arg :
-            print("arg: ",x)
-        print('PDK_FILE = ',os.environ['PDK_FILE'])
+            print("arg: %s"%x)
+        print('PDK_FILE = %s'%os.environ['PDK_FILE'])
 
     if len(arg) > 1 :
         # if there are multiple args then:

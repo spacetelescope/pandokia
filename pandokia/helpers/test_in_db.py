@@ -47,13 +47,13 @@ def perform_db_tests( query, expected_results ) :
                 for f in sorted ( [ x for x in expect ] ):
                     if expect[f] is None :
                         if f in data :
-                            print("extra field",f)
+                            print("extra field %s"%f)
                             status='F'
                             del data[f]
                         continue
 
                     if not f in data :
-                        print("missing field",f)
+                        print("missing field %s"%f)
                         status='F'
                         continue
 
@@ -61,19 +61,19 @@ def perform_db_tests( query, expected_results ) :
     
                     if isinstance(c, str) :
                         if expect[f] != data[f] :
-                            print("expect ",expect[f])
-                            print("found  ",data[f])
+                            print("expect %s"%expect[f])
+                            print("found  %s"%data[f])
                             status='F'
                     else :
                         if not expect[f].search(data[f]) :
-                            print("expect ",expect[f])
-                            print("found  ",data[f])
+                            print("expect %s"%expect[f])
+                            print("found  %s"%data[f])
                             status='F'
                     del data[f]
 
                 for f in data :
                     if f.startswith('tda_') or f.startswith('tra_') :
-                        print("Unexpected attribute", f)
+                        print("Unexpected attribute %s"% f)
                         status='F'
 
                 log = data['log']
@@ -94,6 +94,6 @@ def perform_db_tests( query, expected_results ) :
         if len(all_tests) != 0 :
             print("Not all tests examined:")
             for x in sorted( [ x for x in all_test ] ) :
-                print("   ",x)
+                print("   %s"%x)
             assert 0
 

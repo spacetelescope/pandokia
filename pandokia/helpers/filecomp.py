@@ -119,14 +119,14 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
     try :
         f1 = open(res, 'r')
     except :
-        print("cannot open result file:",res)
+        print("cannot open result file: %s"%res)
         raise
 
     try :
         f2 = open(ref,'r')
     except :
         f1.close()
-        print("cannot open reference file",ref)
+        print("cannot open reference file %s"%ref)
         raise
 
     # pick the length out of the stat structure
@@ -156,7 +156,7 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
             continue
 
         # bug: be nice to show the offset where they are different
-        print("files are different: ",res,ref)
+        print("files are different: %s %s"%(res,ref))
         f1.close()
         f2.close()
         return True
@@ -656,7 +656,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
         # perform the comparison
         try :
-            print("\nCOMPARE:",x['output'])
+            print("\nCOMPARE: %s"%x['output'])
             attr_prefix = 'cmp_%d_'%n
             for y in x['args'] :
                 tda[attr_prefix + y] = x['args'][y]
@@ -675,7 +675,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
         # any other exception means the test errors
         except Exception as e:
-            print("ERROR", e)
+            print("ERROR %s"% e)
             traceback.print_exc()
             if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :
                 ret_exc = e

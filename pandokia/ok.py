@@ -330,7 +330,7 @@ def process_okfile(opt, fn, return_refs = False):
         file = open(fn)
     except Exception as e:
         print('\tcannot open %s' %fn)
-        print('\t', e)
+        print('\t%s'% e)
         return 1, None
 
     print('\tokfile: %s' %fn)
@@ -367,7 +367,7 @@ def process_okfile(opt, fn, return_refs = False):
         os.unlink(fn)
     except IOError as e:
         print('\tcannot remove %s' %fn)
-        print('\t', e)
+        print('\t%s'% e)
         err += 1
 
     if return_refs:
@@ -390,7 +390,7 @@ def doit(src, dest, verbose) :
     # still represent the real problem that the user needs to know about.
 
     if not os.path.exists(src):
-        print("source (output from test) does not exist:",src)
+        print("source (output from test) does not exist: %s"%src)
         return 1
 
     # Make sure the "old" reference file is not there.  If you do multiple
@@ -406,7 +406,7 @@ def doit(src, dest, verbose) :
 
     except Exception as e:
         if os.path.exists(dest) :
-            print("cannot rename",dest," to ",dest+old)
+            print("cannot rename %s to %s"%(dest, dest+old))
             print(e)
             return 1
 
@@ -442,7 +442,7 @@ def doit(src, dest, verbose) :
         shutil.copyfile(src, dest)
     except IOError as e :
         # ok, we are now out of options - it didn't work
-        print("cannot copy",src,"to",dest)
+        print("cannot copy %s to %s"%(src,dest))
         print(e)
 
     return 1

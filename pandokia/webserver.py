@@ -71,7 +71,7 @@ def run( args = [ ] ) :
         import platform
         ip = platform.node()
 
-    print("ip:",ip)
+    print("ip: %s"%ip)
     port = 7070
 
     # make sure pdk.cgi is here somewhere - if not, make a symlink
@@ -91,7 +91,7 @@ def run( args = [ ] ) :
     httpd = http.server.HTTPServer( (ip, port) , my_handler)
 
     sa = httpd.socket.getsockname()
-    print("Serving HTTP on", sa[0], "port", sa[1], "...")
+    print("Serving HTTP on %s port %s ..."% (sa[0], sa[1]))
     while 1 :
         httpd.handle_request()
 

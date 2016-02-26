@@ -25,7 +25,7 @@ def run( dirname, envgetter ) :
     try :
         dir_list = os.listdir( dirname )
     except Exception as e:
-        print("Cannot search for tests in ",dirname)
+        print("Cannot search for tests in %s"%dirname)
         print(e)
         print("")
         return 1, {}
@@ -47,12 +47,12 @@ def run( dirname, envgetter ) :
                 # we start the test and end the test.  most commonly,
                 # this is a temp file or something, not a test.
                 continue
-            print("Cannot stat file ",full_name)
+            print("Cannot stat file %s"%full_name)
             print(e)
             was_error = 1
             continue
         except Exception as e :
-            print("Cannot stat file ",full_name)
+            print("Cannot stat file %s"%full_name)
             print(e)
             was_error = 1
             continue
@@ -74,7 +74,7 @@ def run( dirname, envgetter ) :
         # actually going to do anything here.  This suppresses all
         # output completely for directories that do not have any tests.
         if not printed_dirname :
-            print("directory",dirname)
+            print("directory %s"%dirname)
             printed_dirname=1
 
         # If the file is disabled, skip it

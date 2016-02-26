@@ -31,7 +31,7 @@ def GET( url, args=None, cred=None ) :
         opener = urllib.request.build_opener(cookie_processor )
     urllib.request.install_opener(opener)
 
-    print("URL",url)
+    print("URL %s"%url)
     f = urllib.request.urlopen(url + arg_string)
     return f
 
@@ -59,7 +59,7 @@ def POST( url, args={ }, cred=None ):
 
     urllib.request.install_opener(opener)
 
-    print("URL",url)
+    print("URL %s"%url)
     data = urllib.parse.urlencode(args)
     req = urllib.request.Request(url, data)
     f = urllib.request.urlopen(req)

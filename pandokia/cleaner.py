@@ -147,7 +147,7 @@ def delete_background( args = [ ], verbose = False ) :
     # user how much we have left to do.)
     c=pdk_db.execute("SELECT count(*) FROM delete_queue")
     (remaining,) = c.fetchone()
-    print("remaining:",remaining)
+    print("remaining: %d"%remaining)
 
     # when did we start
     start_time = time.time()
@@ -157,7 +157,7 @@ def delete_background( args = [ ], verbose = False ) :
     total_deleted = 0
 
     while 1 :
-        print("remaining:",remaining)
+        print("remaining: %d"%remaining)
 
         deleted_count = delete_background_step( max_per_step, verbose )
         if deleted_count == 0 :
@@ -171,14 +171,14 @@ def delete_background( args = [ ], verbose = False ) :
             break
 
         if sleeptime > 0 :
-            print("sleep after ",deleted_count)
+            print("sleep after %d"%deleted_count)
             time.sleep(sleeptime)
 
         time_so_far = time.time() - start_time
         time_per_record = float(time_so_far) / total_deleted
-        print("time so far", time_so_far)
-        print("time/record", time_per_record)
-        print("est remain ", remaining * time_per_record)
+        print("time so far %d" % time_so_far)
+        print("time/record %d" % time_per_record)
+        print("est remain %d" % remaining * time_per_record)
 
     print("done")
     return 0
@@ -208,7 +208,7 @@ def block_last_record() :
 def clean_queries() :
 
     now = time.time()
-    print("start delete old queries", now)
+    print("start delete old queries %d" % now)
 
     # placeholder so we don't re-use any of the deleted sequence numbers
     pdk_db.execute("INSERT INTO query_id ( time, expires, username, notes ) values ( :1, :2, 'nobody', 'placeholder for cleaner' )", (now,now+1000))
@@ -274,7 +274,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
     # Empirically, the database cleaning takes longer, but other
     # users are able to get in between transactions.
 
-    print("start clean key_id", which, time.time())
+    print("start clean key_id %s %d" % (which, time.time()))
 
     if min_key_id is None :
         c = pdk_db.execute("SELECT MIN(key_id) FROM "+which)
@@ -284,7 +284,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
         c = pdk_db.execute("SELECT MAX(key_id) FROM "+which)
         (max_key_id,) = c.fetchone()
 
-    print("max record number",max_key_id)
+    print("max record number %d" % (max_key_id))
 
     inc = 100000
     max_kills = 400
@@ -317,7 +317,7 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
                 pdk_db.execute("DELETE FROM "+which+" WHERE key_id = :1",(key_id,))
                 d = d + 1
                 if d > 100 :
-                    print("deleted",key_id)
+                    print("deleted %s" % key_id)
 
             n = n + 1
 
@@ -328,10 +328,10 @@ def clean_key_id(which, min_key_id=None, max_key_id=None, sleep=1 ) :
                 pdk_db.commit()
 
                 n = 0
-                print("        ",time.time()-tyme, "  key_id", key_id)
+                print("        %d  %s" % (time.time()-tyme, key_id))
 
     print("done")
-    print("end   clean key_id", which, time.time())
+    print("end   clean key_id %s %d" % (which, time.time()))
 
 
 # This is the old cleaner.  You give a min/max key_id.  For each key_id
@@ -461,7 +461,7 @@ def delete(args) :
         lll.append( ( x[1:], v ) )
         if not wild :
             if ( '*' in v ) or ( '?' in v ) or ( '%' in v ) :
-                print('\nError: must use -wild for ',x,v,'\n')
+                print('\nError: must use -wild for %s %s\n'%(x,v))
                 dont=1
 
     if dont :
@@ -472,7 +472,7 @@ def delete(args) :
     
         if count :
             c = pdk_db.execute("SELECT count(*) FROM result_scalar %s" % (where_str,) , where_dict )
-            print(x, c.fetchone()[0])
+            print("%s %s"%(x, c.fetchone()[0]))
 
         else :
             print(x)
@@ -497,7 +497,7 @@ def recount( args, verbose=1 ) :
             args.append(x)
 
     for test_run in args :
-        print("counting",test_run)
+        print("counting %s" % test_run)
         test_run = pandokia.common.find_test_run( test_run )
         where_text, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ) ] )
         c = pdk_db.execute("SELECT test_run FROM distinct_test_run " + where_text, where_dict )
@@ -505,13 +505,14 @@ def recount( args, verbose=1 ) :
         for test_run, in c :
             found = 1
             if verbose :
-                print(test_run, end=' ') 
+                # Supposed to be on same line? Trying not to edit too much
+                print(test_run)
             n = recount_test_run( test_run )
             if verbose :
                 print(n)
         if not found :
             if verbose :
-                print("no test run found matching",test_run)
+                print("no test run found matching %s" % test_run)
 
 def recount_test_run( test_run ) :
     c = pdk_db.execute("SELECT COUNT(*), MIN(start_time), MAX(end_time) FROM result_scalar WHERE test_run = :1",(test_run,))

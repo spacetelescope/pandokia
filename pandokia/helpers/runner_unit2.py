@@ -195,7 +195,7 @@ def main(args) :
         print("%s Cannot import unittest2"%__file__)
         print(e)
         for x in sys.path :
-            print("    %s",x)
+            print("    %s"%x)
         file_status = 'E'
 
     else :
@@ -204,8 +204,8 @@ def main(args) :
         # changes in the future.
         if not unittest2.__version__ in unittest2_versions :
             print('THIS IS NOT THE VERSION OF unittest2 THAT THE PANDOKIA RUNNER WAS WRITTEN FOR')
-            print('HAVE  ', unittest2.__version__) 
-            print('EXPECT ONE OF ', unittest2_versions)
+            print('HAVE  %s'% unittest2.__version__) 
+            print('EXPECT ONE OF %s'% unittest2_versions)
             file_status = 'E'   # to draw attention
 
         try :

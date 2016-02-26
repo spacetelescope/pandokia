@@ -250,7 +250,7 @@ def run( dirname, basename, envgetter, runner ) :
             if not isinstance(cmd, list ) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
-                print('COMMAND :', repr(thiscmd), '(for file %s)'% full_filename, datetime.datetime.now())
+                print('COMMAND : %s (for file %s) %s'%(repr(thiscmd), full_filename, datetime.datetime.now()))
                 sys.stdout.flush()
                 sys.stderr.flush()
                 if windows :
@@ -277,7 +277,7 @@ def run( dirname, basename, envgetter, runner ) :
                     if 'PDK_TIMEOUT' in env :
                         proc_timeout_start(env['PDK_TIMEOUT'], p)
                         status = p.wait()
-                        print("return from wait, status=",status)
+                        print("return from wait, status=%d"%status)
                         proc_timeout_terminate()
                         if timeout_proc_kills > 0 :
                             # we tried to kill it for taking too long -
@@ -297,7 +297,7 @@ def run( dirname, basename, envgetter, runner ) :
                     # subprocess does not tell you if there was a core
                     # dump, but there is nothing we can do about it.
 
-                print("COMMAND EXIT:",status,datetime.datetime.now())
+                print("COMMAND EXIT: %d %s"%(status,datetime.datetime.now()))
 
         else :
             # BUG: no timeout! - fortunately, this is a minor issue
@@ -352,7 +352,7 @@ def run( dirname, basename, envgetter, runner ) :
             f.close()
 
     else :
-        print("NO RUNNER FOR",dirname +"/"+basename,"\n")
+        print("NO RUNNER FOR %s\n"%(dirname +"/"+basename))
 
     os.chdir(save_dir)
 
@@ -433,7 +433,7 @@ else :
         try :
             os.killpg( pid, signal )
         except OSError as e:
-            print("killpg exception:",e)
+            print("killpg exception: %s"%e)
             if e.errno != errno.ESRCH :
                 raise
 

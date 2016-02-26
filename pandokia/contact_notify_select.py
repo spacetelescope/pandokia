@@ -137,7 +137,7 @@ def get_test_summary(test_run,project):
             for context in list(sum_dict[host].keys()):
                 sum_dict[host][context]['T'] = sum(sum_dict[host][context].values())
     test_summary[(test_run,project)] = sum_dict
-    #print sum_dict
+    #print(sum_dict)
     return sum_dict
 
 # turn the summary into table content
@@ -169,7 +169,7 @@ def create_summary(test_run,project):
 
     #contexts  = test_summary[host].keys()
     #for context in context.sort():
-    #print context
+    #print(context)
     #make up tables for this email.
 
     return sum_table
@@ -369,7 +369,7 @@ def sendmail(addy, subject, text):
         addy = getpass.getuser()
         #then don't irritate people by sending test emails; send them
         #all to the user running the test instead
-    print("mail to ",addy)
+    print("mail to %s"%addy)
     sub = subprocess.Popen( [ 'mail', '-s', subject, addy ], shell=False, stdin=subprocess.PIPE)
     sub.stdin.write(text)
     sub.stdin.close()
@@ -417,7 +417,7 @@ other parameters are users to send email to (not email addresses)
                 users.append( (user, email) )
                 found=1
             if not found :
-                print("No email address known for user",user)
+                print("No email address known for user %s"%user)
     else:
         # get a list of all the (user, email) from the user prefs
         query = """SELECT username, email FROM user_prefs"""
@@ -441,10 +441,10 @@ other parameters are users to send email to (not email addresses)
         if len(msg) > 0 and email :
             sendmail(email, subject, '%s\n\n\nThis report created for %s'%(msg, email))
         else :
-            print("suppress blank email to ", email)
+            print("suppress blank email to %s"% email)
 
 #add_user_pref('user1','proj1','f','5')
 #add_user_pref('user1','proj2','s','42')
 #add_user_pref('user1','proj3','n')
-#print test_runs['run2']
-#print create_email('user1','run1')
+#print(test_runs['run2'])
+#print(create_email('user1','run1'))

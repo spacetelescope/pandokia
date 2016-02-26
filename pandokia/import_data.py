@@ -37,7 +37,7 @@ def read_record(f) :
             # EOF - invalid if we saw any data (no END)
             # unremarkable otherwise
             if found_any :
-                print("INVALID INPUT FILE - NO END",line_count)
+                print("INVALID INPUT FILE - NO END %d"%line_count)
                 exit_status = 1
                 return ans
             else :
@@ -104,21 +104,21 @@ def read_record(f) :
             name = name.lower()
             value = l[n+1:]
             if value != "" :
-                print("INVALID INPUT FILE - stuff after colon",name,line_count)
+                print("INVALID INPUT FILE - stuff after colon %s %d"%(name,line_count))
                 exit_status = 1
             stuff = StringIO.StringIO()
             while 1 :
                 l = f.readline()
                 line_count = line_count + 1
                 if l == "" :
-                    print("INVALID INPUT FILE - eof in multi-line",name,line_count)
+                    print("INVALID INPUT FILE - eof in multi-line %s %d"%(name,line_count))
                     exit_status = 1
                     break
                 if l == "\n" or l == '\r\n':
                     # blank line marks end
                     break
                 if l[0] != '.' :
-                    print("INVALID INPUT FILE - missing prefix in multi-line",name,line_count)
+                    print("INVALID INPUT FILE - missing prefix in multi-line %s %d"%(name,line_count))
                     exit_status = 1
                     break
                 stuff.write(l[1:])
@@ -127,7 +127,7 @@ def read_record(f) :
             del stuff
             continue
 
-        print("INVALID INPUT FILE - unrecognized line",l,line_count)
+        print("INVALID INPUT FILE - unrecognized line %s %d"%(l,line_count))
         exit_status = 1
 
 
@@ -187,7 +187,7 @@ class test_result(object):
                 self.start_time = common.sql_time(self.start_time)
         except ValueError :    
             print("")
-            print("INVALID START TIME, line",line_count)
+            print("INVALID START TIME, line %d"%line_count)
 
         try :
             if self.end_time != '' :
@@ -195,7 +195,7 @@ class test_result(object):
                 self.end_time = common.sql_time(self.end_time)
         except ValueError :    
             print("")
-            print("INVALID END TIME, line",line_count)
+            print("INVALID END TIME, line %d"%line_count)
 
         self.tda = { }
         self.tra = { }
@@ -207,7 +207,7 @@ class test_result(object):
                 self.tra[x[4:]] = self._lookup(x)
 
         if len(self.missing) > 0 :
-            print("FIELDS MISSING",self.missing,line_count)
+            print("FIELDS MISSING %s %d"%(self.missing,line_count))
             exit_status = 1
 
     def try_insert( self, db, key_id ) :
@@ -234,12 +234,12 @@ class test_result(object):
         global insert_count
 
         if len(self.missing) > 0 :
-            print("NOT INSERTED DUE TO MISSING FIELDS", self.missing, self.test_name,line_count)
+            print("NOT INSERTED DUE TO MISSING FIELDS %s %s %d"% (self.missing, self.test_name,line_count))
             exit_status = 1
             return
 
         if self.test_name.endswith("nose.failure.Failure.runTest"):
-            print("NOT INSERTING ",self.test_name," (not an error)")
+            print("NOT INSERTING %s, (not an error)"%self.test_name)
             print("Can we have the nose plugin stop reporting these?")
             return
 
@@ -360,7 +360,7 @@ def run(args, hack_callback = None) :
         insert_count = 0
         line_count = 0
 
-        print("FILE:",filename)
+        print("FILE: %s"%filename)
 
         while 1 :
             x = read_record(f)
@@ -378,7 +378,7 @@ def run(args, hack_callback = None) :
                 if not "test_runner" in x :
                     x["test_runner"] = default_test_runner
             except Exception as e:
-                print(e, line_count)
+                print("%s %d"%(e, line_count))
                 continue
 
             # bug: remove this when the old nose plugin is no longer running around
@@ -390,7 +390,7 @@ def run(args, hack_callback = None) :
             if not 'test_name' in x :
                 # should not happen, but don't want to let it kill the import
                 print("warning: no test name on line: %4d"%line_count)
-                print("   ",[zz for zz in x ])
+                print("   %s"%[zz for zz in x ])
                 continue
 
             if x["test_name"].endswith(".xml") or x["test_name"].endswith(".log") :
@@ -409,7 +409,8 @@ def run(args, hack_callback = None) :
                 rx.insert(pdk_db)
             except pdk_db.IntegrityError:
                 if not quiet :
-                    print("warning: duplicate on line: %4d "%line_count,x['test_run'],x['project'],x['host'],x['context'], x["test_name"])
+                    print("warning: duplicate on line: %4d "%line_count)
+                    print(x['test_run'],x['project'],x['host'],x['context'], x["test_name"])
 
             pdk_db.commit()
 

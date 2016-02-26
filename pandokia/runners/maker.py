@@ -92,18 +92,18 @@ if __name__ == '__main__' :
             lc_expire = 0
             tag = g.group(1)
             cmd = g.group(2)
-            print(line_count, tag, cmd)
+            print("%d %s %s"%(line_count, tag, cmd))
             if tag == '>>>' :
                 exec(cmd)
             elif tag == '$' :
                 if not windows :
                     status = os.system(cmd)
-                    print("status=",status)
+                    print("status=%d"%status)
                     total_status |= status
             elif tag == '>' :
                 if windows :
                     status = os.system(cmd)
-                    print("status=",status)
+                    print("status=%d"%status)
                     total_status |= status
             else :
                 print("Tag not recognized!")

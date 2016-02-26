@@ -195,7 +195,7 @@ def run( argv = sys.argv ) :
 
     if cmd == 'version' or cmd == '--version' or cmd == '-v' or cmd == '-V' :
         import pandokia
-        print("pandokia",pandokia.__version__)
+        print("pandokia %s"%pandokia.__version__)
         print(os.path.dirname(pandokia.__file__))
         return 0
 
@@ -205,7 +205,7 @@ def run( argv = sys.argv ) :
 
     if cmd == 'maker' :
         import pandokia.runners as x
-        print(os.path.join( os.path.dirname(x.__file__), 'maker' ))
+        print("%s"%(os.path.join( os.path.dirname(x.__file__), 'maker' )))
         return 0
 
     if cmd == 'query' :

@@ -53,11 +53,11 @@ def delete_are_you_sure(  ) :
 
     where_str, where_dict = pdk_db.where_dict( [ ( 'test_run', test_run ),  ('project', project), ('context', context), ('host', host) ] )
 
-    print(where_str,"<br>")
-    print(where_dict,"<br>")
+    print("%s<br>"%where_str)
+    print("%s<br>"%where_dict)
     c = pdk_db.execute('SELECT count(*) FROM result_scalar %s'%where_str, where_dict)
     (x,) = c.fetchone()
-    print(x, "records<br>")
+    print("%d records<br>"%x)
 
     print('<a href="%s">Confirm delete</a>'%common.selflink( { 'test_run' : test_run,
         'project' : project, 'context' : context, 'host' : host }, 'delete_run.conf' ))

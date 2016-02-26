@@ -67,7 +67,7 @@ def set_hostinfo() :
     pandokia.cfg.pdk_db.execute("INSERT INTO hostinfo ( os, description, hostname ) VALUES ( :1, :2, :3 )",(os, description, host))
     pandokia.cfg.pdk_db.commit()
 
-    print((os, description, host))
+    print("%s %s %s"%(os, description, host))
 
 
 def expected() :
