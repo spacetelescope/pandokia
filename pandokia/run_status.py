@@ -104,14 +104,15 @@ else :
 
         def __init__( self, file, mode ) :
             import mmap
+            import codecs
 
             if mode == 'w' :
-                f=open(file,'r+b')
+                f=codecs.open(file,'r+b','ascii')
             else :
-                f=open(file,'rb')
+                f=codecs.open(file,'rb','ascii')
 
             # first line is header to recognize the data file
-            n = f.readline()   
+            n = f.readline()
             if n[8:] != 'PDKRUN status monitor 000\n' :
                 raise Exception('Not a PDKRUN status monitor file: %s'%file)
 
@@ -203,7 +204,11 @@ else :
 
             # lock the record - as a multi-byte operation, this is not atomic, but
             # if valid_flag_size == 1, it is.
-            self.mem[ start : start + self.valid_flag_size ] = self.locked_valid_flag
+            try:
+                self.mem[ start : start + self.valid_flag_size ] = self.locked_valid_flag
+            except TypeError:
+                self.mem[ start : start + self.valid_flag_size ] = bytes(self.locked_valid_flag, 'ascii')
+                
 
             # pad the value
             if len(value) < blocklen :
@@ -213,7 +218,10 @@ else :
             value = value[0:blocklen]
 
             # stuff it into the shared memory
-            s= self.mem[ start + offset : start + offset + blocklen ] = value
+            try:
+                s= self.mem[ start + offset : start + offset + blocklen ] = value
+            except TypeError:
+                s= self.mem[ start + offset : start + offset + blocklen ] = bytes(value, 'ascii')
 
             # clear the lock
             try :
@@ -222,7 +230,11 @@ else :
                 n = 0
 
             # set the new valid flag
-            self.mem[ start : start + self.valid_flag_size ] = "%*d"%(self.valid_flag_size,n)
+            try:
+                self.mem[ start : start + self.valid_flag_size ] = "%*d"%(self.valid_flag_size,n)
+            except TypeError:
+                self.mem[ start : start + self.valid_flag_size ] = bytes("%*d"%(self.valid_flag_size,n),
+                                                                        'ascii')
 
 
     if __name__ == '__main__' :
