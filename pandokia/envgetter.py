@@ -335,7 +335,7 @@ class EnvGetter(object):
         if len(tlist) == 1:
             return tlist.pop()
         else:
-            raise ValueError
+            raise ValueError("More than one toplevel detected: %s"%str(tlist))
 
     def export(self,dirname,format=None,fh=None,full=False):
         """User interface to export an environment. Delegates to

@@ -508,7 +508,7 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False,
             update_okfile(okfh, name, ref)
 
         #Last of all, raise the AssertionError that defines a failed test
-        raise AssertionError
+        raise AssertionError("files are different: %s, %s\n"%(name,ref))
 
     #and return the True/False (Pass/Fail) status
     return r
