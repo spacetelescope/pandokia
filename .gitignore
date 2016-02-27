@@ -2,4 +2,5 @@ build
 dist
 __pycache__
 *.pyc
+*.orig
 pandokia/svn_version.py
