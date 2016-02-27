@@ -1,9 +1,16 @@
-import urllib.request, urllib.error, urllib.parse
-import http.cookiejar
-import urllib.request, urllib.parse, urllib.error
+try:
+    from http.cookiejar import LWPCookieJar
+    from urllib.parse import urlencode
+    from urllib.request import HTTPBasicAuthHandler, HTTPCookieProcessor, Request, build_opener, install_opener, urlopen
+except ImportError:
+    from cookielib import LWPCookieJar
+    from urllib import urlencode
+    from urllib2 import HTTPBasicAuthHandler, HTTPCookieProcessor, Request, build_opener, install_opener, urlopen
 
-cookiejar = http.cookiejar.LWPCookieJar()
-cookie_processor = urllib.request.HTTPCookieProcessor(cookiejar)
+
+cookiejar = LWPCookieJar()
+cookie_processor = HTTPCookieProcessor(cookiejar)
+
 
 def GET( url, args=None, cred=None ) :
     """do http get
@@ -18,21 +25,21 @@ def GET( url, args=None, cred=None ) :
     arg_string = ''
 
     if not args is None :
-        arg_string = "?" + urllib.parse.urlencode( args )
+        arg_string = "?" + urlencode( args )
 
     if not cred is None :
         ( host, realm, username, password ) = cred
-        auth_handler = urllib.request.HTTPBasicAuthHandler()
+        auth_handler = HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)
 
     if auth_handler :
-        opener = urllib.request.build_opener(cookie_processor, auth_handler)
+        opener = build_opener(cookie_processor, auth_handler)
     else :
-        opener = urllib.request.build_opener(cookie_processor )
-    urllib.request.install_opener(opener)
+        opener = build_opener(cookie_processor )
+    install_opener(opener)
 
     print("URL %s"%url)
-    f = urllib.request.urlopen(url + arg_string)
+    f = urlopen(url + arg_string)
     return f
 
 def POST( url, args={ }, cred=None ):
@@ -49,20 +56,20 @@ def POST( url, args={ }, cred=None ):
 
     if not cred is None :
         ( host, realm, username, password ) = cred
-        auth_handler = urllib.request.HTTPBasicAuthHandler()
+        auth_handler = HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)
 
     if auth_handler :
-        opener = urllib.request.build_opener(cookie_processor, auth_handler)
+        opener = build_opener(cookie_processor, auth_handler)
     else :
-        opener = urllib.request.build_opener(cookie_processor )
+        opener = build_opener(cookie_processor )
 
-    urllib.request.install_opener(opener)
+    install_opener(opener)
 
     print("URL %s"%url)
-    data = urllib.parse.urlencode(args)
-    req = urllib.request.Request(url, data)
-    f = urllib.request.urlopen(req)
+    data = urlencode(args)
+    req = Request(url, data)
+    f = urlopen(req)
     return f
 
 

@@ -4,15 +4,20 @@
 #
 
 import os
-import http.server
-import http.server
 
-class my_handler( http.server.CGIHTTPRequestHandler ) :
+try:
+    from http.server import CGIHTTPRequestHandler, HTTPServer
+except ImportError:
+    from CGIHTTPServer import CGIHTTPRequestHandler
+    from BaseHTTPServer import HTTPServer
+
+
+class my_handler( CGIHTTPRequestHandler ) :
 
     cgi_directories = [ "/cgi-bin/" ]
 
     def __init__(self, request, client_address, server) :
-        http.server.CGIHTTPRequestHandler.__init__(self, request, client_address, server)
+        CGIHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def is_cgi(self) :
 
@@ -57,7 +62,7 @@ class my_handler( http.server.CGIHTTPRequestHandler ) :
     def translate_path( self, path ) :
         if path.find("/../") >= 0 :
             path = "/"
-        path = http.server.CGIHTTPRequestHandler.translate_path(self,path)
+        path = CGIHTTPRequestHandler.translate_path(self,path)
         return path
 
 
@@ -88,7 +93,7 @@ def run( args = [ ] ) :
     else :
         f.close()
 
-    httpd = http.server.HTTPServer( (ip, port) , my_handler)
+    httpd = HTTPServer( (ip, port) , my_handler)
 
     sa = httpd.socket.getsockname()
     print("Serving HTTP on %s port %s ..."% (sa[0], sa[1]))
