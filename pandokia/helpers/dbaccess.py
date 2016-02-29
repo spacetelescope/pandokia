@@ -192,7 +192,7 @@ def make_qid( tests=None, key_ids=None ) :
 
     now = time.time()
     expire = now + ( 30 * 86400 )
-    if pdk_db.__next__ :
+    if pdk_db.next:
         newqid = pdk_db.next('sequence_qid')
         c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ",
             ( newqid, now, expire ) )

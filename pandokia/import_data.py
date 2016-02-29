@@ -256,14 +256,14 @@ class test_result(object):
 
         # if this database engine does not have a usable auto-increment
         # field, get a key_id from the sequence in the database
-        if db.__next__ :
+        if db.next :
             key_id = db.next('sequence_key_id')
         else :
             key_id = None
 
         try :
             res = self.try_insert(db, key_id)
-            if not db.__next__ :
+            if not db.next :
                 key_id = res.lastrowid
             insert_count += 1
 
