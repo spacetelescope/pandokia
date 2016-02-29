@@ -11,8 +11,10 @@ import time
 import os
 
 try:
+    from html import escape
     from urllib.parse import urlencode
 except ImportError:
+    from cgi import escape
     from urllib import urlencode
 
 import pandokia
@@ -77,6 +79,7 @@ def treewalk ( ) :
     cmp_host     = get_form(form,'cmp_host',     None )
 
     test_run     = common.find_test_run(test_run)
+
     if cmp_test_run :
         cmp_test_run = common.find_test_run(cmp_test_run)
 
@@ -149,6 +152,9 @@ def treewalk ( ) :
     # if a test_run is selected, show the test_run here
     # include a link to clear the test_run selection
     #
+    if test_run is None :
+        output.write('Tree not generated.<br/>No tests available.')
+        return
 
     if test_run != "*" :
         lquery = copy.copy(query)
@@ -156,7 +162,7 @@ def treewalk ( ) :
         test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s</h2>\n"
         header_table.set_value( row, 0, 'test_run' )
         header_table.set_value( row, 1, '=' )
-        header_table.set_value( row, 2, cgi.escape(test_run) )
+        header_table.set_value( row, 2, escape(test_run) )
         header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
         tmp2 = common.run_previous(None,test_run)
         tmp3 = common.run_next(None,test_run)
@@ -189,7 +195,7 @@ def treewalk ( ) :
             lquery[var] = "*"
             header_table.set_value( row, 0, label )
             header_table.set_value( row, 1, '=' )
-            header_table.set_value( row, 2, cgi.escape(query[var]) )
+            header_table.set_value( row, 2, escape(query[var]) )
             header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
             row = row + 1
 
@@ -231,7 +237,7 @@ def treewalk ( ) :
     for x in lst :
         t = t + x
         lquery["test_name"] = t+"*"
-        line = common.self_href(lquery, 'treewalk', cgi.escape(x))
+        line = common.self_href(lquery, 'treewalk', escape(x))
         output.write(line)
 
     # if we are not at the very top, also include a link that gets us back
@@ -447,7 +453,7 @@ def linkout( ) :
     now = time.time()
     expire = now+common.cfg.default_qid_expire_days*86400
 
-    if pdk_db.__next__ :
+    if pdk_db.next :
         newqid = pdk_db.next('sequence_qid')
         c = pdk_db.execute("INSERT INTO query_id ( qid, time, expires ) VALUES ( :1, :2, :3 ) ", 
             ( newqid, now, expire ) )
