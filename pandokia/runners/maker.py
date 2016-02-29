@@ -19,7 +19,7 @@ def command( env ) :
     return 'python -m pandokia.runners.maker'
 
 # Not likely to support reporting disabled tests in a compiled external program
-def list( env ) :
+def lst( env ) :
     return [ ]
 
 ####################

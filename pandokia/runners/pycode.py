@@ -25,6 +25,6 @@ def command( env ) :
 # pycode tests runs are procedural, with the test names generated as
 # needed.  Every pycode test author would have to write special code to
 # report disabled tests.  Maybe we come back to this.
-def list( env ) :
+def lst( env ) :
 
     return [ ]

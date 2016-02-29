@@ -19,6 +19,6 @@ def command( env ) :
     return env['PDK_DIRECTORY'] + '/' + env['PDK_FILE']
 
 # Not likely to support reporting disabled tests in an external program
-def list( env ) :
+def lst( env ) :
     return [ ]
 

@@ -9,7 +9,6 @@
 
 import sys
 import re
-import types
 import pandokia.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')   
@@ -52,7 +51,7 @@ class where_dict_base(object) :
     # the word "WHERE" is automatically added, but if there is nothing to match
     # then the return is a zero length string.
     #
-    def where_dict(self, list, more_where = None ) :
+    def where_dict(self, lst, more_where = None ) :
         '''
             where_text, where_dict = pdk_db.where_dict( [
                 ('field', value),
@@ -63,16 +62,16 @@ class where_dict_base(object) :
         '''
 
         # if the list is a dict, convert it
-        if type(list) == dict :
+        if type(lst) == dict :
             nl = [ ]
-            for x in list:
-                nl.append( (x, list[x]) )
-            list = nl
+            for x in lst:
+                nl.append( (x, lst[x]) )
+            lst = nl
 
         ns = name_sequence()
 
         and_list = [ ]
-        for name, value in list :
+        for name, value in lst :
             if ( value == '*' ) or ( value == '%' ) or ( value is None ) :
                 # if value is "*", we don't need to do a
                 # comparison at all.  In sqlite, " xxx glob '*' "
@@ -123,8 +122,9 @@ class where_dict_base(object) :
 
                     elif '*' in v or '?' in v or '[' in v :
                         print('content-type: text/plain\n')
-                        print(list)
+                        print(lst)
                         print(v)
+                        return
                         assert 0, 'GLOB not supported'
                     else :
                         n = ns.next( v )

@@ -15,6 +15,6 @@ def command( env ) :
     return 'pdk_python_runner minipyt %s'%name
 
 # Maybe support disabled tests someday...
-def list( env ) :
+def lst( env ) :
     return [ ]
 

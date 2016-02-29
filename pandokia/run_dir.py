@@ -97,7 +97,7 @@ def run( dirname, envgetter ) :
             # author of every new runner to do it.
             sys.stdout.flush()
             sys.stderr.flush()
-            l = m.list( env )
+            l = m.lst( env )
 
             os.chdir(save_dir)
 

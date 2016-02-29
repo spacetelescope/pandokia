@@ -25,7 +25,7 @@ def command( env ) :
 
 # return a list of tests that are in the file.  we use this
 # to report disabled tests.
-def list( env ) :
+def lst( env ) :
     # pytest has --collectonly which identifies the tests, but does
     # not run them.  We run pytest with the same set of parameters as
     # if we were running the test, but we add --collectonly.  The
