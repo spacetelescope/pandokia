@@ -62,7 +62,7 @@ class where_dict_base(object) :
         '''
 
         # if the list is a dict, convert it
-        if type(lst) == dict :
+        if isinstance(lst, dict) :
             nl = [ ]
             for x in lst:
                 nl.append( (x, lst[x]) )
