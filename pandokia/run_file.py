@@ -247,7 +247,7 @@ def run( dirname, basename, envgetter, runner ) :
             # run the command -- To understand how we do it, see
             # "Replacing os.system()" in the docs for the subprocess module,
             # then consider the source code for subprocess.call()
-            if not isinstance(cmd, list ) :
+            if not isinstance(cmd, list) :
                 cmd = [ cmd ]
             for thiscmd in cmd :
                 print('COMMAND : %s (for file %s) %s'%(repr(thiscmd), full_filename, datetime.datetime.now()))
@@ -288,13 +288,17 @@ def run( dirname, basename, envgetter, runner ) :
 
                 # subprocess gives you weird status values
                 cause = "unknown"
-                if status > 0 :
+                if os.WIFEXITED(status):
                     cause = "exit"
+                elif os.WIFSIGNALED(status):
+                    cause = "signal"
+
+                if status > 0 :
+                    return_status = 1
                 elif status != 0 :
                     return_status = 1
                 else :
                     return_status = 1
-                    cause = "signal"
                     status=( - status )
                     # subprocess does not tell you if there was a core
                     # dump, but there is nothing we can do about it.

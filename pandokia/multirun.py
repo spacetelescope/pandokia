@@ -226,6 +226,12 @@ else :
                 pending_procs = [ x for x in all_procs ] 
                 for x in pending_procs :
                     done(x, None)
+
+        status_hi = ( status >> 8 )
+        status_low = ( status & 0xFF )
+
+        # We're not rewriting the full logic, so just give best guess
+        status = ( status_hi | status_low )
         done(pid, status)
 
 
