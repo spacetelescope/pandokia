@@ -8,7 +8,7 @@ import pandokia.common as common
 
 import pandokia
 
-pdk_db = pandokia.confi.cfg.pdk_db()
+pdk_db = pandokia.cfg.pdk_db
 
 #
 # emit a single field of an output record.  use name=value
@@ -34,14 +34,15 @@ def emit_field( output, name, value ) :
 #
 
 exportable_fields =[ 'test_run', 'project', 'host', 'context', 'test_name', 'status', 'test_runner', 'start_time', 'end_time', 'location', 'attn' ]
-exportable_fields_string =  ','.join(fields)
+exportable_fields_string =  ','.join(exportable_fields)
+fields_zip = []
 
 def do_export( output, where_text, where_dict ) :
     # list of fields to export
 
     # fields_zip is the index in the returned record of each name in fields
     # it is 1+ because key_id is not listed
-    fields_zip = list(zip( list(range(1,1+len(fields))), fields ))
+    fields_zip = list(zip( list(range(1,1+len(exportable_fields))), exportable_fields ))
 
     # tell the reader to forget any defaults
     output.write( "START\n" )
@@ -117,7 +118,7 @@ def run(args) :
 
     for name in value :
         name = common.find_test_run(value[0])
-        c = pdk_db.execute('SELECT name FROM distinct_test_run WHERE name LIKE :1 ORDER BY name',(name,))
+        c = pdk_db.execute('SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 ORDER BY test_run',(name,))
         for test_run in c :
             test_run = test_run[0]
             sys.stderr.write('test_run %s\n'%test_run)
