@@ -84,7 +84,7 @@ class text_table_row :
     def __init__(self) :
 
         # list is the list of what cells are in this row
-        self.list = [ ]
+        self.lst = [ ]
 
         # sort_order is needed for the __cmp__ function; you have to set
         # the same sort_order into all the rows before sorting the table
@@ -100,9 +100,9 @@ class text_table_row :
                 r = -1
             else :
                 r = 1
-            if self.list[x].sort_key < other.list[x].sort_key :
+            if self.lst[x].sort_key < other.lst[x].sort_key :
                 return -r
-            if self.list[x].sort_key > other.list[x].sort_key :
+            if self.lst[x].sort_key > other.lst[x].sort_key :
                 return r 
         return 0
 
@@ -110,7 +110,7 @@ class text_table_row :
         self.sort_order = sort_order
 
     def pad(self, n) :
-        l = self.list
+        l = self.lst
         while len(l) < n:
             l.append(text_table_cell())
 
@@ -258,9 +258,9 @@ class text_table :
         if row >= len(self.rows) :
             return None
         row = self.rows[row]
-        if col >= len(row.list) :
+        if col >= len(row.lst) :
             return None
-        return row.list[col]
+        return row.lst[col]
 
     ##
     def get_title(self, col) :
@@ -319,7 +319,7 @@ class text_table :
         # fill in every row to be that wide with blank columns
         count = 0
         for r in self.rows :
-            this_width = len(r.list)
+            this_width = len(r.lst)
             if this_width > count :
                 count = this_width
         self.number_of_columns = count
@@ -360,7 +360,7 @@ class text_table :
         # the other table might screw us up.
         x = 0
         while x < len(self.rows) :
-            self.rows[x].list.extend(other.rows[x].list)
+            self.rows[x].lst.extend(other.rows[x].lst)
             x = x + 1
 
         # Bring in the column names from the other table.  Do not write
@@ -395,7 +395,7 @@ class text_table :
         # find the object that represents a specific row/col of the table
         # note that columns can have names ( see define_column() )
         o = self._row_object(row)
-        this_row = o.list
+        this_row = o.lst
 
         if col in self.colmap :
             col = self.colmap[col]
@@ -493,7 +493,7 @@ class text_table :
                 s.write("<tr bgcolor=lightgray>")
             else :
                 s.write("<tr>")
-            r = r.list
+            r = r.lst
             if r is None :
                 # there is a row here, but nothing in it.  We are happy
                 # to have sent the <tr>, but can't do anything more.
@@ -570,7 +570,7 @@ class text_table :
             w.writerow(l)
 
         for r in self.rows :
-            r = r.list
+            r = r.lst
             if r is None :
                 w.writerow([ ])
             else :
@@ -628,8 +628,8 @@ class text_table :
             s.write('\n')
 
         for r in self.rows :
-            if r and r.list :
-                for col, cell in enumerate(r.list) :
+            if r and r.lst :
+                for col, cell in enumerate(r.lst) :
                     if self.is_suppressed(col) :
                         continue
                     if cell is None or cell.text == None or cell.text == '' :
@@ -681,11 +681,11 @@ class text_table :
 
         # raise each column width to match the widest that we find
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     while col >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[col].text))
+                    l = len(str(r.lst[col].text))
                     if col_widths[col] < l :
                         col_widths[col] = l
 
@@ -705,11 +705,11 @@ class text_table :
 
         # display the table content
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("%-*s"%(col_widths[col],str(r.list[col].text)))
+                    s.write("%-*s"%(col_widths[col],str(r.lst[col].text)))
                     s.write("  ")
             s.write("\n")
 
@@ -757,11 +757,11 @@ class text_table :
                 col_widths[col] = len(str(x))
 
         for r in self.rows :
-            if r and r.list :
-                for x in range(0,len(r.list)) :
+            if r and r.lst :
+                for x in range(0,len(r.lst)) :
                     while x >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[x].text))
+                    l = len(str(r.lst[x].text))
                     if col_widths[x] < l :
                         col_widths[x] = l
 
@@ -773,11 +773,11 @@ class text_table :
             s.write("||\n")
 
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("|| %-*s "%(col_widths[col],str(r.list[col].text)))
+                    s.write("|| %-*s "%(col_widths[col],str(r.lst[col].text)))
             s.write("||\n")
 
         rval = s.getvalue()
