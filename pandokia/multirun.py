@@ -227,11 +227,11 @@ else :
                 for x in pending_procs :
                     done(x, None)
 
-        status_hi = ( status >> 8 )
-        status_low = ( status & 0xFF )
+        if status > 255:
+            status = ( status >> 8 )
+        else:
+            status = ( - status )
 
-        # We're not rewriting the full logic, so just give best guess
-        status = ( status_hi | status_low )
         done(pid, status)
 
 
