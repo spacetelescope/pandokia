@@ -11,6 +11,13 @@ __all__ = [ "text_table" ]
 
 import cgi
 import csv
+import sys
+
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
+
 
 try:
     import io as StringIO
@@ -94,17 +101,41 @@ class text_table_row :
     # the sort_order is a list of column numbers. N means sort by column N
     # ascending;  -N means sort by column N descending.  Maybe we could get
     # fancier here and allow a way to specify data types for the sort...
-    def __cmp__(self, other) :
-        for x in self.sort_order :
-            if x < 0 :
-                r = -1
-            else :
-                r = 1
-            if self.lst[x].sort_key < other.lst[x].sort_key :
-                return -r
-            if self.lst[x].sort_key > other.lst[x].sort_key :
-                return r 
-        return 0
+    if sys.version_info < (3, 0):
+        def __cmp__(self, other) :
+            for x in self.sort_order :
+                if x < 0 :
+                    r = -1
+                else :
+                    r = 1
+                if self.lst[x].sort_key < other.lst[x].sort_key :
+                    return -r
+                if self.lst[x].sort_key > other.lst[x].sort_key :
+                    return r
+            return 0
+    else:
+        # A quick hack to perform the sorting under Python 3, however it
+        # needs some serious work.
+        def __lt__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key < other.lst[x].sort_key :
+                    return r - 1
+            return r
+
+        def __gt__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key > other.lst[x].sort_key :
+                    return r + 1
+            return r
+
+        def __eq__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key == other.lst[x].sort_key :
+                    return r
+            return r
 
     def def_sort_order(self, sort_order) :
         self.sort_order = sort_order
