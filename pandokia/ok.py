@@ -213,12 +213,18 @@ def process_webfile(opt, fn):
 
         # do git commit and push
         if len(refs_to_commit) > 0 and opt.commit_git:
-            ref_str = ' '.join(refs_to_commit)
+            # add reference files, in case they are new
+            for r in refs_to_commit:
+                cmd = 'git add %s' %r
+                print cmd
+                ret = os.system(cmd)
+                if not ret == 0:
+                    err += 1
 
             # commit reference files
             if ref_repo:
                 os.chdir(PDK_REFS)
-                cmd = 'git commit -a -m "(%s, QID=%s) %s"' %(
+                cmd = 'git commit -m "(%s, QID=%s) %s"' %(
                     t['user'],
                     t['qid'],
                     t['comment']
