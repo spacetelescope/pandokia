@@ -1,9 +1,13 @@
+#!/usr/bin/env python
 ## basic imports
-
 import sys
+import recon.release
 import os
 import os.path
 
+
+version = recon.release.get_info()
+recon.release.write_template(version, 'pandokia')
 ##
 #
 
@@ -104,12 +108,12 @@ command_list = python_commands + shell_commands
 # get our version out of __init__ so we only have to edit one place
 #
 
-f=open("pandokia/__init__.py","r")
-for x in f :
-    if x.startswith('__version__') :
-        exec(x)
-        break
-f.close()
+#f=open("pandokia/__init__.py","r")
+#for x in f :
+#    if x.startswith('__version__') :
+#        exec(x)
+#        break
+#f.close()
 
 
 ##
@@ -160,7 +164,7 @@ entry_points_dict = {
 
 args = {
     'name' :            'pandokia',
-    'version' :         __version__,
+    'version' :         version.pep386,
     'description' :     'Pandokia - a test management and reporting system',
     'author' :          'Mark Sienkiewicz, Vicki Laidler',
     'author_email':     'help@stsci.edu',

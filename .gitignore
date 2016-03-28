@@ -1,6 +1,11 @@
-build
-dist
-__pycache__
+RECON-INFO
+MANIFEST
+*/version.py
+*/svn_version.py
+build/
+dist/
 *.pyc
-*.orig
-pandokia/svn_version.py
+*.o
+*.so
+*.egg-info
+*.swp
