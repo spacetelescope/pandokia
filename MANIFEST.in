@@ -1,4 +1,4 @@
-include RECON-INFO
+include RELIC-INFO
 include *
 recursive-include * *
 prune doc/build

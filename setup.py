@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 ## basic imports
 import sys
-import recon.release
+import relic.release
 import os
 import os.path
 
 
-version = recon.release.get_info()
-recon.release.write_template(version, 'pandokia')
+version = relic.release.get_info()
+relic.release.write_template(version, 'pandokia')
 ##
 #
 
