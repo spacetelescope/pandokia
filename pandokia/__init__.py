@@ -11,7 +11,7 @@ describe pandokia a little
 """
 
 import os
-from version import *
+from .version import *
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
