@@ -237,15 +237,15 @@ class AsciiComparison(ComparisonClass):
         try :
             th=open(self.testfile)
         except :
-            print "ERROR: cannot open test file ",self.testfile
-            print sys.exc_info[1]
+            print("ERROR: cannot open test file ",self.testfile)
+            print(sys.exc_info[1])
             raise
 
         try :
             rh=open(self.reffile)
         except :
-            print "ERROR: cannot open ref file ",self.reffile
-            print sys.exc_info[1]
+            print("ERROR: cannot open ref file ",self.reffile)
+            print(sys.exc_info[1])
             raise
 
         test=th.readlines()
@@ -298,15 +298,15 @@ class DifflibComparison(ComparisonClass):
         try :
             th=open(self.testfile)
         except :
-            print "ERROR: cannot open test file ",self.testfile
-            print sys.exc_info[1]
+            print("ERROR: cannot open test file ",self.testfile)
+            print(sys.exc_info[1])
             raise
 
         try :
             rh=open(self.reffile)
         except :
-            print "ERROR: cannot open ref file ",self.reffile
-            print sys.exc_info[1]
+            print("ERROR: cannot open ref file ",self.reffile)
+            print(sys.exc_info[1])
             raise
 
         test=th.readlines()

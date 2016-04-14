@@ -46,7 +46,7 @@ killed = False
 def killed_func(sig,stk):
     global killed 
     killed = True
-    print "KILLED"
+    print("KILLED")
     raise pdk_stsci_regtest_killed
 
 import signal
@@ -102,7 +102,7 @@ class Regress:
 
         # if it ends in .xml, it is a test definition
         if ext != ".xml":
-            print "ERROR: ",file," is not .xml file"
+            print(("ERROR: ",file," is not .xml file"))
             return
 
         # in pandokia, we know that the current directory is always 
@@ -127,8 +127,8 @@ class Regress:
             xstr=traceback.format_exc()
             pdkr.set("status","E")
             pdkr.set_tra('exception',str(e))
-            print "Exception running test:",e
-            print xstr
+            print(("Exception running test:",e))
+            print(xstr)
 
         pdkr.end_time()
 
@@ -165,8 +165,8 @@ class Regress:
             config = configuration.regtest_read (file)
         except:
             xstr=traceback.format_exc()
-            print "can't read configuration file",file
-            print xstr
+            print(("can't read configuration file",file))
+            print(xstr)
             self.writelog ("?", "Couldn't read configuration file", file)
             return
 
@@ -192,7 +192,7 @@ class Regress:
 
             # Run any pre-execution commands in the configuration file
             if config.has_key ("pre-exec"):
-                print ".begin pre-exec"
+                print(".begin pre-exec")
                 sys.stdout.flush()
 
                 for code in config["pre-exec"]:
@@ -221,7 +221,7 @@ class Regress:
                                            code)
                             crash=True
 
-                print ".end pre-exec"
+                print(".end pre-exec")
                 sys.stdout.flush()
 
 
@@ -266,14 +266,14 @@ class Regress:
                     err = task.run (taskname, pfile, config["output"], self.log)
 
                 except AttributeError:
-                    print traceback.format_exc()
+                    print((traceback.format_exc()))
                     #Not an iraf task; try it again as vanilla python
-                    print "VANILLA PYTHON"
+                    print("VANILLA PYTHON")
                     pdkr.set_tda("vanilla_python", "T")
 
                     for out in config["output"]:
                         if out["file"] == 'STDOUT':
-                            print "setting stdout to %s"%out["fname"]
+                            print(("setting stdout to %s"%out["fname"]))
                             sys.stdout=open(out["fname"],'w')
                     try:
                         err=eval("%s('%s')"%(config['taskname'],config['pfile']))
@@ -298,7 +298,7 @@ class Regress:
             # This happens whether earlier stuff worked or not
             if ( not killed ) and ( config.has_key ("post-exec") ):
 
-                print ".begin post-exec"
+                print(".begin post-exec")
                 sys.stdout.flush()
 
                 for code in config["post-exec"]:
@@ -327,7 +327,7 @@ class Regress:
                                            code)
                             crash=True
 
-                print ".end post-exec"
+                print(".end post-exec")
                 sys.stdout.flush()
 
             if ( killed ) or ( crash ) :
