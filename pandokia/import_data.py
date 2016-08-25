@@ -108,7 +108,12 @@ def read_record(f) :
                 exit_status = 1
             stuff = StringIO.StringIO()
             while 1 :
-                l = f.readline().decode()
+
+                try:
+                    l = f.readline().decode()
+                except AttributeError as e:
+                    l = f.readline()
+
                 line_count = line_count + 1
                 if l == "" :
                     print("INVALID INPUT FILE - eof in multi-line %s %d"%(name,line_count))
