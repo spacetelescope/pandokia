@@ -22,6 +22,6 @@ class fits(pandokia.helpers.cases.FileTestCase) :
         try :
             self.check_file("out2.fits","fits")
             assert AssertionError("files should have been different")
-        except AssertionError, e :
-            print "files different, assertion raised as expected"
+        except AssertionError as e :
+            print("files different, assertion raised as expected")
 

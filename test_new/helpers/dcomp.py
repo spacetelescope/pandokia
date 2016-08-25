@@ -51,12 +51,12 @@ with pycode.test('flatten') :
         with pycode.test(name) as t :
             dict_out = dict_comp.flatten(dict_in)
             
-            print "IN"
-            print display.dprint(dict_in)
-            print "OUT"
-            print display.dprint(dict_out)
+            print("IN")
+            print((display.dprint(dict_in)))
+            print("OUT")
+            print((display.dprint(dict_out)))
 
-            print t.full_name
+            print((t.full_name))
 
     doit( 'a', dict_a)
 

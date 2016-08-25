@@ -4,7 +4,7 @@ def tran(ob, tbname, infmt, outfmt) :
     infile  = "%s.%s.in"    %(tbname,infmt)
     outfile = "%s.%s.%s.out"%(tbname,infmt,outfmt)
     c="tbconv %s %s < %s > %s"%(infmt,outfmt,infile,outfile)
-    print "C=",c
+    print(("C=",c))
     ob.command(c)
     ob.check_file(outfile,'text')
 

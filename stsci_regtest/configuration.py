@@ -164,7 +164,7 @@ class Config_reader:
                 if count[name] == 1:
                     output[name] = value
 
-                elif output.has_key (name):
+                elif name in output:
                     output[name].append (value)
                 else:
                     output[name] = [value]
@@ -195,7 +195,7 @@ class Config_writer:
         spacer = " " * (2 * self.level)
         self.fd.write ("\n%s" % (spacer,))
 
-        for name in dict.keys ():
+        for name in list(dict.keys ()):
             value = dict[name]
 
             self.fd.write ("<%s>" % (name,))
@@ -221,9 +221,9 @@ class Config_writer:
     def put_value (self, value):
         self.level = self.level + 1
 
-        if isinstance (value, types.DictType):
+        if isinstance (value, dict):
             self.put_dict (value)
-        elif isinstance (value, types.ListType):
+        elif isinstance (value, list):
             self.put_array (value)
         else:
             self.fd.write (self.xcode.convert (str (value)))

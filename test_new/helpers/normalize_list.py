@@ -17,7 +17,7 @@ with pycode.test('normalize_tuples') :
 
     result = json.dumps( l, indent=4, sort_keys=True, default=str )
 
-    print result
+    print(result)
 
     ref = """
 [

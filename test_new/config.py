@@ -6,15 +6,14 @@ import pandokia.helpers.importer as i
 tc = i.importer( 'test_config', os.environ['PDK_TOP']+'/config' )
 config = tc.cfg
 
-exec('import pandokia.db_%s as dbd'%tc.cfg['test_database']
+exec('import pandokia.db_%s as dbd'%tc.cfg['test_database'])
 
 ##########
 
-pdk_db = dbd.PandokiaDB( tc.cfg['test_database_%s'%tc.cfg['test_database'] )
+pdk_db = dbd.PandokiaDB( tc.cfg['test_database_%s' % tc.cfg['test_database']] )
+user_list = [ ]
 
-user_list = [ ] 
-
-# which users can see/operate the admin interfaces 
+# which users can see/operate the admin interfaces
 admin_user_list = ( 'sienkiew', 'Nobody', )
 
 # This link is included in email notices.
@@ -45,7 +44,7 @@ cginame = "https://ssb.stsci.edu/pandokia/pdk.cgi"
 statuses = [ 'P', 'F', 'E', 'D', 'M' ]
 
 # names of statuses
-status_names = { 
+status_names = {
     'P' : 'pass',
     'F' : 'fail',
     'E' : 'error',
@@ -68,7 +67,7 @@ recurring_prefix = (
     'daily',
     'weekly',
     'monthly',
-    )   
+    )
 
 
 flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"

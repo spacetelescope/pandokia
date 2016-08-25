@@ -2,7 +2,7 @@ import os
 import pandokia.common as c
 
 import sys
-sys.stdout=open("/dev/tty","w")
+sys.stdout=open(os.devnull,"w")
 
 parse_time = c.parse_time
 sql_time = c.sql_time

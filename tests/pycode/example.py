@@ -24,7 +24,7 @@ def pycode(mode) :
     if mode != 1 :
         raise AssertionError("Do not know pycode mode %s"%str(mode))
 
-    print "Beginning pycode tests"
+    print("Beginning pycode tests")
 
     ####
     # initialize for reporting - if pandokia is running your tests
@@ -62,5 +62,5 @@ def pycode(mode) :
 
     ####
     #
-    print "Finished pycode tests"
+    print("Finished pycode tests")
 

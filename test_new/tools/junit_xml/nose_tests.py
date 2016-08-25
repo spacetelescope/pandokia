@@ -6,11 +6,11 @@ class FromUnit(unittest.TestCase):
 
     def testpass(self):
         self.tra=dict(b=2)
-        self.failIf(False)
+        self.assertFalse(False)
 
     def testfail(self):
         self.tra=dict(c=3)
-        self.failIf(True)
+        self.assertFalse(True)
 
 class TestFromClass(object):
     def setUp(self):

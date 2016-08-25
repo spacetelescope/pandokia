@@ -22,7 +22,7 @@ class test_alphabet(unittest2.TestCase):
         # arg - a parameter, which for many tests will be a list or tuple
 
         # for the purpose of the example, print what is happening.
-        print "test ", name, arg
+        print(("test ", name, arg))
 
         # In this example, I am passing in an input value and an expected
         # result value.  You could work this any way you want.

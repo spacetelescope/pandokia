@@ -20,14 +20,14 @@ query = {
 
 d = test_in_db.load_tests( query )
 for x in d :
-    print "SEE",x
+    print(("SEE",x))
 
 for test in f :
     test = test.strip()
     if test.startswith('#') :
         continue
 
-    print '-%s-'%test
+    print(('-%s-'%test))
     tname = test.replace('pdkrun_test_data/','')
 
     with pycode.test(test) as f :
@@ -35,14 +35,14 @@ for test in f :
         tra = f.tra
         
         if not test in d :
-            print "NO TEST RESULT FOUND"
+            print("NO TEST RESULT FOUND")
             continue
 
         tinfo = d[test]
         del d[test]
 
         for x in tinfo :
-            print "KEY",x
+            print(("KEY",x))
 
         del tinfo['start_time']
         del tinfo['end_time'] 
@@ -67,7 +67,7 @@ for test in f :
 
 with pycode.test('no_dups') :
     if len(d) > 0 :
-        print "Extra results:"
+        print("Extra results:")
         for x in d :
-            print json.dumps( x, indent=4, sort_keys=True, default=str )
+            print((json.dumps( x, indent=4, sort_keys=True, default=str )))
 

@@ -15,9 +15,9 @@ data_set = [
     ]
 data_set = sorted(data_set)
 
-print "sample data set"
+print("sample data set")
 for x in data_set :
-    print x
+    print(x)
 
 @minipyt.test
 def t000_create() :
@@ -26,7 +26,7 @@ def t000_create() :
 
 @minipyt.test
 def t004_insert():
-    print "insert"
+    print("insert")
     for x in data_set :
         dbx.execute( 'insert into test_table ( a, b, c ) values ( :1, :2, :3 )', x)
     dbx.commit()
@@ -35,15 +35,15 @@ def t004_insert():
 def t005_select_1():
     c = dbx.execute( 'select a, b, c from test_table where a = :1 and b = :2', ( 'a', 'b' ))
     l = [ x for x in c ]
-    print 'result',l
+    print(('result',l))
     assert l == [ ( 'a', 'b', 1 ) ]
 
 @minipyt.test
 def t005_select_2():
     c = dbx.execute( 'select a, b, c from test_table order by a asc, b asc, c asc', None )
     l = [ x for x in c ]
-    print 'result',l
-    print "expect",data_set
+    print(('result',l))
+    print(("expect",data_set))
     assert l == data_set
 
 @minipyt.test
@@ -59,8 +59,8 @@ def t010_where_1() :
         'X = 1' 
         )
 
-    print "where_text:",where_text
-    print "where_dict:",pprint.pprint(where_dict)
+    print(("where_text:",where_text))
+    print(("where_dict:",pprint.pprint(where_dict)))
 
     s = eat_dup_space(where_text.strip())
     assert s == 'WHERE ( first = :0 ) AND ( second = :1 ) AND ( third = :2 OR third = :3 OR third = :4 ) AND X = 1'
@@ -71,8 +71,8 @@ def t010_where_1() :
 def t010_where_blank() :
     # blank list turns into no-op
     where_text, where_dict = dbx.where_dict( [ ] )
-    print "where_text:",where_text
-    print "where_dict:",pprint.pprint(where_dict)
+    print(("where_text:",where_text))
+    print(("where_dict:",pprint.pprint(where_dict)))
     assert where_text.strip() == ''
     assert where_dict == { }
 
@@ -80,8 +80,8 @@ def t010_where_blank() :
 def t010_where_eat_wild() :
     # wild card of * turns in to nop
     where_text, where_dict = dbx.where_dict( [ ( 'a', '*' ) ] )
-    print "where_text:",where_text
-    print "where_dict:",pprint.pprint(where_dict)
+    print(("where_text:",where_text))
+    print(("where_dict:",pprint.pprint(where_dict)))
     assert where_text.strip() == ''
     assert where_dict == { }
 
@@ -89,16 +89,16 @@ def t010_where_eat_wild() :
 def t010_where_eat_wild_2() :
     # all wild card that have no effect turn into nop
     where_text, where_dict = dbx.where_dict( [ ( 'a', [ '*', '%' ] ), ('b', None ) ] )
-    print "where_text:",where_text
-    print "where_dict:",pprint.pprint(where_dict)
+    print(("where_text:",where_text))
+    print(("where_dict:",pprint.pprint(where_dict)))
     assert where_text.strip() == ''
     assert where_dict == { }
 
 @minipyt.test
 def t010_where_wild() :
     where_text, where_dict = dbx.where_dict( [ ( 'a', '*' ) ] )
-    print "where_text:",where_text
-    print "where_dict:",pprint.pprint(where_dict)
+    print(("where_text:",where_text))
+    print(("where_dict:",pprint.pprint(where_dict)))
     assert where_text.strip() == ''
     assert where_dict == { }
     
@@ -147,11 +147,11 @@ def t040_rollback() :
 
 @minipyt.test
 def t99_table_usage_runs() :
-    print dbx.table_usage()
+    print((dbx.table_usage()))
 
 @minipyt.test
 def t99_explain_query_runs() :
-    print dbx.explain_query('select a,b from test_table where a = :1',( 'a', ) )
+    print((dbx.explain_query('select a,b from test_table where a = :1',( 'a', ) )))
 
 
 # trim all instances of multiple spaces down to a single space
