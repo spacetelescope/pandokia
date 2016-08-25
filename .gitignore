@@ -10,3 +10,7 @@ dist/
 *.so
 *.egg-info
 *.swp
+*.bak
+*.tmp
+*.out
+pdk_statusfile
