@@ -479,7 +479,7 @@ def linkout( ) :
         ('project', project),
         ('host', host),
         ('context', context),
-        ('status', status),
+        #('status', status),
         ('attn', attn),
         ], more_where = more_where )
 
