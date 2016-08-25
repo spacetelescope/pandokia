@@ -16,7 +16,7 @@ R. Jedrzejewski, 3 October 2007
 """
 
 import re, os
-import datespec  # for ascii comparisons
+from . import datespec  # for ascii comparisons
 import tempfile  #}
 
 import sys
@@ -39,7 +39,7 @@ def Comparison(comparator, testfile, reffile, **kwds):
     elif cmethod == 'binary':
         return BinaryComparison(testfile, reffile, **kwds)
     else:
-        raise ValueError,"Sorry, %s comparator is not supported"%comparator
+        raise ValueError("Sorry, %s comparator is not supported"%comparator)
 
 
 class ComparisonClass:
@@ -150,8 +150,8 @@ class FitsComparison(ComparisonClass):
             else:
                 self.failed=True
 
-        except Exception, e:
-            raise OSError, "? Error running FITSDIFF: %s"%str(e)
+        except Exception as e:
+            raise OSError("? Error running FITSDIFF: %s"%str(e))
 
         # This unlink should work, or there is a problem
         os.unlink(self.fitsdiff_output)
@@ -189,7 +189,7 @@ class AsciiComparison(ComparisonClass):
 
         #Set all the ignore flags that are present
         for val in kwds.get('ignore_wstart',[]):
-            if self.ignore_raw.has_key('wstart'):
+            if 'wstart' in self.ignore_raw:
                 self.ignore_raw['wstart'].append(val)
             else:
                 self.ignore_raw['wstart']=[val]
@@ -197,7 +197,7 @@ class AsciiComparison(ComparisonClass):
             self.ignore.append(pattern)
 
         for val in kwds.get('ignore_wend',[]):
-            if self.ignore_raw.has_key('wend'):
+            if 'wend' in self.ignore_raw:
                 self.ignore_raw['wend'].append(val)
             else:
                 self.ignore_raw['wend']=[val]
@@ -237,15 +237,15 @@ class AsciiComparison(ComparisonClass):
         try :
             th=open(self.testfile)
         except :
-            print "ERROR: cannot open test file ",self.testfile
-            print sys.exc_info[1]
+            print(("ERROR: cannot open test file ",self.testfile))
+            print((sys.exc_info[1]))
             raise
 
         try :
             rh=open(self.reffile)
         except :
-            print "ERROR: cannot open ref file ",self.reffile
-            print sys.exc_info[1]
+            print(("ERROR: cannot open ref file ",self.reffile))
+            print((sys.exc_info[1]))
             raise
 
         test=th.readlines()
@@ -298,15 +298,15 @@ class DifflibComparison(ComparisonClass):
         try :
             th=open(self.testfile)
         except :
-            print "ERROR: cannot open test file ",self.testfile
-            print sys.exc_info[1]
+            print(("ERROR: cannot open test file ",self.testfile))
+            print((sys.exc_info[1]))
             raise
 
         try :
             rh=open(self.reffile)
         except :
-            print "ERROR: cannot open ref file ",self.reffile
-            print sys.exc_info[1]
+            print(("ERROR: cannot open ref file ",self.reffile))
+            print((sys.exc_info[1]))
             raise
 
         test=th.readlines()

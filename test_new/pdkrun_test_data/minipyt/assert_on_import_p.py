@@ -4,6 +4,6 @@
 a = 1
 b = 1
 
-print "We are here!"
+print("We are here!")
 
 assert a == b

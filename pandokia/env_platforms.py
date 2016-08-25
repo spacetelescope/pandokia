@@ -78,10 +78,10 @@ class PlatformType(object):
             
     def query(self):
         """For debugging purposes"""
-        print self.os
-        print self.osver
-        print self.cpu
-        print self.hostname
+        print(self.os)
+        print(self.osver)
+        print(self.cpu)
+        print(self.hostname)
 
     def getsecname(self, index):
         """The real UI: returns the section name corresponding to the ith
@@ -94,4 +94,4 @@ class PlatformType(object):
 if __name__ == '__main__':
     p=PlatformType()
     for i in range(4):
-        print p.getsecname(i)
+        print(p.getsecname(i))

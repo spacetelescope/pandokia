@@ -12,9 +12,13 @@ import pandokia.lib as lib
 
 import pandokia.text_table as text_table
 
-import urllib
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 import pandokia.pcgi
-import common
+from . import common
 
 import pandokia
 
@@ -169,9 +173,9 @@ def run ( ) :
     if pandokia.pcgi.output_format == 'html' :
         # HTML OUTPUT
 
-        print "content-type: text/html\n\n"
+        print("content-type: text/html\n\n")
 
-        print common.page_header()
+        print(common.page_header())
 
         #
         # main heading
@@ -389,22 +393,22 @@ def run ( ) :
         # CSV OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_csv(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_csv(headings=1))
 
     elif pandokia.pcgi.output_format == 'rst' :
         # RST OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_rst(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_rst(headings=1))
 
     elif pandokia.pcgi.output_format == 'awk' :
         # AWK OUTPUT
         result_table.suppress('checkbox')
         result_table.suppress('line #')
-        print "content-type: text/plain\n\n"
-        print result_table.get_awk(headings=1)
+        print("content-type: text/plain\n\n")
+        print(result_table.get_awk(headings=1))
 
 
 ##########
@@ -627,11 +631,11 @@ exclude_cgi_params_from_selector = set( ( 'S', 'show_attr', 'format' ) )
 def column_selector(input_query) :
 
     qid = int(input_query["qid"][0])
-    print "content-type: text/html\n\n"
+    print("content-type: text/html\n\n")
 
     # page header
-    print common.page_header()
-    print "<h1>Column Selector</h1>"
+    print(common.page_header())
+    print("<h1>Column Selector</h1>")
     qid_block(qid)
 
     # these columns are common to every test
@@ -666,14 +670,14 @@ def column_selector(input_query) :
             checked=' checked '
         else :
             checked = ''
-        output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, urllib.quote(t),urllib.quote(t)) )
+        output.write( '<label><input type=checkbox name=S %s value=%s>%s</label><br>'%(checked, quote(t), quote(t)) )
 
 
     # all the other parameters that got us here go as hiddens
     for x in input_query :
         if not x in exclude_cgi_params_from_selector :
             for y in input_query[x] :
-                output.write('<input type=hidden name=%s value=%s>'%(x,urllib.quote(y)))
+                output.write('<input type=hidden name=%s value=%s>'%(x, quote(y)))
     output.write('<input type=hidden name=show_attr value=1>')
 
     # buttons at the bottom of the form

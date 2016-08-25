@@ -61,7 +61,7 @@ def find_locations( file ) :
             location = find_module_location(x)
             l.append( location ) 
         except ImportError :
-            print "Cannot find module",x
+            print("Cannot find module %s"%x)
             # we can't generate a test result of error because 
             # we don't know the test name
     f.close()
@@ -99,7 +99,7 @@ def command( env ) :
 # return a list of tests that are in the file.  we use this
 # to report disabled tests.
 
-def list( env ) :
+def lst( env ) :
     # nose has --collect-only which identifies the tests, but does not run them.
     # We run nose with the same set of parameters as if we were running the
     # test, but we add --collect-only.  The result is a pandokia log file

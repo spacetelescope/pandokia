@@ -25,4 +25,4 @@ def run(args ) :
 
     t = cursor_to_table( c )
 
-    print t.get_rst()
+    print(t.get_rst())

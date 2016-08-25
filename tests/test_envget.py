@@ -90,17 +90,17 @@ class EnvTree(unittest.TestCase):
         tmp=self.x.envdir(self.dirname)
         node = self.x.nodes[self.dirname]
         if node.parent is not None:
-            self.assert_(node.parent.name in self.x.nodes)
+            self.assertTrue(node.parent.name in self.x.nodes)
         else:
-            self.assert_(node.istop)
+            self.assertTrue(node.istop)
 
     def testrecip2(self):
         self.x.populate(self.dirname)
         node = self.x.nodes[self.dirname]
         if node.parent is not None:
-            self.assert_(node.parent.name in self.x.nodes)
+            self.assertTrue(node.parent.name in self.x.nodes)
         else:
-            self.assert_(node.istop)
+            self.assertTrue(node.istop)
 
     def testexport(self):
         #Braindead test: just check the length of the emitted file

@@ -73,7 +73,7 @@ The functions are:
 
     Instead of a single command, this function can return a list of commands to be executed in order.
 
- - def list( env )
+ - def lst( env )
 
     The function *list* returns a list of the test names that
     are in the file, but does not execute any of the tests.

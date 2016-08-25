@@ -20,7 +20,7 @@ def generate_directories( dir ) :
     #
 
     if not os.path.isdir(dir) :
-        print "WARNING: ",dir," is not a directory"
+        print("WARNING: %s is not a directory"%dir)
         return
 
     # The first directory we can yield is the one we are starting in.
@@ -29,9 +29,9 @@ def generate_directories( dir ) :
     try :
         # Now we look at all the subdirectories.
         dir_list = os.listdir( dir )
-    except ( OSError, IOError ) , e:
+    except ( OSError, IOError ) as e:
         # various errors listing the directory mean we skip it
-        print e
+        print(e)
         return
 
     dir_list.sort()
@@ -46,10 +46,10 @@ def generate_directories( dir ) :
         try :
             # lstat - not recursing into symlinks
             file_stat = os.lstat(full_name)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.ENOENT :
-                print "cannot lstat",full_name
-                print e
+                print("cannot lstat %s"%full_name)
+                print(e)
             continue
 
         if not stat.S_ISDIR(file_stat.st_mode) :
@@ -93,7 +93,7 @@ def run( dirs, envgetter, max_procs=None ) :
         try :
             max_procs = int(max_procs)
         except ValueError :
-            print "cannot convert ",max_procs," to integer - running one process at a time"
+            print("cannot convert %d to integer - running one process at a time"%maxprocs)
             max_procs = 1
         pandokia.multirun.set_max_procs(max_procs)
 
@@ -144,7 +144,7 @@ def run( dirs, envgetter, max_procs=None ) :
         fn = "%s.%s.summary"%( os.environ['PDK_LOG'], str(x))
         try :
             f = open(fn,"r")
-        except IOError, e:
+        except IOError as e:
             # It is possible for a process slot to run a process without
             # creating a log file.  (e.g. when there is a directory that 
             # does not contain any tests.)  So, if there is no file, that
@@ -174,8 +174,8 @@ def run( dirs, envgetter, max_procs=None ) :
             pass
 
 
-    print ""
-    print "Summary of entire run:"
+    print("")
+    print("Summary of entire run:")
     common.print_stat_dict(stat_summary)
 
     # bug: multirun is not reporting exit status back to us, so we have no

@@ -7,14 +7,23 @@
 # common.py - bunch of library functions used by parts of pandokia
 #
 
-import cStringIO
 import datetime
 import time
 import os
 import os.path
 import re
-import urllib
 import types
+
+try:
+    from io import StringIO as cStringIO
+except ImportError:
+    import cStringIO
+
+try:
+    from urllib.parse import quote_plus, urlencode
+except ImportError:
+    from urllib import urlencode, quote_plus
+
 
 import pandokia
 cfg = pandokia.cfg
@@ -71,7 +80,7 @@ def selflink( query_dict, linkmode ) :
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    l = [ 'query=' + urllib.quote_plus(linkmode) ]
+    l = [ 'query=' + quote_plus(linkmode) ]
     for i in sorted(query_dict.keys()) :
         v = query_dict[i]
         if v is None :
@@ -79,7 +88,7 @@ def selflink( query_dict, linkmode ) :
         if not isinstance(v,list) :
             v = [ v ]
         for v in v :
-            l.append( i + '=' + urllib.quote_plus(str(v)) )
+            l.append( i + '=' + quote_plus(str(v)) )
     return get_cgi_name() + "?" + ( '&'.join(l) )
 
 #
@@ -131,7 +140,7 @@ def expand_test_run( run ) :
     if run != s :
         return s
     where_str, where_dict = pandokia.cfg.pdk_db.where_dict( [ ( 'test_run', run ) ] )
-    print 'SELECT test_run FROM distinct_test_run %s' % where_str
+    print('SELECT test_run FROM distinct_test_run %s' % where_str)
     c = pandokia.cfg.pdk_db.execute( 'SELECT test_run FROM distinct_test_run %s' % where_str, where_dict )
     l = [ ]
     for x, in c :
@@ -289,8 +298,8 @@ def get_contact( project, test_name, mode='str') :
 #
 # format is one of:
 #       text    substitute the string exactly with no changes
-#       cgi     if value is a string, urllib.quote_plus(value)
-#               else urllib.urlencode(value)
+#       cgi     if value is a string, quote_plus(value)
+#               else urlencode(value)
 #       html    cgi.escape(string, quote=True)
 #       ''      default format
 #
@@ -338,9 +347,9 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
                     result.write(str(val))
                 elif this_format == 'cgi' :
                     if isinstance(val, basestring) :
-                        val = urllib.quote_plus(val)
+                        val = quote_plus(val)
                     else :
-                        val = urllib.urlencode(val)
+                        val = urlencode(val)
                     result.write(val)
                 elif this_format == 'html' :
                     val = cgi.escape(str(val),quote=True)
@@ -624,9 +633,9 @@ def print_stat_dict(stat_summary) :
                     name = pandokia.cfg.status_names.get(x,x)
                     s.append( "%s=%d"%(name, stat_summary[x]) )
         if len(s) > 0 :
-            print " ".join(s)
+            print(" ".join(s))
         else :
-            print "Nothing to report"
+            print("Nothing to report")
 
 ######
 

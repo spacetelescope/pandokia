@@ -1,4 +1,4 @@
 
 def test() :
-    print "should not run"
+    print("should not run")
     assert False

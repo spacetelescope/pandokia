@@ -49,7 +49,7 @@ else :
 #
 # Since there is only one test in a shell_runner file, we make a list
 # containing only one name.
-def list( env ) :
+def lst( env ) :
     fn = env['PDK_FILE']
     prefix = env['PDK_TESTPREFIX']
     if fn.endswith(".sh") :

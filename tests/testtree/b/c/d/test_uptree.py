@@ -16,5 +16,5 @@ class testup(unittest.TestCase):
 
     def testupenv(self):
         flist=uptree.find('pdk_environment')
-        self.assert_(self.ref == flist,'Expected %s, Got %s'%(self.ref,flist))
+        self.assertTrue(self.ref == flist,'Expected %s, Got %s'%(self.ref,flist))
         

@@ -1,9 +1,29 @@
+#!/usr/bin/env python
 ## basic imports
-
-import sys
 import os
-import os.path
+import subprocess
+import sys
+from setuptools import setup, find_packages
 
+if os.path.exists('relic'):
+    sys.path.insert(1, 'relic')
+    import relic.release
+else:
+    try:
+        import relic.release
+    except ImportError:
+        try:
+            subprocess.check_call(['git', 'clone',
+                'https://github.com/jhunkeler/relic.git'])
+            sys.path.insert(1, 'relic')
+            import relic.release
+        except subprocess.CalledProcessError as e:
+            print(e)
+            exit(1)
+
+
+version = relic.release.get_info()
+relic.release.write_template(version, 'pandokia')
 ##
 #
 
@@ -104,12 +124,12 @@ command_list = python_commands + shell_commands
 # get our version out of __init__ so we only have to edit one place
 #
 
-f=open("pandokia/__init__.py","r")
-for x in f :
-    if x.startswith('__version__') :
-        exec(x)
-        break
-f.close()
+#f=open("pandokia/__init__.py","r")
+#for x in f :
+#    if x.startswith('__version__') :
+#        exec(x)
+#        break
+#f.close()
 
 
 ##
@@ -160,7 +180,7 @@ entry_points_dict = {
 
 args = {
     'name' :            'pandokia',
-    'version' :         __version__,
+    'version' :         version.pep386,
     'description' :     'Pandokia - a test management and reporting system',
     'author' :          'Mark Sienkiewicz, Vicki Laidler',
     'author_email':     'help@stsci.edu',
@@ -227,7 +247,7 @@ def fix_script(name) :
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
-    os.chmod(fname + '.py', 0755)
+    os.chmod(fname + '.py', 0o755)
 
 # py.test and nose use setuptools to find their plugins, but whenever
 # I go near setuptools, it always causes problems for me.  You
@@ -282,39 +302,39 @@ if 'install' in d.command_obj :
 
     # tell the user about the install
    
-    print ''
-    print 'If you need to change your path for this install:'
-    print ''
-    print '    set path = ( %s $path )' % script_dir
-    print '    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir
-    print ''
-    print '    export PATH=%s:$PATH'%script_dir
-    print '    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir
+    print('')
+    print('If you need to change your path for this install:')
+    print('')
+    print('    set path = ( %s $path )' % script_dir)
+    print('    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir)
+    print('')
+    print('    export PATH=%s:$PATH'%script_dir)
+    print('    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir)
 
-    print ''
-    print 'The CGI is:'
-    print ''
-    print '    ', os.path.join(script_dir, 'pdk')
+    print('')
+    print('The CGI is:')
+    print('')
+    print('    %s'%os.path.join(script_dir, 'pdk'))
     if not have_setuptools :
         # hack the scripts for PDK_DIR_HERE
         for x in python_commands :
             fix_script(x)
             pass
     else :
-        print '    If you did not install pandokia in the default location, you must'
-        print '    ensure that PYTHONPATH is provided by your web server'
-    print ''
+        print('    If you did not install pandokia in the default location, you must')
+        print('    ensure that PYTHONPATH is provided by your web server')
+    print('')
 
     import pandokia
     f= pandokia.cfg.__file__
     if f.endswith(".pyc") or f.endswith(".pyo") :
         f = f[:-1]
-    print 'The config file is:'
-    print ''
-    print '    ',f
-    print ''
-    print '    you can find the config file at any time with the command "pdk config"'
-    print ''
+    print('The config file is:')
+    print('')
+    print('    %s'%f)
+    print('')
+    print('    you can find the config file at any time with the command "pdk config"')
+    print('')
 
 
 else :

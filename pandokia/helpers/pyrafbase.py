@@ -23,7 +23,7 @@ class PyrafTest(object):
         #  the following
         try:
             cls.setdefs()
-        except Exception, e:
+        except Exception as e:
             cls._error=e
             return
 # #      This method must define the taskname
@@ -56,7 +56,7 @@ class PyrafTest(object):
             t=getattr(iraf,cls.taskname)
             t.run(ParList=cls.parfile,
                   Stdout=cls.parfile.replace('.par','.stdout'))
-        except Exception, e:
+        except Exception as e:
             cls._error=e
 
     @classmethod
@@ -95,11 +95,11 @@ class PyrafTest(object):
         # exception info, if any.
         f=open(self.parfile.replace('.par','.stdout'))
         task_output=f.read()
-        print task_output
+        print(task_output)
         f.close()
 
         if self._error is not None:
-            print str(self._error) # also backtrace?
+            print(str(self._error)) # also backtrace?
 
             
     def checkfile(self, fname, comparator=None, **kwds):

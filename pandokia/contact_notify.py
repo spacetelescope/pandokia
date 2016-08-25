@@ -215,7 +215,7 @@ def formatlist(inlist,failcount,hostcount,hostfail,limit_to_project=None):
     """
 
     #Get the max width for each case so we can prettyprint
-    cols=zip(*inlist)
+    cols=list(zip(*inlist))
 
     # ???
     maxwid=[str(max([len(x) for x in c])) for c in cols]
@@ -332,7 +332,7 @@ def run(args):
 
     #loop through to send the emails
 
-    for contact, tests in cdict.items():
+    for contact, tests in list(cdict.items()):
 
         report=formatlist(tests,failcount,hostcount,hostfail)
         if len(report) > 0:

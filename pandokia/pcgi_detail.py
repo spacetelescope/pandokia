@@ -11,9 +11,6 @@ import time
 import datetime
 
 import pandokia.text_table as text_table
-
-import urllib
-
 import pandokia.pcgi
 import pandokia.common as common
 
@@ -35,37 +32,37 @@ def run ( ) :
 
     form = pandokia.pcgi.form
 
-    if form.has_key("test_name") :
+    if "test_name" in form :
         test_name = form["test_name"].value
     else :
         test_name = ""
 
-    if form.has_key("context") :
+    if "context" in form :
         context = form["context"].value
     else :
         context = "*"
 
-    if form.has_key("host") :
+    if "host" in form :
         host = form["host"].value
     else :
         host = "*"
 
-    if form.has_key("test_run") :
+    if "test_run" in form :
         test_run = form["test_run"].value
     else :
         test_run = "*"
 
-    if form.has_key("project") :
+    if "project" in form :
         project = form["project"].value
     else :
         project = "*"
 
-    if form.has_key("status") :
+    if "status" in form :
         status = form["status"].value
     else :
         status = "*"
 
-    if form.has_key("test_name") :
+    if "test_name" in form :
         cmp_run = form["test_name"].value
         if cmp_run == '' :
             cmp_run = common.run_previous(None,test_run)
@@ -78,12 +75,12 @@ def run ( ) :
     else :
         cmp_run = ""
 
-    if form.has_key("key_id") :
+    if "key_id" in form :
         key_id = form["key_id"].value
     else :
         key_id = ""
         
-    if form.has_key("qid" ) :
+    if "qid" in form :
         qid = form["qid"].value
     else :
         qid = ""
@@ -327,9 +324,9 @@ def test_history( ) :
     tb.set_value(row, 1, test_name)
     row += 1
 
-    print tb.get_html()
+    print(tb.get_html())
 
-    print "<br>"
+    print("<br>")
 
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
@@ -346,7 +343,7 @@ def test_history( ) :
         if test_run == r_test_run :
             tb.set_value(row, 0, '->')
         row = row + 1
-    print tb.get_html()
+    print(tb.get_html())
 
 
 ##

@@ -119,14 +119,14 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
     try :
         f1 = open(res, 'r')
     except :
-        print "cannot open result file:",res
+        print("cannot open result file: %s"%res)
         raise
 
     try :
         f2 = open(ref,'r')
     except :
         f1.close()
-        print "cannot open reference file",ref
+        print("cannot open reference file %s"%ref)
         raise
 
     # pick the length out of the stat structure
@@ -134,9 +134,9 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
     s2 = os.fstat(f2.fileno())[6]
 
     if s1 != s2 :
-        print "files are different size:"
-        print "    %s %d"%(res,s1)
-        print "    %s %d"%(ref,s2)
+        print("files are different size:")
+        print("    %s %d"%(res,s1))
+        print("    %s %d"%(ref,s2))
         f1.close()
         f2.close()
         return False
@@ -156,7 +156,7 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
             continue
 
         # bug: be nice to show the offset where they are different
-        print "files are different: ",res,ref
+        print("files are different: %s %s"%(res,ref))
         f1.close()
         f2.close()
         return True
@@ -187,7 +187,7 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     # file was missing (it gives the same status as for a failed match)
     if not os.path.exists( reference_file ) :
         e = IOError( 'No reference file: %s' % reference_file )
-        print e
+        print(e)
         raise e
 
     # run fitsdiff externally - if you call it directly, it does
@@ -203,7 +203,7 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
         arglist  = arglist + [ '-c', ','.join(ignorecomm) ]
     arglist = arglist + [ the_file, reference_file ]
 
-    print arglist
+    print(arglist)
     status = process.run_process( arglist, output_file="filecomp.tmp" )
 
     process.cat('filecomp.tmp')
@@ -290,7 +290,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     files_are_same = True
 
     for val in kwargs.get('ignore_wstart',[]):
-        if ignore_raw.has_key('wstart'):
+        if 'wstart' in ignore_raw:
             ignore_raw['wstart'].append(val)
         else:
             ignore_raw['wstart']=[val]
@@ -298,7 +298,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
         ignore.append(pattern)
 
     for val in kwargs.get('ignore_wend',[]):
-        if ignore_raw.has_key('wend'):
+        if 'wend' in ignore_raw:
             ignore_raw['wend'].append(val)
         else:
             ignore_raw['wend']=[val]
@@ -508,7 +508,7 @@ def check_file( name, cmp, ref=None, msg=None, quiet=False,
             update_okfile(okfh, name, ref)
 
         #Last of all, raise the AssertionError that defines a failed test
-        raise(AssertionError("files are different: %s, %s\n"%(name,ref)))
+        raise AssertionError("files are different: %s, %s\n"%(name,ref))
 
     #and return the True/False (Pass/Fail) status
     return r
@@ -645,7 +645,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
     for n, x in enumerate(clist) :
         # make sure we are looking in the right place for the reference file
-        if 'PDK_REFS' in os.environ.keys():
+        if 'PDK_REFS' in list(os.environ.keys()):
             PDK_REFS = os.environ['PDK_REFS']
             here = os.path.abspath(os.curdir)
             relpath = os.path.relpath(
@@ -656,7 +656,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
         # perform the comparison
         try :
-            print "\nCOMPARE:",x['output']
+            print("\nCOMPARE: %s"%x['output'])
             attr_prefix = 'cmp_%d_'%n
             for y in x['args'] :
                 tda[attr_prefix + y] = x['args'][y]
@@ -668,22 +668,22 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
                  **x['args'] )
 
         # assertion error means the test fails
-        except AssertionError, e :
-            print "FAIL"
+        except AssertionError as e :
+            print("FAIL")
             if ret_exc is None :
                 ret_exc = e
 
         # any other exception means the test errors
-        except Exception, e:
-            print "ERROR", e
+        except Exception as e:
+            print("ERROR %s"% e)
             traceback.print_exc()
             if ( ret_exc is None ) or ( isinstance(e, AssertionError) ) :
                 ret_exc = e
 
         else :
-            print "PASS"
+            print("PASS")
 
-    print ""
+    print("")
 
     # remember to close the okfile
     if okfh :

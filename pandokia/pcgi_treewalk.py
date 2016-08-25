@@ -10,14 +10,19 @@ import copy
 import time
 import os
 
-import urllib
+try:
+    from html import escape
+    from urllib.parse import urlencode
+except ImportError:
+    from cgi import escape
+    from urllib import urlencode
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
-import common
+from . import common
 
 
 # the left-pointing arrow that appears where we offer to remove a
@@ -51,7 +56,7 @@ def treewalk ( ) :
     # gather up all the expected parameters
     #
 
-    if form.has_key("test_name") :
+    if "test_name" in form :
         test_name = form["test_name"].value
         if test_name == '' :
             test_name = '*'
@@ -74,6 +79,7 @@ def treewalk ( ) :
     cmp_host     = get_form(form,'cmp_host',     None )
 
     test_run     = common.find_test_run(test_run)
+
     if cmp_test_run :
         cmp_test_run = common.find_test_run(cmp_test_run)
 
@@ -146,6 +152,9 @@ def treewalk ( ) :
     # if a test_run is selected, show the test_run here
     # include a link to clear the test_run selection
     #
+    if test_run is None :
+        output.write('Tree not generated.<br/>No tests available.')
+        return
 
     if test_run != "*" :
         lquery = copy.copy(query)
@@ -153,7 +162,7 @@ def treewalk ( ) :
         test_run_line = "<h2>%s = %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp; %s</h2>\n"
         header_table.set_value( row, 0, 'test_run' )
         header_table.set_value( row, 1, '=' )
-        header_table.set_value( row, 2, cgi.escape(test_run) )
+        header_table.set_value( row, 2, escape(test_run) )
         header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
         tmp2 = common.run_previous(None,test_run)
         tmp3 = common.run_next(None,test_run)
@@ -186,7 +195,7 @@ def treewalk ( ) :
             lquery[var] = "*"
             header_table.set_value( row, 0, label )
             header_table.set_value( row, 1, '=' )
-            header_table.set_value( row, 2, cgi.escape(query[var]) )
+            header_table.set_value( row, 2, escape(query[var]) )
             header_table.set_value( row, 3, html=common.self_href(lquery,"treewalk",remove_arrow) )
             row = row + 1
 
@@ -196,7 +205,7 @@ def treewalk ( ) :
         row = row + 1
 
 
-    print header_table.get_html()
+    print(header_table.get_html())
 
     ### start of "Test Prefix: line"
 
@@ -228,7 +237,7 @@ def treewalk ( ) :
     for x in lst :
         t = t + x
         lquery["test_name"] = t+"*"
-        line = common.self_href(lquery, 'treewalk', cgi.escape(x))
+        line = common.self_href(lquery, 'treewalk', escape(x))
         output.write(line)
 
     # if we are not at the very top, also include a link that gets us back
@@ -244,8 +253,8 @@ def treewalk ( ) :
     ### end of "Test Prefix: line"
 
     ### offer the form to compare with other runs
-    print cmp_form(query, comparing)
-    print "<p>"
+    print(cmp_form(query, comparing))
+    print("<p>")
 
     ### show the table
 
@@ -389,7 +398,7 @@ def treewalk ( ) :
             if x is None :
                 continue
             lquery[field] = x
-            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urllib.urlencode(lquery)+"'>"+x+"</a><br>")
+            output.write("<a href='"+pandokia.pcgi.cginame+"?query=treewalk&"+urlencode(lquery)+"'>"+x+"</a><br>")
 
 
     output.write("")
@@ -453,12 +462,12 @@ def linkout( ) :
             ( now, expire ) )
         newqid = c.lastrowid
 
-    print "content-type: text/plain\n"
-    print "QID ",newqid
+    print("content-type: text/plain\n")
+    print("QID %d"%newqid)
     pdk_db.commit()
 
     if oldqid is not None :
-        print "WITH QID=",oldqid
+        print("WITH QID=%d"%oldqid)
         more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(oldqid)
     else :
         more_where = None
@@ -470,7 +479,7 @@ def linkout( ) :
         ('project', project),
         ('host', host),
         ('context', context),
-        ('status', status),
+        #('status', status),
         ('attn', attn),
         ], more_where = more_where )
 
@@ -496,7 +505,7 @@ def linkout( ) :
 
     url = pandokia.pcgi.cginame + ( '?query=summary&qid=%s' % newqid )
 
-    if form.has_key('add_attributes') :
+    if 'add_attributes' in form :
         x = int(form['add_attributes'].value)
         if x :
             url += ('&show_attr=%d'%x)

@@ -9,11 +9,20 @@
 
 __all__ = [ "text_table" ]
 
-import cStringIO as StringIO
 import cgi
-import urllib
 import csv
+import sys
 
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
+
+
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
 #
 # A text_table contains a list of text_table_row.  
 # Each text_table_row contains a list of text_table_cell.  
@@ -82,7 +91,7 @@ class text_table_row :
     def __init__(self) :
 
         # list is the list of what cells are in this row
-        self.list = [ ]
+        self.lst = [ ]
 
         # sort_order is needed for the __cmp__ function; you have to set
         # the same sort_order into all the rows before sorting the table
@@ -92,23 +101,47 @@ class text_table_row :
     # the sort_order is a list of column numbers. N means sort by column N
     # ascending;  -N means sort by column N descending.  Maybe we could get
     # fancier here and allow a way to specify data types for the sort...
-    def __cmp__(self, other) :
-        for x in self.sort_order :
-            if x < 0 :
-                r = -1
-            else :
-                r = 1
-            if self.list[x].sort_key < other.list[x].sort_key :
-                return -r
-            if self.list[x].sort_key > other.list[x].sort_key :
-                return r 
-        return 0
+    if sys.version_info < (3, 0):
+        def __cmp__(self, other) :
+            for x in self.sort_order :
+                if x < 0 :
+                    r = -1
+                else :
+                    r = 1
+                if self.lst[x].sort_key < other.lst[x].sort_key :
+                    return -r
+                if self.lst[x].sort_key > other.lst[x].sort_key :
+                    return r
+            return 0
+    else:
+        # A quick hack to perform the sorting under Python 3, however it
+        # needs some serious work.
+        def __lt__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key < other.lst[x].sort_key :
+                    return r - 1
+            return r
+
+        def __gt__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key > other.lst[x].sort_key :
+                    return r + 1
+            return r
+
+        def __eq__(self, other):
+            r = 0
+            for x in self.sort_order :
+                if self.lst[x].sort_key == other.lst[x].sort_key :
+                    return r
+            return r
 
     def def_sort_order(self, sort_order) :
         self.sort_order = sort_order
 
     def pad(self, n) :
-        l = self.list
+        l = self.lst
         while len(l) < n:
             l.append(text_table_cell())
 
@@ -256,9 +289,9 @@ class text_table :
         if row >= len(self.rows) :
             return None
         row = self.rows[row]
-        if col >= len(row.list) :
+        if col >= len(row.lst) :
             return None
-        return row.list[col]
+        return row.lst[col]
 
     ##
     def get_title(self, col) :
@@ -305,7 +338,7 @@ class text_table :
             o = self._row_col_cell(row, col)
             try :
                 o.sort_key = func(o.text)
-            except Exception, e :
+            except Exception as e :
                 o.sort_key = o.text
                 fail = fail + 1
         conv = len(self.rows) - fail
@@ -317,7 +350,7 @@ class text_table :
         # fill in every row to be that wide with blank columns
         count = 0
         for r in self.rows :
-            this_width = len(r.list)
+            this_width = len(r.lst)
             if this_width > count :
                 count = this_width
         self.number_of_columns = count
@@ -358,7 +391,7 @@ class text_table :
         # the other table might screw us up.
         x = 0
         while x < len(self.rows) :
-            self.rows[x].list.extend(other.rows[x].list)
+            self.rows[x].lst.extend(other.rows[x].lst)
             x = x + 1
 
         # Bring in the column names from the other table.  Do not write
@@ -393,7 +426,7 @@ class text_table :
         # find the object that represents a specific row/col of the table
         # note that columns can have names ( see define_column() )
         o = self._row_object(row)
-        this_row = o.list
+        this_row = o.lst
 
         if col in self.colmap :
             col = self.colmap[col]
@@ -491,7 +524,7 @@ class text_table :
                 s.write("<tr bgcolor=lightgray>")
             else :
                 s.write("<tr>")
-            r = r.list
+            r = r.lst
             if r is None :
                 # there is a row here, but nothing in it.  We are happy
                 # to have sent the <tr>, but can't do anything more.
@@ -568,7 +601,7 @@ class text_table :
             w.writerow(l)
 
         for r in self.rows :
-            r = r.list
+            r = r.lst
             if r is None :
                 w.writerow([ ])
             else :
@@ -626,8 +659,8 @@ class text_table :
             s.write('\n')
 
         for r in self.rows :
-            if r and r.list :
-                for col, cell in enumerate(r.list) :
+            if r and r.lst :
+                for col, cell in enumerate(r.lst) :
                     if self.is_suppressed(col) :
                         continue
                     if cell is None or cell.text == None or cell.text == '' :
@@ -679,11 +712,11 @@ class text_table :
 
         # raise each column width to match the widest that we find
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     while col >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[col].text))
+                    l = len(str(r.lst[col].text))
                     if col_widths[col] < l :
                         col_widths[col] = l
 
@@ -703,11 +736,11 @@ class text_table :
 
         # display the table content
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("%-*s"%(col_widths[col],str(r.list[col].text)))
+                    s.write("%-*s"%(col_widths[col],str(r.lst[col].text)))
                     s.write("  ")
             s.write("\n")
 
@@ -755,11 +788,11 @@ class text_table :
                 col_widths[col] = len(str(x))
 
         for r in self.rows :
-            if r and r.list :
-                for x in range(0,len(r.list)) :
+            if r and r.lst :
+                for x in range(0,len(r.lst)) :
                     while x >= len(col_widths) :
                         col_widths.append(0)
-                    l = len(str(r.list[x].text))
+                    l = len(str(r.lst[x].text))
                     if col_widths[x] < l :
                         col_widths[x] = l
 
@@ -771,11 +804,11 @@ class text_table :
             s.write("||\n")
 
         for r in self.rows :
-            if r and r.list :
-                for col in range(0,len(r.list)) :
+            if r and r.lst :
+                for col in range(0,len(r.lst)) :
                     if self.is_suppressed(col) :
                         continue
-                    s.write("|| %-*s "%(col_widths[col],str(r.list[col].text)))
+                    s.write("|| %-*s "%(col_widths[col],str(r.lst[col].text)))
             s.write("||\n")
 
         rval = s.getvalue()
@@ -845,24 +878,24 @@ if __name__ =="__main__":
     t.pad()
 
 
-    print ""
+    print("")
     s = t.get_html()
-    print s
-    print ""
+    print(s)
+    print("")
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
+    print("")
     t.sort( [ -1,2 ] )
     s = t.get_awk()
-    print s
-    print ""
+    print(s)
+    print("")
     t.sort( [ 0 ] )
     s = t.get_awk()
-    print s
+    print(s)
 
-    print ""
-    print t.get_csv()
+    print("")
+    print(t.get_csv())
 
     t = text_table()
     t.set_value(0,0,'4')
@@ -874,21 +907,21 @@ if __name__ =="__main__":
     t.set_value(6,0,'B')
     t.set_value(7,0,'A')
     t.set_sort_key(0, float)
-    print "XX"
-    print t.get_awk()
-    print "XX"
+    print("XX")
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=True )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     t.sort( [ 0 ], reverse=False )
-    print t.get_awk()
-    print "XX"
+    print(t.get_awk())
+    print("XX")
     
-    print ""
+    print("")
     s = t.get_rst()
-    print s
+    print(s)
 
-    print ""
+    print("")
     s = t.get_trac_wiki()
-    print s
+    print(s)
 

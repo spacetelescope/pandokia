@@ -13,7 +13,6 @@ import cgi
 import os
 import os.path
 import sys
-import urllib
 import cgitb
 
 import pandokia
@@ -44,7 +43,7 @@ def run() :
 
     if cfg.server_maintenance:
         sys.stdout.write("content-type: text/html\n\n\nWeb page unavailable because of pandokia server maintenance<p>\n\n")
-        if isinstance(cfg.server_maintenance,basestring) :
+        if isinstance(cfg.server_maintenance,str) :
             sys.stdout.write("%s\n"%cfg.server_maintenance)
         sys.exit(0)
 
@@ -106,7 +105,7 @@ def run() :
     #
 
     #--#--# CGI
-    if not form.has_key("query") :
+    if "query" not in form :
         import re
         sys.stdout.write("Content-type: text/html\n\n")
         f = os.path.dirname(os.path.abspath(__file__)) + '/top_level.html'
@@ -202,13 +201,13 @@ def run() :
         sys.exit(0)
 
     if query == 'killproc' :
-        print "content-type: text/html"
-        print ""
+        print("content-type: text/html")
+        print("")
         pid = form['pid'].value
         sig = form['sig'].value
         if common.current_user() in common.cfg.admin_user_list :
             os.kill(int(pid),int(sig))
-        print "done"
+        print("done")
         sys.exit(0)
 
     if query == 'hostinfo' :
@@ -248,13 +247,13 @@ def run() :
     # friendly response.
     
     if cfg.debug or ( common.current_user() in common.cfg.admin_user_list ) :
-        print "YOU ARE ADMIN, DEBUG FOLLOWS"
+        print("YOU ARE ADMIN, DEBUG FOLLOWS")
         for x in form:
             if isinstance(form[x],list) :
                 for y in form[x]:
-                    print x, y,"<br>"
+                    print("%s %s<br>"%(x, y))
             else :
-                print x, form[x],"<br>"
+                print("%s %s<br>"%(x, form[x]))
 
 #
 def error_1201() :

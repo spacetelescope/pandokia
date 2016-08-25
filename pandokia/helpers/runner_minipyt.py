@@ -9,6 +9,7 @@ import os.path
 import time
 import gc
 import copy
+import collections
 
 # In python 2.6 and later, this prevents writing the .pyc files on import.
 # I normally don't want the .pyc files cluttering up the test directories.
@@ -171,7 +172,7 @@ def run_test_function(rpt, mod, name, ob) :
             try :
                 teardown()
             except :
-                print "Exception in teardown()"
+                print("Exception in teardown()")
                 status = 'E'
                 traceback.print_exc()
     else :
@@ -302,7 +303,7 @@ def run_test_method( name, class_ob, f_name, f_ob, rpt ) :
                 teardown()
 
         except :
-            print 'exception in teardown'
+            print('exception in teardown')
             exception_str = get_exception_str()
             fn_status = 'E'
             traceback.print_exc()
@@ -410,7 +411,7 @@ def run_test_class_multiple( rpt, mod, name, ob, test_order ) :
     pycode.snarf_stdout()
     class_start_time = time.time()
 
-    print "MULTIPLE"
+    print("MULTIPLE")
     class_status = 'P'
     exception_str = None
 
@@ -607,7 +608,7 @@ def process_file( filename, test_name = None, test_args = None ) :
         if setup is not None :
             if debug :
                 debug_fd.write("process_file: running setUp")
-            print "setUp"
+            print("setUp")
             setup()
 
         # look through the module for things that might be tests
@@ -661,10 +662,10 @@ def process_file( filename, test_name = None, test_args = None ) :
 
             # call the appropriate runner
             if type(ob) == function :
-                print 'function', name, 'as', rname
+                print('function %s as %s'% (name, rname))
                 run_test_function( rpt, module, rname, ob )
             else :
-                print 'class', name, 'as', rname
+                print('class %s as %s'% (name, rname))
                 run_test_class( rpt, module, name, ob, test_order )
 
         # look for a pycode function - call it if necessary
@@ -677,11 +678,11 @@ def process_file( filename, test_name = None, test_args = None ) :
         except AttributeError :
             pass
 
-        if callable(pycode_fn) :
-            print 'old-style pycode test detected'
+        if isinstance(pycode_fn, collections.Callable) :
+            print('old-style pycode test detected')
             pycode_fn(1, rpt=rpt)
 
-        print 'tests completed'
+        print('tests completed')
 
         # look for a teardown function - call it if necessary
         teardown = None
@@ -692,7 +693,7 @@ def process_file( filename, test_name = None, test_args = None ) :
             pass
 
         if teardown :
-            print "tearDown"
+            print("tearDown")
             teardown()
 
     except AssertionError :
@@ -748,10 +749,10 @@ def process_file( filename, test_name = None, test_args = None ) :
 
 def main(arg) :
     if debug :
-        print len(arg)
+        print(len(arg))
         for x in arg :
-            print "arg: ",x
-        print 'PDK_FILE = ',os.environ['PDK_FILE']
+            print("arg: %s"%x)
+        print('PDK_FILE = %s'%os.environ['PDK_FILE'])
 
     if len(arg) > 1 :
         # if there are multiple args then:

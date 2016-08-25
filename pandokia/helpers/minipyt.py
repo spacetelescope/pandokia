@@ -91,7 +91,7 @@ def noseguard() :
 '''
 
     if disable_noseguard :
-        print "pandokia.helpers.minipyt.noseguard() disabled!"
+        print("pandokia.helpers.minipyt.noseguard() disabled!")
         return
 
     import sys

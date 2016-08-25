@@ -34,5 +34,5 @@ def t020_sequence() :
 
 @minipyt.test
 def t020_implicit_sequence() :
-    assert dbx.next is None
+    assert dbx.__next__ is None
 

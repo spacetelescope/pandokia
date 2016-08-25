@@ -22,17 +22,17 @@ def op_update( output, ref ) :
     # copy the file
     try :
         shutil.copyfile( output, ref )
-    except Exception, e:
-        print "copy",output,ref,e
+    except Exception as e:
+        print(("copy",output,ref,e))
     else :
-        print "updated",ref
+        print(("updated",ref))
         try :
             os.unlink( output )
-        except Exception, e :
-            print "    cannot delete",output
+        except Exception as e :
+            print(("    cannot delete",output))
 
 def op_list_ref( output, ref ) :
-    print ref
+    print(ref)
 
 def main(args) :
     if args[0] == '-u' :

@@ -7,11 +7,16 @@
 
 import sys
 import cgi
-import urllib
+
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 import pandokia
 import pandokia.text_table as text_table
 import pandokia.pcgi
-import common
+from . import common
 
 cfg = pandokia.cfg
 
@@ -132,7 +137,7 @@ def show(user) :
             continue
         tb.set_value(row, 'project', project)
 
-        project = urllib.quote(project)
+        project = quote(project)
         # projects will be a list of all the projects we are submitting in the form
         output.write('<input type=hidden name=projects value="%s">'%project)
 
@@ -273,7 +278,7 @@ def list_users() :
     c = cfg.pdk_db.execute(" SELECT DISTINCT username FROM user_email_pref WHERE "
         " username NOT IN ( SELECT username FROM user_prefs ) " )
     for x, in c :
-        print "user %s not in user_prefs table - adding<br>"%cgi.escape(x)
+        print("user %s not in user_prefs table - adding<br>"%cgi.escape(x))
         cfg.pdk_db.execute("INSERT INTO user_prefs ( username ) VALUES ( :1 )", (x,))
     cfg.pdk_db.commit()
 

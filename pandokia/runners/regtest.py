@@ -35,7 +35,7 @@ else :
 # returns a list of tests in the file
 # Easy for regtest because there is only one test in the file, and it is named
 # after the file.
-def list( env ) :
+def lst( env ) :
     fn = env['PDK_FILE']
     prefix = env['PDK_TESTPREFIX']
     if fn.endswith(".xml") :

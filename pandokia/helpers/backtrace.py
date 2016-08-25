@@ -100,7 +100,7 @@ def exc( show_globals=True, ignore_vars=None, write=None) :
             g = { }
         l = frame.f_locals
 
-        keys = sorted( set( l.keys() + g.keys() ) - ignore_vars )
+        keys = sorted( set( list(l.keys()) + list(g.keys()) ) - ignore_vars )
 
         # show them
         for key in keys :
@@ -175,12 +175,12 @@ if __name__ == '__main__':
 
     def cause_exc() :
         try:
-            print "HERE"
+            print("HERE")
             pad4(data)
-            print "STILL HERE"
+            print("STILL HERE")
         except:
             for x in exc() :
-                print x
+                print(x)
 
     # cause_exc()
 

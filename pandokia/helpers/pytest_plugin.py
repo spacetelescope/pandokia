@@ -25,7 +25,7 @@ import pytest
 import _pytest
 
 # I know this plugin doesn't work in py.test 2.1
-if tuple(pytest.__version__.split('.')) < (2,2,0) :
+if tuple(int(i) for i in pytest.__version__.split('.')) < (2,2,0) :
     raise Exception("The py.test plugin for Pandokia requires at least py.test 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
@@ -141,7 +141,7 @@ def pytest_configure(config):
                 test_runner = 'pytest',
                 test_prefix = '')
 
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Error opening log file %s: %s\n"%(fname,e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
@@ -239,7 +239,7 @@ def pytest_runtest_setup(item):
         # exclude.
         try :
             filename = trim_filename( filename )
-        except Exception, e :
+        except Exception as e :
             tty.write("EXCEPTION " + str( e)+"\n")
     else :
         tty.write( "NOT IN TESTER\n" )
@@ -294,7 +294,7 @@ def pytest_runtest_setup(item):
             # set the alarm
             signal.alarm(item.pandokia.timeout)
         else :
-            print "Warning: Test timeouts not implemented on Windows"
+            print("Warning: Test timeouts not implemented on Windows")
 
     ## done pytest_runtest_setup
 
@@ -309,12 +309,12 @@ def find_txa(test):
         if isinstance(test.obj, types.MethodType):
             # I wonder what this is about?
             try:
-                tda = test.obj.im_self.tda
+                tda = test.obj.__self__.tda
             except AttributeError:
                 tda = dict()
 
             try:
-                tra = test.obj.im_self.tra
+                tra = test.obj.__self__.tra
             except AttributeError:
                 tra = dict()
 
@@ -322,12 +322,12 @@ def find_txa(test):
             # if the test is just a function, it is in the global
             # namespace of the module that the function is defined in.
             try:
-                tda = test.obj.func_globals['tda']
+                tda = test.obj.__globals__['tda']
             except KeyError:
                 tda = dict()
                 
             try:
-                tra = test.obj.func_globals['tra']
+                tra = test.obj.__globals__['tra']
             except KeyError:
                 tra = dict()
 

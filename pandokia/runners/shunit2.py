@@ -27,6 +27,6 @@ else :
         return 'shunit2 --plugin pdk $PDK_FILE'
 
 # returns a list of tests in the file
-def list( env ) :
+def lst( env ) :
     return [ ]
 

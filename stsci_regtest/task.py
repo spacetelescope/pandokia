@@ -64,7 +64,7 @@ def run (taskname, pfile, output, log):
             if err:
                 status = 1
 
-        except Exception, exc:
+        except Exception as exc:
             xstr = traceback.format_exc()
             write_exc_to_log (xstr, log)
             status = 1
@@ -74,7 +74,7 @@ def run (taskname, pfile, output, log):
         try:
             command(ParList=pfile)
 
-        except Exception, exc:
+        except Exception as exc:
             xstr = traceback.format_exc()
             write_exc_to_log (xstr, log)
             status = 1

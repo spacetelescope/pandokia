@@ -13,7 +13,7 @@ def dprint( d, indent=0, follow='' ) :
     print nested dictionaries in a nicely indented format
     """
     indent_str='    ' * indent
-    l = d.keys()
+    l = list(d.keys())
     l.sort()
     s = indent_str + '{\n'
     maxlen=0
@@ -110,16 +110,16 @@ def showitem( name, item, depth ) :
             s = s + name + ' '
         s = s + ty
         if isinstance(item, dict) :
-            print s+'(%d)'%len(item)
+            print(s+'(%d)'%len(item))
             print_dict_keys(item, depth+1)
         elif isinstance(item, tuple) :
-            print s+'(%d)' % len(item)
+            print(s+'(%d)' % len(item))
             print_list(item, depth+1)
         elif isinstance(item, list) :
-            print s+'(%d)' % len(item)
+            print(s+'(%d)' % len(item))
             print_list(item, depth+1)
         else :
-            print s
+            print(s)
 
 def print_list(l, depth=0) :
     for x in l :

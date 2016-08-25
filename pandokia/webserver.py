@@ -4,15 +4,20 @@
 #
 
 import os
-import CGIHTTPServer
-import BaseHTTPServer
 
-class my_handler( CGIHTTPServer.CGIHTTPRequestHandler ) :
+try:
+    from http.server import CGIHTTPRequestHandler, HTTPServer
+except ImportError:
+    from CGIHTTPServer import CGIHTTPRequestHandler
+    from BaseHTTPServer import HTTPServer
+
+
+class my_handler( CGIHTTPRequestHandler ) :
 
     cgi_directories = [ "/cgi-bin/" ]
 
     def __init__(self, request, client_address, server) :
-        CGIHTTPServer.CGIHTTPRequestHandler.__init__(self, request, client_address, server)
+        CGIHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def is_cgi(self) :
 
@@ -57,7 +62,7 @@ class my_handler( CGIHTTPServer.CGIHTTPRequestHandler ) :
     def translate_path( self, path ) :
         if path.find("/../") >= 0 :
             path = "/"
-        path = CGIHTTPServer.CGIHTTPRequestHandler.translate_path(self,path)
+        path = CGIHTTPRequestHandler.translate_path(self,path)
         return path
 
 
@@ -71,7 +76,7 @@ def run( args = [ ] ) :
         import platform
         ip = platform.node()
 
-    print "ip:",ip
+    print("ip: %s"%ip)
     port = 7070
 
     # make sure pdk.cgi is here somewhere - if not, make a symlink
@@ -88,10 +93,10 @@ def run( args = [ ] ) :
     else :
         f.close()
 
-    httpd = BaseHTTPServer.HTTPServer( (ip, port) , my_handler)
+    httpd = HTTPServer( (ip, port) , my_handler)
 
     sa = httpd.socket.getsockname()
-    print "Serving HTTP on", sa[0], "port", sa[1], "..."
+    print("Serving HTTP on %s port %s ..."% (sa[0], sa[1]))
     while 1 :
         httpd.handle_request()
 

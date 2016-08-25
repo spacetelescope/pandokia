@@ -9,7 +9,6 @@
 
 import sys
 import re
-import types
 import pandokia.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')   
@@ -52,7 +51,7 @@ class where_dict_base(object) :
     # the word "WHERE" is automatically added, but if there is nothing to match
     # then the return is a zero length string.
     #
-    def where_dict(self, list, more_where = None ) :
+    def where_dict(self, lst, more_where = None ) :
         '''
             where_text, where_dict = pdk_db.where_dict( [
                 ('field', value),
@@ -63,16 +62,16 @@ class where_dict_base(object) :
         '''
 
         # if the list is a dict, convert it
-        if type(list) == dict :
+        if isinstance(lst, dict) :
             nl = [ ]
-            for x in list:
-                nl.append( (x, list[x]) )
-            list = nl
+            for x in lst:
+                nl.append( (x, lst[x]) )
+            lst = nl
 
         ns = name_sequence()
 
         and_list = [ ]
-        for name, value in list :
+        for name, value in lst :
             if ( value == '*' ) or ( value == '%' ) or ( value is None ) :
                 # if value is "*", we don't need to do a
                 # comparison at all.  In sqlite, " xxx glob '*' "
@@ -81,7 +80,7 @@ class where_dict_base(object) :
             else :
                 # If value is a list, the query is to match any of the values.
                 # If it is not a list, we have a list of 1 value.
-                if not isinstance( value, types.ListType ) :
+                if not isinstance( value, list ) :
                     value = [ value ]
 
                 # print "VALUE", name, value
@@ -122,9 +121,10 @@ class where_dict_base(object) :
                         or_list.append( " %s LIKE :%s "%(name,n) )
 
                     elif '*' in v or '?' in v or '[' in v :
-                        print 'content-type: text/plain\n'
-                        print list
-                        print v
+                        print('content-type: text/plain\n')
+                        print(lst)
+                        print(v)
+                        return
                         assert 0, 'GLOB not supported'
                     else :
                         n = ns.next( v )
@@ -178,9 +178,9 @@ class where_dict_base(object) :
         cc = csv.writer(f,lineterminator='\n')
         cc.writerow( cols )
 
-        print colstr
+        print(colstr)
 
-        print "ORDER",colstr
+        print("ORDER %s"%colstr)
         c = self.execute('select %s from %s %s order by %s'%(colstr, tablename, where, colstr) )
         for x in c :
             cc.writerow( [ y for y in x ] )
@@ -274,17 +274,17 @@ class where_dict_base(object) :
 
                     if len(tbl.rows) > 0 :
                         # show the table in the format the user asked
-                        print tbl.get(format=format, headings=1)
+                        print(tbl.get(format=format, headings=1))
                 except self.ProgrammingError as e :
                     if 'no results to fetch' in str(e) :
                         pass
                     else :
-                        print "Programming Error for ",c
-                        print e
+                        print("Programming Error for %s"%c)
+                        print(e)
 
                 except self.IntegrityError as e :
-                    print "Integrity Error for ",c
-                    print e
+                    print("Integrity Error for %s"%c)
+                    print(e)
 
                 cursor.close()
 
@@ -311,9 +311,9 @@ def sql_files( files ) :
         files = files[1:]
         if arg in ( '-html', '-csv', '-awk', '-rst', '-text', '-trac_wiki', '-tw' ) :
             format = arg[1:]
-            print "FORMAT",format
+            print("FORMAT %s"%format)
         else :
-            print arg, "unrecognized"
+            print("%s unrecognized"%arg)
             return 1
 
     if len(files) > 0 :
