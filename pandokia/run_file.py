@@ -449,6 +449,14 @@ else :
 
     def proc_timeout_callback(sig, stack):
         global timeout_proc_kills
+        platform_id = platform.system()
+
+        def top():
+            if platform_id == 'Linux':
+                os.system('top -b -n 1')
+            elif platform_id == 'Darwin':
+                os.system('top -n 25 -l1 -ncols 13')
+
         if timeout_proc :
             pid = timeout_proc.pid
             print("PID=%d"%pid)
@@ -458,7 +466,7 @@ else :
                 sys.stdout.flush()
                 print("timeout expired - terminate after %s"%str(timeout_duration))
                 sys.stdout.flush()
-                os.system('top -b -n 1')
+                top()
                 sys.stdout.flush()
                 os.system('ps -efl')
                 sys.stdout.flush()
@@ -467,7 +475,8 @@ else :
                 os.system('ps -efl')
                 sys.stdout.flush()
                 killpg_maybe( pid, signal.SIGTERM )
-                os.system('top -b -n 1')
+                top()
+                sys.stdout.flush()
             elif timeout_proc_kills == 1 :
                 print("timeout expired again - kill")
                 killpg_maybe( pid, signal.SIGKILL )
