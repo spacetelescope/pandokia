@@ -144,7 +144,7 @@ def pytest_configure(config):
 
         # Open the log file.
         try:
-            sd = not 'PDK_FILE' in os.environ
+            sd = 'PDK_FILE' not in os.environ
             state['report'] = pandokia.helpers.pycode.reporter(
                 source_file=None,
                 setdefault=sd,

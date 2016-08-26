@@ -24,10 +24,10 @@ def GET(url, args=None, cred=None):
 
     arg_string = ''
 
-    if not args is None:
+    if args is not None:
         arg_string = "?" + urlencode(args)
 
-    if not cred is None:
+    if cred is not None:
         (host, realm, username, password) = cred
         auth_handler = HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)
@@ -55,7 +55,7 @@ def POST(url, args={}, cred=None):
 
     arg_string = ''
 
-    if not cred is None:
+    if cred is not None:
         (host, realm, username, password) = cred
         auth_handler = HTTPBasicAuthHandler()
         auth_handler.add_password(realm, host, username, password)

@@ -126,13 +126,13 @@ def show(user):
     row = 0
 
     def ckif(x):
-        if format == x:
+        if fmt == x:
             return 'checked'
         else:
             return ''
 
     c = cfg.pdk_db.execute(
-        'SELECT username, project, format, maxlines FROM user_email_pref WHERE username = :1 ORDER BY project',
+        'SELECT username, project, fmt, maxlines FROM user_email_pref WHERE username = :1 ORDER BY project',
         (user,
          ))
 
@@ -145,7 +145,7 @@ def show(user):
             x = []
         c = [(user, x[0], x[1], x[2]) for x in x]
 
-    for username, project, format, maxlines in c:
+    for username, project, fmt, maxlines in c:
         if not project_name_ok:
             output.write('bad project name in table<br>')
             continue
@@ -226,7 +226,7 @@ def add_project(user):
 
     else:
         cfg.pdk_db.execute(
-            "INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, 'n', 0)",
+            "INSERT INTO user_email_pref ( username, project, fmt, maxlines ) VALUES ( :1, :2, 'n', 0)",
             (user,
              project))
         cfg.pdk_db.commit()
@@ -262,13 +262,13 @@ def save(user):
         # pick out the value of the radio button.
         field_name = 'radio.%s' % project
         if field_name in form:
-            format = form[field_name].value
+            fmt = form[field_name].value
         else:
-            format = 'n'
+            fmt = 'n'
 
         # ignore it if they are messing with us
-        if not format in ['c', 'n', 'f', 'F', 's']:
-            format = 'n'
+        if fmt not in ['c', 'n', 'f', 'F', 's']:
+            fmt = 'n'
 
         # pick out the value of the text field that shows how many tests
         # we want reported
@@ -295,10 +295,10 @@ def save(user):
         except:
             maxlines = 0
         cfg.pdk_db.execute(
-            'INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, :3, :4 )',
+            'INSERT INTO user_email_pref ( username, project, fmt, maxlines ) VALUES ( :1, :2, :3, :4 )',
             (user,
              project,
-             format,
+             fmt,
              maxlines))
 
     cfg.pdk_db.commit()
@@ -358,7 +358,7 @@ def list_users():
 
         # find for each project that this user has a preference about:
         c1 = cfg.pdk_db.execute(
-            "SELECT project, format, maxlines FROM user_email_pref WHERE username = :1",
+            "SELECT project, fmt, maxlines FROM user_email_pref WHERE username = :1",
             (user,
              ))
         for p, f, m in c1:

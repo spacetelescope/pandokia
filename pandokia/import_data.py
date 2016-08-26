@@ -416,15 +416,15 @@ def run(args, hack_callback=None):
             if x is None:
                 break
             try:
-                if not "test_run" in x:
+                if "test_run" not in x:
                     x["test_run"] = default_test_run
-                if not "context" in x:
+                if "context" not in x:
                     x["context"] = default_context
-                if not "host" in x:
+                if "host" not in x:
                     x["host"] = default_host
-                if not "project" in x:
+                if "project" not in x:
                     x["project"] = default_project
-                if not "test_runner" in x:
+                if "test_runner" not in x:
                     x["test_runner"] = default_test_runner
             except Exception as e:
                 print("%s %d" % (e, line_count))
@@ -437,7 +437,7 @@ def run(args, hack_callback=None):
                 del x["name"]
 
             #
-            if not 'test_name' in x:
+            if 'test_name' not in x:
                 # should not happen, but don't want to let it kill the import
                 print("warning: no test name on line: %4d" % line_count)
                 print("   %s" % [zz for zz in x])

@@ -160,7 +160,7 @@ class DirLevel(object):
         parent = os.path.dirname(self.name)
         if ((parent == self.name) or
                 os.path.isfile(os.path.join(self.name, ttop))):
-             # discover we're at the top
+            # discover we're at the top
             self.istop = True
             return
 

@@ -251,7 +251,7 @@ class Regress:
                 msg = "Executing task: %s" % (config["taskname"])
                 self.writelog(".", msg, "")
                 err = 0
-                if not 'pfile' in config:
+                if 'pfile' not in config:
                     self.writelog("?", "no pfile in config")
 
                 # this is the command to execute
@@ -389,7 +389,7 @@ class Regress:
                         else:
                             output[k] = []
 
-                    if not "reference" in output:
+                    if "reference" not in output:
                         output["reference"] = "ref/" + output["fname"]
 
                     # Create the comparison for this set of outputs

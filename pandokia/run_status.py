@@ -300,7 +300,7 @@ else:
         '''
 
         # If we don't have a statusfile, it doesn't matter
-        if not 'PDK_STATUSFILE' in os.environ:
+        if 'PDK_STATUSFILE' not in os.environ:
             return
 
         # If we don't want one for some reason

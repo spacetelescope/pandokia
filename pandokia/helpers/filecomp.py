@@ -628,7 +628,7 @@ def _normalize_list(l):
             l[x] = newdata
             data = newdata
 
-        if not 'args' in data:
+        if 'args' not in data:
             data['args'] = {}
 
         if 'file' in data:

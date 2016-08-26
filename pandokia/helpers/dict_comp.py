@@ -186,31 +186,31 @@ def append_okfile(okfh, output_file, reference_file):
 
 
 def dictionary_comp(
-        data_dict,
+    data_dict,
     # the actual data
-        file_base,
+    file_base,
     # implies output file name
     # implies reference file name
     # implies ok file name
     # implies refs/file.fields for compare/ignore fields
     # assumes PDK_REFS environment
-        tda=None,
-        tra=None,
+    tda=None,
+    tra=None,
     # if present, fill tra with output, relative difference
-        interesting_fields=None,
+    interesting_fields=None,
     # if interesting, compare only those
-        uninteresting_fields=[],
+    uninteresting_fields=[],
     # if uninteresting, exclude those from the default list
-        fp_tolerance=1e-7,
+    fp_tolerance=1e-7,
     #
-        tolerance_dict={},
+    tolerance_dict={},
     # you can give a specific tolerance for specific fields
     # default is no special preference
-        print_info=False,
+    print_info=False,
     #
-        okfh=None,
+    okfh=None,
     #
-        fail_only=False,
+    fail_only=False,
     # if true, only report fields that are involved in a failure
 ):
 
@@ -252,8 +252,8 @@ def dictionary_comp(
     # just that.  Otherwise it defaults to all the fields except
     # those identified as uninteresting.
     if interesting_fields is None:
-        interesting_fields = set([x for x in data_dict]
-                                 + [x for x in ref_dict]) - set(uninteresting_fields)
+        interesting_fields = set([x for x in data_dict] +
+                                 [x for x in ref_dict]) - set(uninteresting_fields)
 
     # save the interesting fields from the flattened dict
     out_fn = write_output(file_base, data_dict, interesting_fields)

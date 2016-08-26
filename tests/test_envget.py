@@ -319,7 +319,7 @@ def dict_compare(ref, tst, title='', full=False):
     for x in l:
         if x not in ref:
             sys.stdout.write("\t%s missing from ref\n" % x)
-        elif not x in tst:
+        elif x not in tst:
             sys.stdout.write("\t%s missing from tst\n" % x)
         else:
             if ref[x] != tst[x]:

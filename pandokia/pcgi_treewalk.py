@@ -374,7 +374,7 @@ def treewalk():
     # exactly 1 item in the choices to narrow, you could automatically
     # include that in all the links.
     for field in ('test_run', 'project', 'context', 'host'):
-        if not '*' in query[field]:
+        if '*' not in query[field]:
             continue
         lquery = {}
         for x in query:
@@ -776,18 +776,17 @@ def cmp_form(query, comparing):
 
     ##
 
-    l.append(
-        """
+    l.append("""
         </ul>
         </div>
         <script>
         vis = new Array();
-        """ )
+        """)
 
     if comparing:
         l.append(""" vis['cmpform']=1; """)
 
-    l.append( """
+    l.append("""
         function toggle(f) {
             vis[f] = ! vis[f];
             if (vis[f]) v="none"; else v="block";
@@ -797,6 +796,6 @@ def cmp_form(query, comparing):
         }
         toggle("cmpform")
         </script>
-        """ )
+        """)
 
     return '\n'.join(l)

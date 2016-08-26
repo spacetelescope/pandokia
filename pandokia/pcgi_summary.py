@@ -224,7 +224,7 @@ def run():
     <input type=submit name=x_submit value='same'>
     <input type=submit name=x_submit value='different'>
     </form>
-    """ % ( pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run) ) )
+    """ % (pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run)))
 
         #
         output.write("""
@@ -235,7 +235,7 @@ def run():
     <input type=hidden name=cmp_run value='%s'>
     <input type=submit name=x_submit value='Add Attributes'>
     </form>
-    """ % ( pandokia.pcgi.cginame, qid, cgi.escape(cmp_run) ) )
+    """ % (pandokia.pcgi.cginame, qid, cgi.escape(cmp_run)))
 
         qid_block(qid)
 
@@ -390,7 +390,7 @@ def run():
         # show the table, which contains a form
         output.write('''
         <form action=%s method=post name=testform onsubmit="return validate_flag_ok();">
-        ''' % ( pandokia.pcgi.cginame,) )
+        ''' % (pandokia.pcgi.cginame,))
 
         # alter the column headers - violates the interface of text_table
         # for x in result_table.colmap :
@@ -402,7 +402,7 @@ def run():
         output.write('''
         <input type=hidden name=query value='action'>
         <input type=hidden name=qid value=%d>
-        ''' % (qid, ) )
+        ''' % (qid,))
         output.write('Actions:<br>')
         output.write(
             """<input type=text name=begin id=begin value="*Begin line" onfocus='condclear("begin")'size=10> """)

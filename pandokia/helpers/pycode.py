@@ -537,7 +537,7 @@ class _pycode_with(object):
         # If there is another Exception, we have an error
         else:
             status = 'E'
-            if not 'exception' in self.tra:
+            if 'exception' not in self.tra:
                 self.tra['exception'] = str(exvalue)
                 self.tra['exception_type'] = str(extype)
 

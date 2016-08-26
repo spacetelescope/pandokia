@@ -34,14 +34,14 @@ def find_module_location(name, path=None):
         l = name.split('.', 1)
         # find the top level package
         (file, pathname, description) = imp.find_module(l[0], path)
-        if not file is None:
+        if file is not None:
             file.close()
         # find the remaining packages in the directory that it was in
         return find_module_location(l[1], [pathname])
     else:
         # If no . in the name, we have it on the first try.
         (file, pathname, description) = imp.find_module(name, path)
-        if not file is None:
+        if file is not None:
             file.close()
         return pathname
 

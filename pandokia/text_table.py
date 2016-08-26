@@ -548,7 +548,7 @@ class text_table:
                         continue
                     if c.html_attributes:
                         s.write("<td ")
-                        if not 'valign' in c.html_attributes:
+                        if 'valign' not in c.html_attributes:
                             s.write("valign=top ")
                         s.write(c.html_attributes)
                         s.write(">")

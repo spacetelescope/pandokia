@@ -155,7 +155,7 @@ def run():
                     print("%s<br>" % x)
             pdk_db.execute("""UPDATE distinct_test_run SET valuable=1 WHERE test_run IN
                 ( SELECT DISTINCT result_scalar.test_run FROM result_scalar, query WHERE query.qid = %d and result_scalar.key_id = query.key_id )
-                """ % ( qid, ) )
+                """ % (qid,))
         else:
             expire = time.time() + pandokia.cfg.default_qid_expire_days * 86400
         pdk_db.execute(
@@ -228,26 +228,26 @@ def run():
     if qid is not None:
         if text_present:
             output.write(
-                "<a href='"
-                + pandokia.pcgi.cginame
-                + ("?query=summary&qid=%s'>back to qid = " % qid)
-                + str(qid)
-                + "</a><br>\n"
+                "<a href='" +
+                pandokia.pcgi.cginame +
+                ("?query=summary&qid=%s'>back to qid = " % qid) +
+                str(qid) +
+                "</a><br>\n"
             )
         else:
             if not no_redirect:
                 output.write(
-                    '<html><head><meta http-equiv="REFRESH" content="0;'
-                    + pandokia.pcgi.cginame
-                    + ('?query=summary&qid=%s"' % qid)
-                    + '>\n</head><body>\n'
+                    '<html><head><meta http-equiv="REFRESH" content="0;' +
+                    pandokia.pcgi.cginame +
+                    ('?query=summary&qid=%s"' % qid) +
+                    '>\n</head><body>\n'
                 )
             output.write(
-                "redirecting: <a href='"
-                + pandokia.pcgi.cginame
-                + ("?query=summary&qid=%s'>qid = " % qid)
-                + str(qid)
-                + "</a><br>\n"
+                "redirecting: <a href='" +
+                pandokia.pcgi.cginame +
+                ("?query=summary&qid=%s'>qid = " % qid) +
+                str(qid) +
+                "</a><br>\n"
             )
     else:
         output.write("<br>Hit BACK and RELOAD\n")

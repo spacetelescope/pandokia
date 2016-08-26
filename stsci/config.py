@@ -22,7 +22,7 @@ recurring_prefix = (
     'jwst',
 )
 
-if not 'pdk_db' in globals():
+if 'pdk_db' not in globals():
     # Database: MYSQL
     #           http://www.mysql.com/
     # MySQLdb

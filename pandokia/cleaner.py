@@ -441,7 +441,7 @@ def delete(args):
     dont = 0
 
     if len(args) != 0:
-        if not '-test_run' in opt:
+        if '-test_run' not in opt:
             opt['-test_run'] = args
         else:
             print("error: -test_run and non-option args used together")
@@ -453,7 +453,7 @@ def delete(args):
     del opt['-count']
     del opt['-c']
 
-    if not '-test_run' in opt:
+    if '-test_run' not in opt:
         print("You really have to specify -test_run")
         return 1
 

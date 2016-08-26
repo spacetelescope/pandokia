@@ -134,7 +134,7 @@ def run(args):
     os.environ['PDK_HOST'] = host
 
     initialized_status_file = 0
-    if not 'PDK_STATUSFILE' in os.environ:
+    if 'PDK_STATUSFILE' not in os.environ:
         status_file_name = os.getcwd() + '/pdk_statusfile'
         import pandokia.run_status
         if parallel is None:

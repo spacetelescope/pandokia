@@ -10,7 +10,7 @@ class Mytest(cases.FunctionHolder):
         self.tda['cat'] = 'mouse'
         assert True
 
-   def test2(self):
-       do ordinary function things
-       self.tra={1:2, 3:45}
-       assert 3 > 1
+    def test2(self):
+        do ordinary function things
+        self.tra = {1: 2, 3: 45}
+        assert 3 > 1
