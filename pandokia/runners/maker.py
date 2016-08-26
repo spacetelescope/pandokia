@@ -12,15 +12,18 @@ import os.path
 
 # return command string to run the test
 #
-# This looks like we are not using many parameters, but most of the information 
+# This looks like we are not using many parameters, but most of the information
 # we are passing is in the environment.
 
-def command( env ) :
+
+def command(env):
     return 'python -m pandokia.runners.maker'
 
 # Not likely to support reporting disabled tests in a compiled external program
-def lst( env ) :
-    return [ ]
+
+
+def lst(env):
+    return []
 
 ####################
 #
@@ -58,7 +61,7 @@ need pandokia_fct.h, which can be found in $PDK_MAKER.
 
 '''
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     import sys
     import re
     import platform
@@ -74,44 +77,44 @@ if __name__ == '__main__' :
     #
     print("MAKER HERE")
 
-    # 
+    #
     d = os.path.dirname(__file__) + '/maker'
-    os.environ['PDK_MAKER']  = d
+    os.environ['PDK_MAKER'] = d
 
-    f = open(os.environ['PDK_FILE'],'r')
+    f = open(os.environ['PDK_FILE'], 'r')
     line_count = 0
     lc_expire = 0
     total_status = 0
-    while 1 :
+    while True:
         line = f.readline()
-        if line == '' :
+        if line == '':
             break
         line_count += 1
         g = command_re.match(line)
-        if g :
+        if g:
             lc_expire = 0
             tag = g.group(1)
             cmd = g.group(2)
-            print("%d %s %s"%(line_count, tag, cmd))
-            if tag == '>>>' :
+            print("%d %s %s" % (line_count, tag, cmd))
+            if tag == '>>>':
                 exec(cmd)
-            elif tag == '$' :
-                if not windows :
+            elif tag == '$':
+                if not windows:
                     status = os.system(cmd)
-                    print("status=%d"%status)
+                    print("status=%d" % status)
                     total_status |= status
-            elif tag == '>' :
-                if windows :
+            elif tag == '>':
+                if windows:
                     status = os.system(cmd)
-                    print("status=%d"%status)
+                    print("status=%d" % status)
                     total_status |= status
-            else :
+            else:
                 print("Tag not recognized!")
         lc_expire += 1
-        if lc_expire > 10 :
+        if lc_expire > 10:
             break
 
-    if total_status :
+    if total_status:
         sys.exit(1)
-    else :
+    else:
         sys.exit(0)

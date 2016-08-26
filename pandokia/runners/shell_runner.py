@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 import platform
@@ -17,43 +17,45 @@ windows = platform.system() == 'Windows'
 # passing any parameters to it because it gathers them all from the environment.
 # See the script source in commands/pdk_shell_runner.
 #
-# 
+#
 
 
-if windows :
-    def run_internally(env) :
-        f = open(env['PDK_LOG'],"a")
+if windows:
+    def run_internally(env):
+        f = open(env['PDK_LOG'], "a")
 
         # construct the name the same way that pdk_shell_runner does
         name = env['PDK_TESTPREFIX'] + env['PDK_FILE']
-        if name.endswith('.sh') :
+        if name.endswith('.sh'):
             name = name[:-3]
-        elif name.endswith('.csh') :
-            name = name [:-4]
-        f.write("name=%s\n"%name)
+        elif name.endswith('.csh'):
+            name = name[:-4]
+        f.write("name=%s\n" % name)
 
         # log that you can't do that on windows
         f.write("status=E\nlog=shell_runner not available on Windows\nEND\n\n")
 
         f.close()
 
-    def command(env) :
+    def command(env):
         return None
 
-else :
+else:
     # returns a command to run the test
-    def command( env ) :
+    def command(env):
         return 'pdk_shell_runner'
 
 # returns a list of tests in the file
 #
 # Since there is only one test in a shell_runner file, we make a list
 # containing only one name.
-def lst( env ) :
+
+
+def lst(env):
     fn = env['PDK_FILE']
     prefix = env['PDK_TESTPREFIX']
-    if fn.endswith(".sh") :
+    if fn.endswith(".sh"):
         fn = fn[:-3]
     # the prefix already ends with a /
-    fn = prefix+fn
-    return [ fn ]
+    fn = prefix + fn
+    return [fn]

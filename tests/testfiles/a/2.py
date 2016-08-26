@@ -1,2 +1,2 @@
-def test() :
-        print("test 2 ok")
+def test():
+    print("test 2 ok")

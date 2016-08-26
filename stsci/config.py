@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2011, Association of Universities for Research in Astronomy (AURA)
 #
 # This is just stuff to APPEND to config.py for the stsci configuration.
 # See also pwform.html for the weird dance we do to get the password
@@ -22,28 +22,28 @@ recurring_prefix = (
     'jwst',
 )
 
-if not 'pdk_db' in globals() :
+if not 'pdk_db' in globals():
     # Database: MYSQL
     #           http://www.mysql.com/
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
-    try :
+    try:
         import pandokia.db_mysqldb as pdk_db
         import pandokia.db_mysqldb as dbd
 
         # db_arg is a dict of the parameters to pass to connect()
-        db_arg = { 'host' : 'ssb.stsci.edu',
-                'user' : 'pandokia',
-                'passwd' : complex_readpass(),
-                'db' : 'pandokia'
-            }
+        db_arg = {'host': 'ssb.stsci.edu',
+                  'user': 'pandokia',
+                  'passwd': complex_readpass(),
+                  'db': 'pandokia'
+                  }
 
         # This does not actually open the database unless you try to talk to it
-        pdk_db = dbd.PandokiaDB( db_arg )
+        pdk_db = dbd.PandokiaDB(db_arg)
 
     # on systems where we can't import the database driver, assume
     # we don't actually have a database and therefore it won't matter.
-    except ImportError :
+    except ImportError:
         pass
 
 

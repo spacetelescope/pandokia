@@ -3,11 +3,13 @@ import unittest2
 
 print("this is a print statement that runs when init_fail.py is imported")
 
+
 class TestSequenceFunctions(unittest2.TestCase):
 
     def setUp(self):
         self.seq = list(range(10))
-        raise ValueError("This is what happens when the object creation has an exception")
+        raise ValueError(
+            "This is what happens when the object creation has an exception")
 
     def test_shuffle(self):
         # make sure the shuffled sequence does not lose any elements
@@ -16,7 +18,7 @@ class TestSequenceFunctions(unittest2.TestCase):
         self.assertEqual(self.seq, list(range(10)))
 
         # should raise an exception for an immutable sequence
-        self.assertRaises(TypeError, random.shuffle, (1,2,3))
+        self.assertRaises(TypeError, random.shuffle, (1, 2, 3))
 
     def test_choice(self):
         element = random.choice(self.seq)
@@ -24,4 +26,3 @@ class TestSequenceFunctions(unittest2.TestCase):
 
 if __name__ == '__main__':
     unittest2.main()
-

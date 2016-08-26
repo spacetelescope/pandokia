@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-## basic imports
+# basic imports
 import os
 import subprocess
 import sys
@@ -14,7 +14,7 @@ else:
     except ImportError:
         try:
             subprocess.check_call(['git', 'clone',
-                'https://github.com/jhunkeler/relic.git'])
+                                   'https://github.com/jhunkeler/relic.git'])
             sys.path.insert(1, 'relic')
             import relic.release
         except subprocess.CalledProcessError as e:
@@ -35,7 +35,7 @@ classifiers = [
     'License :: OSI Approved :: BSD License',
     'Natural Language :: English',
     'Operating System :: POSIX',
-   # 'Operating System :: Microsoft :: Windows',
+    # 'Operating System :: Microsoft :: Windows',
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Unix',
     'Programming Language :: Python :: 2.6',
@@ -44,7 +44,7 @@ classifiers = [
     'Topic :: Software Development :: Testing',
 ]
 
-## detect our environment
+# detect our environment
 #
 # This setup.py was written to work with distutils.  I still use
 # it with distutils, so I'm preserving that capability.  If you
@@ -56,15 +56,15 @@ classifiers = [
 # the CGI magic that was in earlier versions of pandokia will
 # not work.  Your web server must provide a proper PYTHONPATH.
 
-if 'setuptools' in sys.modules :
+if 'setuptools' in sys.modules:
     from setuptools import setup
     have_setuptools = True
 
-else :
+else:
     from distutils.core import setup
     have_setuptools = False
 
-## detect our environment
+# detect our environment
 #
 # A flag for whether this is a MS Windows machine
 #
@@ -74,7 +74,7 @@ import platform
 # print platform.python_version()
 windows = platform.system() == 'Windows'
 
-## basic config
+# basic config
 #
 # This is a list of all the packages that we install.
 
@@ -93,7 +93,7 @@ python_commands = [
     'pdkrun',                   # like "pdk run"
     'pdk_filecomp',             # helper file comparisons for use in shell scripts
     'pdk_python_runner',        # exec for custom test runner written in python
-    'pdk_stsci_regress_helper', # part of regtest runner
+    'pdk_stsci_regress_helper',  # part of regtest runner
     'pdk_stsci_regress_refs',   # ?
     'pdknose',                  # run nose with pdk plugin
     'pdkpytest',                # run py.test with pdk plugin
@@ -101,7 +101,7 @@ python_commands = [
     'tbconv',                   # table conversion among various formats
     'pywhere',                  # show where a python module is
     'json_pp',                  # json pretty printer
-     ]
+]
 
 shell_commands = [
     'pdk_gen_contact',          # create contact list for pdk import_contact
@@ -115,21 +115,21 @@ shell_commands = [
     'xtname',                   # here for convenience; not really pandokia
     'pdk_sphinxweb',            # builds a bunch of sphinx documents into a web page
     'checktabs',                # check .py/.rst files for tabs in indents
-    ]
+]
 
 command_list = python_commands + shell_commands
 
-## version
+# version
 #
 # get our version out of __init__ so we only have to edit one place
 #
 
-#f=open("pandokia/__init__.py","r")
-#for x in f :
+# f=open("pandokia/__init__.py","r")
+# for x in f :
 #    if x.startswith('__version__') :
 #        exec(x)
 #        break
-#f.close()
+# f.close()
 
 
 ##
@@ -139,27 +139,28 @@ command_list = python_commands + shell_commands
 # If you are not at STScI, you do not need this.  Delete this call if
 # it causes you any trouble.
 #
-def du_hack() :
-    try :
+def du_hack():
+    try:
         import stsci.tools.stsci_distutils_hack as H
-    except ImportError :
+    except ImportError:
         pass
-    else :
+    else:
         # we have to deal with two possible versions of the distutils
         # hack - the latest, and the one in the pyetc environment.  So,
         # __set_svn_version__ is duplicated and modified here.
         version_file = "pandokia/svn_version.py"
         rev = H.__get_svn_rev__('.')
-        if rev is None :
-            if os.path.exists(version_file) :
-                    return
+        if rev is None:
+            if os.path.exists(version_file):
+                return
             revision = 'Unable to determine SVN revision'
         else:
-            if ( rev == 'exported' or rev == 'unknown' ) and os.path.exists(version_file) :
+            if (rev == 'exported' or rev ==
+                    'unknown') and os.path.exists(version_file):
                 return
             revision = str(rev)
         info = H.__get_full_info__('.')
-        f = open(version_file,'w')
+        f = open(version_file, 'w')
         f.write("__svn_version__ = %s\n" % repr(revision))
         f.write("\n__full_svn_info__ = '''\n%s'''\n\n" % info)
         f.close()
@@ -171,35 +172,47 @@ du_hack()
 # format for defining them.
 
 entry_points_dict = {
-    'pytest11' : ['pandokia = pandokia.helpers.pytest_plugin'],
-    'nose.plugins.0.10' : ['pandokia = pandokia.helpers.nose_plugin:Pdk']
-    }
+    'pytest11': ['pandokia = pandokia.helpers.pytest_plugin'],
+    'nose.plugins.0.10': ['pandokia = pandokia.helpers.nose_plugin:Pdk']
+}
 
 ##
 # setup args - common to distutils and setuptools
 
 args = {
-    'name' :            'pandokia',
-    'version' :         version.pep386,
-    'description' :     'Pandokia - a test management and reporting system',
-    'author' :          'Mark Sienkiewicz, Vicki Laidler',
-    'author_email':     'help@stsci.edu',
-    'url' :             'http://ssb.stsci.edu/testing/',
-    'license':          'BSD',
-    'platforms':        ['Posix', 'MacOS X'],
-    'scripts' :         [ "commands/"+x for x in command_list ],
-    'packages':         package_list,
-    'package_data':     { 'pandokia' : [ '*.sql', '*.html', '*.png', '*.gif', '*.jpg', 'sql/*.sql', 'runners/maker/*'  ]  },
-    'classifiers' :     classifiers,
+    'name': 'pandokia',
+    'version': version.pep386,
+    'description': 'Pandokia - a test management and reporting system',
+    'author': 'Mark Sienkiewicz, Vicki Laidler',
+    'author_email': 'help@stsci.edu',
+    'url': 'http://ssb.stsci.edu/testing/',
+    'license': 'BSD',
+    'platforms': [
+        'Posix',
+        'MacOS X'],
+    'scripts': [
+        "commands/" +
+        x for x in command_list],
+    'packages': package_list,
+    'package_data': {
+        'pandokia': [
+            '*.sql',
+            '*.html',
+            '*.png',
+            '*.gif',
+            '*.jpg',
+            'sql/*.sql',
+            'runners/maker/*']},
+    'classifiers': classifiers,
 }
 
 # setup args - known by setuptools only
 
-if have_setuptools :
+if have_setuptools:
     args.update(
         {
-        'entry_points' : entry_points_dict,
-        'zip_safe' : False,
+            'entry_points': entry_points_dict,
+            'zip_safe': False,
         }
     )
 
@@ -221,29 +234,31 @@ dir_set = "    pdk_dir = r'%s' # this was set during install by setup.py\n"
 
 #
 #
-def fix_script(name) :
-    fname = os.path.join(script_dir,name)
 
-    f=open(fname,"r")
+
+def fix_script(name):
+    fname = os.path.join(script_dir, name)
+
+    f = open(fname, "r")
     l = f.readlines()
-    for count, line in enumerate(l) :
-        if 'pdk_dir =' in line :
-            l[count] = dir_set % lib_dir.replace('\\','/')
+    for count, line in enumerate(l):
+        if 'pdk_dir =' in line:
+            l[count] = dir_set % lib_dir.replace('\\', '/')
     f.close()
 
-    f=open(fname,"w")
+    f = open(fname, "w")
     f.writelines(l)
     f.close()
 
     # windows versions - we hope to use these everywhere
     # to avoid writing a lot of "if windows: x=x+'.py'"
-    f=open(fname+".py","w")
+    f = open(fname + ".py", "w")
     f.writelines(l)
     f.close()
 
-    if windows :
+    if windows:
         # make .bat files too, so the commands can have normal names
-        f=open(fname+".bat","w")
+        f = open(fname + ".bat", "w")
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
@@ -258,13 +273,14 @@ def fix_script(name) :
 # into a setuptools-compatible .egg-info directory that contains the
 # entrypoints definition.
 
-def dorque_egg_info( target ) :
+
+def dorque_egg_info(target):
     import os
     # convert entry point dict to a .ini file
-    entry_points_file = [ ]
-    for x in entry_points_dict :
+    entry_points_file = []
+    for x in entry_points_dict:
         entry_points_file.append('[' + x + ']')
-        for y in entry_points_dict[x] :
+        for y in entry_points_dict[x]:
             entry_points_file.append(y)
 
     entry_points_file = '\n'.join(entry_points_file)
@@ -279,65 +295,64 @@ def dorque_egg_info( target ) :
     os.mkdir(target)
 
     # put files in it
-    open(target+"/PKG-INFO","w").write(pkginfo)
-    open(target+"/not-zip-safe","w").close()
-    open(target+"/entry_points.txt","w").write(entry_points_file)
+    open(target + "/PKG-INFO", "w").write(pkginfo)
+    open(target + "/not-zip-safe", "w").close()
+    open(target + "/entry_points.txt", "w").write(entry_points_file)
 
 
 ##
 # if the user did an install, do some post-install follow-up
 
-if 'install' in d.command_obj :
+if 'install' in d.command_obj:
 
-    if not have_setuptools :
+    if not have_setuptools:
         # Convert the egg-info to a dir that looks like what setuptools
         # uses.  Set the entry points for use by nose and py.test
-        dorque_egg_info( d.command_obj['install_egg_info'].target )
+        dorque_egg_info(d.command_obj['install_egg_info'].target)
 
     # find where the scripts went
     script_dir = d.command_obj['install'].install_scripts
-    lib_dir    = d.command_obj['install'].install_lib
+    lib_dir = d.command_obj['install'].install_lib
     # print 'scripts went to', script_dir
     # print 'python  went to', lib_dir
 
     # tell the user about the install
-   
+
     print('')
     print('If you need to change your path for this install:')
     print('')
     print('    set path = ( %s $path )' % script_dir)
     print('    setenv PYTHONPATH  %s:$PYTHONPATH' % lib_dir)
     print('')
-    print('    export PATH=%s:$PATH'%script_dir)
-    print('    export PYTHONPATH=%s:$PYTHONPATH'%lib_dir)
+    print('    export PATH=%s:$PATH' % script_dir)
+    print('    export PYTHONPATH=%s:$PYTHONPATH' % lib_dir)
 
     print('')
     print('The CGI is:')
     print('')
-    print('    %s'%os.path.join(script_dir, 'pdk'))
-    if not have_setuptools :
+    print('    %s' % os.path.join(script_dir, 'pdk'))
+    if not have_setuptools:
         # hack the scripts for PDK_DIR_HERE
-        for x in python_commands :
+        for x in python_commands:
             fix_script(x)
             pass
-    else :
+    else:
         print('    If you did not install pandokia in the default location, you must')
         print('    ensure that PYTHONPATH is provided by your web server')
     print('')
 
     import pandokia
-    f= pandokia.cfg.__file__
-    if f.endswith(".pyc") or f.endswith(".pyo") :
+    f = pandokia.cfg.__file__
+    if f.endswith(".pyc") or f.endswith(".pyo"):
         f = f[:-1]
     print('The config file is:')
     print('')
-    print('    %s'%f)
+    print('    %s' % f)
     print('')
     print('    you can find the config file at any time with the command "pdk config"')
     print('')
 
 
-else :
+else:
     pass
     # print "no install"
-

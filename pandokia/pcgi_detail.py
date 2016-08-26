@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 import sys
@@ -25,64 +25,65 @@ pdk_db = cfg.pdk_db
 #
 #
 
-def run ( ) :
+
+def run():
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
 
     form = pandokia.pcgi.form
 
-    if "test_name" in form :
+    if "test_name" in form:
         test_name = form["test_name"].value
-    else :
+    else:
         test_name = ""
 
-    if "context" in form :
+    if "context" in form:
         context = form["context"].value
-    else :
+    else:
         context = "*"
 
-    if "host" in form :
+    if "host" in form:
         host = form["host"].value
-    else :
+    else:
         host = "*"
 
-    if "test_run" in form :
+    if "test_run" in form:
         test_run = form["test_run"].value
-    else :
+    else:
         test_run = "*"
 
-    if "project" in form :
+    if "project" in form:
         project = form["project"].value
-    else :
+    else:
         project = "*"
 
-    if "status" in form :
+    if "status" in form:
         status = form["status"].value
-    else :
+    else:
         status = "*"
 
-    if "test_name" in form :
+    if "test_name" in form:
         cmp_run = form["test_name"].value
-        if cmp_run == '' :
-            cmp_run = common.run_previous(None,test_run)
-            if cmp_run is not None :
+        if cmp_run == '':
+            cmp_run = common.run_previous(None, test_run)
+            if cmp_run is not None:
                 cmp_run = common.find_test_run(cmp_run)
-            else :
+            else:
                 cmp_run = ''
-        else :
+        else:
             cmp_run = common.find_test_run(cmp_run)
-    else :
+    else:
         cmp_run = ""
 
-    if "key_id" in form :
+    if "key_id" in form:
         key_id = form["key_id"].value
-    else :
+    else:
         key_id = ""
-        
-    if "qid" in form :
+
+    if "qid" in form:
         qid = form["qid"].value
-    else :
+    else:
         qid = ""
 
     #
@@ -95,53 +96,82 @@ def run ( ) :
     # this query finds all the test results that are an interesting part of this request
     #
 
-    if key_id != "" :
-        n = do_result( key_id )
-    elif qid != "" :
-        c1 = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1 ", (qid,) )
-        l = [ ] 
-        for x in c1 :
+    if key_id != "":
+        n = do_result(key_id)
+    elif qid != "":
+        c1 = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1 ", (qid,))
+        l = []
+        for x in c1:
             l.append(x[0])
         del c1
         n = 0
-        for key_id in l :
-            n = n + do_result(key_id )
-    else :
-        c1 = pdk_db.execute("SELECT key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 ", ( test_run, project, host, test_name, context ) )
+        for key_id in l:
+            n = n + do_result(key_id)
+    else:
+        c1 = pdk_db.execute(
+            "SELECT key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 ",
+            (test_run,
+             project,
+             host,
+             test_name,
+             context))
         n = 0
-        for x in c1 :
+        for x in c1:
             (key_id, ) = x
-            n = n + do_result( key_id )
+            n = n + do_result(key_id)
 
-    if n == 0 :
+    if n == 0:
         sys.stdout.write("no tests match\n")
-        d_in =  { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
+        d_in = {
+            'project': project,
+            'host': host,
+            'context': context,
+            'test_run': test_run,
+            'test_name': test_name}
         t = next_prev(d_in, test_run)
-        if t != '' :
+        if t != '':
             sys.stdout.write(t)
 
-def next_prev( d_in, test_run ) :
+
+def next_prev(d_in, test_run):
     tmp = ''
-    tmp1 = common.run_previous(None,test_run) 
-    if tmp1 is not None :
+    tmp1 = common.run_previous(None, test_run)
+    if tmp1 is not None:
         d_in["test_run"] = tmp1
-        tmp = tmp +  " &nbsp;&nbsp;(<a href=%s>%s</a>)"%(common.selflink(d_in, linkmode = 'detail'), tmp1)
-    tmp2 =  common.run_next(None,test_run)
-    if tmp2 is not None :
+        tmp = tmp + " &nbsp;&nbsp;(<a href=%s>%s</a>)" % (
+            common.selflink(d_in, linkmode='detail'), tmp1)
+    tmp2 = common.run_next(None, test_run)
+    if tmp2 is not None:
         d_in["test_run"] = tmp2
-        tmp = tmp +  " &nbsp;&nbsp;(<a href=%s>%s</a>)"%(common.selflink(d_in, linkmode = 'detail'), tmp2)
+        tmp = tmp + " &nbsp;&nbsp;(<a href=%s>%s</a>)" % (
+            common.selflink(d_in, linkmode='detail'), tmp2)
     return tmp
 
-def do_result( key_id ) :
 
-    c = pdk_db.execute("SELECT key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = :1 ", ( key_id, ) )
+def do_result(key_id):
+
+    c = pdk_db.execute(
+        "SELECT key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = :1 ",
+        (key_id,
+         ))
     result_count = 0
-    for x in c :
+    for x in c:
         result_count = result_count + 1
-        ( key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner ) = (x)
+        (key_id, test_run, project, host, context, test_name, status,
+         attn, start_time, end_time, location, test_runner) = (x)
 
-        linkback_dict = { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
-        prevday_dict =  { 'project' : project, 'host' : host, 'context': context, 'test_run' : test_run, 'test_name' : test_name }
+        linkback_dict = {
+            'project': project,
+            'host': host,
+            'context': context,
+            'test_run': test_run,
+            'test_name': test_name}
+        prevday_dict = {
+            'project': project,
+            'host': host,
+            'context': context,
+            'test_run': test_run,
+            'test_name': test_name}
 
         row = 0
         tb = text_table.text_table()
@@ -149,11 +179,11 @@ def do_result( key_id ) :
 
         tb.set_value(row, 0, "test_run")
 
-        tmp = next_prev( prevday_dict, test_run )
+        tmp = next_prev(prevday_dict, test_run)
 
-        if tmp != '' :
-            tb.set_value(row, 1, test_run, html= test_run + tmp )
-        else :
+        if tmp != '':
+            tb.set_value(row, 1, test_run, html=test_run + tmp)
+        else:
             tb.set_value(row, 1, test_run)
 
         row += 1
@@ -183,53 +213,61 @@ def do_result( key_id ) :
         row += 1
 
         tb.set_value(row, 0, "status")
-        if status != "P" :
-            tb.set_value(row, 1, text=status, html="<font color=red>"+status+"</font>")
-        else :
+        if status != "P":
+            tb.set_value(
+                row,
+                1,
+                text=status,
+                html="<font color=red>" +
+                status +
+                "</font>")
+        else:
             tb.set_value(row, 1, status)
         row += 1
 
         tb.set_value(row, 0, "attn")
         tb.set_value(row, 1, attn)
         row += 1
-        
+
         tb.set_value(row, 0, "test_runner")
         tb.set_value(row, 1, test_runner)
         row += 1
-        
-        try :
+
+        try:
             # ignoring exceptions here because we don't know how good the values in
             # the database are.  some preliminary software does not fill them in
             # correctly, for example.
-            tb.set_value(row, 1, float(end_time) - float(start_time) )
+            tb.set_value(row, 1, float(end_time) - float(start_time))
             tb.set_value(row, 0, "duration")
             row += 1
-        except :
+        except:
             pass
 
         # merge all of this into a generalized "get the times" function that
         # can be used anywhere
-        if start_time == '0' :
+        if start_time == '0':
             st = 'unknown'
-        else :
-            try :
+        else:
+            try:
                 # you might think that you could use .%f in strftime, but you would be wrong
                 # the documentation describes it, but it isn't implemented
                 st = datetime.datetime.fromtimestamp(float(start_time))
-                st = st.strftime("%Y-%m-%d %H:%M:%S")+"."+"%03d"%(st.microsecond/1000)
-            except :
+                st = st.strftime("%Y-%m-%d %H:%M:%S") + "." + \
+                    "%03d" % (st.microsecond / 1000)
+            except:
                 # it is some non-time_t format - just display it
                 st = start_time
 
-        if end_time == '0' :
+        if end_time == '0':
             et = 'unknown'
-        else :
-            try :
+        else:
+            try:
                 # you might think that you could use .%f in strftime, but you would be wrong
                 # the documentation describes it, but it isn't implemented
                 et = datetime.datetime.fromtimestamp(float(end_time))
-                et = et.strftime("%Y-%m-%d %H:%M:%S")+"."+"%03d"%(et.microsecond/1000)
-            except :
+                et = et.strftime("%Y-%m-%d %H:%M:%S") + "." + \
+                    "%03d" % (et.microsecond / 1000)
+            except:
                 # it is some non-time_t format - just display it
                 et = end_time
 
@@ -245,36 +283,56 @@ def do_result( key_id ) :
         tb.set_value(row, 1, location)
         row += 1
 
-        c1 = pdk_db.execute("SELECT name, value FROM result_tda WHERE key_id = :1 ORDER BY name ASC", (key_id, ) )
-        for y in c1 :
+        c1 = pdk_db.execute(
+            "SELECT name, value FROM result_tda WHERE key_id = :1 ORDER BY name ASC",
+            (key_id,
+             ))
+        for y in c1:
             (name, value) = y
-            tb.set_value(row, 0, "tda_"+name)
+            tb.set_value(row, 0, "tda_" + name)
             tb.set_value(row, 1, value)
             row += 1
 
-        c1 = pdk_db.execute("SELECT name, value FROM result_tra WHERE key_id = :1 ORDER BY name ASC", (key_id, ) )
-        for y in c1 :
+        c1 = pdk_db.execute(
+            "SELECT name, value FROM result_tra WHERE key_id = :1 ORDER BY name ASC",
+            (key_id,
+             ))
+        for y in c1:
             (name, value) = y
-            tb.set_value(row, 0, "tra_"+name)
+            tb.set_value(row, 0, "tra_" + name)
             tb.set_value(row, 1, value)
             row += 1
 
         sys.stdout.write(tb.get_html())
 
-        sys.stdout.write("<a href=%s>back to treewalk</a><br>\n"%common.selflink(linkback_dict, linkmode = 'treewalk'))
-        sys.stdout.write("<a href=%s>status history</a><br>\n"%common.selflink(linkback_dict, linkmode = 'test_history'))
+        sys.stdout.write(
+            "<a href=%s>back to treewalk</a><br>\n" %
+            common.selflink(
+                linkback_dict,
+                linkmode='treewalk'))
+        sys.stdout.write(
+            "<a href=%s>status history</a><br>\n" %
+            common.selflink(
+                linkback_dict,
+                linkmode='test_history'))
 
-        c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ) )
+        c1 = pdk_db.execute(
+            "SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ))
 
-        for y in c1 :
+        for y in c1:
             (y, ) = y
-            if y != "" :
-                try :
-                    if cfg.enable_magic_html_log :
+            if y != "":
+                try:
+                    if cfg.enable_magic_html_log:
                         if '<!DOCTYPE' in y or '<html' in y:
-                            sys.stdout.write("<a href=%s>HTML block in a single page</a><br>"%
-                                common.selflink( { 'magic_html_log' : key_id, }, linkmode = 'magic_html_log'))
-                except AttributeError :
+                            sys.stdout.write(
+                                "<a href=%s>HTML block in a single page</a><br>" %
+                                common.selflink(
+                                    {
+                                        'magic_html_log': key_id,
+                                    },
+                                    linkmode='magic_html_log'))
+                except AttributeError:
                     pass
 
                 sys.stdout.write("Log:<br><pre>")
@@ -288,8 +346,7 @@ def do_result( key_id ) :
     return result_count
 
 
-
-def test_history( ) :
+def test_history():
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
@@ -301,7 +358,6 @@ def test_history( ) :
     host = form["host"].value
     test_run = form["test_run"].value
     project = form["project"].value
-
 
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
@@ -331,16 +387,21 @@ def test_history( ) :
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
 
-    c = pdk_db.execute("SELECT test_run, status, key_id FROM result_scalar WHERE "
-            "test_name = :1 AND context = :2 AND host = :3 AND project = :4 ORDER BY test_run DESC",
-            ( test_name, context, host, project ) )
+    c = pdk_db.execute(
+        "SELECT test_run, status, key_id FROM result_scalar WHERE "
+        "test_name = :1 AND context = :2 AND host = :3 AND project = :4 ORDER BY test_run DESC",
+        (test_name,
+         context,
+         host,
+         project))
 
     row = 0
-    for x in c :
+    for x in c:
         r_test_run, status, key_id = x
-        tb.set_value(row, 1, r_test_run, link =  common.selflink({ 'key_id' : key_id } , linkmode = 'detail') )
+        tb.set_value(row, 1, r_test_run, link=common.selflink(
+            {'key_id': key_id}, linkmode='detail'))
         tb.set_value(row, 2, status)
-        if test_run == r_test_run :
+        if test_run == r_test_run:
             tb.set_value(row, 0, '->')
         row = row + 1
     print(tb.get_html())
@@ -356,10 +417,10 @@ def test_history( ) :
 # javascript/whatever in the browser of somebody who looks at the test
 # report.  Decide if you trust your collaborators before using this feature.
 
-def magic_html_log() :
-    if not cfg.enable_magic_html_log :
+def magic_html_log():
+    if not cfg.enable_magic_html_log:
         return
-    
+
     # common header
     sys.stdout.write(common.cgi_header_html)
 
@@ -368,17 +429,18 @@ def magic_html_log() :
     key_id = int(form['magic_html_log'].value)
 
     # get it
-    c1 = pdk_db.execute("SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ) )
+    c1 = pdk_db.execute(
+        "SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ))
 
     # fetch the log
     log, = c1.fetchone()
 
     # split on the magic recognition string
-    if '<!DOCTYPE' in log :
+    if '<!DOCTYPE' in log:
         t = log.split('<!DOCTYPE')
         sys.stdout.write('<!DOCTYPE')
 
-    elif '<html' in log :
+    elif '<html' in log:
         t = log.split('<html')
         sys.stdout.write('<html')
 
@@ -386,9 +448,8 @@ def magic_html_log() :
     t = t[1]
 
     # show the rest up to /html
-    if '</html>' in t :
+    if '</html>' in t:
         sys.stdout.write(t.split('</html>')[0])
         sys.stdout.write('</html>')
-    else :
+    else:
         sys.stdout.write(t)
-

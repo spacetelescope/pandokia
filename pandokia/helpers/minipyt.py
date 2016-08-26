@@ -1,12 +1,12 @@
 #
-# minipyt decorators 
+# minipyt decorators
 #
 
-__all__ = [ 'test', 'istest', 'nottest', 'disable', 'noseguard' ]
+__all__ = ['test', 'istest', 'nottest', 'disable', 'noseguard']
 
 ##########
 #
-# Note that you might expect the user to 
+# Note that you might expect the user to
 #
 #   from pandokia.helpers.minipyt import *
 #
@@ -29,7 +29,8 @@ __all__ = [ 'test', 'istest', 'nottest', 'disable', 'noseguard' ]
 # This thing _is_ a test
 #
 
-def test(f) :
+
+def test(f):
     f.__test__ = True
     return f
 
@@ -43,7 +44,8 @@ test.__test__ = False
 # This this is not a test
 #
 
-def nottest(f) :
+
+def nottest(f):
     f.__test__ = False
     return f
 
@@ -54,7 +56,8 @@ nottest.__test__ = False
 # features that nose does not have
 #
 
-def disable(f) :
+
+def disable(f):
     f.__disable__ = True
     return f
 
@@ -68,7 +71,8 @@ disable.__test__ = False
 
 disable_noseguard = False
 
-def noseguard() :
+
+def noseguard():
     '''
     Prevent a test file from running in nose
 
@@ -90,11 +94,10 @@ def noseguard() :
 
 '''
 
-    if disable_noseguard :
+    if disable_noseguard:
         print("pandokia.helpers.minipyt.noseguard() disabled!")
         return
 
     import sys
-    if 'nose' in sys.modules :
+    if 'nose' in sys.modules:
         raise Exception('Do not run these tests with nose!')
-

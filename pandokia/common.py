@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 #
@@ -39,19 +39,21 @@ cfg = pandokia.cfg
 #           (we may make multiple levels of access later)
 #
 
-def check_auth() :
+def check_auth():
     # Assume they are not authorized, then look for a reason to allow them in.
     auth_ok = 0
 
     # If the web server checked them with BasicAuth, we will use that:
 
-    if ( "AUTH_TYPE" in os.environ ) and ( os.environ["AUTH_TYPE"] == 'Basic' ) :
-        if cfg.user_list is None :
-            # If there is no user_list in the config, any authenticated user is accepted.
+    if ("AUTH_TYPE" in os.environ) and (os.environ["AUTH_TYPE"] == 'Basic'):
+        if cfg.user_list is None:
+            # If there is no user_list in the config, any authenticated user is
+            # accepted.
             auth_ok = 1
-        else :
-            # If the config contains user_list, only those people are authorized.
-            if os.environ["REMOTE_USER"] in cfg.user_list :
+        else:
+            # If the config contains user_list, only those people are
+            # authorized.
+            if os.environ["REMOTE_USER"] in cfg.user_list:
                 auth_ok = 1
 
         # One way or another, we have an answer now
@@ -59,10 +61,10 @@ def check_auth() :
 
     # The web server is not enforcing authentication.
 
-    if cfg.user_list is None :
+    if cfg.user_list is None:
         # we don't have a list to restrict to, so anybody is ok
         auth_ok = 1
-    else :
+    else:
         # we have a list of users, but we don't know who this one is
         auth_ok = 0
 
@@ -72,52 +74,55 @@ def check_auth() :
 # function to create a URL for a link back to our own CGI
 #
 # query_dict is a list of cgi parameters
-# linkmode is the 'query' value to pass in; 
+# linkmode is the 'query' value to pass in;
 #
 
-def selflink( query_dict, linkmode ) :
+
+def selflink(query_dict, linkmode):
     """
     query_dict is a dict of all the cgi parameters
     linkmode is the name of the query field to include
     """
-    l = [ 'query=' + quote_plus(linkmode) ]
-    for i in sorted(query_dict.keys()) :
+    l = ['query=' + quote_plus(linkmode)]
+    for i in sorted(query_dict.keys()):
         v = query_dict[i]
-        if v is None :
+        if v is None:
             continue
-        if not isinstance(v,list) :
-            v = [ v ]
-        for v in v :
-            l.append( i + '=' + quote_plus(str(v)) )
-    return get_cgi_name() + "?" + ( '&'.join(l) )
+        if not isinstance(v, list):
+            v = [v]
+        for v in v:
+            l.append(i + '=' + quote_plus(str(v)))
+    return get_cgi_name() + "?" + ('&'.join(l))
 
 #
 # convert a dictionary into a set of <input type=hidden> html
 #
 
-def query_dict_to_hidden( query_dict ) :
-    l = [ ]
-    for x in sorted(query_dict.keys()) :
+
+def query_dict_to_hidden(query_dict):
+    l = []
+    for x in sorted(query_dict.keys()):
         v = query_dict[x]
-        if v is not None :
-            l.append( '<input type=hidden name=%s value=%s>'%(x,v) )
+        if v is not None:
+            l.append('<input type=hidden name=%s value=%s>' % (x, v))
     return '\n'.join(l)
 
 cached_cgi_name = None
 
-def get_cgi_name() :
+
+def get_cgi_name():
 
     global cached_cgi_name
 
-    if cached_cgi_name is None :
+    if cached_cgi_name is None:
         import pandokia.pcgi
 
         # we prefer to use the cgi name from pcgi, because that is what the
         # web server told us the cgi name really is.  But, we might not be in
         # a cgi; in that case, we use whatever is in the config file.
-        try :
+        try:
             cached_cgi_name = pandokia.pcgi.cginame
-        except AttributeError :
+        except AttributeError:
             cached_cgi_name = cfg.cginame
 
     return cached_cgi_name
@@ -128,22 +133,24 @@ def get_cgi_name() :
 #   parameter 'text' may contain html.
 #
 
-def self_href( query_dict, linkmode, text ) :
-    return '<a href="%s">%s</a>'%(selflink(query_dict, linkmode),text)
+def self_href(query_dict, linkmode, text):
+    return '<a href="%s">%s</a>' % (selflink(query_dict, linkmode), text)
 
 
 #
-# 
 #
-def expand_test_run( run ) :
-    s = find_test_run( run )
-    if run != s :
+#
+def expand_test_run(run):
+    s = find_test_run(run)
+    if run != s:
         return s
-    where_str, where_dict = pandokia.cfg.pdk_db.where_dict( [ ( 'test_run', run ) ] )
+    where_str, where_dict = pandokia.cfg.pdk_db.where_dict([('test_run', run)])
     print('SELECT test_run FROM distinct_test_run %s' % where_str)
-    c = pandokia.cfg.pdk_db.execute( 'SELECT test_run FROM distinct_test_run %s' % where_str, where_dict )
-    l = [ ]
-    for x, in c :
+    c = pandokia.cfg.pdk_db.execute(
+        'SELECT test_run FROM distinct_test_run %s' %
+        where_str, where_dict)
+    l = []
+    for x, in c:
         l.append(x)
     return l
 
@@ -152,126 +159,146 @@ def expand_test_run( run ) :
 # convert a test_run name entered by a user into a real test_run name; various
 # nicknames get translated into real names.
 #
-def find_test_run( run ) :
+def find_test_run(run):
 
-    if run.endswith('_latest') :
+    if run.endswith('_latest'):
         prefix = run[0:-len('_latest')]
-        if prefix in cfg.recurring_prefix :
-            s= run_latest(prefix)
+        if prefix in cfg.recurring_prefix:
+            s = run_latest(prefix)
             return s
 
-    if run.endswith('_today') :
+    if run.endswith('_today'):
         prefix = run[0:-len('_today')]
-        if prefix in cfg.recurring_prefix :
+        if prefix in cfg.recurring_prefix:
             d = datetime.date.today()
-            return "%s_%04d-%02d-%02d"%(prefix,d.year,d.month,d.day)
+            return "%s_%04d-%02d-%02d" % (prefix, d.year, d.month, d.day)
 
-    if run.endswith('_yesterday') :
+    if run.endswith('_yesterday'):
         prefix = run[0:-len('_yesterday')]
-        if prefix in cfg.recurring_prefix :
+        if prefix in cfg.recurring_prefix:
             d = datetime.date.today()
-            if d.weekday() == 0 :
+            if d.weekday() == 0:
                 # if today is monday, find friday
                 d = d - datetime.timedelta(days=3)
-            else :
+            else:
                 # tuesday - friday, find yesterday
                 d = d - datetime.timedelta(days=1)
-            return "%s_%04d-%02d-%02d"%(prefix,d.year,d.month,d.day)
+            return "%s_%04d-%02d-%02d" % (prefix, d.year, d.month, d.day)
 
     return run
 
-    #### abandoning the rest for now
+    # abandoning the rest for now
 
     # there are a whole bunch of daily nicknames
 
-    if run.startswith('daily_') :
+    if run.startswith('daily_'):
 
-        if run == "daily_latest" :
+        if run == "daily_latest":
             # We usually use daily_latest to mean today; we used to search the database
-            # for the latest one, but if we assume it is today, it runs lots faster
+            # for the latest one, but if we assume it is today, it runs lots
+            # faster
             d = datetime.date.today()
-            return "daily_%04d-%02d-%02d"%(d.year,d.month,d.day)
+            return "daily_%04d-%02d-%02d" % (d.year, d.month, d.day)
 
         # daily_yesterday is "yesterday" except it is friday if today is monday; you
         # really don't get much from comparing sunday's results to monday's
-        if run == 'daily_yesterday' :
+        if run == 'daily_yesterday':
             d = datetime.date.today()
-            if d.weekday() == 0 :
+            if d.weekday() == 0:
                 # if today is monday, find friday
                 d = d - datetime.timedelta(days=3)
-            else :
+            else:
                 # tuesday - friday, find yesterday
                 d = d - datetime.timedelta(days=1)
-            return "daily_%04d-%02d-%02d"%(d.year,d.month,d.day)
+            return "daily_%04d-%02d-%02d" % (d.year, d.month, d.day)
 
-        if run.startswith("daily_") :
-            daymap = { "mon":0, "tue":1, "wed":2, "thu":3, "fri":4, "sat":5, "sun":6 }
+        if run.startswith("daily_"):
+            daymap = {
+                "mon": 0,
+                "tue": 1,
+                "wed": 2,
+                "thu": 3,
+                "fri": 4,
+                "sat": 5,
+                "sun": 6}
             t = run[6:9]
-            if t in daymap :
+            if t in daymap:
                 t = daymap[t]
                 n = 0
                 d = datetime.date.today()
-                while d.weekday() != t :
+                while d.weekday() != t:
                     d = d - datetime.timedelta(days=1)
                     n = n + 1
-                    if n > 10 :
+                    if n > 10:
                         raise Exception("bug")
-                return "daily_%04d-%02d-%02d"%(d.year,d.month,d.day)
+                return "daily_%04d-%02d-%02d" % (d.year, d.month, d.day)
 
     # did not find any special names
     return run
 
 
-def run_previous( prefix, test_run ) :
-    if prefix is None :
+def run_previous(prefix, test_run):
+    if prefix is None:
         prefix = recurring_test_run(test_run)
-        if prefix is None :
+        if prefix is None:
             return None
-    c = pandokia.cfg.pdk_db.execute("SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run < :2 ORDER BY test_run DESC LIMIT 1",
-        ( prefix+'%', test_run ) )
+    c = pandokia.cfg.pdk_db.execute(
+        "SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run < :2 ORDER BY test_run DESC LIMIT 1",
+        (prefix +
+         '%',
+         test_run))
     x = c.fetchone()
-    if not x :
+    if not x:
         return None
     return x[0]
 
-def run_latest( prefix ) :
-    c = cfg.pdk_db.execute("SELECT MAX(test_run) FROM distinct_test_run WHERE test_run LIKE :1 ",
-        ( prefix+'%', ) )
+
+def run_latest(prefix):
+    c = cfg.pdk_db.execute(
+        "SELECT MAX(test_run) FROM distinct_test_run WHERE test_run LIKE :1 ",
+        (prefix + '%',
+         ))
     x = c.fetchone()
-    if not x :
+    if not x:
         return None
     return x[0]
 
-def run_next( prefix, test_run ) :
-    if prefix is None :
+
+def run_next(prefix, test_run):
+    if prefix is None:
         prefix = recurring_test_run(test_run)
-        if prefix is None :
+        if prefix is None:
             return None
-    c = pandokia.cfg.pdk_db.execute("SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run > :2 ORDER BY test_run ASC LIMIT 1",
-        ( prefix+'%', test_run ) )
+    c = pandokia.cfg.pdk_db.execute(
+        "SELECT test_run FROM distinct_test_run WHERE test_run LIKE :1 AND test_run > :2 ORDER BY test_run ASC LIMIT 1",
+        (prefix +
+         '%',
+         test_run))
     x = c.fetchone()
-    if not x :
+    if not x:
         return None
     return x[0]
-    
 
 
 #
 # look up a contact for a test
 #
-def get_contact( project, test_name, mode='str') :
-    # 
+def get_contact(project, test_name, mode='str'):
+    #
     pdk_db = pandokia.cfg.pdk_db
-    c = pdk_db.execute("SELECT email FROM contact WHERE project = :1 AND test_name = :2 ORDER BY email",(project, test_name))
-    s = [ ]
-    for x in c :
+    c = pdk_db.execute(
+        "SELECT email FROM contact WHERE project = :1 AND test_name = :2 ORDER BY email",
+        (project,
+         test_name))
+    s = []
+    for x in c:
         s.append(x[0])
-    if mode == 'str' :
+    if mode == 'str':
         return " ".join(s)
-    elif mode == 'list' :
+    elif mode == 'list':
         return s
-    else :
-        raise Exception("get_contact invalid mode %s"%mode)
+    else:
+        raise Exception("get_contact invalid mode %s" % mode)
 
 ######
 #--#--# GENERAL
@@ -291,7 +318,7 @@ def get_contact( project, test_name, mode='str') :
 # Variables are specified in the form:
 #       %name/format;
 # name is the name of the variable, and format is a method of
-# substitution.  
+# substitution.
 #
 # It looks for name in the dictionaries in dictlist, using the first
 # value it finds.  If name is not defined, the value is 'UNDEF'.
@@ -309,7 +336,7 @@ def get_contact( project, test_name, mode='str') :
 # and valid[name] is the format to use, regardless of the format in the format string.
 # Thus, you can limit the list of variables that can be expanded and be sure
 # that the user can't screw up your html, even if you do not create the text yourself.
-# 
+#
 
 # bug: describe how it works
 
@@ -318,45 +345,46 @@ def get_contact( project, test_name, mode='str') :
 
 var_pattern = re.compile("(%[^;]*);")
 
-def expand(text, dictlist = [ ] , valid = None, format='' ) :
+
+def expand(text, dictlist=[], valid=None, format=''):
     result = cStringIO.StringIO()
     textlist = re.split(var_pattern, text)
-    for x in textlist :
-        if x.startswith('%') :
+    for x in textlist:
+        if x.startswith('%'):
             x = x[1:].split('/')
             name = x[0]
-            if valid : 
-                if not name in valid :
-                    result.write("(%s-NOT-VALID)"%name)
+            if valid:
+                if name not in valid:
+                    result.write("(%s-NOT-VALID)" % name)
                     continue
-                else :
+                else:
                     this_format = valid[name]
-            if len(x) > 1 :
+            if len(x) > 1:
                 this_format = x[1]
-            else :
+            else:
                 this_format = format
-            if name == '' :
+            if name == '':
                 result.write('%')
-            else :
+            else:
                 val = 'UNDEF'
-                for y in dictlist :
-                    if name in y :
+                for y in dictlist:
+                    if name in y:
                         val = y[name]
                         break
-                if this_format == '' or this_format == 'text' :
+                if this_format == '' or this_format == 'text':
                     result.write(str(val))
-                elif this_format == 'cgi' :
-                    if isinstance(val, basestring) :
+                elif this_format == 'cgi':
+                    if isinstance(val, basestring):
                         val = quote_plus(val)
-                    else :
+                    else:
                         val = urlencode(val)
                     result.write(val)
-                elif this_format == 'html' :
-                    val = cgi.escape(str(val),quote=True)
+                elif this_format == 'html':
+                    val = cgi.escape(str(val), quote=True)
                     result.write(val)
-                else :
+                else:
                     result.write(str(val))
-        else :
+        else:
             result.write(x)
     return result.getvalue()
 
@@ -366,12 +394,14 @@ def expand(text, dictlist = [ ] , valid = None, format='' ) :
 
 looks_like_a_date_re = None     # don't compile it unless we use it
 
-def looks_like_a_date( name ) :
+
+def looks_like_a_date(name):
     global looks_like_a_date_re
-    if looks_like_a_date_re is None :
-        looks_like_a_date_re = re.compile('[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])')
-    t = looks_like_a_date_re.search( name )
-    if t :
+    if looks_like_a_date_re is None:
+        looks_like_a_date_re = re.compile(
+            '[^0-9]([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])($|[^0-9])')
+    t = looks_like_a_date_re.search(name)
+    if t:
         return t.group(1)
     return None
 
@@ -394,8 +424,9 @@ cgi_header_html = "content-type: text/html\n\n"
 
 current_user_name = None
 
-def current_user() :
-    if 'REMOTE_USER' in os.environ :
+
+def current_user():
+    if 'REMOTE_USER' in os.environ:
         return os.environ["REMOTE_USER"]
     return 'Nobody'
 
@@ -405,9 +436,10 @@ def current_user() :
 # convert to/from a datetime
 #
 
-def parse_time( arg ) :
+
+def parse_time(arg):
     '''
-    parse one of several time formats into a datetime 
+    parse one of several time formats into a datetime
 
     It tries these formats in this order:
 
@@ -446,7 +478,7 @@ def parse_time( arg ) :
     # time_t
     #   1263488141
     #   1263488141.25
-    try :
+    try:
         x = float(arg)
         d = datetime.datetime.fromtimestamp(x)
         return d
@@ -455,33 +487,33 @@ def parse_time( arg ) :
 
     # sql time:
     #   2008-06-04 13:28:00.00
-    try :
-        if '.' in arg :
+    try:
+        if '.' in arg:
             x = arg.split('.')
-            d = datetime.datetime.strptime(x[0],'%Y-%m-%d %H:%M:%S')
-            d = d.replace(microsecond=int((x[1]+'000000')[0:6]))
-        else :
-            x = time.strptime(arg,'%Y-%m-%d %H:%M:%S')
+            d = datetime.datetime.strptime(x[0], '%Y-%m-%d %H:%M:%S')
+            d = d.replace(microsecond=int((x[1] + '000000')[0:6]))
+        else:
+            x = time.strptime(arg, '%Y-%m-%d %H:%M:%S')
             d = datetime.datetime(year=x[0], month=x[1], day=x[2],
-            hour=x[3], minute=x[4], second=x[5] )
+                                  hour=x[3], minute=x[4], second=x[5])
             # not in 2.4:
             # d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
         return d
-    except ValueError :
+    except ValueError:
         pass
 
     # ctime
     #   Thu Jan 14 11:37:39 2010
     # (no usec)
-    try :
-        d = datetime.datetime.strptime(arg,'%a %b %d %H:%M:%S %Y')
+    try:
+        d = datetime.datetime.strptime(arg, '%a %b %d %H:%M:%S %Y')
         return d
     except ValueError:
         pass
 
     # just a date
-    try :
-        d = datetime.datetime.strptime(arg,'%Y-%m-%d')
+    try:
+        d = datetime.datetime.strptime(arg, '%Y-%m-%d')
         return d
     except ValueError:
         pass
@@ -491,16 +523,16 @@ def parse_time( arg ) :
     raise
 
 
-def sql_time(d) :
+def sql_time(d):
     '''
     turn a datetime into a string that looks like TIMESTAMP in SQL-92
 
-    >>> sql_time(datetime.datetime(2010, 1, 14, 11, 55, 41)) 
+    >>> sql_time(datetime.datetime(2010, 1, 14, 11, 55, 41))
     '2010-01-14 11:55:41.000000'
 
     '''
     # do not use ".%f" - it doesn't work
-    return d.strftime('%Y-%m-%d %H:%M:%S') + ( '.%06d' % d.microsecond )
+    return d.strftime('%Y-%m-%d %H:%M:%S') + ('.%06d' % d.microsecond)
 
 
 ######
@@ -509,7 +541,7 @@ def sql_time(d) :
 # quote a string so we can use it in a shell command.
 #
 
-def csh_quote(s) :
+def csh_quote(s):
     """
     Quote a string so we can use it in a csh command without getting hurt.
 
@@ -521,16 +553,16 @@ def csh_quote(s) :
     """
 
     # result string is quoted with single quotes.  Here is the start.
-    l = [ "'" ]
+    l = ["'"]
 
-    for x in s :
-        if x == '\n' :
+    for x in s:
+        if x == '\n':
             l.append('\\\n')
-        elif x == '!' :
+        elif x == '!':
             l.append('\\!')
-        elif x == '\\' : 
+        elif x == '\\':
             l.append('\\\\')
-        elif x == "'" :
+        elif x == "'":
             # end single quote for preceeding string
             l.append("'")
             # put a single quote that is quoted by double quotes
@@ -539,16 +571,16 @@ def csh_quote(s) :
             l.append('"')
             # start single quote for next part of string
             l.append("'")
-        else :
+        else:
             l.append(x)
 
     # result string is quoted with single quotes.  Here is the end.
-    l.append( "'" )
+    l.append("'")
 
     return ''.join(l)
 
 
-def sh_quote(s) :
+def sh_quote(s):
     """
     Quote a string so we can use it in a sh command without getting hurt.
 
@@ -559,10 +591,10 @@ def sh_quote(s) :
     # this string is hard to write in any readable way, so I construct it
     # in a (slightly) more readable way:
 
-    qt = [ "'",             # close quote
-            '"', "'", '"',  # "'"
-           "'",             # open quote
-        ]
+    qt = ["'",             # close quote
+          '"', "'", '"',  # "'"
+          "'",             # open quote
+          ]
     qt = ''.join(qt)
 
     # put ' around the string and replace any internal single quotes
@@ -584,16 +616,16 @@ def sh_quote(s) :
 
 hostname = None
 
-def gethostname( ) :
+
+def gethostname():
     global hostname
-    if hostname is None :
+    if hostname is None:
         import platform
         hostname = platform.node()
-        if "." in hostname :
+        if "." in hostname:
             hostname = hostname.split(".")[0]
     return hostname
     # bug: decided when to use fqdn or not; override hostname in config; etc
-
 
 
 ######
@@ -601,79 +633,84 @@ def gethostname( ) :
 page_header_text = None
 
 
-def page_header() :
+def page_header():
     global page_header_text
 
     # check for cached, though the cached copy will probably never be needed
-    if page_header_text is not None :
+    if page_header_text is not None:
         return page_header_text
 
-
-    try :
+    try:
         s1 = cfg.server_title
-    except AttributeError :
+    except AttributeError:
         s1 = "<h1><a href=%(url)s><img src='data:image/%(imgfmt)s;base64,%(image)s' alt='' border=0></a>&nbsp;Pandokia</h1>"
 
-    page_header_text = s1 % { 'url' : get_cgi_name(), 'image' : B64IMG_HEADER, 'imgfmt' : B64IMG_FORMAT }
+    page_header_text = s1 % {
+        'url': get_cgi_name(),
+        'image': B64IMG_HEADER,
+        'imgfmt': B64IMG_FORMAT}
 
     return page_header_text
 
 ######
 
-print_stat_dict_tuple = ( 'P', 'F', 'E' )
+print_stat_dict_tuple = ('P', 'F', 'E')
 
-def print_stat_dict(stat_summary) :
-        s = [ ] 
-        for x in print_stat_dict_tuple :
-            if x in stat_summary :
-                s.append( "%s=%d"%(pandokia.cfg.status_names[x], stat_summary[x]) )
-        for x in stat_summary :
-            if not x in print_stat_dict_tuple :
-                if stat_summary[x] > 0 :
-                    name = pandokia.cfg.status_names.get(x,x)
-                    s.append( "%s=%d"%(name, stat_summary[x]) )
-        if len(s) > 0 :
-            print(" ".join(s))
-        else :
-            print("Nothing to report")
+
+def print_stat_dict(stat_summary):
+    s = []
+    for x in print_stat_dict_tuple:
+        if x in stat_summary:
+            s.append("%s=%d" % (pandokia.cfg.status_names[x], stat_summary[x]))
+    for x in stat_summary:
+        if x not in print_stat_dict_tuple:
+            if stat_summary[x] > 0:
+                name = pandokia.cfg.status_names.get(x, x)
+                s.append("%s=%d" % (name, stat_summary[x]))
+    if len(s) > 0:
+        print(" ".join(s))
+    else:
+        print("Nothing to report")
 
 ######
 
-def recurring_test_run(test_run) :
+
+def recurring_test_run(test_run):
     l = test_run.split('_')
-    if len(l) > 1 :
+    if len(l) > 1:
         prefix = l[0]
-        if prefix in cfg.recurring_prefix :
+        if prefix in cfg.recurring_prefix:
             return prefix
-    if len(l) > 2 :
-        prefix = '%s_%s'%(l[0],l[1])
-        if prefix in cfg.recurring_prefix :
+    if len(l) > 2:
+        prefix = '%s_%s' % (l[0], l[1])
+        if prefix in cfg.recurring_prefix:
             return prefix
-    if len(l) > 3 :
-        prefix = '%s_%s_%s'%(l[0],l[1],l[2])
-        if prefix in cfg.recurring_prefix :
+    if len(l) > 3:
+        prefix = '%s_%s_%s' % (l[0], l[1], l[2])
+        if prefix in cfg.recurring_prefix:
             return prefix
     return None
 
 ######
 
-hostinfo_cache = { }
-def hostinfo( name ) :
-    if not name in hostinfo_cache :
-        c = cfg.pdk_db.execute("SELECT hostname, os, description FROM hostinfo where hostname = :1",(name,))
+hostinfo_cache = {}
+
+
+def hostinfo(name):
+    if name not in hostinfo_cache:
+        c = cfg.pdk_db.execute(
+            "SELECT hostname, os, description FROM hostinfo where hostname = :1", (name,))
         x = c.fetchone()
-        if x is None :
+        if x is None:
             x = (name, '?', '?')
-        else :
+        else:
             # converting db object to a tuple
-            x = (x[0],x[1],x[2])
+            x = (x[0], x[1], x[2])
         hostinfo_cache[name] = x
         return x
     return hostinfo_cache[name]
 
 ######
-
-
 
 
 B64IMG_FAVICO = 'None'

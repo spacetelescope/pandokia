@@ -1,4 +1,4 @@
-# An example of how to automatically generate tests in unittest2 
+# An example of how to automatically generate tests in unittest2
 import unittest2
 
 
@@ -15,7 +15,7 @@ class test_alphabet(unittest2.TestCase):
     # The test methods will be automatically generated, but they are
     # just calls to do_tst() which will do the real work.
 
-    def do_tst( self, name, arg ) :
+    def do_tst(self, name, arg):
         # self - the object we are running in
         # name - the name the test as provided by the automatic test
         #       generation
@@ -42,7 +42,8 @@ class test_alphabet(unittest2.TestCase):
 # any test class, as long as it has a do_tst(self, name, arg) method.
 #
 
-def create_test( test_class, name, arg ):
+
+def create_test(test_class, name, arg):
     '''
     Dynamically create a test in a unittest2.TestCase class
 
@@ -58,17 +59,17 @@ def create_test( test_class, name, arg ):
     '''
 
     # test names must begin "test" for unittest2 to recognize them
-    name = 'test_'+name
+    name = 'test_' + name
 
-    # define a function - the local variables 
+    # define a function - the local variables
     def do_test(self):
-        self.do_tst( name, arg )
+        self.do_tst(name, arg)
 
     # fix the name of the function object
     do_test.__name__ = name
 
     # add the function object to the class that should contain the test
-    setattr (test_class, do_test.__name__, do_test)
+    setattr(test_class, do_test.__name__, do_test)
 
 
 #####
@@ -78,22 +79,22 @@ def create_test( test_class, name, arg ):
 
 # a list of data items - this could be dynamically generated too.
 
-testlist = [ 
-    ( 'A', 65 ),  
-    ( 'B', 66 ),
-    ( 'Z', 99 ),    # this is wrong, so one test can fail
-    ]
+testlist = [
+    ('A', 65),
+    ('B', 66),
+    ('Z', 99),    # this is wrong, so one test can fail
+]
 
 # Loop over the list creating the tests.  For this example, I
 # create each test twice, to show two different ways you might
 # name your tests.
 
-for k, arg in enumerate ( testlist ) :
+for k, arg in enumerate(testlist):
     # To use a number for the test name:
-    test_method = create_test ( test_alphabet, '%d'%k, arg )
+    test_method = create_test(test_alphabet, '%d' % k, arg)
 
     # To use part of the parameter value for the test name
-    test_method = create_test ( test_alphabet, '%s'%(arg[0]), arg )
+    test_method = create_test(test_alphabet, '%s' % (arg[0]), arg)
 
 #####
 #
@@ -102,4 +103,3 @@ for k, arg in enumerate ( testlist ) :
 
 if __name__ == '__main__':
     unittest2.main()
-

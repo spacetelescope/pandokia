@@ -2,7 +2,7 @@
 import sys
 import datetime
 
-for x in sys.argv[1:] :
-	x = float(x)
-	d = datetime.datetime.fromtimestamp(x)
-	print d
+for x in sys.argv[1:]:
+    x = float(x)
+    d = datetime.datetime.fromtimestamp(x)
+    print d

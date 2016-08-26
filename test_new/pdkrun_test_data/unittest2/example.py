@@ -1,4 +1,4 @@
-# This is the example from the Python unittest documentation.  
+# This is the example from the Python unittest documentation.
 
 import random
 import unittest2
@@ -6,6 +6,7 @@ import unittest2
 # Ok, python's example doesn't do this, but you can see where this output
 # shows up in the pandokia report.
 print("this is a print statement that runs when example.py is imported")
+
 
 class TestSequenceFunctions(unittest2.TestCase):
 
@@ -19,7 +20,7 @@ class TestSequenceFunctions(unittest2.TestCase):
         self.assertEqual(self.seq, list(range(10)))
 
         # should raise an exception for an immutable sequence
-        self.assertRaises(TypeError, random.shuffle, (1,2,3))
+        self.assertRaises(TypeError, random.shuffle, (1, 2, 3))
 
     def test_choice(self):
         element = random.choice(self.seq)
@@ -33,4 +34,3 @@ class TestSequenceFunctions(unittest2.TestCase):
 
 if __name__ == '__main__':
     unittest2.main()
-

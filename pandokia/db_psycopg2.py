@@ -1,18 +1,18 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2011, Association of Universities for Research in Astronomy (AURA)
 #
 # psycopg database driver
 #
 # This is almost exactly the mysql driver, but with a few things changed
 # for postgres.
 
-__all__ = [ 
+__all__ = [
     'db_module',
     'db_driver',
     'PandokiaDB',
     'threadsafety',
-    ]
+]
 
 import psycopg2 as db_module
 import re
@@ -24,7 +24,7 @@ threadsafety = db_module.threadsafety
 
 import pandokia.db
 
-# debugging 
+# debugging
 _tty = None
 # _tty = open("/dev/tty","w")
 
@@ -41,42 +41,43 @@ db_driver = 'psycopg2'
 
 import re
 
-class PandokiaDB(pandokia.db.where_dict_base) :
+
+class PandokiaDB(pandokia.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError
     OperationalError = db_module.OperationalError
-    DatabaseError    = db_module.DatabaseError
+    DatabaseError = db_module.DatabaseError
 
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
 
     db = None
 
-    def __init__( self, access_arg ) :
+    def __init__(self, access_arg):
         self.db_access_arg = access_arg
 
-    def open( self ) :
-        if self.db is None :
-            self.db = db_module.connect( ** ( self.db_access_arg ) )
+    def open(self):
+        if self.db is None:
+            self.db = db_module.connect(** (self.db_access_arg))
             return
 
         # bug: see if the connection timed out, and reconnect it
 
-    def start_transaction( self ) :
-        if self.db is None :
+    def start_transaction(self):
+        if self.db is None:
             self.open()
         self.execute("START TRANSACTION")
         # bug: should we use one the options at
         # http://www.postgresql.org/docs/9.1/static/sql-start-transaction.html
 
     def commit(self):
-        if self.db is None :
+        if self.db is None:
             return
         self.db.commit()
 
     def rollback(self):
-        if self.db is None :
+        if self.db is None:
             return
         self.db.rollback()
 
@@ -86,12 +87,12 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     #
     # explain the query plan using the database-dependent syntax
     #
-    def explain_query( self, text, query_dict=None ) :
-        if self.db is None :
+    def explain_query(self, text, query_dict=None):
+        if self.db is None:
             self.open()
         f = StringIO.StringIO()
-        c = self.execute( 'EXPLAIN '+ text, query_dict )
-        for x in c :
+        c = self.execute('EXPLAIN ' + text, query_dict)
+        for x in c:
             f.write(str(x))
         return f.getvalue()
 
@@ -104,23 +105,23 @@ class PandokiaDB(pandokia.db.where_dict_base) :
 
     _pat_to = '%(\\1)s '
 
-    def execute( self, statement, parameters = [ ] ) :
-        if self.db is None :
+    def execute(self, statement, parameters=[]):
+        if self.db is None:
             self.open()
 
         # convert the parameters, as necessary
-        if isinstance(parameters, dict) :
+        if isinstance(parameters, dict):
             # dict does not need to be converted
             pass
-        elif isinstance(parameters, list) or isinstance(parameters, tuple) :
+        elif isinstance(parameters, list) or isinstance(parameters, tuple):
             # list/tuple turned into a dict with string indexes
-            tmp = { }
-            for x in range(0,len(parameters)) :
-                tmp[str(x+1)] = parameters[x]
+            tmp = {}
+            for x in range(0, len(parameters)):
+                tmp[str(x + 1)] = parameters[x]
             parameters = tmp
-        elif parameters is None :
-            parameters = [ ]
-        else :
+        elif parameters is None:
+            parameters = []
+        else:
             # no other parameter type is valid
             raise self.ProgrammingError
 
@@ -131,23 +132,24 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         c = self.db.cursor()
 
         # print parameters,"<br>"
-        c.execute( statement, parameters )
+        c.execute(statement, parameters)
 
         # return the cursor
         return c
 
-    ## how much table space is this database using
-    ## not portable to other DB
-    def table_usage( self ) :
-        c = self.execute("SELECT pg_database_size( :1 )", ( self.db_access_arg['database'], ) )
+    # how much table space is this database using
+    # not portable to other DB
+    def table_usage(self):
+        c = self.execute("SELECT pg_database_size( :1 )",
+                         (self.db_access_arg['database'], ))
         return c.fetchone()[0]
 
-    # 
-    def next( self, sequence_name ) :
-        if self.db is None :
+    #
+    def next(self, sequence_name):
+        if self.db is None:
             self.open()
         c = self.db.cursor()
-        c.execute("select nextval('%s')"%sequence_name)
+        c.execute("select nextval('%s')" % sequence_name)
         return c.fetchone()[0]
 
 
@@ -186,7 +188,7 @@ Fedora:
     yum install postgresql
         client
 
-    yum install python-psycopg2  
+    yum install python-psycopg2
         python client
 
     yum install postgresql-server
@@ -196,8 +198,8 @@ Fedora:
     initdb -D ~postgres/data
 
     su
-    service postgresql start 
-    
+    service postgresql start
+
     su postgres
 
     psql postgres

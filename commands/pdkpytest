@@ -2,7 +2,7 @@
 
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 # This is the entry point that "pdk run" uses to invoke the
@@ -16,4 +16,3 @@ import pytest
 #sys.exit(pytest.main(['-p', 'pandokia.helpers.pytest_plugin'] + sys.argv[1:]))
 
 sys.exit(pytest.main(sys.argv[1:]))
-
