@@ -119,53 +119,6 @@ shell_commands = [
 
 command_list = python_commands + shell_commands
 
-# version
-#
-# get our version out of __init__ so we only have to edit one place
-#
-
-# f=open("pandokia/__init__.py","r")
-# for x in f :
-#    if x.startswith('__version__') :
-#        exec(x)
-#        break
-# f.close()
-
-
-##
-# if the stsci distutils hack is present, use it to try to capture
-# subversion information.
-#
-# If you are not at STScI, you do not need this.  Delete this call if
-# it causes you any trouble.
-#
-def du_hack():
-    try:
-        import stsci.tools.stsci_distutils_hack as H
-    except ImportError:
-        pass
-    else:
-        # we have to deal with two possible versions of the distutils
-        # hack - the latest, and the one in the pyetc environment.  So,
-        # __set_svn_version__ is duplicated and modified here.
-        version_file = "pandokia/svn_version.py"
-        rev = H.__get_svn_rev__('.')
-        if rev is None:
-            if os.path.exists(version_file):
-                return
-            revision = 'Unable to determine SVN revision'
-        else:
-            if (rev == 'exported' or rev ==
-                    'unknown') and os.path.exists(version_file):
-                return
-            revision = str(rev)
-        info = H.__get_full_info__('.')
-        f = open(version_file, 'w')
-        f.write("__svn_version__ = %s\n" % repr(revision))
-        f.write("\n__full_svn_info__ = '''\n%s'''\n\n" % info)
-        f.close()
-du_hack()
-
 ##
 # we provide setuptools-style entry points that cause plugins to
 # be available to some other programs.  This is the setuptools
