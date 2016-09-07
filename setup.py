@@ -191,7 +191,7 @@ args = {
         'Posix',
         'MacOS X'],
     'scripts': [
-        "commands/" +
+        'scripts/' +
         x for x in command_list],
     'packages': package_list,
     'package_data': {
