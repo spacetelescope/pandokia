@@ -215,7 +215,7 @@ def process_webfile(opt, fn):
         if len(refs_to_commit) > 0 and opt.commit_git:
             # add reference files, in case they are new
             for r in refs_to_commit:
-                cmd = 'git add %s' %r
+                cmd = 'git add %s' % r
                 print cmd
                 ret = os.system(cmd)
                 if not ret == 0:
