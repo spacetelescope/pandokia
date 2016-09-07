@@ -132,9 +132,8 @@ def show(user):
             return ''
 
     c = cfg.pdk_db.execute(
-        'SELECT username, project, fmt, maxlines FROM user_email_pref WHERE username = :1 ORDER BY project',
-        (user,
-         ))
+        'SELECT username, project, format, maxlines FROM user_email_pref WHERE username = :1 ORDER BY project',
+        (user,))
 
     c = [x for x in c]
 
@@ -226,7 +225,7 @@ def add_project(user):
 
     else:
         cfg.pdk_db.execute(
-            "INSERT INTO user_email_pref ( username, project, fmt, maxlines ) VALUES ( :1, :2, 'n', 0)",
+            "INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, 'n', 0)",
             (user,
              project))
         cfg.pdk_db.commit()
@@ -295,7 +294,7 @@ def save(user):
         except:
             maxlines = 0
         cfg.pdk_db.execute(
-            'INSERT INTO user_email_pref ( username, project, fmt, maxlines ) VALUES ( :1, :2, :3, :4 )',
+            'INSERT INTO user_email_pref ( username, project, format, maxlines ) VALUES ( :1, :2, :3, :4 )',
             (user,
              project,
              fmt,
@@ -358,7 +357,7 @@ def list_users():
 
         # find for each project that this user has a preference about:
         c1 = cfg.pdk_db.execute(
-            "SELECT project, fmt, maxlines FROM user_email_pref WHERE username = :1",
+            "SELECT project, format, maxlines FROM user_email_pref WHERE username = :1",
             (user,
              ))
         for p, f, m in c1:
