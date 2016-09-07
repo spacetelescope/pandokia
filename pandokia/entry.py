@@ -81,9 +81,10 @@ def run(argv=sys.argv):
 
     # Ok, not a CGI, so it must be a command line of the form
     # pdk command [ args ]
-    if len(argv) < 1:
+    if len(argv) < 2:
         print(__doc__)
         return
+
 
     cmd = argv[1]
     args = argv[2:]
