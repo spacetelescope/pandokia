@@ -17,8 +17,9 @@ from csv_t import *
 
 import pandokia.helpers.minipyt as minipyt
 
+
 @minipyt.test
-def t020_sequence() :
+def t020_sequence():
     assert dbx.next('test_sequence') == 1
     assert dbx.next('test_sequence') == 2
     assert dbx.next('test_sequence') == 3

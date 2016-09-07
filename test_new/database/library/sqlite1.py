@@ -22,8 +22,9 @@ from csv_t import *
 
 import pandokia.helpers.minipyt as minipyt
 
+
 @minipyt.test
-def t020_sequence() :
+def t020_sequence():
     dbx.execute("create table foo ( n integer primary key, s varchar );")
     c = dbx.execute("insert into foo ( s ) values ( 'x' )")
     assert c.lastrowid == 1
@@ -32,7 +33,7 @@ def t020_sequence() :
     c = dbx.execute("insert into foo ( s ) values ( 'x' )")
     assert c.lastrowid == 3
 
-@minipyt.test
-def t020_implicit_sequence() :
-    assert dbx.next is None
 
+@minipyt.test
+def t020_implicit_sequence():
+    assert dbx.__next__ is None

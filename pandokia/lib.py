@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 # Assorted functions that are useful in more than one place
 
@@ -19,60 +19,63 @@ import datetime
 
 hostname = None
 
-def gethostname( ) :
+
+def gethostname():
     global hostname
-    if hostname is None :
+    if hostname is None:
         import platform
         hostname = platform.node()
-        if "." in hostname :
+        if "." in hostname:
             hostname = hostname.split(".")[0]
     return hostname
     # bug: decided when to use fqdn or not; override hostname in config; etc
 
 
-
-def decode_time_float( istr ) :
-    if istr is None :
+def decode_time_float(istr):
+    if istr is None:
         return None
-    try :
+    try:
         tyme = float(istr)
-    except ValueError :
-        if '.' in istr :
-            l = istr.split('.',1)
-        else :
-            l = [ istr ]
+    except ValueError:
+        if '.' in istr:
+            l = istr.split('.', 1)
+        else:
+            l = [istr]
 
-        try :
-            d = time.strptime( l[0], "%Y-%m-%d %H:%M:%S" )
+        try:
+            d = time.strptime(l[0], "%Y-%m-%d %H:%M:%S")
             tyme = time.mktime(d)
-        except ValueError :
-            try :
-                d = time.strptime( l[0], "%Y-%m-%dT%H:%M:%S" )
+        except ValueError:
+            try:
+                d = time.strptime(l[0], "%Y-%m-%dT%H:%M:%S")
                 tyme = time.mktime(d)
-            except ValueError :
+            except ValueError:
                 return None
 
-        if len(l) > 1 :
+        if len(l) > 1:
             a = l[1]
-            frac = float(int(a)) / int( '1'+'0'*len(a) )
+            frac = float(int(a)) / int('1' + '0' * len(a))
             tyme = tyme + frac
 
     return tyme
 
-def decode_time_str( istr ) :
-    if istr is None :
-        return None
-    try :
-        tyme = float(istr)
-    except ValueError :
-        return istr
-    return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(tyme)) + '.' + ("%03d" % ( int( tyme - int(tyme) ) * 1000 ))
 
-def time_diff( max, min ) :
-    max = decode_time_float( max )
-    min = decode_time_float( min )
-    if max is None :
+def decode_time_str(istr):
+    if istr is None:
         return None
-    if min is None :
+    try:
+        tyme = float(istr)
+    except ValueError:
+        return istr
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(tyme)) + \
+        '.' + ("%03d" % (int(tyme - int(tyme)) * 1000))
+
+
+def time_diff(max, min):
+    max = decode_time_float(max)
+    min = decode_time_float(min)
+    if max is None:
         return None
-    return datetime.timedelta( seconds= int(max - min ) )
+    if min is None:
+        return None
+    return datetime.timedelta(seconds=int(max - min))

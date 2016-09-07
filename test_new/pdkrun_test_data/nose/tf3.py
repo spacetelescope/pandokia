@@ -1,5 +1,5 @@
-tra=dict()
+tra = dict()
 
-def test1() :
-    tra['xxx']=1
 
+def test1():
+    tra['xxx'] = 1

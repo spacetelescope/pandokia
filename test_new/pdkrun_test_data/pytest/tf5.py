@@ -5,7 +5,8 @@ This is a module doctest that will fail.
 '''
 # Nope - we don't do doctest anymore
 
-def test_foo() :
+
+def test_foo():
     '''This is not a doctest:
     >>> 1
     1
@@ -14,7 +15,8 @@ def test_foo() :
     '''
     assert 0
 
-def test_bar() :
+
+def test_bar():
     '''This is also not a doctest:
     >>> 1
     3

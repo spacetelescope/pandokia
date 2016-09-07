@@ -2,7 +2,7 @@
 
 #
 # pandokia - a test reporting and execution system
-# Copyright 2010, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2010, Association of Universities for Research in Astronomy (AURA)
 #
 
 import pandokia.helpers.filecomp as f
@@ -10,7 +10,6 @@ import pandokia.helpers.filecomp as f
 import sys
 argv = sys.argv
 
-okfh = open( argv[3], "a" )
+okfh = open(argv[3], "a")
 
-f.check_file(name=argv[1], cmp=argv[2], okfh = okfh )
-
+f.check_file(name=argv[1], cmp=argv[2], okfh=okfh)

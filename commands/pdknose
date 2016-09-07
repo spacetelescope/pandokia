@@ -2,7 +2,7 @@
 
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 # This is the entry point that "pdk run" uses to invoke the
@@ -20,4 +20,3 @@ import pandokia.helpers.nose_plugin as p
 # sys.exit(nose.main( addplugins=[ p.Pdk() ] ))
 
 sys.exit(nose.main())
-

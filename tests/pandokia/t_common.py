@@ -2,14 +2,15 @@ import os
 import pandokia.common as c
 
 import sys
-sys.stdout=open("/dev/tty","w")
+sys.stdout = open(os.devnull, "w")
 
 parse_time = c.parse_time
 sql_time = c.sql_time
 
 os.environ['TZ'] = 'EST5EDT'
 
-def t_parse_time() :
+
+def t_parse_time():
     """
     >>> parse_time('Thu Jan 14 11:55:41 2010')
     datetime.datetime(2010, 1, 14, 11, 55, 41)
@@ -45,7 +46,8 @@ def t_parse_time() :
     datetime.datetime(2010, 1, 14, 11, 55, 41, 251234)
     """
 
-def t_sql_time() :
+
+def t_sql_time():
     '''
     >>> d=parse_time('2010-01-14 11:55:41.251234')
     >>> sql_time(d)

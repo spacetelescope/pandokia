@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2011, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2011, Association of Universities for Research in Astronomy (AURA)
 #
 
 #
@@ -12,20 +12,25 @@ __all__ = [
     'db_driver',
     'PandokiaDB',
     'threadsafety',
-    ]
+]
 
 # system imports
 import os
-import cStringIO
+
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
+
 
 # need some common code
 import pandokia.db
 
 # The database engine is named "sqlite3" if it was installed with
 # python, or "pyqslite2" if it was installed separately.
-try :
+try:
     import sqlite3 as db_module
-except ImportError :
+except ImportError:
     import pysqlite2.dbapi2 as db_module
 
 # from dbapi
@@ -68,31 +73,31 @@ db_driver = 'sqlite'
 #
 
 
-class PandokiaDB(pandokia.db.where_dict_base) :
+class PandokiaDB(pandokia.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError
     OperationalError = db_module.OperationalError
-    DatabaseError    = db_module.DatabaseError
+    DatabaseError = db_module.DatabaseError
 
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
 
     db = None
 
-    def __init__( self, access_arg ) :
-        if isinstance( access_arg, dict ) :
-            access_arg['database'] = os.path.abspath( access_arg['database'] )
-        else :
-            access_arg = { "database" : os.path.abspath( access_arg ) }
+    def __init__(self, access_arg):
+        if isinstance(access_arg, dict):
+            access_arg['database'] = os.path.abspath(access_arg['database'])
+        else:
+            access_arg = {"database": os.path.abspath(access_arg)}
 
         self.db_access_arg = access_arg
 
-    def open( self ) :
-        if self.db is None :
-            self.db = db_module.connect( **self.db_access_arg )
+    def open(self):
+        if self.db is None:
+            self.db = db_module.connect(**self.db_access_arg)
             self.db.execute("PRAGMA synchronous = NORMAL;")
-            self.db.text_factory = str;
+            self.db.text_factory = str
 
             # must have case_sensitive_like so LIKE 'arf%' can use the
             # indexes.  With non-case-sensitive like, any LIKE clause
@@ -105,18 +110,18 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # timing out of connections
         return
 
-    def start_transaction( self ) :
-        if self.db is None :
+    def start_transaction(self):
+        if self.db is None:
             self.open()
         self.execute("BEGIN TRANSACTION")
 
     def commit(self):
-        if self.db is None :
+        if self.db is None:
             return
         self.db.commit()
 
     def rollback(self):
-        if self.db is None :
+        if self.db is None:
             return
         self.db.rollback()
 
@@ -127,12 +132,12 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     #
     # explain the query plan using the database-dependent syntax
     #
-    def explain_query( self, text, query_dict=None ) :
-        print "TEXT",text
-        print "DICT", query_dict
-        f = cStringIO.StringIO()
-        c = self.execute( 'EXPLAIN QUERY PLAN '+ text, query_dict )
-        for x in c :
+    def explain_query(self, text, query_dict=None):
+        print("TEXT %s" % text)
+        print("DICT %s" % query_dict)
+        f = StringIO.StringIO()
+        c = self.execute('EXPLAIN QUERY PLAN ' + text, query_dict)
+        for x in c:
             f.write(str(x))
         return f.getvalue()
 
@@ -140,36 +145,37 @@ class PandokiaDB(pandokia.db.where_dict_base) :
     # execute a query in a portable way
     # (this capability not offered by dbapi)
     #
-    def execute( self, statement, parameters = [ ], db = None ) :
-        if self.db is None :
+    def execute(self, statement, parameters=[], db=None):
+        if self.db is None:
             self.open()
 
         # convert the parameters, as necessary
-        if isinstance(parameters, dict) :
+        if isinstance(parameters, dict):
             # dict does not need to be converted
             pass
-        elif isinstance(parameters, list) or isinstance(parameters, tuple) :
+        elif isinstance(parameters, list) or isinstance(parameters, tuple):
             # list/tuple turned into a dict with string indexes
-            tmp = { }
-            for x in range(0,len(parameters)) :
-                tmp[str(x+1)] = parameters[x] 
+            tmp = {}
+            for x in range(0, len(parameters)):
+                tmp[str(x + 1)] = parameters[x]
             parameters = tmp
-        elif parameters is None :
-            parameters = [ ]
-        else :
+        elif parameters is None:
+            parameters = []
+        else:
             # no other parameter type is valid
             raise self.ProgrammingError
 
-        # for sqlite3, :xxx is already a valid parameter format, so no change is necessary
+        # for sqlite3, :xxx is already a valid parameter format, so no change
+        # is necessary
 
-        # 
+        #
         c = self.db.cursor()
-        c.execute( statement, parameters )
+        c.execute(statement, parameters)
 
         return c
 
     # how much disk space is used
-    def table_usage( self ) :
+    def table_usage(self):
         return os.path.getsize(self.db_access_arg)
 
     # sqlite has no "next" function - it has implicit sequences and lastrowid

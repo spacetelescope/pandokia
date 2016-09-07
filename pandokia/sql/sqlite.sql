@@ -173,18 +173,21 @@ CREATE UNIQUE INDEX expected_unique
 --	make a table that just contains the distinct values.
 
 CREATE TABLE distinct_test_run (
-	test_run VARCHAR UNIQUE,
+	test_run VARCHAR(50) UNIQUE,
 	valuable CHAR(1),
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
 		-- this test run.
 	record_count INTEGER,
 		-- how many records in this test run
-		-- if 0 or NULL, we dont know
-        note VARCHAR(100)
-                -- a brief note about this test run
+		-- if 0 or NULL, we don't know
+	note VARCHAR(100),
+		-- a brief note about this test run
 		-- set first char to '*' to mark read-only
-);
+	min_time VARCHAR(26),
+        max_time VARCHAR(26)
+		-- earliest start, latest end
+	);
 
 
 -- user preferences:

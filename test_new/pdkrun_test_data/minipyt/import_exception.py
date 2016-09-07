@@ -1,7 +1,8 @@
-print "We are here!"
+print("We are here!")
 
 raise Exception("Bomb the import")
 
-def test() :
+
+def test():
     # does not get executed
-    print "Here"
+    print("Here")
