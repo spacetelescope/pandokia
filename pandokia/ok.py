@@ -216,7 +216,7 @@ def process_webfile(opt, fn):
             # add reference files, in case they are new
             for r in refs_to_commit:
                 cmd = 'git add %s' % r
-                print cmd
+                print(cmd)
                 ret = os.system(cmd)
                 if not ret == 0:
                     err += 1
