@@ -44,9 +44,9 @@ CREATE TABLE result_scalar (
 			PRIMARY KEY ( key_id ),
 		-- primary key is assigned by database; this is a
 		-- unique identifier
-	test_run 	VARCHAR(50),
-	project 	VARCHAR(25),
-	context		VARCHAR(25),
+	test_run 	VARCHAR(200),
+	project 	VARCHAR(200),
+	context		VARCHAR(200),
 	test_name 	VARCHAR(500),
 		-- this is the tuple that identifies a specific test
 		-- results
@@ -159,7 +159,7 @@ CREATE INDEX result_log_index
 --	convert a project/test_run/host to a list of email addresses
 
 CREATE TABLE contact (
-	project	VARCHAR(25),
+	project	VARCHAR(200),
 	test_name VARCHAR(500),
 	email VARCHAR(128)
 	);
@@ -177,10 +177,10 @@ CREATE TABLE expected (
 		-- this "daily_" or something like that; the information
 		-- that connects the test_run_type to an actual test_run
 		-- comes from outside the database.
-	project VARCHAR(25),
+	project VARCHAR(200),
 	host VARCHAR(64),
 	test_name VARCHAR(500),
-	context VARCHAR(25)
+	context VARCHAR(200)
 		-- project, host, test_name, context as in result_scalar
 	);
 
@@ -194,7 +194,7 @@ CREATE UNIQUE INDEX expected_unique
 --	make a table that just contains the distinct values.
 
 CREATE TABLE distinct_test_run (
-	test_run VARCHAR(50) UNIQUE,
+	test_run VARCHAR(200) UNIQUE,
 	valuable CHAR(1),
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
@@ -224,7 +224,7 @@ CREATE UNIQUE INDEX user_prefs_username_index
 
 CREATE TABLE user_email_pref (
 	username VARCHAR(30),
-	project VARCHAR(25),
+	project VARCHAR(200),
 	format CHAR(1),
 		-- format is one of:
 		-- 'n' = none; send no email about this project
@@ -301,14 +301,14 @@ CREATE INDEX hostinfo_index
 --      chronic or not.
 
 CREATE TABLE chronic (
-	test_run_type VARCHAR(100),
+	test_run_type VARCHAR(200),
 		-- this "daily_" or something like that; the information
 		-- that connects the test_run_type to an actual test_run
 		-- comes from outside the database.
-	project VARCHAR(25),
+	project VARCHAR(200),
 	host VARCHAR(64),
 	test_name VARCHAR(500),
-	context VARCHAR(25),
+	context VARCHAR(200),
 		-- project, host, test_name, context as in result_scalar
         xwhen VARCHAR(50)
                 -- indicator of when the test first went bad
