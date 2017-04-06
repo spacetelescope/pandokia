@@ -4,7 +4,7 @@ pandokia.helpers.filecomp - a general interface for intelligently
 
 contents of this module:
 
-    delete_output_files( clist ) 
+    delete_output_files( clist )
     compare_files( clist, okroot=None, tda=None )
         a function to compare output files to reference files
 
@@ -24,7 +24,7 @@ contents of this module:
     safe_rm( [ name, name, ... ] )
         remove files, ignoring OSError
 
-    file_age( name ) 
+    file_age( name )
         return how long ago a file was modified
 
     assert_file_newer( file1, file2 )
@@ -37,7 +37,7 @@ contents of this module:
         show a unified diff of two json strings - does a string diff,
         but ignoring trailing whitespace
 
-            
+
 '''
 
 __all__ = [ 'file_comparators', 'compare_files', 'ensure_dir' ]
@@ -173,7 +173,9 @@ def cmp_binary( res, ref, msg=None, quiet=False, attr_prefix=None, tda=None, tra
 # http://www.stsci.edu/institute/software_hardware/pyraf/stsci_python
 #
 
-def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, maxdiff=None, ignorekeys=None, ignorecomm=None ) :
+def cmp_fits(the_file, reference_file, msg=None, quiet=False,
+             attr_prefix=None, tda=None, tra=None, maxdiff=None,
+             ignorekeys=None, ignorecomm=None):
     '''
     cmp_fits - compare fits files.  kwargs are passed through to fitsdiff
     '''
@@ -186,24 +188,27 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     # fitsdiff does not know how to distinctively report that a reference
     # file was missing (it gives the same status as for a failed match)
     if not os.path.exists( reference_file ) :
-        e = IOError( 'No reference file: %s' % reference_file )
-        print e
+        e = IOError('No reference file: {:s}'.format(reference_file))
+        print(e)
         raise e
 
     # run fitsdiff externally - if you call it directly, it does
     # weird things to the tests. (This will change with Erik's new
     # fitsdiff API, but it isn't here yet.)
 
-    arglist = [ 'fitsdiff' ] 
+    arglist = [ 'fitsdiff' ]
     if maxdiff is not None :
-        arglist  = arglist + [ '-d', str(maxdiff)    ]
+        arglist  = arglist + [ '-r', str(maxdiff)    ]
+
     if ignorekeys is not None :
-         arglist = arglist + [ '-k', ','.join(ignorekeys) ]
+        arglist = arglist + [ '-k', ','.join(ignorekeys) ]
+
     if ignorecomm is not None :
         arglist  = arglist + [ '-c', ','.join(ignorecomm) ]
-    arglist = arglist + [ the_file, reference_file ]
 
-    print arglist
+    arglist = arglist + [ the_file, reference_file ]
+    print(arglist)
+
     status = process.run_process( arglist, output_file="filecomp.tmp" )
 
     process.cat('filecomp.tmp')
@@ -211,8 +216,10 @@ def cmp_fits( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
 
     if status == 0 :
         return True
+
     elif status == 1 :
         return False
+
     else :
         raise Exception("fitsdiff error - exited %d"%status)
 
@@ -226,7 +233,7 @@ def cmp_text_assemble_timestamp() :
     # This module assembles regular expressions for many of the common
     # date specification formats we find in our data files. It includes
     # the pieces from which such dates are constructed for easy expansion.
-    # 
+    #
     # Created by RIJ, Jan 26 2006
     # Modified for use with the regtest software by VGL, Jun 1 2006
     # copied into pandokia.helpers May 2010
@@ -267,7 +274,7 @@ def cmp_text_assemble_timestamp() :
 
 
 # This was copied out of the ASCII comparison in the old regtest code.
-# It could probably make use of the standard python diff library 
+# It could probably make use of the standard python diff library
 # instead.
 
 def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None, tda=None, tra=None, **kwargs ) :
@@ -375,7 +382,7 @@ def cmp_text( the_file, reference_file, msg=None, quiet=False, attr_prefix=None,
     fh.flush()
 
     fwidth = max(len(the_file),len(reference_file))
-    
+
     for tline,rline in diffs:
         fh.write("%-*s: %s\n"%(fwidth,the_file,tline.rstrip()))
         fh.write("%-*s: %s\n"%(fwidth,reference_file,rline.rstrip()))
@@ -451,18 +458,18 @@ file_comparators = {
 ###
 
 def update_okfile(okfh, name, ref):
-    
+
     okfh.write("%s %s\n"%(os.path.abspath(name),
                           os.path.abspath(ref)))
 
 ###
 ### compare a single file
 ###
-    
-def check_file( name, cmp, ref=None, msg=None, quiet=False, 
+
+def check_file( name, cmp, ref=None, msg=None, quiet=False,
                 cleanup=False, okfh=None, attr_prefix=None, tda=None, tra=None, **kwargs ) :
     """
-    status = check_file( name, cmp, msg=None, quiet=False, 
+    status = check_file( name, cmp, msg=None, quiet=False,
                          cleanup=False, okfh=None, tda=None, tra=None,
                          **kwargs )
 
@@ -561,7 +568,7 @@ to pass), then use compare_files() at the end of your test.
 
 def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
     '''
-        clist is a tuple of (filename, comparator, args) 
+        clist is a tuple of (filename, comparator, args)
             filename is the name of a file in the directory out/; it is
                 compared to a file of the same name in the directory ref/,
 
@@ -631,7 +638,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
         #
         okfh = open(okfn, 'w')
     else :
-        # 
+        #
         okfh = None
 
     # ret_exc is the exception that the application should raise
@@ -662,7 +669,7 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
                 tda[attr_prefix + y] = x['args'][y]
             tda[attr_prefix + 'file'] = x['output']
             check_file( name=x['output'], cmp=x['comparator'],
-                 ref=x['reference'], okfh=okfh, cleanup=False, 
+                 ref=x['reference'], okfh=okfh, cleanup=False,
                  attr_prefix=attr_prefix,
                  tda=tda, tra=tra,
                  **x['args'] )
@@ -708,8 +715,8 @@ def compare_files( clist, okroot=None, tda=None, tra=None, cleanup=True ):
 
 def ensure_dir(name) :
     '''
-    Create a directory hierarchy, ignoring any exceptions.  
-    There is no native python function that does this.  
+    Create a directory hierarchy, ignoring any exceptions.
+    There is no native python function that does this.
 
     If there is an error, presumably your code will try to use
     the directory later and detect the problem then.
@@ -799,7 +806,7 @@ the remove fails because of permissions or some such.
 '''
     if isinstance(fname, list) :
         for x in fname :
-            safe_rm( x ) 
+            safe_rm( x )
         return
     try :
         os.unlink( fname )

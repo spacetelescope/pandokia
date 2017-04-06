@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 """
@@ -13,7 +13,7 @@ describe pandokia a little
 import os
 
 # setup.py searches for this exact form of the next line:
-__version__ = "1.3.11dev"
+__version__ = "1.3.13dev"
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
