@@ -487,7 +487,7 @@ def linkout():
     pdk_db.commit()
 
     if oldqid is not None:
-        print("WITH QID=%d" % oldqid)
+        print("WITH QID=%d" % int(oldqid))
         more_where = ' qid = %d AND result_scalar.key_id = query.key_id ' % int(
             oldqid)
     else:
@@ -500,7 +500,7 @@ def linkout():
         ('project', project),
         ('host', host),
         ('context', context),
-        #('status', status),
+        ('status', status),
         ('attn', attn),
     ], more_where=more_where)
 
