@@ -81,10 +81,13 @@ class where_dict_base(object):
                 # takes much longer than leaving out the glob operator.
                 or_list = []
             else:
-                # If value is a list, the query is to match any of the values.
+                # If value is a list (i.e "[xxx]"), the query is to match any of the values.
                 # If it is not a list, we have a list of 1 value.
                 if not isinstance(value, list):
-                    value = [value]
+                    if value.startswith('[') or value.endswith(']'):
+                        value = [x for x in value if x.isalnum()]
+                    else:
+                        value = [value]
 
                 # print "VALUE", name, value
                 or_list = []
@@ -298,7 +301,6 @@ class where_dict_base(object):
 
 
 def cmd_dump_table(args):
-    import sys
     import pandokia
     for x in args:
         pandokia.cfg.pdk_db.table_to_csv(x, sys.stdout, )
@@ -339,7 +341,6 @@ def sql_files(files):
             pdk_db.sql_commands(f.read(), format=format)
             f.close()
     else:
-        import sys
         pdk_db.sql_commands(sys.stdin.read(), format=format)
 
     return 0
