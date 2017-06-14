@@ -225,7 +225,7 @@ def cmp_fits(
 
     arglist = ['fitsdiff']
     if maxdiff is not None:
-        arglist = arglist + ['-d', str(maxdiff)]
+        arglist = arglist + ['-r', str(maxdiff)]
     if ignorekeys is not None:
         arglist = arglist + ['-k', ','.join(ignorekeys)]
     if ignorecomm is not None:
