@@ -1,9 +1,8 @@
 import os
-import string
+import traceback
 
 from pyraf import iraf
 
-import traceback
 
 # TASK: Runs a requested IRAF/PyRAF task
 #
@@ -93,7 +92,7 @@ def run(taskname, pfile, output, log):
 def write_exc_to_log(exc, log):
 
     log.write("? Exception in task.run():\n")
-    exc = string.split(str(exc), "\n")
+    exc = exc.split("\n")
     for i in range(len(exc)):
         log.write("? " + exc[i] + "\n")
 

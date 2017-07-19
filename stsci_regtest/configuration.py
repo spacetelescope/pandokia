@@ -3,7 +3,6 @@
 #
 import os
 import types
-import string
 import os.path
 
 xml_symbol = ("<", ">", "&")
@@ -34,7 +33,7 @@ def regtest_read(file):
 
     # Setup output file names
     for output in config["output"]:
-        if string.upper(output["file"]) == 'STDOUT':
+        if output["file"].upper() == 'STDOUT':
             output["file"] = "STDOUT"
             fname = file + ".stdout"
         else:
@@ -70,7 +69,7 @@ class Config_reader:
         fd = open(filename, "r")
 
         self.xcode = Transcoder(xml_name, xml_symbol)
-        self.buffer = string.join(fd.readlines(), "")
+        self.buffer = ''.join(fd.readlines())
         self.length = len(self.buffer)
         self.pos = 0
 
@@ -93,12 +92,11 @@ class Config_reader:
 
             # Get tag delimeters
 
-            tag_start = string.find(self.buffer, "<", self.pos)
+            tag_start = self.pos.find("<")
             if tag_start == -1:
                 return self.transmogrify(list)
 
-            #tag_end = string.find (self.buffer, ">", self.pos)
-            tag_end = string.find(self.buffer, ">", tag_start)
+            tag_end = self.buffer.find(">", tag_start)
             if tag_end == -1:
                 tag_end = self.length
 
@@ -246,9 +244,9 @@ class Transcoder:
         self.oldval = oldval
         self.newval = newval
 
-    def convert(self, str):
+    def convert(self, s):
         for i in range(len(self.oldval)):
-            if string.find(str, self.oldval[i]) >= 0:
-                str = string.replace(str, self.oldval[i], self.newval[i])
+            if self.oldval[i].find(s) >= 0:
+                s = s.replace(self.oldval[i], self.newval[i])
 
-        return str
+        return s

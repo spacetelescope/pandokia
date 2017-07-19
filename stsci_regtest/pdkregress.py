@@ -8,7 +8,6 @@ import os
 import os.path
 import sys
 import time
-import string
 import getopt
 import tempfile
 import shutil
@@ -501,7 +500,7 @@ class Regress:
 
         # Format log file message
 
-        other = string.join(list(map(str, args)), ",")
+        other = ','.join(list(map(str, args)))
         if other != "":
             line = "%s %s (%s)" % (code, msg, other)
         else:
