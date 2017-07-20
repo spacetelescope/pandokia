@@ -124,7 +124,7 @@ def start(args, env=None, callback=None, cookie=None, slot=None):
         slot = await_process_slot()
     assert process_slot[slot] is None
 
-    print("START %s" % args)
+    print("START %s" % ' '.join(args))
     proc_struct = _run_proc(args, env, slot)
 
     proc_struct.callback = callback
@@ -287,7 +287,6 @@ def _run_proc(args, env, slot):
 
     f_out.flush()
 
-    print(args)
     if windows:
         # on Windows:
         #   shell=True to make it search the path
