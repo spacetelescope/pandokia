@@ -92,7 +92,7 @@ class Config_reader:
 
             # Get tag delimeters
 
-            tag_start = self.pos.find("<")
+            tag_start = self.buffer.find("<", self.pos)
             if tag_start == -1:
                 return self.transmogrify(list)
 
