@@ -122,40 +122,44 @@ def delete_background_step(n=200, verbose=False):
     return len(keys)
 
 
-def delete_background(args=[], verbose=False):
+def delete_background(argv=[], verbose=False):
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--max-delete', default=2000000000, help='Limit total deletions')
+    parser.add_argument('--max-per-step', default=200, help='Number of deletions per step')
+    parser.add_argument('--sleep-time', default=0, help='Time in seconds to wait between deletions')
+    parser.add_argument('-v', '--verbose', action='store_true')
+    args = parser.parse_args(argv)
+
     # defaults
+
+    # Redirect function-scope verbosity to different variable
+    verbose_global = verbose
+
+    # Set user-requested verbosity
+    verbose = args.verbose
+
+    # Override verbosity if set in function-scope
+    if global_verbose:
+        verbose = global_verbose
 
     # max_delete is 2 billion records - lazy way to say "infinite".
     # We have a settable limit so you can run partial deletes,
     # instead of hogging the database access.  e.g. You could
     # use a cron jobs to delete 10k records every hour.
-    max_delete = 2000000000
+    max_delete = args.max_delete
 
     # max_per_step is how many records to delete in a single step.
     # This is limited by how much your database can tolerate in
     # the WHERE clauses in delete_background_step.  If using
     # sqlite, it can also be an issue because of keeping the
     # database locked during the transaction.
-    max_per_step = 200
+    max_per_step = args.max_per_step
 
     # How long to wait between steps of the delete.  In sqlite,
     # this can create windows where other database users can
     # get access in between our transactions.
-    sleeptime = 0
-
-    # parse args
-
-    # max records to delete
-    if len(args) > 0:
-        max_delete = int(args[0])
-
-    # number of records in a single step
-    if len(args) > 1:
-        max_per_step = int(args[1])
-
-    # sleep time between deleting chunks
-    if len(args) > 2:
-        sleeptime = int(args[2])
+    sleeptime = args.sleep_time
 
     # initialize remaining.  This count takes some substantial time in
     # some databases, so we do it once at the beginning and adjust
@@ -163,19 +167,20 @@ def delete_background(args=[], verbose=False):
     # user how much we have left to do.)
     c = pdk_db.execute("SELECT count(*) FROM delete_queue")
     (remaining,) = c.fetchone()
-    print("remaining: %d" % remaining)
+    total_records = remaining
+    if not total_records:
+        print('No records marked for deletion')
+        return 0
+
+    print("%d records marked for deletion" % total_records)
 
     # when did we start
     start_time = time.time()
-
     total_deletes = min(remaining, max_delete)
-
     total_deleted = 0
 
     while True:
-        print("remaining: %d" % remaining)
-
-        deleted_count = delete_background_step(max_per_step, verbose)
+        deleted_count = delete_background_step(max_per_step, verbose_global)
         if deleted_count == 0:
             break
 
@@ -187,16 +192,23 @@ def delete_background(args=[], verbose=False):
             break
 
         if sleeptime > 0:
-            print("sleep after %d" % deleted_count)
+            if verbose:
+                print("sleep after %d" % deleted_count)
             time.sleep(sleeptime)
 
         time_so_far = time.time() - start_time
-        time_per_record = float(time_so_far) / total_deleted
-        print("time so far %d" % time_so_far)
-        print("time/record %d" % time_per_record)
-        print("est remain %d" % remaining * time_per_record)
+        time_per_record = float(time_so_far) / float(total_deleted)
+        time_remaining = remaining * time_per_record
+        percent_remaining = 100.0 / total_records * total_deleted
 
-    print("done")
+        if verbose:
+            print('{:>{width}d}/{:>{width}d} {:>#06.2f}% '
+                    'TPR={:>#02.2f} ES={:>#08.2f} ESR={:>#08.2f}'.format(
+                      total_deleted, total_records, percent_remaining,
+                      time_per_record, time_so_far, time_remaining,
+                      width=len(str(total_records))))
+
+    print("%d records deleted" % total_deleted)
     return 0
 
 ##########
