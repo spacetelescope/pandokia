@@ -191,10 +191,10 @@ def delete_background(args=[], verbose=False):
             time.sleep(sleeptime)
 
         time_so_far = time.time() - start_time
-        time_per_record = float(time_so_far) / float(total_deleted)
-        #print("time so far %d" % time_so_far)
-        #print("time/record %d" % time_per_record)
-        #print("est remain %d" % float(remaining) * time_per_record)
+        time_per_record = float(time_so_far) / total_deleted
+        print("time so far %d" % time_so_far)
+        print("time/record %d" % time_per_record)
+        print("est remain %d" % remaining * time_per_record)
 
     print("done")
     return 0
