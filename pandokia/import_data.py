@@ -16,7 +16,7 @@ except ImportError:
 exit_status = 0
 line_count = 0
 insert_count = 0
-quiet = True
+quiet = False
 debug = False
 default_record = dict()
 
@@ -27,7 +27,7 @@ all_test_runs = dict()
 
 
 def read_records(fileobj):
-    global exit_status, default_record
+    global exit_status, default_record, debug
 
     found_any = 0
     result = default_record.copy()
@@ -381,10 +381,11 @@ class test_result(object):
 
 
 def run(argv, hack_callback=None):
-    global insert_count, quiet
+    global insert_count, quiet, debug
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-q', '--quiet', action='store_false')
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true')
     parser.add_argument('-H', '--host')
     parser.add_argument('-c', '--context', default='unk')
     parser.add_argument('-p', '--project')
@@ -400,26 +401,23 @@ def run(argv, hack_callback=None):
     line_count = 0
     duplicate_count = 0
     quiet = args.quiet
+    debug = args.debug
 
     for handle in args.filename:
-        print("FILE: %s" % handle.name)
+        if not quiet:
+            print("FILE: %s" % handle.name)
+
         for x in read_records(handle):
-            if not x:
-                break
-            try:
-                if "test_run" not in x:
-                    x["test_run"] = args.test_run
-                if "context" not in x:
-                    x["context"] = args.context
-                if "host" not in x:
-                    x["host"] = args.host
-                if "project" not in x:
-                    x["project"] = args.project
-                if "test_runner" not in x:
-                    x["test_runner"] = args.test_runner
-            except Exception as e:
-                print("%s %d" % (e, line_count))
-                continue
+            if "test_run" not in x:
+                x["test_run"] = args.test_run
+            if "context" not in x:
+                x["context"] = args.context
+            if "host" not in x:
+                x["host"] = args.host
+            if "project" not in x:
+                x["project"] = args.project
+            if "test_runner" not in x:
+                x["test_runner"] = args.test_runner
 
             # bug: remove this when the old nose plugin is no longer running
             # around
@@ -434,8 +432,7 @@ def run(argv, hack_callback=None):
                 print("   %s" % [zz for zz in x])
                 continue
 
-            if x["test_name"].endswith(".xml") or x[
-                    "test_name"].endswith(".log"):
+            if x["test_name"].endswith(".xml") or x["test_name"].endswith(".log"):
                 x["test_name"] = x["test_name"][:-4]
 
             rx = test_result(x)
@@ -449,18 +446,16 @@ def run(argv, hack_callback=None):
             try:
                 rx.insert(pdk_db)
             except pdk_db.IntegrityError:
-                if not quiet:
-                    print("warning: duplicate on line: %4d " % duplicate_count)
-                    print(x['test_run'],
-                          x['project'],
-                          x['host'],
-                          x['context'],
-                          x["test_name"])
-                    duplicate_count += 1
+                duplicate_count += 1
 
             pdk_db.commit()
 
-    print("%d records\n\n" % insert_count)
+    result_str = '{:d} records inserted'.format(insert_count)
+    if duplicate_count:
+        result_str += ' ({:d} skipped)'.format(duplicate_count)
+
+    if not quiet:
+        print(result_str)
 
     # could use all_test_run here to clear the cgi cache
     sys.exit(exit_status)
