@@ -1,6 +1,12 @@
+import ast
+import datetime
+import mmap
 import os
 import platform
+import sys
+import time
 
+mem = None
 test_mode = None
 #   not in test mode
 #
@@ -49,83 +55,79 @@ else:
     #
     #
 
-    def init_status(file=None, n_records=10, status_text_size=2000):
+    def init_status(filename=None, n_records=10, status_text_size=2000):
         '''Create a status file with n_records blank records in it
         '''
-
         valid_flag_size = 1
 
-        try:
-            import mmap
-        except ImportError:
-            return None
-
-        if file is None:
-            file = os.getcwd() + '/pdk_statusfile'
+        if filename is None:
+            filename = os.getcwd() + '/pdk_statusfile'
             try:
-                os.unlink(file)
+                os.unlink(filename)
             except:
                 pass
 
-        #
-        f = open(file, 'w')
+        with open(filename, 'w') as fp:
+            # write the header
+            #   we generate it twice so we know how big it is - the first time,
+            #   we say the size is 0, but we use a fixed format; the second
+            #   time, we use the actual length that resulted.  So, you can
+            #   grow the header without worrying about alignment/size issues.
+            def gen_header():
+                s = '********PDKRUN status monitor 000\n%08d %d %d %d\n' % (
+                    header_size, status_text_size, n_records, valid_flag_size)
+                return s
 
-        # write the header
-        #   we generate it twice so we know how big it is - the first time,
-        #   we say the size is 0, but we use a fixed format; the second
-        #   time, we use the actual length that resulted.  So, you can
-        #   grow the header without worrying about alignment/size issues.
-        def gen_header():
-            s = '********PDKRUN status monitor 000\n%08d %d %d %d\n' % (
-                header_size, status_text_size, n_records, valid_flag_size)
-            return s
+            header_size = 0
+            header = gen_header()
 
-        header_size = 0
-        header = gen_header()
+            header_size = len(header)
+            header = gen_header()
 
-        header_size = len(header)
-        header = gen_header()
+            assert header_size == len(header)
 
-        assert header_size == len(header)
+            fp.write(('%08x' % int(time.time()))[0:8])
+            fp.write(header[8:])
 
-        f.write(('%08x' % int(time.time()))[0:8])
-        f.write(header[8:])
+            # write a blank record for everybody - use a \n between and
+            # the file will be plain text
+            for x in range(n_records):
+                fp.write(' ' * (valid_flag_size + status_text_size))
+                fp.write('\n')
 
-        # write a blank record for everybody - use a \n between and
-        # the file will be plain text
-        for x in range(n_records):
-            f.write(' ' * (valid_flag_size + status_text_size))
-            f.write('\n')
-
-        # done - force it out to disk
-        f.close()
-
-        return file
+        return filename
 
     class status_block(object):
-
-        def __init__(self, file, mode):
-            import mmap
-            import codecs
-
+        def __init__(self, filename, mode):
+            # Implicit handling of 'write' mode for opening files
+            # and initializing mmap handles
             if mode == 'w':
-                f = codecs.open(file, 'r+b', 'ascii')
+                mode = 'r+b'
+                prot = mmap.PROT_READ | mmap.PROT_WRITE
             else:
-                f = codecs.open(file, 'rb', 'ascii')
+                mode = 'rb'
+                prot = mmap.PROT_READ
 
-            # first line is header to recognize the data file
-            n = f.readline()
-            if n[8:] != 'PDKRUN status monitor 000\n':
-                raise Exception('Not a PDKRUN status monitor file: %s' % file)
+            with open(filename, mode) as fp:
+                # Validate status file header then
+                # get data record sizes from header
+                for lineno, record in enumerate(fp):
+                    record = record.decode()
+                    if lineno == 0:
+                        if record[8:] != 'PDKRUN status monitor 000\n':
+                            raise Exception('Not a PDKRUN status monitor file: %s' % filename)
 
-            # second line is about record sizes
-            n = f.readline().strip()
-            n = n.split(' ')
+                    elif lineno == 1:
+                        header = record.strip().split(' ')
 
-            self.header_size = int(n[0])
-            self.status_text_size = int(n[1])
-            self.n_records = int(n[2])
-            self.valid_flag_size = int(n[3])
+                # Retain file descriptor for use with mmap below
+                self._fd = os.dup(fp.fileno())
+
+
+            self.header_size = int(header[0])
+            self.status_text_size = int(header[1])
+            self.n_records = int(header[2])
+            self.valid_flag_size = int(header[3])
 
             # each record contains a valid_flag, status_text, and a newline
             self.record_size = self.valid_flag_size + self.status_text_size + 1
@@ -137,21 +139,15 @@ else:
             self.locked_valid_flag = 'X' * self.valid_flag_size
 
             # how big is the whole file
-            file_size = self.record_size * self.n_records + self.header_size
-
-            if mode == 'w':
-                prot = mmap.PROT_READ | mmap.PROT_WRITE
-            else:
-                prot = mmap.PROT_READ
+            self.file_size = self.record_size * self.n_records + self.header_size
 
             # map it into a shared memory block
             self.mem = mmap.mmap(
-                fileno=f.fileno(),
-                length=file_size,
+                fileno=self._fd,
+                length=self.file_size,
                 flags=mmap.MAP_SHARED,
                 prot=prot,
             )
-
             self.header_timestamp = self.mem[0:8]
 
         def header_changed(self):
@@ -260,8 +256,6 @@ else:
                     'ascii')
 
     if __name__ == '__main__':
-        import sys
-        import time
         s = sys.stdin.readline().strip()
 
         if s == 'i':
@@ -286,10 +280,6 @@ else:
                     m.set_status_text(l[1:])
                 else:
                     print("?")
-
-    import time
-
-    mem = None
 
     def pdkrun_status(text, slot=None):
         '''A status setting function for use within pdkrun
@@ -324,12 +314,6 @@ else:
         mem.set_status_text(repr(text) + ',%d' % time.time())
 
     def display(visual, waiting_for_start):
-        import sys
-        import time
-        import ast
-        import os.path
-        import datetime
-
         filename = 'pdk_statusfile'
 
         done_waiting = not waiting_for_start
