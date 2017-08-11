@@ -19,9 +19,8 @@ thread_safe = db_module.threadsafety
 
 import pandokia.db
 
-# debugging 
-_tty = None
-# _tty = open("/dev/tty","w")
+# debugging
+debug = False
 
 import cStringIO as StringIO
 import os
@@ -158,13 +157,27 @@ class PandokiaDB(pandokia.db.where_dict_base) :
         # create a cursor, execute the statement
         c = self.db.cursor()
 
-        if ( _tty is not None ) and not ( statement.startswith('EXPLAIN') ) :
-            _tty.write("--------\nQUERY: %s\nparam %s\n"%(statement,str(parameters)))
-            _tty.write(explain_query( statement, parameters ) +"\nWARN: ")
+        if debug:
+            stmt_keys_start = statement.find('(')
+            stmt_keys_stop = statement.find(')')
+            stmt_keys = [ x for x in statement[stmt_keys_start + 1: stmt_keys_stop - 1].replace(',', '').strip().split()]
+            pmtr_keys = [ int(x) for x in sorted(parameters.keys(), key=lambda i: int(i))]
+            keymap = zip(pmtr_keys, stmt_keys)
+
+            print('QUERY: {0}'.format(statement))
+            print('PARAM:')
+            for k, v in sorted(parameters.items(), key=lambda i: int(i[0])):
+                for keys in keymap:
+                    if int(k) == keys[0]:
+                        k = keys[1]
+                        break
+
+                k = str(k)
+                v = str(v)
+                print('{0:<16s} ({1:>6d}) = {2}'.format(k, len(v), v))
+
             c.execute("SHOW WARNINGS")
-            for x in c :
-                _tty.write(str(x)+"\n")
-            _tty.write("\n\n\n")
+            print("\n\n\n")
 
         # print parameters,"<br>"
         c.execute( statement, parameters )

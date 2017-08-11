@@ -173,7 +173,7 @@ CREATE UNIQUE INDEX expected_unique
 --	make a table that just contains the distinct values.
 
 CREATE TABLE distinct_test_run (
-	test_run VARCHAR UNIQUE,
+	test_run VARCHAR(200) UNIQUE,
 	valuable CHAR(1),
 		-- boolean, but portable; use 1 or 0
 		-- valuable means that we should not refuse to delete
