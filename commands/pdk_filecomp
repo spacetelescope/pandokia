@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 
 #
 # pandokia - a test reporting and execution system

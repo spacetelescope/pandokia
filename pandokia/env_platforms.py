@@ -1,4 +1,4 @@
-#! /bin/env python
+#!/usr/bin/env python
 """This module contains mappings to construct platform-specific
 identifying information that will be used by the EnvGetter to apply
 the appoprirate specific subsections of the pdk_environment files.

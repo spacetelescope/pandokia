@@ -1,4 +1,4 @@
-#!/usr/stsci/pyssgdev/Python-2.5.1/bin/python
+#!/usr/bin/env python
 import sys
 import getopt
 import os
