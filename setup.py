@@ -227,7 +227,7 @@ def fix_script(name) :
         f.write("@echo off\n%s.py %%*\n" % fname)
         f.close()
 
-    os.chmod(fname + '.py', 0755)
+    os.chmod(fname + '.py', 0o755)
 
 # py.test and nose use setuptools to find their plugins, but whenever
 # I go near setuptools, it always causes problems for me.  You
@@ -281,7 +281,7 @@ if 'install' in d.command_obj :
     # print 'python  went to', lib_dir
 
     # tell the user about the install
-   
+
     print ''
     print 'If you need to change your path for this install:'
     print ''
@@ -320,4 +320,3 @@ if 'install' in d.command_obj :
 else :
     pass
     # print "no install"
-
