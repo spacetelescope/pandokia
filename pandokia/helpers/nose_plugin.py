@@ -28,7 +28,8 @@ try:
     from StringIO import StringIO as p_StringO  # for stdout capturing
     from cStringIO import OutputType as c_StringO
 except ImportError:
-    from io import StringIO as c_StringO
+    from io import StringIO as p_StringO
+    c_StringO = p_StringO
 
 
 def get_stdout():
@@ -192,63 +193,64 @@ class Pdk(nose.plugins.base.Plugin):
     # better copy that displays nicely.
 
     def addError(self, test, err):
-        self.write_report(
-            test, 'E', trace=''.join(
-                traceback.format_tb(
-                    err[2])))
+        self.write_report(test, 'E', err)
 
     def addFailure(self, test, err):
-        self.write_report(
-            test, 'F', trace=''.join(
-                traceback.format_tb(
-                    err[2])))
+        self.write_report(test, 'F', err)
 
     def addSuccess(self, test):
         self.write_report(test, 'P')
 
     # our function to implement the features common to all the add* functions
-    def write_report(self, test, status, trace=''):
+    def write_report(self, test, status, err=None):
+        from nose.inspector import inspect_traceback
 
-        # record the end time here, because nose does not always call
-        # stopTest()
+        # record the end time here, because nose does not always call stopTest()
         self.pdk_endtime = time.time()
 
-        # collect the saved stdout
-        capt = get_stdout()
-        if capt is None:
-            capt = trace
-        else:
-            capt = capt + trace
 
-        # For error status, remember the exception - we have to get it now before it
-        # is lost due to another exception happening somewhere
-        if (status == 'E') or (status == 'F'):
-            try:
-                # this works in python 2.7 with updated unittest and
-                # recent versions of nose
-                exc = repr(test.exc_info()[1])
-            except AttributeError:
-                try:
-                    # Older versions had this marked as private method
-                    exc = repr(test._exc_info()[1])
-                except AttributeError:
-                    # Here's a fallback.
-                    exc = 'test._exc_info not available'
+        # Limits
+        exc_maxlen = 255
 
-            # We have the stack trace in capt already, but we also
-            # need the exception that caused it.  Now we have it, so
-            # we can show it in the captured output.
-            capt = capt + (str(exc) + '\n')
+        # Tracebacks / Exceptions
+        tbinfo = None
+        exc = None
 
-            # suppress the tra_Exception when status=F
-            if status == 'F':
-                exc = None
+        # Collect stdout (returns None on failure to acquire stream)
+        capture = get_stdout()
 
-        else:
-            exc = None
+        # Handle exception information
+        if err is not None:
+            ec, ev, tb = err
+            str_ec = ec.__name__.lstrip()
+            str_ev = str(ev).lstrip()
+            str_ev_len = len(str_ev)
 
-        # actually write the record to the log file
-        self.pdklog(test.test, status, log=capt, exc=exc)
+            # Alert on no error message
+            if not str_ev:
+                str_ev = '(No message)'
+
+            # Extract traceback message
+            if tb:
+                tbinfo = inspect_traceback(tb)
+                str_rv = '\n'.join([tbinfo])
+                str_tb  = ''.join(traceback.format_tb(tb))
+
+            # Check for abusive logging
+            if str_ev_len > exc_maxlen:
+                str_ev = "\n\nPOLICY WARNING: Exception message is too long: {} > {}\n\n".format(str_ev_len, exc_maxlen) + str_ev
+
+            # Compile exception message
+            exc = 'Type: {}\nMessage: {}\nTrigger: {}\n'.format(str_ec, str_ev, str_tb.splitlines()[-1].lstrip())
+            final_tb = str_tb + '\n' + 'EXCEPTION\n' + exc
+
+            if capture is None:
+                capture = final_tb
+            else:
+                capture += final_tb
+
+        # Write the record to the log file
+        self.pdklog(test.test, status, log=capture, exc=exc)
 
     # our function to pick out the TDA and TRA dictionaries.  Depending what kind
     # of test is is, there are many places we may need to look.
