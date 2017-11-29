@@ -236,10 +236,6 @@ class Pdk(nose.plugins.base.Plugin):
                 str_rv = '\n'.join([tbinfo])
                 str_tb  = ''.join(traceback.format_tb(tb))
 
-            # Check for abusive logging
-            if str_ev_len > exc_maxlen:
-                str_ev = "\n\nPOLICY WARNING: Exception message is too long: {} > {}\n\n".format(str_ev_len, exc_maxlen) + str_ev
-
             # Compile exception message
             exc = 'Type: {}\nMessage: {}\nTrigger: {}\n'.format(str_ec, str_ev, str_tb.splitlines()[-1].lstrip())
             final_tb = str_tb + '\n' + 'EXCEPTION\n' + exc
