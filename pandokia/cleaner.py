@@ -203,7 +203,7 @@ def delete_background(argv=[], verbose=False):
 
         if verbose:
             print('{:>{width}d}/{:>{width}d} {:>#06.2f}% '
-                    'TPR={:>#02.2f} ES={:>#08.2f} ESR={:>#08.2f}'.format(
+                    'time_per_record={:>#02.2f} time_elapsed={:>#08.2f} time_remaining={:>#08.2f}'.format(
                       total_deleted, total_records, percent_remaining,
                       time_per_record, time_so_far, time_remaining,
                       width=len(str(total_records))))
