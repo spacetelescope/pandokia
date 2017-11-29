@@ -109,7 +109,7 @@ def read_records(fileobj):
                 default_record = result.copy()
                 continue
 
-            # Only happens at the start of a run - andything that came
+            # Only happens at the start of a run - anything that came
             # earlier should be forgotten
             if line == 'START':
                 if debug:
