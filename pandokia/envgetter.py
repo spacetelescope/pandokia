@@ -32,6 +32,7 @@ go all the way to the top of the file system.
 import os
 import sys
 import re
+import warnings
 
 try:
     import ConfigParser as configparser
@@ -328,11 +329,11 @@ class EnvGetter(object):
         # Check for missing values.
 
         if len(self.nodes[dirname].missing) > 0:
-            raise KeyError(
+            warnings.warn(
                 "Missing values for %s. A complete environment cannot be provided for %s." %
-                (self.nodes[dirname].missing, dirname))
-        else:
-            return self.nodes[dirname].final
+                (self.nodes[dirname].missing, dirname)
+            )
+        return self.nodes[dirname].final
 
     def gettop(self):
         """Return remembered "top" of environment.
