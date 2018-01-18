@@ -32,7 +32,13 @@ def read_record(f):
 
     while True:
 
-        l = f.readline()
+        try:
+            l = f.readline()
+        except UnicodeDecodeError as e:
+            print(e)
+            line_count += 1
+            continue
+
         line_count = line_count + 1
         if l == "":
             # EOF - invalid if we saw any data (no END)
@@ -116,9 +122,11 @@ def read_record(f):
             while True:
 
                 try:
-                    l = f.readline().decode()
-                except AttributeError as e:
                     l = f.readline()
+                except UnicodeDecodeError as e:
+                    print(e)
+                    line_count += 1
+                    continue
 
                 line_count = line_count + 1
                 if l == "":
