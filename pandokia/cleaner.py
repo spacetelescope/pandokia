@@ -140,8 +140,8 @@ def delete_background(argv=[], verbose=False):
     verbose = args.verbose
 
     # Override verbosity if set in function-scope
-    if global_verbose:
-        verbose = global_verbose
+    if verbose_global:
+        verbose = verbose_global
 
     # max_delete is 2 billion records - lazy way to say "infinite".
     # We have a settable limit so you can run partial deletes,
