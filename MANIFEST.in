@@ -4,6 +4,7 @@ recursive-include * *
 prune doc/build
 prune build
 prune dist
+prune relic
 exclude pandokia/version.py
 exclude *.pyc *.pyo
 exclude .git
