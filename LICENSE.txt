@@ -1,4 +1,4 @@
-Copyright 2009-2016 by Association of Universities for Research in Astronomy (AURA)
+Copyright 2009-2018 by Association of Universities for Research in Astronomy (AURA)
 
 Redistribution and use in source and binary forms, with or
 without modification, are permitted provided that the following
