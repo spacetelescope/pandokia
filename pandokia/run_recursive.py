@@ -42,17 +42,8 @@ def generate_directories(dir):
             continue
 
         # Find out if it is a directory.  If not, skip it.
-        full_name = os.path.join(dir, short_name)
-        try:
-            # lstat - not recursing into symlinks
-            file_stat = os.lstat(full_name)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                print("cannot lstat %s" % full_name)
-                print(e)
-            continue
-
-        if not stat.S_ISDIR(file_stat.st_mode):
+        full_name = os.path.join(dir,short_name)
+        if not os.path.isdir(full_name):
             continue
 
         # It is a directory - recursively search it.
