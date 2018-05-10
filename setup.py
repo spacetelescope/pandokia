@@ -281,7 +281,7 @@ if 'install' in d.command_obj :
     # print 'python  went to', lib_dir
 
     # tell the user about the install
-   
+
     print ''
     print 'If you need to change your path for this install:'
     print ''
@@ -320,4 +320,3 @@ if 'install' in d.command_obj :
 else :
     pass
     # print "no install"
-

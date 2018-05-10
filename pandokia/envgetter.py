@@ -30,6 +30,7 @@ This file is not read; it's just detected. If it is never detected, it will
 go all the way to the top of the file system.
 """
 import os, sys, re
+import warnings
 import ConfigParser
 from pandokia.env_platforms import PlatformType
 
@@ -54,11 +55,11 @@ pat={'envpat' : re.compile('\${?([\w]*?)}?(?:[\\/:]|$)'),
      # terminated by a \ (for windows) / (for *nix) : (for paths)
      #    or the end of the string
      # Only the name of the environment variable will be taken.
-     
+
      'pathkey': re.compile('[\w]*path$',re.I),
      #Anything that ends in path, case-insensitive. Used to match
      #something that was extracted as above.
-     
+
      'pathval': re.compile('(\$\{?[\w]*path\}?)(?:[/:]|$)',re.I) }
      # Matches an environment variable that
      # starts with a $
@@ -68,7 +69,7 @@ pat={'envpat' : re.compile('\${?([\w]*?)}?(?:[\\/:]|$)'),
      # optionally followed by a }
      # terminated by a \ (for windows) or / (for *nix) or :
      # Takes the whole thing, including the ${}.
-     
+
 class FakeContainer(object):
     """For testing purposes"""
     def __init__(self, context=None, defdict={}, mock=False):
@@ -76,7 +77,7 @@ class FakeContainer(object):
         self.defdict=defdict
         self.platform = PlatformType()
         self.MOCK=mock
-        
+
 class DirLevel(object):
     """Holds dictionaries and other info about the environment
     at a given directory level"""
@@ -84,7 +85,7 @@ class DirLevel(object):
         """ dirname = the name of this level
         container = the parent, usually an EnvGetter
         empty = for test purposes only, to hand-fill the object"""
-        
+
         #Data
         self.name=dirname
         self.container=container
@@ -108,15 +109,15 @@ class DirLevel(object):
             self.merge()         #merge with the default environment to final
             self.substitute()    #apply internal substitutions to final
 
-            
+
     def processfile(self):
         """Process a pdk_environment file with no substitutions.
         Includes a MOCK functionality for purposes of unit testing."""
 
         fname=os.path.join(self.name,efname)
-        
-        if self.container.MOCK: 
-            self.leveldict={'name':fname,  
+
+        if self.container.MOCK:
+            self.leveldict={'name':fname,
                             self.container.counter:self.container.counter}
             self.container.counter+=1
             if self.container.context is not None:
@@ -130,7 +131,7 @@ class DirLevel(object):
             if self.container.context is not None:
                 ans.update(parsefile(".".join([fname,self.container.context]),
                                      self.container.platform))
-            #Fill in the answer                           
+            #Fill in the answer
             self.leveldict=ans
 
             #Special handling of tca key
@@ -139,11 +140,11 @@ class DirLevel(object):
                 del self.leveldict['tca']
             except KeyError:
                 pass
-            
+
     def apply_parent(self):
         """Applies the parent dictionary to this level's dictionary.
         Child keys always override parent keys."""
-        
+
         if self.istop: #we're already at the top
             return
 
@@ -152,23 +153,23 @@ class DirLevel(object):
             os.path.isfile(os.path.join(self.name,ttop)) ):
              #discover we're at the top
             self.istop=True
-            return 
+            return
 
         else:
             if self.parent is None:
                 self.parent=DirLevel(parent, container=self.container)
                 self.container.nodes[parent]=self.parent
-                
+
             self.leveldict=dict(self.parent.leveldict,
                                 **self.leveldict)
- 
+
     def merge(self):
         """Merge the current level with the default dictionary (typically
         os.environ).
            Local keys override default keys ***except*** for the
         special case of keys in the default dict that end with PATH (case-
         INsensitive), for which internal substitution will be applied."""
-        
+
         self.final=dict(self.container.defdict,
                         **self.leveldict)
 
@@ -284,20 +285,20 @@ class EnvGetter(object):
                 del self.defdict['PROMPT']
         else:
             self.defdict=defdict
-            
-        
+
+
         self.nodes=dict()        #dictionary of DirLevel objects
         self.context=context     #contexts modify default environment
-        
+
         #Platform info
         self.platform=PlatformType()
 
         #for testing purposes
-        self.MOCK=mock           
+        self.MOCK=mock
         self.counter=0
-        
-        
-        
+
+
+
     def populate(self,dirname):
         """Populates the specified level and all parents.
         If already populated, exits immediately."""
@@ -307,7 +308,7 @@ class EnvGetter(object):
             self.nodes[dirname]=DirLevel(dirname,container=self)
             self.nodes[dirname].merge()
             self.nodes[dirname].substitute()
-            
+
     def envdir(self,dirname):
         """User interface to obtain a dictionary containing a
         completely specified environment to be passed to a
@@ -317,15 +318,14 @@ class EnvGetter(object):
         #Check for missing values.
 
         if len(self.nodes[dirname].missing) > 0:
-            raise KeyError("Missing values for %s. A complete environment cannot be provided for %s."%(self.nodes[dirname].missing, dirname))
-        else:
-            return self.nodes[dirname].final
-        
+            warnings.warn("Missing values for %s. A complete environment cannot be provided for %s."%(self.nodes[dirname].missing, dirname))
+        return self.nodes[dirname].final
+
 
     def gettop(self):
         """Return remembered "top" of environment.
         Raise exception if more than one node thinks it is the top."""
-        
+
         tlist=[v.name for v in self.nodes.values() if v.istop]
         if len(tlist) == 1:
             return tlist.pop()
@@ -338,7 +338,7 @@ class EnvGetter(object):
         self.populate(dirname)
         #delegate:
         self.nodes[dirname].export(format=format,fh=fh,full=full)
-                
+
 
 def parsefile(fname,platform=''):
     """Helper function: Make a configparser, parse the file,
@@ -354,7 +354,7 @@ def parsefile(fname,platform=''):
     except ConfigParser.NoSectionError:
         pass #ok to have no defaults
     #Apply any platform-specific overrides
-    
+
     for section in platform:
         try:
             for key,val in cfg.items(section):
@@ -364,5 +364,3 @@ def parsefile(fname,platform=''):
         except TypeError:
             pass #we didn't get a platform
     return ans
-        
-            
