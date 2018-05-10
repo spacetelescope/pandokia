@@ -5,4 +5,3 @@
 # report as the test runner.
 
 from pandokia.runners.maker import command, list
-

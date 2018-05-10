@@ -6,7 +6,7 @@ work than getopt, optparse, or argparse.
     import easyargs
     opt, args = easyargs.get( spec, argv )
 
-Parameters: 
+Parameters:
     spec is a dictionary that describes all the options that your program
     will accept.
 
@@ -27,7 +27,7 @@ description of how to process it.
         '-v' : 'flag',          # arg takes no parameter, opt['-v'] is
                                 # how many times it occurred
         '-f' : 'one',           # arg takes a parameter
-        '-mf' : 'list',         # arg takes a parameter, may be specified 
+        '-mf' : 'list',         # arg takes a parameter, may be specified
                                 # several times to get a list
         '--verbose' : '-v',     # arg is an alias for some other arg
     }
@@ -51,7 +51,7 @@ to the option.  Only the last instance of the option counts:
 
 The value '=+' means that the option may occur more than once and we want a list
 of all the values given
-    # myprog -mf f1 -mf f2 
+    # myprog -mf f1 -mf f2
     if '-mf' in opt :
         for x in opt['-mf'] :
             print "another",x
@@ -66,42 +66,44 @@ A bad spec will raise SyntaxError
 
 '''
 
-# 
-class BadArgs(Exception) :
+#
+
+
+class BadArgs(Exception):
     pass
 
 
-def get( spec, argv = None, allow_unexpected = False ) :
+def get(spec, argv=None, allow_unexpected=False):
 
-    # the returned dict 
-    opts = { }
+    # the returned dict
+    opts = {}
 
-    # if the user did not give argv, use sys.argv, but skip the 
+    # if the user did not give argv, use sys.argv, but skip the
     # program name
-    if argv is None :
+    if argv is None:
         import sys
-        argv=sys.argv
-        n=1
-    else :
-        n=0
+        argv = sys.argv
+        n = 1
+    else:
+        n = 0
 
     # for opts that are just counted, initialize them to 0
-    for x in spec :
+    for x in spec:
         s = spec[x]
-        if s == '' or s == 'flag' :
+        if s == '' or s == 'flag':
             opts[x] = 0
 
     # loop over the args, picking out args that we recognize
     arglen = len(argv)
-    while n < arglen :
+    while n < arglen:
 
         this_opt = argv[n]
 
         # if we recognize this arg
-        if this_opt in spec :
+        if this_opt in spec:
 
             # consume it
-            n=n+1
+            n = n + 1
 
             # If there is an error, we want to be able to say the name
             # of the arg that the user gave, not the other arg it is
@@ -114,45 +116,49 @@ def get( spec, argv = None, allow_unexpected = False ) :
             # if the spec starts with - that means this opt is an
             # alias for another opt.  You only get one time through,
             # though - no chains and no loops.
-            if this_spec.startswith('-') :
-                this_opt=this_spec
-                this_spec=spec[this_opt]
+            if this_spec.startswith('-'):
+                this_opt = this_spec
+                this_spec = spec[this_opt]
 
-            if this_spec.startswith('-') :
-                raise SyntaxError('Bad spec to easyargs - cannot chain aliases: %s : %s : %s'%(org_this_opt, this_opt, this_spec))
+            if this_spec.startswith('-'):
+                raise SyntaxError(
+                    'Bad spec to easyargs - cannot chain aliases: %s : %s : %s' %
+                    (org_this_opt, this_opt, this_spec))
 
             # if the spec starts with '=', it means an opt that takes an arg
-            if this_spec.startswith('=') or ( this_spec == 'one' ) or ( this_spec == 'list' ) :
-                if n >= arglen :
-                    raise BadArgs('%s requires argument'%org_this_opt)
+            if this_spec.startswith('=') or (
+                    this_spec == 'one') or (
+                    this_spec == 'list'):
+                if n >= arglen:
+                    raise BadArgs('%s requires argument' % org_this_opt)
 
                 # consume the next element as the value
                 thisarg = argv[n]
-                n=n+1
+                n = n + 1
 
                 # =+ means we want a list
                 # =  means we want just the last one
-                if ( '+' in this_spec ) or ( this_spec == 'list' ) :
-                    l = opts.get(this_opt,[])
+                if ('+' in this_spec) or (this_spec == 'list'):
+                    l = opts.get(this_opt, [])
                     l.append(thisarg)
-                    opts[this_opt]=l
-                else :
-                    opts[this_opt]=thisarg
+                    opts[this_opt] = l
+                else:
+                    opts[this_opt] = thisarg
 
             # spec does not start with '=', the opt takes no args -
             # the returned value is how many times we saw it
-            else :
+            else:
                 opts[this_opt] += 1
 
         # unknown arg
-        elif this_opt.startswith('-') :
+        elif this_opt.startswith('-'):
             if allow_unexpected:
                 n += 1
             else:
-                raise BadArgs("unknown arg %s"%this_opt)
+                raise BadArgs("unknown arg %s" % this_opt)
 
         # anything else is the end of the list
-        else :
+        else:
             break
 
     # return value is the dict of opts that we collected and
@@ -162,35 +168,33 @@ def get( spec, argv = None, allow_unexpected = False ) :
 
 ###
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     spec = {
-        '-l' :      '--list',   # '-l' is the same as '--list'
+        '-l': '--list',   # '-l' is the same as '--list'
 
-        '--list' :  '=+',       # '--list' collects a list of all the args 
-                                # foo.py --list a --list b --list c
-                                #   { '--list' : [ 'a', 'b', 'c' ] }
+        '--list': '=+',       # '--list' collects a list of all the args
+        # foo.py --list a --list b --list c
+        #   { '--list' : [ 'a', 'b', 'c' ] }
 
-        '-v' :       '',        # -v is just counted
-                                # result is how many times it appeared
-                                # foo.py -v -v 
-                                #   { '-v' : 2 }
-                                # foo.py
-                                #   { '-v' : 0 }
+        '-v': '',        # -v is just counted
+        # result is how many times it appeared
+        # foo.py -v -v
+        #   { '-v' : 2 }
+        # foo.py
+        #   { '-v' : 0 }
 
-        '-a' :      '=',        # foo -a 1 -a 2 
-                                #   { '-a' : '2' }
+        '-a': '=',        # foo -a 1 -a 2
+        #   { '-a' : '2' }
 
         # an alias that causes an error
-        '-x' :      '-y',
-        '-y' :      '-z',
+        '-x': '-y',
+        '-y': '-z',
     }
 
     import sys
     args, rest = get(spec)
 
-    l = [x for x in args]
-    l.sort()
-    for x in l :
-        print x,args[x]
-    print rest
-
+    l = sorted([x for x in args])
+    for x in l:
+        print("%s %s" % (x, args[x]))
+    print(rest)

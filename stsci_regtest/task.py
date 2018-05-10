@@ -1,9 +1,8 @@
 import os
-import string
+import traceback
 
 from pyraf import iraf
 
-import traceback
 
 # TASK: Runs a requested IRAF/PyRAF task
 #
@@ -37,10 +36,10 @@ import traceback
 #
 # Returns 0 if task executed successfully or 1 if there was an error
 #----------------------------------------------------------------------
-def run (taskname, pfile, output, log):
+def run(taskname, pfile, output, log):
 
     # Construct Pyraf command for IRAF task
-    command = getattr(iraf,taskname)
+    command = getattr(iraf, taskname)
 
     # Check whether we need to trap STDOUT
     trap = 0
@@ -57,16 +56,16 @@ def run (taskname, pfile, output, log):
 
         # Try running the IRAF task
         try:
-            #This syntax sends *both* STDOUT and STDERR to the file
-            err = command(ParList=pfile,Stderr=fname)
+            # This syntax sends *both* STDOUT and STDERR to the file
+            err = command(ParList=pfile, Stderr=fname)
 
         # If an error or exception occurs, write error messages to log
             if err:
                 status = 1
 
-        except Exception, exc:
+        except Exception as exc:
             xstr = traceback.format_exc()
-            write_exc_to_log (xstr, log)
+            write_exc_to_log(xstr, log)
             status = 1
 
     # Run IRAF task without Stdout trapped to file
@@ -74,14 +73,12 @@ def run (taskname, pfile, output, log):
         try:
             command(ParList=pfile)
 
-        except Exception, exc:
+        except Exception as exc:
             xstr = traceback.format_exc()
-            write_exc_to_log (xstr, log)
+            write_exc_to_log(xstr, log)
             status = 1
 
-
     return status
-
 
 
 #----------------------------------------------------------------------
@@ -92,15 +89,14 @@ def run (taskname, pfile, output, log):
 #
 # Returns       None
 #----------------------------------------------------------------------
-def write_exc_to_log (exc, log):
+def write_exc_to_log(exc, log):
 
     log.write("? Exception in task.run():\n")
-    exc=string.split(str(exc),"\n")
+    exc = exc.split("\n")
     for i in range(len(exc)):
-        log.write ("? "+exc[i]+"\n")
+        log.write("? " + exc[i] + "\n")
 
     return
-
 
 
 #----------------------------------------------------------------------
@@ -111,13 +107,13 @@ def write_exc_to_log (exc, log):
 #
 # Returns       None
 #----------------------------------------------------------------------
-def write_err_to_log (fname, log):
+def write_err_to_log(fname, log):
 
-    log.write ("? Error running IRAF task\n")
-    fd = open(fname,'r')
+    log.write("? Error running IRAF task\n")
+    fd = open(fname, 'r')
     lines = fd.readlines()
     fd.close()
     for i in range(len(lines)):
-        log.write ("? "+lines[i])
+        log.write("? " + lines[i])
 
     return

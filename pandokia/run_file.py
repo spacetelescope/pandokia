@@ -30,74 +30,76 @@ import pandokia.runners
 runner_glob = pandokia.runners.runner_glob
 
 # you can override the default set of runners in the config file
-try :
+try:
     runner_glob = pandokia.cfg.runner_glob + runner_glob
-except AttributeError :
+except AttributeError:
     pass
 
 # here is a cache of the runner specifications we found for each directory
-runner_glob_cache = { }
+runner_glob_cache = {}
 
-def read_runner_glob ( dirname ) :
+
+def read_runner_glob(dirname):
     # Find the list of file patterns and test runners that apply
     # in a specific directory.
     #
     # return value is a list of ( file_pattern, test_runner )
-    # 
+    #
     dirname = os.path.abspath(dirname)
 
     # maybe we already know the answer
-    if dirname in runner_glob_cache :
+    if dirname in runner_glob_cache:
         return runner_glob_cache[dirname]
 
     # we don't know, so we have to go looking.
 
     # find the parent
-    parent = os.path.abspath( dirname + '/..' )
+    parent = os.path.abspath(dirname + '/..')
 
     # work around a bug in os.path.abspath
-    parent = parent.replace('//','/')
+    parent = parent.replace('//', '/')
 
-    if parent == dirname :
+    if parent == dirname:
         # if the parent is the same, we are at the top of the
         # filesystem.  On linux, this looks like '/'.  On
         # windows, this looks like 'Z:\'
         parent_list = runner_glob
 
-    elif os.path.exists( dirname + '/pandokia_top' ):
+    elif os.path.exists(dirname + '/pandokia_top'):
         # if we see pandokia_top, we are at the top of the test
         # tree.
         parent_list = runner_glob
 
-    else :
+    else:
         # otherwise, we need to get the list of runners from the
         # parent directory
-        parent_list = read_runner_glob( parent )
+        parent_list = read_runner_glob(parent)
 
-    # now we have the list from the higher directories; try to 
+    # now we have the list from the higher directories; try to
     # read the pdk_runners from the directory we are interested in.
-    try :
-        f=open(dirname+"/pdk_runners","r")
-    except IOError, e :
-        if e.errno == errno.ENOENT :
+    try:
+        f = open(dirname + "/pdk_runners", "r")
+    except IOError as e:
+        if e.errno == errno.ENOENT:
             return parent_list
         raise
 
     # read pairs from file
     # bug: no real error handling here
-    here_list = [ ]
-    for line in f :
+    here_list = []
+    for line in f:
         line = line.strip()
         if line.startswith("#"):
             continue
         line = line.split()
-        if len(line) == 2 :
-            here_list.append( (line[0],line[1]) )
+        if len(line) == 2:
+            here_list.append((line[0], line[1]))
 
     # explicit close
     f.close()
 
-    # the list we find in the file goes in front of the defaults from the config
+    # the list we find in the file goes in front of the defaults from the
+    # config
     l = here_list + parent_list
     runner_glob_cache[dirname] = l
 
@@ -107,13 +109,13 @@ def read_runner_glob ( dirname ) :
 #
 # Choose the actual runner to use for a specific file.
 #
-def select_runner(dirname, basename) :
+def select_runner(dirname, basename):
 
-    runner_glob = read_runner_glob( dirname )
+    runner_glob = read_runner_glob(dirname)
 
-    for pat, runner in runner_glob :
-        if fnmatch.fnmatch(basename,pat) :
-            if runner == 'none' :
+    for pat, runner in runner_glob:
+        if fnmatch.fnmatch(basename, pat):
+            if runner == 'none':
                 return None
             return runner
 
@@ -124,17 +126,18 @@ def select_runner(dirname, basename) :
 # find the python module that implements the interface to a specific
 # test runner.
 #
-runner_modules = { }
+runner_modules = {}
 
-def get_runner_mod(runner) :
-    if runner in runner_modules :
+
+def get_runner_mod(runner):
+    if runner in runner_modules:
         runner_mod = runner_modules[runner]
-    else :
-        try :
+    else:
+        try:
             n = "pandokia_runner_" + runner
             __import__(n)
-        except ImportError :
-            n = "pandokia.runners."+runner
+        except ImportError:
+            n = "pandokia.runners." + runner
             __import__(n)
         runner_mod = sys.modules[n]
         runner_modules[runner] = runner_mod
@@ -144,40 +147,46 @@ def get_runner_mod(runner) :
 # Identify the prefix that should be inserted in front of the
 # test name.
 #
-def get_prefix( envgetter, dirname ) :
-    top = envgetter.gettop()
-    assert ( dirname.startswith(top) )
 
-    prefix = dirname[len(top):]+"/"
-    if prefix.startswith("/") or prefix.startswith("\\") :
+
+def get_prefix(envgetter, dirname):
+    top = envgetter.gettop()
+    assert (dirname.startswith(top))
+
+    prefix = dirname[len(top):] + "/"
+    if prefix.startswith("/") or prefix.startswith("\\"):
         prefix = prefix[1:]
 
-    if 'PDK_TESTPREFIX' in os.environ :
-        e = os.environ['PDK_TESTPREFIX'] 
-        if not ( e.endswith('/') or e.endswith('.') ) :
+    if 'PDK_TESTPREFIX' in os.environ:
+        e = os.environ['PDK_TESTPREFIX']
+        if not (e.endswith('/') or e.endswith('.')):
             e += '/'
         prefix = e + prefix
 
     return prefix
 
-# 
+#
 # find the name of the pdk log file to use with the current environment.
 # This is mostly simple, but if we are running multiple tests in parallel,
 # then we need to avoid two processes writing the same file at the same
 # time.  We do this by adding a suffix -- we know that only one process
-# will be using a specific value for PDK_PROCESS_SLOT at any time, so 
+# will be using a specific value for PDK_PROCESS_SLOT at any time, so
 # that is our suffix.
 #
-def pdk_log_name( env ) :
+
+
+def pdk_log_name(env):
     log = env['PDK_LOG']
-    if 'PDK_PROCESS_SLOT' in env :
+    if 'PDK_PROCESS_SLOT' in env:
         log += '.' + env['PDK_PROCESS_SLOT']
     return log
 
 #
 # actually run the tests in a specific file
 #
-def run( dirname, basename, envgetter, runner ) :
+
+
+def run(dirname, basename, envgetter, runner):
 
     return_status = 0
 
@@ -186,14 +195,14 @@ def run( dirname, basename, envgetter, runner ) :
     save_dir = os.getcwd()
     os.chdir(dirname)
 
-    if runner is None :
-        runner = select_runner(dirname, basename )
+    if runner is None:
+        runner = select_runner(dirname, basename)
 
-    if runner is not None :
+    if runner is not None:
         # copy of the environment because we will mess with it
-        env = dict( envgetter.envdir(dirname) )
+        env = dict(envgetter.envdir(dirname))
 
-        env['PDK_TESTPREFIX'] = get_prefix( envgetter, dirname )
+        env['PDK_TESTPREFIX'] = get_prefix(envgetter, dirname)
 
         env['PDK_TOP'] = envgetter.gettop()
 
@@ -201,21 +210,22 @@ def run( dirname, basename, envgetter, runner ) :
 
         env['PDK_FILE'] = basename
 
-        env['PDK_LOG'] = pdk_log_name(env) 
+        env['PDK_LOG'] = pdk_log_name(env)
 
         # We will write a count of statuses to a summary file.  But where?
         # If no PDK_PROCESS_SLOT, we do not need a summary -- we just return
-        # it to our caller.  Otherwise, we use a file based on the log file name.
-        if 'PDK_PROCESS_SLOT' in env :
+        # it to our caller.  Otherwise, we use a file based on the log file
+        # name.
+        if 'PDK_PROCESS_SLOT' in env:
             summary_file = env['PDK_LOG'] + '.summary'
             slot_id = env['PDK_PROCESS_SLOT']
-        else :
+        else:
             summary_file = None
             slot_id = '0'
 
-        f=open(env['PDK_LOG'],'a+')
+        f = open(env['PDK_LOG'], 'a+')
         # 2 == os.SEEK_END, but not in python 2.4
-        f.seek(0,2)
+        f.seek(0, 2)
         end_of_log = f.tell()
         f.close()
 
@@ -225,140 +235,159 @@ def run( dirname, basename, envgetter, runner ) :
         # A test runner that only works within pandokia can assume
         # that we made all of these log entries for it.
 
-        full_filename = dirname+"/"+env['PDK_FILE']
+        full_filename = dirname + "/" + env['PDK_FILE']
 
-        pdkrun_status( full_filename )
+        pdkrun_status(full_filename)
 
-        f = open(env['PDK_LOG'],"a")
+        f = open(env['PDK_LOG'], "a")
         f.write("\n\nSTART\n")
-        f.write('test_run=%s\n'     % env['PDK_TESTRUN'])
-        f.write('project=%s\n'      % env['PDK_PROJECT'])
-        f.write('host=%s\n'         % env['PDK_HOST'] )
-        f.write('location=%s\n'     % full_filename )
-        f.write('test_runner=%s\n'  % runner)
-        f.write('context=%s\n'      %env['PDK_CONTEXT'])
+        f.write('test_run=%s\n' % env['PDK_TESTRUN'])
+        f.write('project=%s\n' % env['PDK_PROJECT'])
+        f.write('host=%s\n' % env['PDK_HOST'])
+        f.write('location=%s\n' % full_filename)
+        f.write('test_runner=%s\n' % runner)
+        f.write('context=%s\n' % env['PDK_CONTEXT'])
         f.write("SETDEFAULT\n")
         f.close()
 
         # fetch the command that executes the tests
         cmd = runner_mod.command(env)
 
-        if cmd is not None :
+        if cmd is not None:
             # run the command -- To understand how we do it, see
             # "Replacing os.system()" in the docs for the subprocess module,
             # then consider the source code for subprocess.call()
-            if not isinstance(cmd, list ) :
-                cmd = [ cmd ]
-            for thiscmd in cmd :
-                print 'COMMAND :', repr(thiscmd), '(for file %s)'% full_filename, datetime.datetime.now()
+            if not isinstance(cmd, list):
+                cmd = [cmd]
+            for thiscmd in cmd:
+                print('COMMAND : %s (for file %s) %s' %
+                      (repr(thiscmd), full_filename, datetime.datetime.now()))
                 sys.stdout.flush()
                 sys.stderr.flush()
-                if windows :
+                if windows:
                     # on Windows, we dare not let the child process have access to the stdout/stderr
                     # that we are using.  Apparently, the child process closes stderr and it somehow
                     # ends up closed for us too.  So, stuff it into a temp file and then copy the
                     # temp file to our stdout/stderr.
-                    f = open("stdout.%s.tmp"%slot_id,"w")
-                    p = subprocess.Popen( thiscmd, stdout=f, stderr=f, shell=True, env = env, creationflags = subprocess.CREATE_NEW_PROCESS_GROUP )
+                    f = open("stdout.%s.tmp" % slot_id, "w")
+                    p = subprocess.Popen(
+                        thiscmd,
+                        stdout=f,
+                        stderr=f,
+                        shell=True,
+                        env=env,
+                        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
                     # bug: implement timeouts
                     status = p.wait()
                     f.close()
-                    f = open("stdout.%s.tmp"%slot_id,"r")
-                    while 1 :
+                    f = open("stdout.%s.tmp" % slot_id, "r")
+                    while True:
                         buffer = f.read()
-                        if buffer == '' :
+                        if buffer == '':
                             break
                         sys.stdout.write(buffer)
                     f.close()
-                    os.unlink("stdout.%s.tmp"%slot_id)
-                else :
+                    os.unlink("stdout.%s.tmp" % slot_id)
+                else:
                     # on unix, just do it
-                    p = subprocess.Popen( "exec " + thiscmd, shell=True, env = env, preexec_fn = unix_preexec )
-                    if 'PDK_TIMEOUT' in env :
+                    p = subprocess.Popen(
+                        "exec " + thiscmd,
+                        shell=True,
+                        env=env,
+                        preexec_fn=unix_preexec)
+                    if 'PDK_TIMEOUT' in env:
                         proc_timeout_start(env['PDK_TIMEOUT'], p)
                         status = p.wait()
-                        print "return from wait, status=",status
+                        print("return from wait, status=%d" % status)
                         proc_timeout_terminate()
-                        if timeout_proc_kills > 0 :
+                        if timeout_proc_kills > 0:
                             # we tried to kill it for taking too long -
                             # report an error even if it managed to exit 0
                             return_status = 1
-                    else :
+                    else:
                         status = p.wait()
 
                 # subprocess gives you weird status values
-                if status > 0 :
-                    status="exit %d"%(status >> 8)
-                    if status != 0 :
-                        return_status = 1
-                else :
+                cause = "unknown"
+                if os.WIFEXITED(status):
+                    cause = "exit"
+                elif os.WIFSIGNALED(status):
+                    cause = "signal"
+
+                if status > 0:
                     return_status = 1
-                    status="signal %d" % ( - status )
+                elif status != 0:
+                    return_status = 1
+                else:
+                    return_status = 1
+                    status = (- status)
                     # subprocess does not tell you if there was a core
                     # dump, but there is nothing we can do about it.
 
-                print "COMMAND EXIT:",status,datetime.datetime.now()
+                print(
+                    "COMMAND EXIT: %s %s %s" %
+                    (cause, status, datetime.datetime.now()))
 
-        else :
+        else:
             # BUG: no timeout! - fortunately, this is a minor issue
             # because we don't currently have anything that uses
             # run_internally() except to cough out errors about
             # unsupported runners on Windows
 
             # There is no command, so we run it by calling a function.
-            # This runs the test in the same python interpreter that 
+            # This runs the test in the same python interpreter that
             # this file is executing in, which is normally not
             # preferred because a problem in the test runner, or even
             # in the test, could potentially kill the pandokia meta-runner.
-            print "RUNNING INTERNALLY (for file %s)"%full_filename
+            print("RUNNING INTERNALLY (for file %s)" % full_filename)
             runner_mod.run_internally(env)
-            print "DONE RUNNING INTERNALLY"
+            print("DONE RUNNING INTERNALLY")
 
-        stat_summary = { }
-        for x in pandokia.cfg.statuses :
+        stat_summary = {}
+        for x in pandokia.cfg.statuses:
             stat_summary[x] = 0
 
-        if 1 :
+        if 1:
             # if the runner did not provide a status summary, collect it from
             # the log file.
             # [ This is "if 1" because no runners currently know how to do it.
-            #   Later, some of them will leave behind a status summary file; we 
+            #   Later, some of them will leave behind a status summary file; we
             #   will read that instead.   ]
-            f=open(env['PDK_LOG'],'r')
+            f = open(env['PDK_LOG'], 'r')
             # 0 == os.SEEK_SET, but not in python 2.4
-            f.seek(end_of_log,0)
-            while 1 :
+            f.seek(end_of_log, 0)
+            while True:
                 l = f.readline()
-                if l == '' :
+                if l == '':
                     break
                 l = l.strip()
-                if l.startswith('status=') :
-                    l=l[7:].strip()
-                    stat_summary[l] = stat_summary.get(l,0) + 1
+                if l.startswith('status='):
+                    l = l[7:].strip()
+                    stat_summary[l] = stat_summary.get(l, 0) + 1
             f.close()
 
-        common.print_stat_dict( stat_summary )
-        print ""
-        if summary_file : 
+        common.print_stat_dict(stat_summary)
+        print("")
+        if summary_file:
             # The summary file has a similar format to the log, but there is
-            # a "START" line after each record.   If somebody accidentally 
+            # a "START" line after each record.   If somebody accidentally
             # tries to import it, the importer can never find any data.
-            f = open(summary_file,'a')
-            for x in stat_summary :
-                f.write("%s=%s\n"%(x,stat_summary[x]))
+            f = open(summary_file, 'a')
+            for x in stat_summary:
+                f.write("%s=%s\n" % (x, stat_summary[x]))
             # ".file" can never look like a valid status
-            f.write(".file=%s\n"%full_filename)
+            f.write(".file=%s\n" % full_filename)
             f.write("START\n\n")
             f.close()
 
-    else :
-        print "NO RUNNER FOR",dirname +"/"+basename,"\n"
+    else:
+        print("NO RUNNER FOR %s\n" % (dirname + "/" + basename))
 
     os.chdir(save_dir)
 
-    pdkrun_status( '' )
+    pdkrun_status('')
 
-    return ( return_status, stat_summary )
+    return (return_status, stat_summary)
 
 
 ##########
@@ -370,21 +399,21 @@ def run( dirname, basename, envgetter, runner ) :
 # accounting is pretty easy.
 #
 
-if windows :
+if windows:
     # bug: have to implement timeouts for windows someday.
     pass
 
-else :
+else:
 
     # We ask subprocess to call this function in the child, before the exec.
     #
     # In this case, setpgrp() so we can killpg a runaway test.  Killing just
     # the test process isn't enough because the test may have child processes
-    # of its own.  
+    # of its own.
     #
     # If the test itself creates new process groups, we have a problem.  It
     # may be worth looking in to cgroups on linux to deal with that.
-    def unix_preexec() :
+    def unix_preexec():
         os.setpgrp()
 
     # the process we are waiting for.
@@ -396,7 +425,6 @@ else :
 
     # remember the duration so we can say how long it was when it expires
     timeout_duration = None
-
 
     # An exception to raise to abort Popen.wait().
     #
@@ -415,10 +443,10 @@ else :
     class timeout_not_going_away:
         pass
 
-    ## 
-    ## start the timeout for the child process
     ##
-    def proc_timeout_start(timeout, p) :
+    # start the timeout for the child process
+    ##
+    def proc_timeout_start(timeout, p):
         global timeout_proc, timeout_proc_kills, timeout_duration
         timeout_proc = p
         timeout_proc_kills = 0
@@ -428,13 +456,13 @@ else :
 
     # Kill the process group, but no error if it does not exist.  (In case
     # it exited before we got here.)
-    def killpg_maybe( pid, signal ) :
-        print "killpg -%d %d"%(signal,pid)
-        try :
-            os.killpg( pid, signal )
-        except OSError, e:
-            print "killpg exception:",e
-            if e.errno != errno.ESRCH :
+    def killpg_maybe(pid, signal):
+        print("killpg -%d %d" % (signal, pid))
+        try:
+            os.killpg(pid, signal)
+        except OSError as e:
+            print("killpg exception: %s" % e)
+            if e.errno != errno.ESRCH:
                 raise
 
     #
@@ -443,16 +471,26 @@ else :
 
     def proc_timeout_callback(sig, stack):
         global timeout_proc_kills
-        if timeout_proc :
-            pid = timeout_proc.pid
-            print "PID=%d"%pid
-            sys.stdout.flush()
-            if timeout_proc_kills == 0 :
-                os.system('ps -fp %s' %pid)
-                sys.stdout.flush()
-                print "timeout expired - terminate after %s"%str(timeout_duration)
-                sys.stdout.flush()
+        platform_id = platform.system()
+
+        def top():
+            if platform_id == 'Linux':
                 os.system('top -b -n 1')
+            elif platform_id == 'Darwin':
+                os.system('top -n 25 -l1 -ncols 13')
+
+        if timeout_proc:
+            pid = timeout_proc.pid
+            print("PID=%d" % pid)
+            sys.stdout.flush()
+            if timeout_proc_kills == 0:
+                os.system('ps -fp %s' % pid)
+                sys.stdout.flush()
+                print(
+                    "timeout expired - terminate after %s" %
+                    str(timeout_duration))
+                sys.stdout.flush()
+                top()
                 sys.stdout.flush()
                 os.system('ps -efl')
                 sys.stdout.flush()
@@ -460,24 +498,23 @@ else :
                 sys.stdout.flush()
                 os.system('ps -efl')
                 sys.stdout.flush()
-                killpg_maybe( pid, signal.SIGTERM )
-                os.system('top -b -n 1')
-            elif timeout_proc_kills == 1 :
-                print "timeout expired again - kill"
-                killpg_maybe( pid, signal.SIGKILL )
-            elif timeout_proc_kills == 2 :
-                print "timeout expired yet again - now what?"
+                killpg_maybe(pid, signal.SIGTERM)
+                top()
+                sys.stdout.flush()
+            elif timeout_proc_kills == 1:
+                print("timeout expired again - kill")
+                killpg_maybe(pid, signal.SIGKILL)
+            elif timeout_proc_kills == 2:
+                print("timeout expired yet again - now what?")
                 raise timeout_not_going_away()
 
             timeout_proc_kills += 1
             signal.alarm(10)
 
-
     ##
-    ## cancel the timeout for the current child process
+    # cancel the timeout for the current child process
     ##
 
-    def proc_timeout_terminate() :
+    def proc_timeout_terminate():
         signal.alarm(0)
         timeout_proc = None
-

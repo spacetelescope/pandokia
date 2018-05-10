@@ -5,6 +5,7 @@ import unittest
 import os
 from pandokia.helpers import filecomp
 
+
 class FileTestCase(unittest.TestCase):
     """This class pre-defines several methods:
         - setUp() defines self.tda and self.tra dictionaries
@@ -23,21 +24,19 @@ class FileTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        #Define the tda and tra dictionaries for use by the tests
-        self.tda=dict()
-        self.tra=dict()
+        # Define the tda and tra dictionaries for use by the tests
+        self.tda = dict()
+        self.tra = dict()
 
-            
-    def command(self,cmdstring,suffix=''):
+    def command(self, cmdstring, suffix=''):
         """execute the specified command string, saving it as a
         tda and the return status as a tra.
         The 'suffix' argument allows users to distinguish between multiple
         commands issued as part of the same test.
         """
-        
-        self.tda['cmd%s'%str(suffix)]=cmdstring
-        self.tra['cmd%s_retstat'%str(suffix)]=filecomp.command(cmdstring)
 
+        self.tda['cmd%s' % str(suffix)] = cmdstring
+        self.tra['cmd%s_retstat' % str(suffix)] = filecomp.command(cmdstring)
 
     def check_file(self, name, cmp, okfh=None, msg=None, suffix='', **kwargs):
         """Save the filename as a tda, and do the requested file
@@ -51,13 +50,12 @@ class FileTestCase(unittest.TestCase):
         method to clean up the compared files only if all files in the
         test have passed."""
 
-        #Save what we're comparing
-        self.tda['fname%s'%str(suffix)]=name
-        #Do the comparison
+        # Save what we're comparing
+        self.tda['fname%s' % str(suffix)] = name
+        # Do the comparison
         filecomp.check_file(name, cmp=cmp, msg=msg, exc=True,
                             cleanup=True, okfh=okfh,
                             **kwargs)
-
 
 
 class FunctionHolder(unittest.TestCase):
@@ -73,5 +71,5 @@ class FunctionHolder(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tda=dict()
-        self.tra=dict()
+        self.tda = dict()
+        self.tra = dict()
