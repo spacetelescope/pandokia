@@ -1,6 +1,6 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
 
 # This is a test runner that uses nose with the pandokia plugin.  It
@@ -15,18 +15,17 @@ import os
 #
 # The pdknose command is in the commands/ directory.
 #
-# This looks like we are not using many parameters, but most of the information 
+# This looks like we are not using many parameters, but most of the information
 # we are passing to nose is in the environment.
 
-def command( env ) :
+
+def command(env):
     return 'pdknose --pdk --with-doctest --doctest-tests %(PDK_FILE)s' % env
-
-
 
 
 # return a list of tests that are in the file.  we use this
 # to report disabled tests.
-def list( env ) :
+def lst(env):
     # nose has --collect-only which identifies the tests, but does not run them.
     # We run nose with the same set of parameters as if we were running the
     # test, but we add --collect-only.  The result is a pandokia log file
@@ -42,7 +41,7 @@ def list( env ) :
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.
-    try :
+    try:
         os.unlink(tmpfile)
     except OSError:
         pass
@@ -50,18 +49,18 @@ def list( env ) :
     # run the command to collect the names
     # pandokia log goes to tmpfile - it is ok to used a fixed name because we
     # know that only one process can be running tests in a single directory.
-    s='pdknose --pdk --with-doctest --doctest-tests --collect-only %(PDK_FILE)s' % env
+    s = 'pdknose --pdk --with-doctest --doctest-tests --collect-only %(PDK_FILE)s' % env
 
     env = env.copy()
     env['PDK_LOG'] = tmpfile
-    process.run_process(s.split(), env, output_file='pdknose.tmp' )
+    process.run_process(s.split(), env, output_file='pdknose.tmp')
 
     # gather the names from pdk.log
-    l = [ ]
-    f=open(tmpfile,"r")
-    for line in f :
+    l = []
+    f = open(tmpfile, "r")
+    for line in f:
         line = line.strip().split('=')
-        if line[0] == 'test_name' :
+        if line[0] == 'test_name':
             l.append(line[1])
 
     f.close()

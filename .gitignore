@@ -1,0 +1,16 @@
+RELIC-INFO
+relic/
+MANIFEST
+*/version.py
+*/svn_version.py
+build/
+dist/
+*.pyc
+*.o
+*.so
+*.egg-info
+*.swp
+*.bak
+*.tmp
+*.out
+pdk_statusfile

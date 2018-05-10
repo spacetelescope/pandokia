@@ -18,13 +18,13 @@ class PyrafTest(object):
 
     @classmethod
     def setUpClass(cls):
-        cls._error=None
+        cls._error = None
         # Each test will override this method to set
         #  the following
         try:
             cls.setdefs()
-        except Exception, e:
-            cls._error=e
+        except Exception as e:
+            cls._error = e
             return
 # #      This method must define the taskname
 # #             cls.taskname='calcspec'
@@ -35,7 +35,6 @@ class PyrafTest(object):
 # #      and the output files to be ignored
 # #             cls.cleanuplist = []
 
-                
         # Clean them up
         cls.preclean()
 
@@ -43,26 +42,26 @@ class PyrafTest(object):
         cls.init_tdas(parfile=cls.parfile)
 
         # Support okifying
-        cls.tda['_okfile']=os.path.abspath(cls.parfile).replace('.par',
-                                                                '.okify')
+        cls.tda['_okfile'] = os.path.abspath(cls.parfile).replace('.par',
+                                                                  '.okify')
         cls.okfh = open(cls.tda['_okfile'], 'w')
-        
+
         # Provide a hook for any other setup
         cls.pre_exec()
-        
+
         # Run the task. Catch any exceptions
         # so we can save the output.
         try:
-            t=getattr(iraf,cls.taskname)
+            t = getattr(iraf, cls.taskname)
             t.run(ParList=cls.parfile,
-                  Stdout=cls.parfile.replace('.par','.stdout'))
-        except Exception, e:
-            cls._error=e
+                  Stdout=cls.parfile.replace('.par', '.stdout'))
+        except Exception as e:
+            cls._error = e
 
     @classmethod
     def setdefs(cls):
         raise NotImplementedError('Tests must override this method')
-    
+
     @classmethod
     def pre_exec(cls):
         # Hook for tests to override if desired
@@ -74,67 +73,63 @@ class PyrafTest(object):
         cls.tda = dict(parfile=parfile)
 
         # then extract the interesting parameters....
-        parobj=pyraf.irafpar.IrafParList(cls.taskname, parfile)
-        parlist=parobj.getParList()
+        parobj = pyraf.irafpar.IrafParList(cls.taskname, parfile)
+        parlist = parobj.getParList()
 
         #  ignore some especially uninteresting clutter in the par files
         #  (you have to understand IRAF to understand why)
-        tdaIgnoreNames = ['mode','$nargs']
-        tdaIgnoreValues = ['none','no','','indef']
+        tdaIgnoreNames = ['mode', '$nargs']
+        tdaIgnoreValues = ['none', 'no', '', 'indef']
 
         # ...and add them to the dict
         for k in parlist:
             if (k.name not in tdaIgnoreNames and
-                str(k.value).strip().lower() not in tdaIgnoreValues):
-                cls.tda[k.name]=k.value
-
+                    str(k.value).strip().lower() not in tdaIgnoreValues):
+                cls.tda[k.name] = k.value
 
     def test_InitOutput(self):
-        
+
         # This is here to manage the emitting of the task stdout and the
         # exception info, if any.
-        f=open(self.parfile.replace('.par','.stdout'))
-        task_output=f.read()
-        print task_output
+        f = open(self.parfile.replace('.par', '.stdout'))
+        task_output = f.read()
+        print(task_output)
         f.close()
 
         if self._error is not None:
-            print str(self._error) # also backtrace?
+            print(str(self._error))  # also backtrace?
 
-            
     def checkfile(self, fname, comparator=None, **kwds):
 
         # If no comparator specified, infer it from file extension
         if comparator is None:
             if fname.endswith('.fits') or fname.endswith('.fit'):
-                comparator='fits'
+                comparator = 'fits'
             else:
-                comparator='text'
-                
+                comparator = 'text'
+
         # Save what and how we're comparing
-        self.tda['testfile']=fname
-        self.tda['comparator']=comparator
+        self.tda['testfile'] = fname
+        self.tda['comparator'] = comparator
 
         # Save what, if anything, we're ignoring
         for k in kwds:
             if k.startswith('ignore'):
-                self.tda[k]=kwds[k]
+                self.tda[k] = kwds[k]
 
         # Syntactic sugar for FITS keyword ignore
         if 'ignore_keys' in kwds:
-            kwds['value_excl_list']=','.join(kwds.pop('ignore_keys'))
-            
+            kwds['value_excl_list'] = ','.join(kwds.pop('ignore_keys'))
 
         # Then do the comparison
         filecomp.check_file(fname, comparator,
                             exc=True,       # Raise AssertionError if different
-                            okfh=self.okfh, # Update okfile for failed tests
+                            okfh=self.okfh,  # Update okfile for failed tests
                             cleanup=True,   # Clean up output file for passed tests
                             **kwds)         # Keyword args understood by comparators
 
-        
     @classmethod
-    def preclean(cls):        
+    def preclean(cls):
         for fname in cls.cmplist + cls.cleanuplist:
             if '*' in fname:
                 for k in glob.glob(fname):
@@ -142,13 +137,11 @@ class PyrafTest(object):
             else:
                 safedel(fname)
 
-
-
     @classmethod
     def tearDownClass(cls):
         # CLose the okfile
         cls.okfh.close()
-        
+
         # Remove side effect files
         for fname in cls.cleanuplist:
             try:
@@ -156,9 +149,9 @@ class PyrafTest(object):
             except OSError:
                 pass
 
+
 def safedel(fname):
     try:
         os.remove(fname)
     except OSError:
-        pass # Probably isn't there. This could be smarter.
-    
+        pass  # Probably isn't there. This could be smarter.

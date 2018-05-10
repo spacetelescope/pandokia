@@ -29,7 +29,7 @@ CREATE TABLE ok_items (
 --	each row represents a single test result
 
 CREATE TABLE result_scalar (
-	key_id 		INTEGER PRIMARY KEY, 
+	key_id 		INTEGER PRIMARY KEY,
 		-- primary key is assigned by database; this is a
 		-- unique identifier
 	test_run 	VARCHAR,
@@ -53,8 +53,8 @@ CREATE TABLE result_scalar (
 		-- what type of test runner ran this test
 	start_time VARCHAR,
 	end_time VARCHAR,
-		-- times in the database are like 
-		-- '2009-03-06 12:22:57.752' 
+		-- times in the database are like
+		-- '2009-03-06 12:22:57.752'
 		-- represented in local time.  The pdk log can
 		-- contain a floating point time_t ( time.time() ) in UTC.
 	location VARCHAR,
@@ -69,10 +69,10 @@ CREATE TABLE result_scalar (
 		-- 0 or 1 indicating whether this test is a chronic problem
 );
 
-CREATE UNIQUE INDEX result_scalar_test_identity 
+CREATE UNIQUE INDEX result_scalar_test_identity
 	ON result_scalar ( test_run, project, host, test_name, context );
 
-CREATE INDEX result_scalar_test_run_only 
+CREATE INDEX result_scalar_test_run_only
 	ON result_scalar ( test_run ) ;
 
 CREATE INDEX result_scalar_host
@@ -81,7 +81,7 @@ CREATE INDEX result_scalar_host
 CREATE INDEX result_scalar_project
 	ON result_scalar ( project );
 
-CREATE INDEX result_scalar_test_name 
+CREATE INDEX result_scalar_test_name
 	ON result_scalar ( test_name );
 
 -- this particular query is used to look up each line of the day_report
@@ -101,7 +101,7 @@ CREATE TABLE result_tda (
 CREATE INDEX result_tda_key_id
 	ON result_tda ( key_id ) ;
 
-CREATE INDEX result_tda_index 
+CREATE INDEX result_tda_index
 	ON result_tda(name) ;
 
 -- result_tra:
@@ -117,7 +117,7 @@ CREATE TABLE result_tra (
 CREATE INDEX result_tra_key_id
 	ON result_tra ( key_id ) ;
 
-CREATE INDEX result_tra_index 
+CREATE INDEX result_tra_index
 	ON result_tra(name) ;
 
 -- result_log:
@@ -143,7 +143,7 @@ CREATE TABLE contact (
 	email VARCHAR
 );
 
-CREATE INDEX contact_index 
+CREATE INDEX contact_index
 	ON contact ( project, test_name );
 
 -- expected:
@@ -163,7 +163,7 @@ CREATE TABLE expected (
 		-- project, host, test_name, context as in result_scalar
 );
 
-CREATE UNIQUE INDEX expected_unique 
+CREATE UNIQUE INDEX expected_unique
 	ON expected ( test_run_type, project, host, test_name, context );
 		-- we only need one entry
 
@@ -180,11 +180,14 @@ CREATE TABLE distinct_test_run (
 		-- this test run.
 	record_count INTEGER,
 		-- how many records in this test run
-		-- if 0 or NULL, we dont know
-        note VARCHAR(100)
-                -- a brief note about this test run
+		-- if 0 or NULL, we don't know
+	note VARCHAR(100),
+		-- a brief note about this test run
 		-- set first char to '*' to mark read-only
-);
+	min_time VARCHAR(26),
+        max_time VARCHAR(26)
+		-- earliest start, latest end
+	);
 
 
 -- user preferences:
@@ -195,7 +198,7 @@ CREATE TABLE user_prefs (
 	-- add whatever else we need here
 );
 
-CREATE UNIQUE INDEX user_prefs_username_index 
+CREATE UNIQUE INDEX user_prefs_username_index
 	ON user_prefs ( username );
 
 CREATE TABLE user_email_pref (
@@ -223,27 +226,27 @@ CREATE TABLE query_id (
 	notes    VARCHAR
 );
 
-CREATE INDEX query_id_index 
+CREATE INDEX query_id_index
 	ON query_id ( qid ) ;
 
 -- query:
 --	The rows in this table are a list of "interesting" results for a
 --	particular query.
 --		qid = query number
---		key_id matches a record in result_scalar in pdk.db 
+--		key_id matches a record in result_scalar in pdk.db
 
 CREATE TABLE query (
 	qid	INTEGER,		-- query number
 	key_id	INTEGER			-- identity of a thing in the list
 );
 
-CREATE INDEX query_index 
+CREATE INDEX query_index
 	ON query ( qid ) ;
 
 -- delete_queue:
 --	deleting stuff in pandokia is very slow.  We have multiple tables
 --	to update for every deletion, and there is no good way to make
---	that happen fast.  So, when you delete a test run, copy the key_ids 
+--	that happen fast.  So, when you delete a test run, copy the key_ids
 --	to delete_queue.  Later, a background process goes around deleting
 --	those key_ids from tda/tra/log tables.  You dont have to wait
 --	for it.
@@ -254,7 +257,7 @@ CREATE TABLE delete_queue (
 	key_id INTEGER
 );
 
-CREATE INDEX delete_queue_key_id ON 
+CREATE INDEX delete_queue_key_id ON
 	delete_queue ( key_id ) ;
 
 -- hostinfo:
