@@ -1,4 +1,4 @@
-#! python
+#!/usr/bin/env python
 """junittopdk [options] FILES | pdk import -
 
 Convert junix/xml files into pandokia format.  This is an experimental

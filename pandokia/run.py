@@ -1,4 +1,4 @@
-#!/usr/stsci/pyssgdev/Python-2.5.1/bin/python
+#!/usr/bin/env python
 import sys
 import getopt
 import os
@@ -142,7 +142,7 @@ def run(args):
         else:
             n_status_records = int(parallel)
         f = pandokia.run_status.init_status(
-            file=status_file_name, n_records=n_status_records)
+            filename=status_file_name, n_records=n_status_records)
         if f:
             os.environ['PDK_STATUSFILE'] = os.getcwd() + '/pdk_statusfile'
             initialized_status_file = 1

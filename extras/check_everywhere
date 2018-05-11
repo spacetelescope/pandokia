@@ -1,3 +1,4 @@
+#!/bin/csh
 if false
 then
 	(
@@ -5,7 +6,7 @@ then
 	do
 		echo XXXXX
 		echo $x
-		ssh $x " iraf ; pdk -V" 
+		ssh $x " iraf ; pdk -V"
 		ssh $x " irafx ; pdk -V"
 		ssh $x " irafdev ; pdk -V"
 	done
