@@ -27,7 +27,7 @@ all_test_runs = dict()
 
 
 def read_records(filename):
-    global exit_status, default_record, debug
+    global line_count, exit_status, default_record, debug
 
     found_any = 0
     result = default_record.copy()
@@ -35,78 +35,78 @@ def read_records(filename):
     parsing_log = False
 
     with open(filename, 'r') as data:
-        line_no = -1
         line = ''
-        debug = True
+        debug = False
 
         # We are forced to read the file line-by-line because invalid unicode
         # cannot be try/excepted in a "for thing in enumerate(data)" style for-loop delaration.
         while True:
+            line_count += 1
+
             try:
                 line = data.readline()
-                line_no += 1
             except UnicodeDecodeError as e:
                 linear_offset = data.tell()
                 print('Unicode Error: {} near offset {linear_offset:d} [{linear_offset:x}h]'.format(
                       e.reason, linear_offset=linear_offset))
                 continue
 
+
             if parsing_log:
                 if debug:
-                    print('debug: {:d}: ingesting log data: {}'.format(line_no, line))
+                    print('debug: {:d}: ingesting log data: {}'.format(line_count, line))
 
                 name = parsing_name
 
                 if line == "\n" or line == "\r\n":
                     if debug:
-                        print('debug: {:d}: End of log data'.format(line_no))
+                        print('debug: {:d}: End of log data'.format(line_count))
                     parsing_log = False
                     continue
 
                 if not line.startswith('.'):
                     print('Invalid input @ {:d}: '
-                            'Missing prefix character in multi-line: {}'.format(line_no, name, line))
+                            'Missing prefix character in multi-line: {}'.format(line_count, name, line))
                     exit_status = 1
                     parsing_log = False
                     continue
 
                 result[name] += line
-                line_no += 1
                 continue
-
-            if debug:
-                print('debug: {}: {}'.format(line_no, line))
-
-            # When we see data but don't find an END marker
-            # (should not happen)
-            if not line and found_any > 0:
-                print('Invalid input @ {:d}: '
-                      'Missing "END"'.format(line_no))
-                exit_status = 1
-                yield result
-                break
-
-            # Ugh.
-            line = line.strip()
 
             if not line:
-                continue
+                yield None
+                break
 
             if line.startswith('#'):
                 if debug:
-                    print('debug: {:d}: skipping comment'.format(line_no))
+                    print('debug: {:d}: skipping comment'.format(line_count))
+                continue
+
+            # When we see data but don't find an END marker
+            # (should not happen)
+            if not line:
+                if found_any:
+                    print('Invalid input @ {:d}: '
+                          'Missing "END"'.format(line_count))
+                    exit_status = 1
+                    found_any = 0
+                    yield result
+
+                continue
+
+            # Ugh.
+            line = line.strip()
+            if not line:
                 continue
 
             # END of record marker?
             if line == 'END':
                 if debug:
-                    print('debug: {:d}: END found'.format(line_no))
+                    print('debug: {:d}: END found'.format(line_count))
                 if found_any:
                     yield result
                     result = default_record.copy()
-                    found_any = 0
-                else:
-                    break
                 continue
 
             # Save new default record
@@ -114,10 +114,10 @@ def read_records(filename):
             # default
             if line == 'SETDEFAULT':
                 if debug:
-                    print('debug: {:d}: SETDEFAULT found'.format(line_no))
+                    print('debug: {:d}: SETDEFAULT found'.format(line_count))
                 if 'test_name' in result:
                     s = 'Invalid input @ {:d}: ' \
-                        'test_name in SETDEFAULT {:s}'.format(line_no, name)
+                        'test_name in SETDEFAULT {:s}'.format(line_count, name)
                     raise Exception(s)
 
                 default_record = result.copy()
@@ -127,7 +127,7 @@ def read_records(filename):
             # earlier should be forgotten
             if line == 'START':
                 if debug:
-                    print('debug: {:d}: START found'.format(line_no))
+                    print('debug: {:d}: START found'.format(line_count))
                 result = dict()
                 default_record = dict()
                 found_any = 0
@@ -144,7 +144,7 @@ def read_records(filename):
                     value = ''.join(rec[1:])
 
                 if debug:
-                    print('debug: {:d}: Generated key-pair from "{:s}"'.format(line_no, line))
+                    print('debug: {:d}: Generated key-pair from "{:s}"'.format(line_count, line))
                 result[name] = value
                 found_any = 1
                 continue
@@ -155,7 +155,7 @@ def read_records(filename):
             #   .value
             if line.startswith('log') and line.endswith(':'):
                 if debug:
-                    print('debug: {:d}: Checking for log data'.format(line_no))
+                    print('debug: {:d}: Checking for log data'.format(line_count))
                 # Split on delimiter, removing empty records
                 rec = [x for x in line.split(':', 1) if x]
                 elements = len(rec)
@@ -163,11 +163,11 @@ def read_records(filename):
 
                 if elements > 1:
                     print('Invalid input @ {:d}: '
-                          'Data after colon in "{:s}"'.format(line_no, line))
+                          'Data after colon in "{:s}"'.format(line_count, line))
                     exit_status = 1
 
                 if debug:
-                    print('debug: {:d}: Parsing log'.format(line_no))
+                    print('debug: {:d}: Parsing log'.format(line_count))
                 found_any += 1
                 result[name] = ''
                 parsing_name = name
@@ -175,7 +175,7 @@ def read_records(filename):
                 continue
 
             # Handle the unlikely event of not finding any valid input.
-            print('Invalid input @ {:d}: Unrecognized line {:s}'.format(line_no, line))
+            print('Invalid input @ {:d}: Unrecognized line {:s}'.format(line_count, line))
             exit_status = 1
 
 
@@ -395,7 +395,7 @@ class test_result(object):
 
 
 def run(argv, hack_callback=None):
-    global insert_count, quiet, debug
+    global line_count, insert_count, quiet, debug
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
@@ -414,6 +414,7 @@ def run(argv, hack_callback=None):
     insert_count = 0
     line_count = 0
     duplicate_count = 0
+    failure_count = 0
     quiet = args.quiet
     debug = args.debug
 
@@ -422,6 +423,11 @@ def run(argv, hack_callback=None):
             print("FILE: %s" % handle)
 
         for x in read_records(handle):
+            if x is None:
+                print('Failed: Invalid test record @ {}'.format(line_count))
+                failure_count += 1
+                continue
+
             if "test_run" not in x:
                 x["test_run"] = args.test_run
             if "context" not in x:
@@ -460,8 +466,13 @@ def run(argv, hack_callback=None):
 
             try:
                 rx.insert(pdk_db)
+                if not quiet:
+                    print('Imported: {}'.format(rx.test_name))
             except pdk_db.IntegrityError as e:
-                print('IntegrityError: Cannot insert {} due to "{}"'.format(rx.test_name, e))
+                if debug:
+                    print('IntegrityError: Cannot insert {} due to "{}"'.format(rx.test_name, e))
+                if not quiet:
+                    print('Skipped: {}'.format(rx.test_name))
                 duplicate_count += 1
 
             pdk_db.commit()
@@ -469,6 +480,9 @@ def run(argv, hack_callback=None):
     result_str = '{:d} records inserted'.format(insert_count)
     if duplicate_count:
         result_str += ' ({:d} skipped)'.format(duplicate_count)
+
+    if failure_count:
+        result_str += ' ({:d} failed)'.format(failure_count)
 
     if not quiet:
         print(result_str)
