@@ -34,9 +34,13 @@ def read_records(filename):
     parsing_name = ''
     parsing_log = False
 
-    with open(filename, 'r') as data:
+    if filename == '-':
+        data_source = sys.stdin
+    else:
+        data_source = open(filename, 'r')
+
+    with data_source as data:
         line = ''
-        debug = False
 
         # We are forced to read the file line-by-line because invalid unicode
         # cannot be try/excepted in a "for thing in enumerate(data)" style for-loop delaration.
@@ -74,8 +78,8 @@ def read_records(filename):
                 result[name] += line
                 continue
 
+            # EOF reached
             if not line:
-                yield None
                 break
 
             if line.startswith('#'):
@@ -95,7 +99,8 @@ def read_records(filename):
 
                 continue
 
-            # Ugh.
+            # Stripping the line late here. The parser above detects
+            # non-printing chars and uses them.
             line = line.strip()
             if not line:
                 continue
