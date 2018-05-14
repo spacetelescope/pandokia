@@ -58,7 +58,7 @@ def read_records(filename):
 
             if parsing_log:
                 if debug:
-                    print('debug: {:d}: ingesting log data: {}'.format(line_count, line))
+                    print('debug: {:d}: ingesting log data: {}'.format(line_count, line.strip()))
 
                 name = parsing_name
 
@@ -70,7 +70,7 @@ def read_records(filename):
 
                 if not line.startswith('.'):
                     print('Invalid input @ {:d}: '
-                            'Missing prefix character in multi-line: {}'.format(line_count, name, line))
+                            'Missing prefix character in multi-line: {}'.format(line_count, name, line.strip()))
                     exit_status = 1
                     parsing_log = False
                     continue
@@ -158,7 +158,7 @@ def read_records(filename):
             #   name:
             #   .value
             #   .value
-            if line.startswith('log') and line.endswith(':'):
+            if not line.startswith('.') and line.endswith(':'):
                 if debug:
                     print('debug: {:d}: Checking for log data'.format(line_count))
                 # Split on delimiter, removing empty records
