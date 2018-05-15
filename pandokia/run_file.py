@@ -1,3 +1,4 @@
+from tempfile import NamedTemporaryFile
 import os
 import os.path
 import sys
@@ -187,11 +188,9 @@ def pdk_log_name(env):
 
 
 def run(dirname, basename, envgetter, runner):
-
+    cause = "unknown"
     return_status = 0
-
     dirname = os.path.abspath(dirname)
-
     save_dir = os.getcwd()
     os.chdir(dirname)
 
@@ -212,6 +211,10 @@ def run(dirname, basename, envgetter, runner):
 
         env['PDK_LOG'] = pdk_log_name(env)
 
+        stat_summary = {}
+        for x in pandokia.cfg.statuses:
+            stat_summary[x] = 0
+
         # We will write a count of statuses to a summary file.  But where?
         # If no PDK_PROCESS_SLOT, we do not need a summary -- we just return
         # it to our caller.  Otherwise, we use a file based on the log file
@@ -231,27 +234,11 @@ def run(dirname, basename, envgetter, runner):
 
         env['PDK_DIRECTORY'] = dirname
 
-        #
-        # A test runner that only works within pandokia can assume
-        # that we made all of these log entries for it.
-
         full_filename = dirname + "/" + env['PDK_FILE']
-
-        pdkrun_status(full_filename)
-
-        f = open(env['PDK_LOG'], "a")
-        f.write("\n\nSTART\n")
-        f.write('test_run=%s\n' % env['PDK_TESTRUN'])
-        f.write('project=%s\n' % env['PDK_PROJECT'])
-        f.write('host=%s\n' % env['PDK_HOST'])
-        f.write('location=%s\n' % full_filename)
-        f.write('test_runner=%s\n' % runner)
-        f.write('context=%s\n' % env['PDK_CONTEXT'])
-        f.write("SETDEFAULT\n")
-        f.close()
 
         # fetch the command that executes the tests
         cmd = runner_mod.command(env)
+        output_buffer = ''
 
         if cmd is not None:
             # run the command -- To understand how we do it, see
@@ -280,53 +267,50 @@ def run(dirname, basename, envgetter, runner):
                     # bug: implement timeouts
                     status = p.wait()
                     f.close()
+
                     f = open("stdout.%s.tmp" % slot_id, "r")
-                    while True:
-                        buffer = f.read()
-                        if buffer == '':
-                            break
-                        sys.stdout.write(buffer)
+                    output_buffer = f.read()
+                    sys.stdout.write(output_buffer)
                     f.close()
+
                     os.unlink("stdout.%s.tmp" % slot_id)
                 else:
                     # on unix, just do it
-                    p = subprocess.Popen(
-                        "exec " + thiscmd,
-                        shell=True,
-                        env=env,
-                        preexec_fn=unix_preexec)
-                    if 'PDK_TIMEOUT' in env:
-                        proc_timeout_start(env['PDK_TIMEOUT'], p)
-                        status = p.wait()
-                        print("return from wait, status=%d" % status)
-                        proc_timeout_terminate()
-                        if timeout_proc_kills > 0:
-                            # we tried to kill it for taking too long -
-                            # report an error even if it managed to exit 0
-                            return_status = 1
-                    else:
-                        status = p.wait()
+                    with NamedTemporaryFile(mode='r+b') as f:
+                        p = subprocess.Popen(
+                            thiscmd.split(),
+                            stdout=f,
+                            stderr=f,
+                            shell=False,
+                            env=env,
+                            preexec_fn=unix_preexec)
+
+                        if 'PDK_TIMEOUT' in env:
+                            proc_timeout_start(env['PDK_TIMEOUT'], p)
+                            status = p.wait()
+                            print("return from wait, status=%d" % status)
+                            proc_timeout_terminate()
+                            if timeout_proc_kills > 0:
+                                # we tried to kill it for taking too long -
+                                # report an error even if it managed to exit 0
+                                return_status = 1
+                        else:
+                            status = p.wait()
+
+                        f.seek(0)
+                        output_buffer = f.read().decode()
 
                 # subprocess gives you weird status values
-                cause = "unknown"
                 if os.WIFEXITED(status):
                     cause = "exit"
                 elif os.WIFSIGNALED(status):
                     cause = "signal"
 
-                if status > 0:
+                if status:
                     return_status = 1
-                elif status != 0:
-                    return_status = 1
-                else:
-                    return_status = 1
-                    status = (- status)
-                    # subprocess does not tell you if there was a core
-                    # dump, but there is nothing we can do about it.
 
-                print(
-                    "COMMAND EXIT: %s %s %s" %
-                    (cause, status, datetime.datetime.now()))
+                print("COMMAND EXIT: %s %s %s" %
+                     (cause, status, datetime.datetime.now()))
 
         else:
             # BUG: no timeout! - fortunately, this is a minor issue
@@ -343,9 +327,37 @@ def run(dirname, basename, envgetter, runner):
             runner_mod.run_internally(env)
             print("DONE RUNNING INTERNALLY")
 
-        stat_summary = {}
-        for x in pandokia.cfg.statuses:
-            stat_summary[x] = 0
+        #
+        # A test runner that only works within pandokia can assume
+        # that we made all of these log entries for it.
+        pdkrun_status(full_filename)
+
+        f = open(env['PDK_LOG'], "a")
+        f.write("\n\nSTART\n")
+        f.write('test_run=%s\n' % env['PDK_TESTRUN'])
+        f.write('project=%s\n' % env['PDK_PROJECT'])
+        f.write('host=%s\n' % env['PDK_HOST'])
+        f.write('location=%s\n' % full_filename)
+        f.write('test_runner=%s\n' % runner)
+        f.write('context=%s\n' % env['PDK_CONTEXT'])
+        f.write("SETDEFAULT\n")
+
+        # Trap total breakdowns of the test runner(s)
+        if cause == "signal" and return_status:
+            f.write('\n')
+            f.write('test_name=%s\n' % full_filename)
+            f.write('status=E\n')
+            if output_buffer:
+                f.write('log:\n')
+                f.write('.[PANDOKIA]\n')
+                f.write('.FATAL: A TEST RUNNER PLUGIN SIGNALED BEFORE REPORTING!\n')
+                f.write('.\n')
+                f.write('.[STDOUT/STDERR STREAM]\n')
+                for line in output_buffer.splitlines():
+                    f.write('.{}\n'.format(line))
+                f.write('\n')
+            f.write('END\n')
+        f.close()
 
         if 1:
             # if the runner did not provide a status summary, collect it from
