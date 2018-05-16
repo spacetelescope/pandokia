@@ -293,24 +293,25 @@ def run(dirname, basename, envgetter, runner):
                             if timeout_proc_kills > 0:
                                 # we tried to kill it for taking too long -
                                 # report an error even if it managed to exit 0
-                                return_status = 1
+                                status = -15
                         else:
                             status = p.wait()
 
                         f.seek(0)
                         output_buffer = f.read().decode()
+                        sys.stdout.write(output_buffer)
+
 
                 # subprocess gives you weird status values
-                if os.WIFEXITED(status):
-                    cause = "exit"
-                elif os.WIFSIGNALED(status):
+                if status >= 0:
+                    cause="exit"
+                    return_status = status
+                elif status < 0:
                     cause = "signal"
-
-                if status:
-                    return_status = 1
+                    return_status = -status
 
                 print("COMMAND EXIT: %s %s %s" %
-                     (cause, status, datetime.datetime.now()))
+                     (cause, return_status, datetime.datetime.now()))
 
         else:
             # BUG: no timeout! - fortunately, this is a minor issue
@@ -342,15 +343,16 @@ def run(dirname, basename, envgetter, runner):
         f.write('context=%s\n' % env['PDK_CONTEXT'])
         f.write("SETDEFAULT\n")
 
-        # Trap total breakdowns of the test runner(s)
-        if cause == "signal" and return_status:
+        # Trap unhandled exit information
+        if return_status > 1 or return_status < 0:
             f.write('\n')
             f.write('test_name=%s\n' % full_filename)
             f.write('status=E\n')
             if output_buffer:
                 f.write('log:\n')
                 f.write('.[PANDOKIA]\n')
-                f.write('.FATAL: A TEST RUNNER PLUGIN SIGNALED BEFORE REPORTING!\n')
+                f.write('.FATAL: NON-STANDARD EXIT VALUE DETECTED! '
+                        '({})\n'.format(return_status))
                 f.write('.\n')
                 f.write('.[STDOUT/STDERR STREAM]\n')
                 for line in output_buffer.splitlines():
