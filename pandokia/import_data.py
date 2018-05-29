@@ -14,153 +14,174 @@ except ImportError:
     import StringIO
 
 exit_status = 0
-
 line_count = 0
-
-default_record = {}
-
-all_test_run = {}
-
-quiet = 0
-
-
-def read_record(f):
-    global line_count, default_record
-
-    ans = default_record.copy()
-    found_any = 0
-
-    while True:
-
-        try:
-            l = f.readline()
-        except UnicodeDecodeError as e:
-            print(e)
-            line_count += 1
-            continue
-
-        line_count = line_count + 1
-        if l == "":
-            # EOF - invalid if we saw any data (no END)
-            # unremarkable otherwise
-            if found_any:
-                print("INVALID INPUT FILE - NO END %d" % line_count)
-                exit_status = 1
-                return ans
-            else:
-                return None
-
-        l = l.strip()
-
-        if l == "":
-            # blank lines allowed
-            continue
-
-        if l[0] == '#':
-            # comment lines allowed, even though we wouldn't normally
-            # need them
-            continue
-
-        # end of record marker ?
-        if l == "END":
-            if found_any:
-                return ans
-            continue
-
-        if l == "SETDEFAULT":
-            if "test_name" in ans:
-                s = "INVALID INPUT FILE - test_name in SETDEFAULT %s %d" % (
-                    name, line_count)
-                print(s)
-                raise Exception(s)
-            # save the new default
-            # ans retains the same value, since it is now initialized to the
-            # default
-            default_record = ans.copy()
-            continue
-
-        # ABORT/RESET is obsolete usage - still here from early drafts of the
-        # spec
-        if l == 'START':
-            # only happens at the start of a run - anything that came
-            # earlier should be forgotten
-            ans = {}
-            default_record = {}
-            found_any = 0
-            continue
-
-        # look for lines of the form "name=value"
-        n = l.find("=")
-
-        if n >= 0:
-            found_any = 1
-            name = l[0:n]
-            name = name.lower()
-            value = l[n + 1:]
-            ans[name] = value
-            found_any = 1
-            continue
-
-        # look for lines of the form
-        #   name:
-        #   .value
-        #   .value
-        #
-        n = l.find(":")
-
-        if n >= 0:
-            found_any = 1
-            name = l[0:n]
-            name = name.lower()
-            value = l[n + 1:]
-            if value != "":
-                print(
-                    "INVALID INPUT FILE - stuff after colon %s %d" %
-                    (name, line_count))
-                exit_status = 1
-            stuff = StringIO.StringIO()
-            while True:
-
-                try:
-                    l = f.readline()
-                except UnicodeDecodeError as e:
-                    print(e)
-                    line_count += 1
-                    continue
-
-                line_count = line_count + 1
-                if l == "":
-                    print(
-                        "INVALID INPUT FILE - eof in multi-line %s %d" %
-                        (name, line_count))
-                    exit_status = 1
-                    break
-                if l == "\n" or l == '\r\n':
-                    # blank line marks end
-                    break
-                if l[0] != '.':
-                    print(
-                        "INVALID INPUT FILE - missing prefix in multi-line %s %d" %
-                        (name, line_count))
-                    exit_status = 1
-                    break
-                stuff.write(l[1:])
-            # bug: this is hokey, but if you allow \0 in the string (in
-            # sqlite), the string gets truncated.
-            ans[name] = stuff.getvalue().replace("\0", "\\0")
-            del stuff
-            continue
-
-        print("INVALID INPUT FILE - unrecognized line %s %d" % (l, line_count))
-        exit_status = 1
-
-
 insert_count = 0
-
+quiet = False
+debug = False
+default_record = dict()
 
 # This dictionary contains an entry for every test run we have seen.
 # For now, we are only using it to detect whether we know this name or not.
-all_test_runs = {}
+all_test_run = dict()
+all_test_runs = dict()
+
+
+def read_records(filename):
+    global line_count, exit_status, default_record, debug
+
+    found_any = 0
+    result = default_record.copy()
+    parsing_name = ''
+    parsing_log = False
+
+    if filename == '-':
+        data_source = sys.stdin
+    else:
+        data_source = open(filename, 'r')
+
+    with data_source as data:
+        line = ''
+
+        # We are forced to read the file line-by-line because invalid unicode
+        # cannot be try/excepted in a "for thing in enumerate(data)" style for-loop delaration.
+        while True:
+            line_count += 1
+
+            try:
+                line = data.readline()
+            except UnicodeDecodeError as e:
+                linear_offset = data.tell()
+                print('Unicode Error: {} near offset {linear_offset:d} [{linear_offset:x}h]'.format(
+                      e.reason, linear_offset=linear_offset))
+                continue
+
+
+            if parsing_log:
+                if debug:
+                    print('debug: {:d}: ingesting log data: {}'.format(line_count, line.strip()))
+
+                name = parsing_name
+
+                if line == "\n" or line == "\r\n":
+                    if debug:
+                        print('debug: {:d}: End of log data'.format(line_count))
+                    parsing_log = False
+                    continue
+
+                if not line.startswith('.'):
+                    print('Invalid input @ {:d}: '
+                            'Missing prefix character in multi-line: {}'.format(line_count, name, line.strip()))
+                    exit_status = 1
+                    parsing_log = False
+                    continue
+
+                result[name] += line
+                continue
+
+            # EOF reached
+            if not line:
+                break
+
+            if line.startswith('#'):
+                if debug:
+                    print('debug: {:d}: skipping comment'.format(line_count))
+                continue
+
+            # When we see data but don't find an END marker
+            # (should not happen)
+            if not line:
+                if found_any:
+                    print('Invalid input @ {:d}: '
+                          'Missing "END"'.format(line_count))
+                    exit_status = 1
+                    found_any = 0
+                    yield result
+
+                continue
+
+            # Stripping the line late here. The parser above detects
+            # non-printing chars and uses them.
+            line = line.strip()
+            if not line:
+                continue
+
+            # END of record marker?
+            if line == 'END':
+                if debug:
+                    print('debug: {:d}: END found'.format(line_count))
+                if found_any:
+                    yield result
+                    result = default_record.copy()
+                continue
+
+            # Save new default record
+            # "result" retains the same value, since it is now initialized to
+            # default
+            if line == 'SETDEFAULT':
+                if debug:
+                    print('debug: {:d}: SETDEFAULT found'.format(line_count))
+                if 'test_name' in result:
+                    s = 'Invalid input @ {:d}: ' \
+                        'test_name in SETDEFAULT {:s}'.format(line_count, name)
+                    raise Exception(s)
+
+                default_record = result.copy()
+                continue
+
+            # Only happens at the start of a run - anything that came
+            # earlier should be forgotten
+            if line == 'START':
+                if debug:
+                    print('debug: {:d}: START found'.format(line_count))
+                result = dict()
+                default_record = dict()
+                found_any = 0
+                continue
+
+            # Look for lines of the form "name=value"
+            if line.find('=') > -1:
+                rec = line.split('=', 1)
+                elements = len(rec)
+                name = rec[0].lower()
+
+                # Value needs to be converted to a string
+                if elements > 1:
+                    value = ''.join(rec[1:])
+
+                if debug:
+                    print('debug: {:d}: Generated key-pair from "{:s}"'.format(line_count, line))
+                result[name] = value
+                found_any = 1
+                continue
+
+            # Look for lines of the form;
+            #   name:
+            #   .value
+            #   .value
+            if not line.startswith('.') and line.endswith(':'):
+                if debug:
+                    print('debug: {:d}: Checking for log data'.format(line_count))
+                # Split on delimiter, removing empty records
+                rec = [x for x in line.split(':', 1) if x]
+                elements = len(rec)
+                name = rec[0]
+
+                if elements > 1:
+                    print('Invalid input @ {:d}: '
+                          'Data after colon in "{:s}"'.format(line_count, line))
+                    exit_status = 1
+
+                if debug:
+                    print('debug: {:d}: Parsing log'.format(line_count))
+                found_any += 1
+                result[name] = ''
+                parsing_name = name
+                parsing_log = True
+                continue
+
+            # Handle the unlikely event of not finding any valid input.
+            print('Invalid input @ {:d}: Unrecognized line {:s}'.format(line_count, line))
+            exit_status = 1
 
 
 # this is a hideous hack from the earliest days of pandokia.  this class shouldn't
@@ -176,6 +197,7 @@ class test_result(object):
         self.missing.append(name)
 
     def __init__(self, dict):
+        global all_test_run
         self.dict = dict
         self.missing = []
 
@@ -377,66 +399,50 @@ class test_result(object):
             all_test_runs[self.test_run] = 1
 
 
-def run(args, hack_callback=None):
-    global insert_count, line_count
+def run(argv, hack_callback=None):
+    global line_count, insert_count, quiet, debug
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-q', '--quiet', action='store_true')
+    parser.add_argument('-H', '--host')
+    parser.add_argument('-c', '--context', default='unk')
+    parser.add_argument('-p', '--project')
+    parser.add_argument('--test-runner')
+    parser.add_argument('--test-run')
+    parser.add_argument('filename', nargs='*', default=[sys.stdin])
+    args = parser.parse_args(argv)
 
     pdk_db = pandokia.cfg.pdk_db
 
     default_test_runner = ''
-    default_context = 'unk'
-    for filename in args:
-        if filename.startswith("-"):
-            if '=' in filename:
-                prefix, value = filename.split('=', 1)
-            else:
-                prefix, value = (filename, '')
-            if filename == '-q':
-                global quiet
-                quiet = 1
-                continue
-            if filename.startswith("-host="):
-                default_host = value
-                continue
-            if filename.startswith("-context="):
-                default_context = value
-                continue
-            if filename.startswith("-project="):
-                default_project = value
-                continue
-            if filename.startswith("-test_runner="):
-                default_test_runner = value
-                continue
-            if filename.startswith("-test_run="):
-                default_test_run = value
-                continue
-        if filename == '-':
-            f = sys.stdin
-        else:
-            f = open(filename, "r")
+    insert_count = 0
+    line_count = 0
+    duplicate_count = 0
+    failure_count = 0
+    quiet = args.quiet
+    debug = args.debug
 
-        insert_count = 0
-        line_count = 0
+    for handle in args.filename:
+        if not quiet:
+            print("FILE: %s" % handle)
 
-        print("FILE: %s" % filename)
-
-        while True:
-            x = read_record(f)
+        for x in read_records(handle):
             if x is None:
-                break
-            try:
-                if "test_run" not in x:
-                    x["test_run"] = default_test_run
-                if "context" not in x:
-                    x["context"] = default_context
-                if "host" not in x:
-                    x["host"] = default_host
-                if "project" not in x:
-                    x["project"] = default_project
-                if "test_runner" not in x:
-                    x["test_runner"] = default_test_runner
-            except Exception as e:
-                print("%s %d" % (e, line_count))
+                print('Failed: Invalid test record @ {}'.format(line_count))
+                failure_count += 1
                 continue
+
+            if "test_run" not in x:
+                x["test_run"] = args.test_run
+            if "context" not in x:
+                x["context"] = args.context
+            if "host" not in x:
+                x["host"] = args.host
+            if "project" not in x:
+                x["project"] = args.project
+            if "test_runner" not in x:
+                x["test_runner"] = args.test_runner
 
             # bug: remove this when the old nose plugin is no longer running
             # around
@@ -451,8 +457,7 @@ def run(args, hack_callback=None):
                 print("   %s" % [zz for zz in x])
                 continue
 
-            if x["test_name"].endswith(".xml") or x[
-                    "test_name"].endswith(".log"):
+            if x["test_name"].endswith(".xml") or x["test_name"].endswith(".log"):
                 x["test_name"] = x["test_name"][:-4]
 
             rx = test_result(x)
@@ -463,27 +468,31 @@ def run(args, hack_callback=None):
             if hack_callback:
                 if not hack_callback(rx):
                     continue
+
             try:
                 rx.insert(pdk_db)
-            except pdk_db.IntegrityError:
                 if not quiet:
-                    print("warning: duplicate on line: %4d " % line_count)
-                    print(
-                        x['test_run'],
-                        x['project'],
-                        x['host'],
-                        x['context'],
-                        x["test_name"])
+                    print('Imported: {}'.format(rx.test_name))
+            except pdk_db.IntegrityError as e:
+                if debug:
+                    print('IntegrityError: Cannot insert {} due to "{}"'.format(rx.test_name, e))
+                if not quiet:
+                    print('Skipped: {}'.format(rx.test_name))
+                duplicate_count += 1
 
             pdk_db.commit()
 
-        if f != sys.stdin:
-            f.close()
+    result_str = '{:d} records inserted'.format(insert_count)
+    if duplicate_count:
+        result_str += ' ({:d} skipped)'.format(duplicate_count)
 
-        print("%d records\n\n" % insert_count)
+    if failure_count:
+        result_str += ' ({:d} failed)'.format(failure_count)
+
+    if not quiet:
+        print(result_str)
 
     # could use all_test_run here to clear the cgi cache
-
     sys.exit(exit_status)
 
 
