@@ -284,9 +284,9 @@ class reporter(object):
 
 # intentionally not using cStringIO
 try:
-    import io as StringIO
-except ImportError:
     import StringIO
+except ImportError:
+    import io as StringIO
 
 import sys
 

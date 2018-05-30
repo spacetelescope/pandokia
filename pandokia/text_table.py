@@ -14,15 +14,11 @@ import csv
 import sys
 
 try:
-    import io as StringIO
-except ImportError:
     import StringIO
+except ImportError:
+    import io as StringIO
 
 
-try:
-    import io as StringIO
-except ImportError:
-    import StringIO
 #
 # A text_table contains a list of text_table_row.
 # Each text_table_row contains a list of text_table_cell.
@@ -502,6 +498,7 @@ class text_table:
         """
 
         s = StringIO.StringIO()
+
 
         s.write("<table " + self.html_table_attributes + ">\n")
 

@@ -29,9 +29,9 @@ _tty = None
 # _tty = open("/dev/tty","w")
 
 try:
-    import io as StringIO
-except ImportError:
     import StringIO
+except ImportError:
+    import io as StringIO
 
 import os
 

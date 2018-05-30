@@ -15,9 +15,9 @@ import re
 import types
 
 try:
-    from io import StringIO as cStringIO
-except ImportError:
     import cStringIO
+except ImportError:
+    from io import StringIO as cStringIO
 
 try:
     from urllib.parse import quote_plus, urlencode
