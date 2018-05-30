@@ -8,10 +8,6 @@ import sys
 import pandokia.common as common
 import pandokia
 
-try:
-    import io as StringIO
-except ImportError:
-    import StringIO
 
 exit_status = 0
 line_count = 0

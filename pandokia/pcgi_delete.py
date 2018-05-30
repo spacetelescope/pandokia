@@ -26,7 +26,7 @@ import pandokia.pcgi
 def delete_are_you_sure():
 
     form = pandokia.pcgi.form
-    test_run = form["test_run"].value
+    test_run = form.getfirst("test_run")
     project = form.getfirst('project', '*')
     context = form.getfirst('context', '*')
     host = form.getfirst('host', '*')
@@ -77,7 +77,7 @@ def delete_are_you_sure():
 def delete_confirmed():
 
     form = pandokia.pcgi.form
-    test_run = form["test_run"].value
+    test_run = form.getfirst("test_run")
     project = form.getfirst('project', '*')
     context = form.getfirst('context', '*')
     host = form.getfirst('host', '*')

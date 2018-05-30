@@ -36,7 +36,7 @@ def run():
 
     form = pandokia.pcgi.form
 
-    qid = int(form['qid'].value)
+    qid = int(form.getvalue('qid'))
 
     output.write('<h2>QID = %d</h2>' % qid)
 
@@ -45,7 +45,7 @@ def run():
     change = 0
 
     if 'other' in form:
-        other_qid = int(form['other'].value)
+        other_qid = int(form.getvalue('other'))
 
     if 'nameremove' in form:
         #####

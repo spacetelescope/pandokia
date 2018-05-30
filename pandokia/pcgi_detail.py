@@ -34,37 +34,37 @@ def run():
     form = pandokia.pcgi.form
 
     if "test_name" in form:
-        test_name = form["test_name"].value
+        test_name = form.getvalue("test_name")
     else:
         test_name = ""
 
     if "context" in form:
-        context = form["context"].value
+        context = form.getvalue("context")
     else:
         context = "*"
 
     if "host" in form:
-        host = form["host"].value
+        host = form.getvalue("host")
     else:
         host = "*"
 
     if "test_run" in form:
-        test_run = form["test_run"].value
+        test_run = form.getvalue("test_run")
     else:
         test_run = "*"
 
     if "project" in form:
-        project = form["project"].value
+        project = form.getvalue("project")
     else:
         project = "*"
 
     if "status" in form:
-        status = form["status"].value
+        status = form.getvalue("status")
     else:
         status = "*"
 
     if "test_name" in form:
-        cmp_run = form["test_name"].value
+        cmp_run = form.getvalue("test_name")
         if cmp_run == '':
             cmp_run = common.run_previous(None, test_run)
             if cmp_run is not None:
@@ -77,12 +77,12 @@ def run():
         cmp_run = ""
 
     if "key_id" in form:
-        key_id = form["key_id"].value
+        key_id = form.getvalue("key_id")
     else:
         key_id = ""
 
     if "qid" in form:
-        qid = form["qid"].value
+        qid = form.getvalue("qid")
     else:
         qid = ""
 
@@ -320,20 +320,22 @@ def do_result(key_id):
             "SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ))
 
         for y in c1:
+            if isinstance(y, tuple):
+                y = tuple(x.decode() for x in y)
+
             (y, ) = y
+
             if y != "":
-                try:
-                    if cfg.enable_magic_html_log:
-                        if '<!DOCTYPE' in y or '<html' in y:
-                            sys.stdout.write(
-                                "<a href=%s>HTML block in a single page</a><br>" %
-                                common.selflink(
-                                    {
-                                        'magic_html_log': key_id,
-                                    },
-                                    linkmode='magic_html_log'))
-                except AttributeError:
-                    pass
+                if getattr(cfg, 'enable_magic_html_log'):
+                    if '<!DOCTYPE' in y or '<html' in y:
+                        sys.stdout.write(
+                            "<a href=%s>HTML block in a single page</a><br>" %
+                            common.selflink(
+                                {
+                                    'magic_html_log': key_id,
+                                },
+                                linkmode='magic_html_log'))
+
 
                 sys.stdout.write("Log:<br><pre>")
                 sys.stdout.write(cgi.escape(y))
@@ -353,11 +355,11 @@ def test_history():
 
     form = pandokia.pcgi.form
 
-    test_name = form["test_name"].value
-    context = form["context"].value
-    host = form["host"].value
-    test_run = form["test_run"].value
-    project = form["project"].value
+    test_name = form.getvalue("test_name")
+    context = form.getvalue("context")
+    host = form.getvalue("host")
+    test_run = form.getvalue("test_run")
+    project = form.getvalue("project")
 
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
@@ -418,7 +420,7 @@ def test_history():
 # report.  Decide if you trust your collaborators before using this feature.
 
 def magic_html_log():
-    if not cfg.enable_magic_html_log:
+    if not getattr(cfg, 'enable_magic_html_log'):
         return
 
     # common header
@@ -426,7 +428,11 @@ def magic_html_log():
 
     # key_id of the log
     form = pandokia.pcgi.form
-    key_id = int(form['magic_html_log'].value)
+    key_id = int(form.getvalue('magic_html_log', -1))
+
+    if key_id < 0:
+        sys.stdout.write('Invalid magic_html_log key identifier.')
+        return
 
     # get it
     c1 = pdk_db.execute(
@@ -434,6 +440,8 @@ def magic_html_log():
 
     # fetch the log
     log, = c1.fetchone()
+    if isinstance(log, bytes):
+        log = log.decode()
 
     # split on the magic recognition string
     if '<!DOCTYPE' in log:

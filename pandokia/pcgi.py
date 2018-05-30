@@ -96,7 +96,7 @@ def run():
     global output_format
 
     if 'format' in form:
-        output_format = form['format'].value
+        output_format = form.getvalue('format')
     else:
         output_format = "html"
 
@@ -134,7 +134,7 @@ def run():
 
     #--#--# CGI
 
-    query = form["query"].value
+    query = form.getvalue("query")
 
     if query == "treewalk":
         import pandokia.pcgi_treewalk as x
@@ -207,8 +207,8 @@ def run():
     if query == 'killproc':
         print("content-type: text/html")
         print("")
-        pid = form['pid'].value
-        sig = form['sig'].value
+        pid = form.getvalue('pid')
+        sig = form.getvalue('sig')
         if common.current_user() in common.cfg.admin_user_list:
             os.kill(int(pid), int(sig))
         print("done")
@@ -257,7 +257,7 @@ def run():
                 for y in form[x]:
                     print("%s %s<br>" % (x, y))
             else:
-                print("%s %s<br>" % (x, form[x]))
+                print("%s %s<br>" % (x, form.getvalue(x)))
 
 #
 

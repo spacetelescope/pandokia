@@ -18,9 +18,9 @@ __all__ = [
 import os
 
 try:
-    import io as StringIO
-except ImportError:
     import StringIO
+except ImportError:
+    import io as StringIO
 
 
 # need some common code
