@@ -35,7 +35,7 @@ def rpt1():
     form = pandokia.pcgi.form
 
     if "test_run" in form:
-        test_run = form["test_run"].value
+        test_run = form.getvalue("test_run")
     else:
         test_run = '*'
 
@@ -207,7 +207,7 @@ def rpt2():
     form = pandokia.pcgi.form
 
     if "test_run" in form:
-        test_run = form["test_run"].value
+        test_run = form.getvalue("test_run")
     else:
         # no parameter?  I think somebody is messing with us...
         # no matter - just give them a the list of all the test_runs

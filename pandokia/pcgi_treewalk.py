@@ -39,7 +39,7 @@ debug_cmp = 0
 
 def get_form(form, value, default):
     if value in form:
-        return form[value].value
+        return form.getvalue(value)
     else:
         return default
 
@@ -59,26 +59,26 @@ def treewalk():
     #
 
     if "test_name" in form:
-        test_name = form["test_name"].value
+        test_name = form.getvalue("test_name")
         if test_name == '':
             test_name = '*'
     else:
         test_name = "*"
 
-    context = get_form(form, 'context', '*')
-    host = get_form(form, 'host', '*')
-    test_run = get_form(form, 'test_run', '*')
-    project = get_form(form, 'project', '*')
-    status = get_form(form, 'status', '*')
-    attn = get_form(form, 'attn', '*')
-    qid = get_form(form, 'qid', None)
+    context = form.getvalue('context', '*')
+    host = form.getvalue('host', '*')
+    test_run = form.getvalue('test_run', '*')
+    project = form.getvalue('project', '*')
+    status = form.getvalue('status', '*')
+    attn = form.getvalue('attn', '*')
+    qid = form.getvalue('qid', None)
 
-    debug_cmp = get_form(form, 'debug_cmp', 0)
+    debug_cmp = form.getvalue('debug_cmp', 0)
 
     # look for input from the compare form
-    cmp_test_run = get_form(form, 'cmp_test_run', None)
-    cmp_context = get_form(form, 'cmp_context', None)
-    cmp_host = get_form(form, 'cmp_host', None)
+    cmp_test_run = form.getvalue('cmp_test_run', None)
+    cmp_context = form.getvalue('cmp_context', None)
+    cmp_host = form.getvalue('cmp_host', None)
 
     test_run = common.find_test_run(test_run)
 
@@ -90,7 +90,7 @@ def treewalk():
     if 'compare' in form:
         # ok, it explicitly says one of the 3 comparison values
         comparing = 1
-        x = get_form(form, 'compare', '0')
+        x = form.getvalue('compare', '0')
 
         if x == '' or x == '0' or x.startswith('Turn Off'):
             # if it is a special value that ends the compare,
@@ -195,10 +195,10 @@ def treewalk():
 
         if query[var] != '*':
             lquery = copy.copy(query)
-            lquery[var] = "*"
+            lquery[var] = '*'
             header_table.set_value(row, 0, label)
             header_table.set_value(row, 1, '=')
-            header_table.set_value(row, 2, escape(query[var]))
+            header_table.set_value(row, 2, escape(lquery[var]))
             header_table.set_value(
                 row, 3, html=common.self_href(
                     lquery, "treewalk", remove_arrow))
@@ -311,7 +311,7 @@ def treewalk():
         # even try to handle those.
         #
         for row in range(0, len(table.rows)):
-            for col in range(1, len(table.rows[row].list)):
+            for col in range(1, len(table.rows[row].lst)):
                 # pick the table cell out of each table
                 c1 = table.get_cell(row, col)
                 c2 = t2   .get_cell(row, col)
@@ -453,14 +453,14 @@ def linkout():
 
     form = pandokia.pcgi.form
 
-    context = get_form(form, 'context', '*')
-    host = get_form(form, 'host', '*')
-    test_run = get_form(form, 'test_run', '*')
-    project = get_form(form, 'project', '*')
-    status = get_form(form, 'status', '*')
-    attn = get_form(form, 'attn', '*')
-    oldqid = get_form(form, 'qid', None)
-    test_name = get_form(form, 'test_name', '*')
+    context = form.getvalue('context', '*')
+    host = form.getvalue('host', '*')
+    test_run = form.getvalue('test_run', '*')
+    project = form.getvalue('project', '*')
+    status = form.getvalue('status', '*')
+    attn = form.getvalue('attn', '*')
+    oldqid = form.getvalue('qid', None)
+    test_name = form.getvalue('test_name', '*')
 
     # handle special names of test runs
     test_run = common.find_test_run(test_run)
@@ -533,7 +533,7 @@ def linkout():
     url = pandokia.pcgi.cginame + ('?query=summary&qid=%s' % newqid)
 
     if 'add_attributes' in form:
-        x = int(form['add_attributes'].value)
+        x = int(form.getvalue('add_attributes'))
         if x:
             url += ('&show_attr=%d' % x)
 

@@ -48,7 +48,7 @@ def run():
 
     # dispatch this to the relevant subtype
     if 'subtype' in form:
-        x = form['subtype'].value
+        x = form.getvalue('subtype')
     else:
         x = 'show'
 
@@ -56,8 +56,8 @@ def run():
         show(user)
     elif x == 'save':
         if ('newuser' in form) and (user in cfg.admin_user_list):
-            if form['submit'].value == 'newuser':
-                newuser = form['newuser'].value
+            if form.getvalue('submit') == 'newuser':
+                newuser = form.getvalue('newuser')
                 save(newuser)
             else:
                 save(user)
@@ -217,7 +217,7 @@ def show(user):
 def add_project(user):
     form = pandokia.pcgi.form
 
-    project = form['project'].value
+    project = form.getvalue('project')
 
     if not project_name_ok(project):
         output.write(
@@ -243,7 +243,7 @@ def save(user):
 
     email = None
     if 'email' in form:
-        email = form['email'].value
+        email = form.getvalue('email')
 
     if email is None or email == 'None':
         email = user
@@ -261,7 +261,7 @@ def save(user):
         # pick out the value of the radio button.
         field_name = 'radio.%s' % project
         if field_name in form:
-            fmt = form[field_name].value
+            fmt = form.getvalue(field_name)
         else:
             fmt = 'n'
 
@@ -273,7 +273,7 @@ def save(user):
         # we want reported
         field_name = 'line.%s' % project
         if field_name in form:
-            maxlines = form[field_name].value
+            maxlines = form.getvalue(field_name)
         else:
             maxlines = ''
 
