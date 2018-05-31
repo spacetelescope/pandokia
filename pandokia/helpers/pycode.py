@@ -283,11 +283,7 @@ class reporter(object):
 ###
 
 # intentionally not using cStringIO
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
-
+import six
 import sys
 
 save_stdout = []
@@ -301,7 +297,7 @@ def snarf_stdout(tagname=None):
     save_stderr.append(sys.stderr)
     save_tagname.append(tagname)
 
-    sys.stdout = sys.stderr = StringIO.StringIO()
+    sys.stdout = sys.stderr = six.StringIO()
 
 
 def end_snarf_stdout(tagname=None):
@@ -326,7 +322,7 @@ def end_snarf_stdout(tagname=None):
 
 def peek_snarfed_stdout():
     'returns current text of snarfed stdout, non-destructively'
-    if isinstance(sys.stdout, StringIO.StringIO):
+    if isinstance(sys.stdout, six.StringIO):
         return sys.stdout.getvalue()
     else:
         return None
