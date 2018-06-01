@@ -287,7 +287,7 @@ try:
     import StringIO
 except ImportError:
     import io as StringIO
-    
+
 import sys
 
 save_stdout = []
