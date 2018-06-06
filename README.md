@@ -1,5 +1,7 @@
 # Pandokia
 
+[![Documentation Status](https://readthedocs.org/projects/pandokia/badge/?version=latest)](https://pandokia.readthedocs.io/en/latest/?badge=latest)
+
 **"All your test are belong to us!"**
 
 # What is Pandokia?
