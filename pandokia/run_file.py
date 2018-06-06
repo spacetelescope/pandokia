@@ -236,6 +236,17 @@ def run(dirname, basename, envgetter, runner):
 
         full_filename = dirname + "/" + env['PDK_FILE']
 
+        f = open(env['PDK_LOG'], "a")
+        f.write("\n\nSTART\n")
+        f.write('test_run=%s\n' % env['PDK_TESTRUN'])
+        f.write('project=%s\n' % env['PDK_PROJECT'])
+        f.write('host=%s\n' % env['PDK_HOST'])
+        f.write('location=%s\n' % full_filename)
+        f.write('test_runner=%s\n' % runner)
+        f.write('context=%s\n' % env['PDK_CONTEXT'])
+        f.write("SETDEFAULT\n")
+        f.close()
+
         # fetch the command that executes the tests
         cmd = runner_mod.command(env)
         output_buffer = ''
@@ -333,18 +344,10 @@ def run(dirname, basename, envgetter, runner):
         # that we made all of these log entries for it.
         pdkrun_status(full_filename)
 
-        f = open(env['PDK_LOG'], "a")
-        f.write("\n\nSTART\n")
-        f.write('test_run=%s\n' % env['PDK_TESTRUN'])
-        f.write('project=%s\n' % env['PDK_PROJECT'])
-        f.write('host=%s\n' % env['PDK_HOST'])
-        f.write('location=%s\n' % full_filename)
-        f.write('test_runner=%s\n' % runner)
-        f.write('context=%s\n' % env['PDK_CONTEXT'])
-        f.write("SETDEFAULT\n")
 
         # Trap unhandled exit information
         if return_status > 1 or return_status < 0:
+            f = open(env['PDK_LOG'], "a")
             f.write('\n')
             f.write('test_name=%s\n' % full_filename)
             f.write('status=E\n')
@@ -359,7 +362,7 @@ def run(dirname, basename, envgetter, runner):
                     f.write('.{}\n'.format(line))
                 f.write('\n')
             f.write('END\n')
-        f.close()
+            f.close()
 
         if 1:
             # if the runner did not provide a status summary, collect it from
