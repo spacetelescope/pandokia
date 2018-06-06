@@ -19,13 +19,13 @@ import re
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.append(os.path.abspath('../pandokia'))
+sys.path.append(os.path.abspath('../../../'))
 
 # -- General configuration -----------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.pngmath']
+extensions = ['sphinx.ext.imgmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,17 +41,15 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pandokia'
-copyright = u'2009-2011, Association of Universities for Research in Astronomy'
+copyright = u'2009-2018, Association of Universities for Research in Astronomy'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = open(
-    os.path.dirname(__file__) +
-    "/../version.txt",
-    "r").readline().strip()
+from pandokia import __version__
+release = __version__
 # The short X.Y version.
 version = re.split('[a-zA-Z]', release)[0]
 
@@ -128,7 +126,7 @@ html_title = "Pandokia %s" % release
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
