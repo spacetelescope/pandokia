@@ -237,6 +237,7 @@ class Pdk(nose.plugins.base.Plugin):
                 str_tb  = ''.join(traceback.format_tb(tb))
 
             # Compile exception message
+            exc_tra = '{}: {}'.format(str_ec, str_ev)
             exc = 'Type: {}\nMessage: {}\nTrigger: {}\n'.format(str_ec, str_ev, str_tb.splitlines()[-1].lstrip())
             final_tb = str_tb + '\n' + 'EXCEPTION\n' + exc
 
@@ -246,7 +247,7 @@ class Pdk(nose.plugins.base.Plugin):
                 capture += final_tb
 
         # Write the record to the log file
-        self.pdklog(test.test, status, log=capture, exc=exc)
+        self.pdklog(test.test, status, log=capture, exc=exc_tra)
 
     # our function to pick out the TDA and TRA dictionaries.  Depending what kind
     # of test is is, there are many places we may need to look.
