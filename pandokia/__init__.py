@@ -11,7 +11,12 @@ describe pandokia a little
 """
 
 import os
+import sys
 from .version import *
+
+
+# A simple boolean check for python 3.0.0.final or greater
+PY3 = bool(sys.hexversion >= 0x030000F)
 
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
