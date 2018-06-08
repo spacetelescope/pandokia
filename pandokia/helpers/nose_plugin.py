@@ -246,6 +246,10 @@ class Pdk(nose.plugins.base.Plugin):
             else:
                 capture += final_tb
 
+            # Suppress tra_exception if marked as failure
+            if status == 'F':
+                exc_tra = None
+
         # Write the record to the log file
         self.pdklog(test.test, status, log=capture, exc=exc_tra)
 
