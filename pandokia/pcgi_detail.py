@@ -302,7 +302,10 @@ def do_result(key_id):
         for y in c1:
             (name, value) = y
             tb.set_value(row, 0, "tra_" + name)
-            tb.set_value(row, 1, value)
+            if 'xception' in name:
+                tb.set_value(row, 1, value, code=True)
+            else:
+                tb.set_value(row, 1, value)
             row += 1
 
         sys.stdout.write(tb.get_html())
