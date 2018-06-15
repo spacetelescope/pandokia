@@ -51,8 +51,9 @@ class text_table_cell:
 
     def __init__(self):
         # text is the value to display; it is not necessarily a string
-        self.text = ''
-        self.sort_key = ''
+        self.text = None
+        self.code = False
+        self.sort_key = None
         # link is where an href covering the whole table cell should point
         self.link = None
         # html is displayed instead of text in HTML output (if set)
@@ -64,10 +65,11 @@ class text_table_cell:
     def __repr__(self):
         return repr(self.text)
 
-    def set_value(self, text=None, link=None, html=None, sort_key=None):
+    def set_value(self, text=None, link=None, html=None, sort_key=None, code=False):
         self.text = text
         self.link = link
         self.html = html
+        self.code = code
         if sort_key is None:
             self.sort_key = text
         else:
@@ -278,7 +280,8 @@ class text_table:
             text=None,
             link=None,
             html=None,
-            sort_key=None):
+            sort_key=None,
+            code=False):
         # value = text to save
         # link = href to use
         # html = text to use in place of value in html table
@@ -286,7 +289,7 @@ class text_table:
 
         o = self._row_col_cell(row, col)
 
-        o.set_value(text, link, html, sort_key)
+        o.set_value(text, link, html, sort_key, code)
 
     ##
     def get_cell(self, row, col):
@@ -559,10 +562,12 @@ class text_table:
                         else:
                             s.write(c.html)
                     else:
-                        if c.text is None or c.text == "":
-                            s.write("&nbsp;")
-                        else:
+                        if c.text is not None and c.code:
+                            s.write("<pre>{}</pre>".format(c.text))
+                        elif c.text is not None and not c.code:
                             s.write(cgi.escape(str(c.text)))
+                        else:
+                            s.write("&nbsp;")
                     if c.link:
                         s.write("</a>")
                     s.write("</td>\n")

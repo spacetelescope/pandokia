@@ -205,16 +205,17 @@ class Pdk(nose.plugins.base.Plugin):
     def write_report(self, test, status, err=None):
         from nose.inspector import inspect_traceback
 
+
+        truncate_output_mark = '-------------------- >> begin captured stdout'
+        truncate_output_len = len(truncate_output_mark)
+
         # record the end time here, because nose does not always call stopTest()
         self.pdk_endtime = time.time()
-
-
-        # Limits
-        exc_maxlen = 255
 
         # Tracebacks / Exceptions
         tbinfo = None
         exc = None
+        exc_tra = None
 
         # Collect stdout (returns None on failure to acquire stream)
         capture = get_stdout()
@@ -223,8 +224,7 @@ class Pdk(nose.plugins.base.Plugin):
         if err is not None:
             ec, ev, tb = err
             str_ec = ec.__name__.lstrip()
-            str_ev = str(ev).lstrip()
-            str_ev_len = len(str_ev)
+            str_ev = str(ev)
 
             # Alert on no error message
             if not str_ev:
@@ -236,8 +236,16 @@ class Pdk(nose.plugins.base.Plugin):
                 str_rv = '\n'.join([tbinfo])
                 str_tb  = ''.join(traceback.format_tb(tb))
 
+            # Remove redundant stdout messages
+            str_ev_mark = str_ev.find(truncate_output_mark)
+            if str_ev_mark >= 0:
+                str_ev_truncated = str_ev[0:str_ev_mark]
+            else:
+                str_ev_truncated = str_ev
+
             # Compile exception message
-            exc = 'Type: {}\nMessage: {}\nTrigger: {}\n'.format(str_ec, str_ev, str_tb.splitlines()[-1].lstrip())
+            exc_tra = '{}: {}'.format(str_ec, str_ev_truncated)
+            exc = 'Type: {}\nMessage: {}\nTrigger: {}\n'.format(str_ec, str_ev_truncated, str_tb.splitlines()[-1].lstrip())
             final_tb = str_tb + '\n' + 'EXCEPTION\n' + exc
 
             if capture is None:
@@ -245,8 +253,12 @@ class Pdk(nose.plugins.base.Plugin):
             else:
                 capture += final_tb
 
+            # Suppress tra_exception if marked as failure
+            if status == 'F':
+                exc_tra = None
+
         # Write the record to the log file
-        self.pdklog(test.test, status, log=capture, exc=exc)
+        self.pdklog(test.test, status, log=capture, exc=exc_tra)
 
     # our function to pick out the TDA and TRA dictionaries.  Depending what kind
     # of test is is, there are many places we may need to look.
@@ -356,7 +368,7 @@ class Pdk(nose.plugins.base.Plugin):
         # report an attribute that contains the exception that caused
         # the test to error.
         if exc is not None:
-            tra['Exception'] = exc
+            tra['exception'] = exc
 
         # write the log record - the pycode log object writes the log
         # entry and flushes the output file in case we crash later

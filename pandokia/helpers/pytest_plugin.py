@@ -455,7 +455,7 @@ def pytest_runtest_makereport(__multicall__, item, call):
                     item.pandokia.status = 'F'
                 else:
                     item.pandokia.status = 'E'
-                    item.pandokia.tra['Exception'] = call.excinfo.exconly()
+                    item.pandokia.tra['exception'] = call.excinfo.exconly()
             item.pandokia.exception = 'EXCEPTION:\n%s\n' % str(report.longrepr)
 
         # all that material is saved in item.pandokia, which will be
@@ -477,7 +477,7 @@ def pytest_runtest_makereport(__multicall__, item, call):
         if isinstance(call.excinfo, py.code.ExceptionInfo):
             item.pandokia.status = 'E'
             if item.pandokia.exception is None:
-                item.pandokia.tra['Exception'] = call.excinfo.exconly()
+                item.pandokia.tra['exception'] = call.excinfo.exconly()
                 item.pandokia.exception = 'EXCEPTION:\n%s\n' % str(
                     report.longrepr)
 

@@ -15,6 +15,8 @@ import pandokia.pcgi
 import pandokia.common as common
 
 import pandokia
+from . import PY3
+
 cfg = pandokia.cfg
 pdk_db = cfg.pdk_db
 
@@ -300,7 +302,10 @@ def do_result(key_id):
         for y in c1:
             (name, value) = y
             tb.set_value(row, 0, "tra_" + name)
-            tb.set_value(row, 1, value)
+            if 'xception' in name:
+                tb.set_value(row, 1, value, code=True)
+            else:
+                tb.set_value(row, 1, value)
             row += 1
 
         sys.stdout.write(tb.get_html())
@@ -320,8 +325,9 @@ def do_result(key_id):
             "SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ))
 
         for y in c1:
-            if isinstance(y, tuple):
-                y = tuple(x.decode() for x in y)
+            if not PY3:
+                if isinstance(y, tuple):
+                    y = tuple(x.decode() for x in y)
 
             (y, ) = y
 
