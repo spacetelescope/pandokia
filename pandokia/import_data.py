@@ -228,17 +228,19 @@ class test_result(object):
             if self.start_time != '':
                 self.start_time = common.parse_time(self.start_time)
                 self.start_time = common.sql_time(self.start_time)
-        except ValueError:
+        except ValueError as e:
             print("")
             print("INVALID START TIME, line %d" % line_count)
+            raise e
 
         try:
             if self.end_time != '':
                 self.end_time = common.parse_time(self.end_time)
                 self.end_time = common.sql_time(self.end_time)
-        except ValueError:
+        except ValueError as e:
             print("")
             print("INVALID END TIME, line %d" % line_count)
+            raise e
 
         self.tda = {}
         self.tra = {}
@@ -279,7 +281,7 @@ class test_result(object):
                  self.test_runner,
                  okf]
         return db.execute(
-            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
+            "INSERT IGNORE INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
             " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 %s )" %
             (ss, ss1), parm)
 
@@ -352,14 +354,14 @@ class test_result(object):
 
         for x in self.tda:
             db.execute(
-                "INSERT INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )",
+                "INSERT IGNORE INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )",
                 (key_id,
                  x,
                  self.tda[x]))
 
         for x in self.tra:
             db.execute(
-                "INSERT INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )",
+                "INSERT IGNORE INTO result_tra ( key_id, name, value ) values ( :1, :2, :3 )",
                 (key_id,
                  x,
                  self.tra[x]))
@@ -374,7 +376,7 @@ class test_result(object):
                 0:990000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
             print("LOG TRUNCATED: key_id=%d" % key_id)
 
-        db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
+        db.execute("INSERT IGNORE INTO result_log ( key_id, log ) values ( :1, :2 )",
                    (key_id, self.log))
 
         db.commit()
@@ -384,12 +386,13 @@ class test_result(object):
             try:
                 # add it to the list of known test runs
                 db.execute(
-                    "INSERT INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",
+                    "INSERT IGNORE INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",
                     (self.test_run,
                      ))
                 db.commit()
-            except db.IntegrityError:
+            except db.IntegrityError as e:
                 db.rollback()
+                raise e
             # remember that we saw it so we don't have to touch the database
             # again
             all_test_runs[self.test_run] = 1
@@ -508,3 +511,4 @@ def pyetchack(arg):
 
     arg.test_name = arg.test_name.replace(".peng.all", "")
     return True
+
