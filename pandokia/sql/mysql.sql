@@ -84,8 +84,8 @@ CREATE TABLE result_scalar (
                 -- 0 or 1 indicating whether this test is a chronic problem
 	);
 
-CREATE UNIQUE INDEX result_scalar_test_identity 
-	ON result_scalar ( test_run, project, host, test_name, context );
+CREATE UNIQUE INDEX result_scalar_key_id 
+	ON result_scalar ( key_id );
 
 CREATE INDEX result_scalar_test_run_only 
 	ON result_scalar ( test_run ) ;

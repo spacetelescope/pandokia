@@ -65,7 +65,7 @@ def run(args):
 
     where_str, where_dict = pdk_db.where_dict(l)
 
-    sql = "select distinct project, host, context, test_name from result_scalar %s " % where_str
+    sql = "select distinct project, host, context, test_name, test_hash from result_scalar %s " % where_str
     c = pdk_db.execute(sql, where_dict)
 
     for (project, host, context, test_name) in c:
@@ -84,12 +84,13 @@ def run(args):
         # ok.
         try:
             pdk_db.execute(
-                'insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )',
+                'insert into expected ( test_run_type, project, host, context, test_name, test_hash ) values ( :1, :2, :3, :4, :5, :6 )',
                 (test_run_type,
                  project,
                  host,
                  context,
-                 test_name))
+                 test_name,
+                 test_hash))
         except pdk_db.IntegrityError as e:
             if debug:
                 print("exception %s" % e)
