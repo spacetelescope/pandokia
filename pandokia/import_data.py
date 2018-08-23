@@ -12,6 +12,8 @@ import pandokia
 exit_status = 0
 line_count = 0
 insert_count = 0
+reimport_count = 0
+reimport_parm = dict()
 quiet = False
 debug = False
 default_record = dict()
@@ -254,13 +256,16 @@ class test_result(object):
             exit_status = 1
 
     def try_insert(self, db, key_id):
+        
+        global reimport_count, reimport_parm
+        
         if self.has_okfile:
             okf = 'T'
         else:
             okf = 'F'
         if key_id:
             ss = 'key_id, '
-            ss1 = ', :13'
+            ss1 = ', :14'
             parm = [key_id]
         else:
             parm = []
@@ -278,9 +283,26 @@ class test_result(object):
                  self.attn,
                  self.test_runner,
                  okf]
+        
+        hash_str = self.test_run+self.host+self.project+self.test_name+self.context
+
+        # return a string of length 32
+        h = hashlib.md5(hash_str.encode())
+        self.hash = h.hexdigest()
+        parm += [self.hash]
+
+        a = db.execute("select status from result_scalar where test_hash = :1", (self.hash))
+        y = a.fetchone()
+        if y is not None:
+            db.execute("delete from result_scalar where test_hash = :1", (self.hash))
+            reimport_count += 1
+            reimport_parm[reimport_count] = parm
+            if not quiet:
+                print("WARNING: About to reimport the test results, please take a look at the reimport_tests.txt file after the import is done")
+
         return db.execute(
-            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
-            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 %s )" %
+            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile, test_hash ) values "
+            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13 %s )" %
             (ss, ss1), parm)
 
     def insert(self, db):
@@ -487,6 +509,12 @@ def run(argv, hack_callback=None):
 
     if not quiet:
         print(result_str)
+
+    if reimport_count != 0:
+        print("There are {:d} reimport tests during this run".format(reimport_count))
+        with open("reimport_tests.txt", 'w') as f:
+            for key, value in reimport_parm.items():
+                f.write(str(key)+" : "+str(value)+"\n")        
 
     # could use all_test_run here to clear the cgi cache
     sys.exit(exit_status)
