@@ -127,7 +127,7 @@ def run(args):
 
     detected = 0
 
-    for (project, host, test_name, context) in c:
+    for (project, host, test_name, context, test_hash) in c:
         if verbose > 2:
             print("CHECK %s %s %s" % (project, host, test_name))
 
