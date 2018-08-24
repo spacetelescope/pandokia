@@ -5,6 +5,7 @@
 
 import re
 import sys
+import hashlib
 import pandokia.common as common
 import pandokia
 
