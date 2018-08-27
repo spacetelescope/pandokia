@@ -84,7 +84,7 @@ def run(args):
         # ok.
         try:
             pdk_db.execute(
-                'insert into expected ( test_run_type, project, host, context, test_name, test_hash ) values ( :1, :2, :3, :4, :5, :6 )',
+                'insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )',
                 (test_run_type,
                  project,
                  host,
