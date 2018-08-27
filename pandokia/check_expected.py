@@ -133,7 +133,7 @@ def run(args):
 
         c1 = pdk_db.execute("""SELECT status FROM result_scalar
                 WHERE test_hash = :1""",
-                            (test_hash)
+                            (test_hash,)
                             )
 
         if c1.fetchone() is None:
