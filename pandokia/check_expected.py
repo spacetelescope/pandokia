@@ -110,7 +110,7 @@ def run(args):
 
     where_text, where_dict = pdk_db.where_dict(select_args)
 
-    s = "SELECT project, host, test_name, context, test_hash FROM expected %s " % where_text
+    s = "SELECT project, host, test_name, context FROM expected %s " % where_text
 
     if verbose > 1:
         print(s)
@@ -132,8 +132,9 @@ def run(args):
             print("CHECK %s %s %s" % (project, host, test_name))
 
         c1 = pdk_db.execute("""SELECT status FROM result_scalar
-                WHERE test_hash = :1""",
-                            (test_hash,)
+                WHERE test_run = :1 AND project = :2 AND host = :3 AND
+                test_name = :4 AND context = :5 """,
+                            (test_run, project, host, test_name, context)
                             )
 
         if c1.fetchone() is None:
@@ -142,16 +143,15 @@ def run(args):
                 print("        MISSING: %s %s %s" % (project, host, test_name))
             pdk_db.execute(
                 """INSERT INTO result_scalar
-                ( test_run, project, host, context, test_name, status, attn, test_hash )
-                VALUES ( :1, :2, :3, :4, :5, :6, :7, :8 )""",
+                ( test_run, project, host, context, test_name, status, attn )
+                VALUES ( :1, :2, :3, :4, :5, :6, :7 )""",
                 (test_run,
                  project,
                  host,
                  context,
                  test_name,
                  'M',
-                 'Y',
-                 test_hash))
+                 'Y'))
             detected = detected + 1
 
             # do some commits from time to time to avoid lock timeouts
