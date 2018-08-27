@@ -153,6 +153,7 @@ CREATE INDEX contact_index
 --	which tests are expected in various types of test_runs
 --	You can use the check_expected script if you populate this
 --	table for your test_run_type.
+--      We only need one entry.
 
 CREATE TABLE expected (
 	test_run_type VARCHAR,
@@ -162,14 +163,9 @@ CREATE TABLE expected (
 	project VARCHAR,
 	host VARCHAR,
 	test_name VARCHAR,
-	context VARCHAR,
+	context VARCHAR
 		-- project, host, test_name, context as in result_scalar
-	test_hash VARCHAR
 );
-
-CREATE UNIQUE INDEX expected_unique
-	ON expected ( test_hash );
-		-- we only need one entry
 
 -- distinct_test_run:
 -- 	It is getting too slow to find all the projects by "select
