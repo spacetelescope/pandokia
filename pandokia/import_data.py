@@ -292,10 +292,10 @@ class test_result(object):
         self.hash = h.hexdigest()
         parm += [self.hash]
 
-        a = db.execute("select status from result_scalar where test_hash = :1", (self.hash))
+        a = db.execute("select status from result_scalar where test_hash = :1", (self.hash,))
         y = a.fetchone()
         if y is not None:
-            db.execute("delete from result_scalar where test_hash = :1", (self.hash))
+            db.execute("delete from result_scalar where test_hash = :1", (self.hash,))
             reimport_count += 1
             reimport_parm[reimport_count] = parm
             if not quiet:
