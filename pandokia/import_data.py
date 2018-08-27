@@ -500,6 +500,13 @@ def run(argv, hack_callback=None):
                 duplicate_count += 1
 
             pdk_db.commit()
+            
+            if reimport_count != 0:
+                print("There are {:d} reimport tests during this run".format(reimport_count))
+                reimport_file = "reimport_tests_"+handle+".txt"
+                with open(reimport_file, 'w') as f:
+                    for key, value in reimport_parm.items():
+                        f.write(str(key)+" : "+str(value)+"\n") 
 
     result_str = '{:d} records inserted'.format(insert_count)
     if duplicate_count:
@@ -509,14 +516,7 @@ def run(argv, hack_callback=None):
         result_str += ' ({:d} failed)'.format(failure_count)
 
     if not quiet:
-        print(result_str)
-
-    if reimport_count != 0:
-        print("There are {:d} reimport tests during this run".format(reimport_count))
-        reimport_file = "reimport_tests_"+args.filename+".txt"
-        with open(reimport_file, 'w') as f:
-            for key, value in reimport_parm.items():
-                f.write(str(key)+" : "+str(value)+"\n")        
+        print(result_str)       
 
     # could use all_test_run here to clear the cgi cache
     sys.exit(exit_status)
