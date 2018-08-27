@@ -419,7 +419,7 @@ class test_result(object):
 
 
 def run(argv, hack_callback=None):
-    global line_count, insert_count, quiet, debug
+    global line_count, insert_count, quiet, debug, reimport_count, reimport_parm
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
@@ -437,6 +437,7 @@ def run(argv, hack_callback=None):
     default_test_runner = ''
     insert_count = 0
     reimport_count = 0
+    reimport_parm = dict()
     line_count = 0
     duplicate_count = 0
     failure_count = 0
