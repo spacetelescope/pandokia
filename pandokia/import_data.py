@@ -506,6 +506,7 @@ def run(argv, hack_callback=None):
         if reimport_count != 0:
             print("There are {:d} reimport tests during this run".format(reimport_count))
             reimport_file = "reimport_tests_"+handle+".txt"
+            print("The reimport tests file is called : %s" % reimport_file)
             with open(reimport_file, 'w') as f:
                 for key, value in reimport_parm.items():
                     f.write(str(key)+" : "+str(value)+"\n")
