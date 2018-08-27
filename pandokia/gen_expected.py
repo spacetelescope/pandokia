@@ -65,10 +65,10 @@ def run(args):
 
     where_str, where_dict = pdk_db.where_dict(l)
 
-    sql = "select distinct project, host, context, test_name, test_hash from result_scalar %s " % where_str
+    sql = "select distinct project, host, context, test_name from result_scalar %s " % where_str
     c = pdk_db.execute(sql, where_dict)
 
-    for (project, host, context, test_name, test_hash) in c:
+    for (project, host, context, test_name) in c:
         if test_name.endswith("nose.failure.Failure.runTest"):
             # Sometimes nose generates this test name.  I don't want it in the database at all, because
             # the name is not unique, and the record does not contain any useful information about the problem.
@@ -89,8 +89,7 @@ def run(args):
                  project,
                  host,
                  context,
-                 test_name,
-                 test_hash))
+                 test_name))
         except pdk_db.IntegrityError as e:
             if debug:
                 print("exception %s" % e)
