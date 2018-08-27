@@ -436,6 +436,7 @@ def run(argv, hack_callback=None):
 
     default_test_runner = ''
     insert_count = 0
+    reimport_count = 0
     line_count = 0
     duplicate_count = 0
     failure_count = 0
