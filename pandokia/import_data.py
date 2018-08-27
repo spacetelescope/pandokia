@@ -517,7 +517,7 @@ def run(argv, hack_callback=None):
         result_str += ' ({:d} failed)'.format(failure_count)
 
     if not quiet:
-        print(result_str)       
+        print(result_str)
 
     # could use all_test_run here to clear the cgi cache
     sys.exit(exit_status)
