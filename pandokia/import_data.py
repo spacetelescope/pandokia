@@ -500,14 +500,14 @@ def run(argv, hack_callback=None):
                     print('Skipped: {}'.format(rx.test_name))
                 duplicate_count += 1
 
-            pdk_db.commit()
-            
-            if reimport_count != 0:
-                print("There are {:d} reimport tests during this run".format(reimport_count))
-                reimport_file = "reimport_tests_"+handle+".txt"
-                with open(reimport_file, 'w') as f:
-                    for key, value in reimport_parm.items():
-                        f.write(str(key)+" : "+str(value)+"\n") 
+            pdk_db.commit() 
+        
+        if reimport_count != 0:
+            print("There are {:d} reimport tests during this run".format(reimport_count))
+            reimport_file = "reimport_tests_"+handle+".txt"
+            with open(reimport_file, 'w') as f:
+                for key, value in reimport_parm.items():
+                    f.write(str(key)+" : "+str(value)+"\n")
 
     result_str = '{:d} records inserted'.format(insert_count)
     if duplicate_count:
