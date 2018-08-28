@@ -80,7 +80,9 @@ def run(args):
             print(
                 "expect %s %s %s %s %s" %
                 (test_run_type, project, host, context, test_name))
-        a = pdk_db.execute('select test_run_type, project, host, context, test_name from expected')
+        # check if the row already exists before insert since the expected table does not have unique enforcement
+        # on its columns
+        a = pdk_db.execute('select * from expected where test_run_type = :1 and project = :2 and host = :3 and context = :4 and test_name = :5', (test_run_type, project, host, context, test_name))
         y = a.fetchone()
         if y is None:
             try:
@@ -91,7 +93,7 @@ def run(args):
                     host,
                     context,
                     test_name))
-            except pdk_db.IntegrityError as e:
+            except Exception as e:
                 if debug:
                     print("exception %s" % e)
                 pass
