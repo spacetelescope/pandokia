@@ -80,18 +80,19 @@ def run(args):
             print(
                 "expect %s %s %s %s %s" %
                 (test_run_type, project, host, context, test_name))
-        # insert to the expected table; if the record is already there, it's
-        # ok.
-        try:
-            pdk_db.execute(
-                'insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )',
-                (test_run_type,
-                 project,
-                 host,
-                 context,
-                 test_name))
-        except pdk_db.IntegrityError as e:
-            if debug:
-                print("exception %s" % e)
-            pass
+        a = pdk_db.execute('select test_run_type, project, host, context, test_name from expected')
+        y = a.fetchone()
+        if y is None:
+            try:
+                pdk_db.execute(
+                    'insert into expected ( test_run_type, project, host, context, test_name ) values ( :1, :2, :3, :4, :5 )',
+                    (test_run_type,
+                    project,
+                    host,
+                    context,
+                    test_name))
+            except pdk_db.IntegrityError as e:
+                if debug:
+                    print("exception %s" % e)
+                pass
     pdk_db.commit()
