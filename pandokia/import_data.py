@@ -5,6 +5,7 @@
 
 import re
 import sys
+import hashlib
 import pandokia.common as common
 import pandokia
 
@@ -12,6 +13,8 @@ import pandokia
 exit_status = 0
 line_count = 0
 insert_count = 0
+reimport_count = 0
+reimport_parm = dict()
 quiet = False
 debug = False
 default_record = dict()
@@ -254,13 +257,16 @@ class test_result(object):
             exit_status = 1
 
     def try_insert(self, db, key_id):
+        
+        global reimport_count, reimport_parm
+        
         if self.has_okfile:
             okf = 'T'
         else:
             okf = 'F'
         if key_id:
             ss = 'key_id, '
-            ss1 = ', :13'
+            ss1 = ', :14'
             parm = [key_id]
         else:
             parm = []
@@ -278,9 +284,26 @@ class test_result(object):
                  self.attn,
                  self.test_runner,
                  okf]
+        
+        hash_str = self.test_run+self.host+self.project+self.test_name+self.context
+
+        # return a string of length 32
+        h = hashlib.md5(hash_str.encode())
+        self.hash = h.hexdigest()
+        parm += [self.hash]
+
+        a = db.execute("select status from result_scalar where test_hash = :1", (self.hash,))
+        y = a.fetchone()
+        if y is not None:
+            db.execute("delete from result_scalar where test_hash = :1", (self.hash,))
+            reimport_count += 1
+            reimport_parm[reimport_count] = parm
+            if not quiet:
+                print("WARNING: About to reimport the test result, please take a look at the reimport_tests.txt file after the import is done")
+
         return db.execute(
-            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile ) values "
-            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12 %s )" %
+            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile, test_hash ) values "
+            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13 %s )" %
             (ss, ss1), parm)
 
     def insert(self, db):
@@ -396,7 +419,7 @@ class test_result(object):
 
 
 def run(argv, hack_callback=None):
-    global line_count, insert_count, quiet, debug
+    global line_count, insert_count, quiet, debug, reimport_count, reimport_parm
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
@@ -413,6 +436,8 @@ def run(argv, hack_callback=None):
 
     default_test_runner = ''
     insert_count = 0
+    reimport_count = 0
+    reimport_parm = dict()
     line_count = 0
     duplicate_count = 0
     failure_count = 0
@@ -476,7 +501,15 @@ def run(argv, hack_callback=None):
                     print('Skipped: {}'.format(rx.test_name))
                 duplicate_count += 1
 
-            pdk_db.commit()
+            pdk_db.commit() 
+        
+        if reimport_count != 0:
+            print("{:d} tests were re-imported during this run".format(reimport_count))
+            reimport_file = "reimport_tests_"+handle+".txt"
+            print("See details in %s" % reimport_file)
+            with open(reimport_file, 'w') as f:
+                for key, value in reimport_parm.items():
+                    f.write(str(key)+" : "+str(value)+"\n")
 
     result_str = '{:d} records inserted'.format(insert_count)
     if duplicate_count:
