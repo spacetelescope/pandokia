@@ -299,7 +299,7 @@ class test_result(object):
             reimport_count += 1
             reimport_parm[reimport_count] = parm
             if not quiet:
-                print("WARNING: About to reimport the test results, please take a look at the reimport_tests.txt file after the import is done")
+                print("WARNING: About to reimport the test result, please take a look at the reimport_tests.txt file after the import is done")
 
         return db.execute(
             "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile, test_hash ) values "
