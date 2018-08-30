@@ -72,6 +72,10 @@ CREATE TABLE result_scalar (
 		-- project + host + test_name + context
 );
 
+-- Since the original unique index is ( test_run_type, project, host, test_name, context ),
+-- and the combination of this five fields exceeds the index length limit of MySQL's
+-- Database Engine InnoDB and causes integrity error, therefore, a hash of the combination
+-- is to replace the original without exceeding the InnoDB limit
 CREATE UNIQUE INDEX result_scalar_test_hash
 	ON result_scalar ( test_hash );
 
@@ -153,7 +157,9 @@ CREATE INDEX contact_index
 --	which tests are expected in various types of test_runs
 --	You can use the check_expected script if you populate this
 --	table for your test_run_type.
---      We only need one entry.
+--	We only need one entry for each unique combination of
+--	test_run_type+project+host+test_name+context in order to
+--	match with the test results in result_scalar table
 
 CREATE TABLE expected (
 	test_run_type VARCHAR,
