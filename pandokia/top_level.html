@@ -1,77 +1,87 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" >
-<title>Pandokia</title>
-</head>
-<body>
 PAGEHEADER
 
 <p>
+Documentation is available on the group wiki: 
+<a href="https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia">
+https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
+</a>
 
+ADMINLINK
+
+<p>
 <ul>
+
+<li> <a href="CGINAME?query=day_report.1&test_run=conda_%">CONDA</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=jwst_latest">Latest JWST Report</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=etc_hst_daily_latest">Latest HST pyetc</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=etc_jwst_daily_latest">Latest Pandeia Report (Local)</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=pandeia_master_latest">Latest Pandeia Report (AWS)</a>
+<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest">Latest Daily Report</a>
+	<ul>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=astrolib">astrolib</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=drizzlepac">drizzlepac</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=hstcal">hstcal</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=jwst">jwst</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsci_python">stsci_python</a>
+	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsdas">stsdas</a>
+	<li>
+	<form action=CGINAME method=GET>
+		<input type=hidden name=query value='day_report.2'>
+		<input type=text name=test_run value='daily_latest'>
+	</form>
+	<li> <a href="CGINAME?query=treewalk&test_run=daily_latest">Latest Daily Report </a> (tree walker)
+	</ul>
+
+<hr>
+
+<li> <a href="CGINAME?query=day_report.1&test_run=-me">Just your test runs</a>
+
+<hr>
+<li> <a href="CGINAME?query=qid_list">List of interesting QID</a>
+<li> QID :
+	<form action=CGINAME method=GET>
+	<input type=hidden name=query value=summary>
+	<input type=text name=qid>
+	</form>
+<li> key_id :
+	<form action=CGINAME method=GET>
+	<input type=hidden name=query value=detail>
+	<input type=text name=key_id>
+	</form>
+<hr>
 <li> Lists of Test Runs:
 	<ul>
-		<li> <a href="CGINAME?query=day_report.1&amp;test_run=*">All</a>
-		<li> <a href="CGINAME?query=day_report.1&amp;test_run=daily_*">daily_*</a>
-		<li> <a href="CGINAME?query=day_report.1&amp;test_run=user_*">user_*</a> - test runs that took the default name
+		<li> <a href="CGINAME?query=day_report.1&test_run=%">All</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=daily_%">Daily only</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=user_%">user_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=run_%">run_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=ops_%">ops_%</a>
+		<li> <a href="CGINAME?query=day_report.1&test_run=release_%">release_%</a>
 		<li>	<form action=CGINAME method=GET>
 			<input type=hidden name=query value='day_report.1'>
-			<input type=text name=test_run value='daily_*'>
-			enter a pattern here
+			<input type=text name=test_run value='user_%'>
 			</form>
 	</ul>
 
-
 <hr>
-
-<li> <a href="CGINAME?query=day_report.2&amp;test_run=daily_latest">Latest Daily Report</a> (table)
-	<ul>
-	<li>
-	<form action=CGINAME method=GET>
-		<input type=hidden name=query value='treewalk.linkout'>
-		<input type=hidden name=project value='*'>
-		<input type=hidden name=host value='*'>
-		<input type=hidden name=test_name value ='*'>
-		<input type=hidden name=status value='[FEM]'>
-		<input type=text name=test_run value='daily_latest'>
-	</form>
-	<li> problem:  
-	  <a href="CGINAME?query=treewalk&amp;project=*&amp;test_run=daily_latest&amp;host=*&amp;test_name=*&amp;status=[FEM]">tree</a>
-	  <a href="CGINAME?query=treewalk.linkout&amp;project=*&amp;test_run=daily_latest&amp;host=*&amp;test_name=*&amp;status=[FEM]">list</a>
-	or <li> <a href="CGINAME?query=treewalk&amp;test_run=daily_latest">Latest Daily Report </a> (tree walker)
-	</ul>
-
-<hr>
-
-<li> <a href="CGINAME?query=qid_list">List of interesting QID</a>
-<li> key_id :
-        <form action=CGINAME method=GET>
-        <input type=hidden name=query value=detail>
-        <input type=text name=key_id>
-        </form>
-<hr>
-
-<hr>
-<a href="CGINAME?query=prefs">User Preferences</a>
-
+<li> <a href=CGINAME?query=prefs>User Preferences</a>  (use to select what email you want)
 <hr>
 <li>
 Enter your own tree walk parameters:<br>
-(if you have a lot of data, it can be very slow to submit this form with all fields set to "*")
+(do not submit this form with all fields set to "%" - the query is too slow)
 	<form action=CGINAME method=GET>
-	test_run: <input type=text name=test_run value="*"> <br>
-	project: <input type=text name=project value="*"> <br>
-	host: <input type=text name=host value="*"> <br>
-	test_name: <input type=text name=test_name value="*"> <br>
+	test_run: <input type=text name=test_run value="%"> <br>
+	project: <input type=text name=project value="%"> <br>
+	host: <input type=text name=host value="%"> <br>
+	test_name: <input type=text name=test_name value="%"> <br>
 	<input type=hidden name=query value=treewalk>
 	<input type=submit name="submit" value="treewalk">
 	</form>
 </ul>
 <hr>
 
+<hr>
+
 <a href="CGINAME?query=expected">expected tests summary</a>
 
-</ul>
-</body>
-</html>
+</form>
