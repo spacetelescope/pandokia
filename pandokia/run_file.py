@@ -244,6 +244,7 @@ def run(dirname, basename, envgetter, runner):
         f.write('location=%s\n' % full_filename)
         f.write('test_runner=%s\n' % runner)
         f.write('context=%s\n' % env['PDK_CONTEXT'])
+        f.write('custom=%s\n' % env['PDK_CUSTOM'])
         f.write("SETDEFAULT\n")
         f.close()
 
