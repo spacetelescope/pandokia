@@ -69,6 +69,7 @@ def run(args):
     test_run = os.environ.get("PDK_TESTRUN", None)
     test_prefix = os.environ.get("PDK_TESTPREFIX", None)
     context = os.environ.get("PDK_CONTEXT", 'default')
+    custom = os.environ.get("PDK_CUSTOM", None)
     parallel = os.environ.get("PDK_PARALLEL", None)
     tmpdir = os.environ.get("PDK_TMP", None)
     host = os.environ.get("PDK_HOST", None)
@@ -112,6 +113,8 @@ def run(args):
             parallel = str(int(optarg))
         elif opt == '--host':
             host = optarg
+        elif opt == '--custom':
+            custom = optarg
 
     if project is None:
         project = default_project()
@@ -131,6 +134,7 @@ def run(args):
     os.environ['PDK_PROJECT'] = project
     os.environ['PDK_TESTRUN'] = test_run
     os.environ['PDK_CONTEXT'] = context
+    os.environ['PDK_CUSTOM'] = custom
     os.environ['PDK_HOST'] = host
 
     initialized_status_file = 0
