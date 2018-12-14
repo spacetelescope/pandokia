@@ -472,11 +472,24 @@ def run(args, hack_callback = None) :
                     continue
             try :
                 rx.insert(pdk_db)
-            except pdk_db.IntegrityError:
-                if not quiet :
-                    print("warning: duplicate on line: %4d %s %s %s %s %s " % line_count, x['test_run'], x['project'], x['host'], x['context'], x["test_name"])
+                if not quiet:
+                    print('Imported: {}'.format(rx.test_name))
+            except pdk_db.IntegrityError as e:
+                if debug:
+                    print('IntegrityError: Cannot insert {} due to "{}"'.format(rx.test_name, e))
+                if not quiet:
+                    print('Skipped: {}'.format(rx.test_name))
+                duplicate_count += 1
 
-            pdk_db.commit()
+            pdk_db.commit() 
+        
+        if reimport_count != 0:
+            print("{:d} tests were re-imported during this run".format(reimport_count))
+            reimport_file = handle+"reimport_tests.txt"
+            print("See details in %s" % reimport_file)
+            with open(reimport_file, 'w') as f:
+                for key, value in reimport_parm.items():
+                    f.write(str(key)+" : "+str(value)+"\n")
 
         if f != sys.stdin :
             f.close()

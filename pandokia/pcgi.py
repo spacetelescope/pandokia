@@ -74,7 +74,7 @@ def run():
 
     global cginame
 
-    cginame = os.getenv("SCRIPT_NAME")
+    cginame = os.getenv("PDK_SCRIPT_NAME")
 
     ######
     #
