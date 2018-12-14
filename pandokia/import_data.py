@@ -503,13 +503,14 @@ def run(argv, hack_callback=None):
 
             pdk_db.commit() 
         
-        if reimport_count != 0:
-            print("{:d} tests were re-imported during this run".format(reimport_count))
-            reimport_file = "reimport_tests_"+handle+".txt"
-            print("See details in %s" % reimport_file)
-            with open(reimport_file, 'w') as f:
-                for key, value in reimport_parm.items():
-                    f.write(str(key)+" : "+str(value)+"\n")
+        # QUESTION: why were we doing this?
+        #if reimport_count != 0:
+        #    print("{:d} tests were re-imported during this run".format(reimport_count))
+        #    reimport_file = "reimport_tests_"+handle+".txt"
+        #    print("See details in %s" % reimport_file)
+        #    with open(reimport_file, 'w') as f:
+        #        for key, value in reimport_parm.items():
+        #            f.write(str(key)+" : "+str(value)+"\n")
 
     result_str = '{:d} records inserted'.format(insert_count)
     if duplicate_count:
