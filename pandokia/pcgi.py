@@ -110,10 +110,6 @@ def run():
         import re
         sys.stdout.write("Content-type: text/html\n\n")
 
-
-	sys.stdout.write("Content-type: text/html\n\n"
-
-
         f = os.path.dirname(os.path.abspath(__file__)) + '/top_level.html'
         header = common.page_header()
         f = open(f, "r")
