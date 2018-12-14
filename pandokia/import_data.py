@@ -166,6 +166,7 @@ class test_result(object):
         self.project    = self._lookup("project")
         self.test_name  = self._lookup("test_name")
         self.context    = self._lookup("context",'default')
+        self.custom     = self._lookup("custom",'')
         self.host       = self._lookup("host","unknown")
         self.location   = self._lookup("location","")
         self.test_runner= self._lookup("test_runner")
@@ -237,10 +238,10 @@ class test_result(object):
             parm = [ ]
             ss = ''
             ss1 = ''
-        parm += [self.test_run, self.host, self.project, self.test_name, self.context, self.status,
+        parm += [self.test_run, self.host, self.project, self.test_name, self.context, self.custom, self.status,
                   self.start_time, self.end_time, self.location, self.attn, self.test_runner, okf]
 
-        hash_str = self.test_run+self.host+self.project+self.test_name+self.context
+        hash_str = self.test_run+self.host+self.project+self.test_name+self.context+self.custom
 
         # return a string of length 32
         h = hashlib.md5(hash_str.encode())
@@ -258,8 +259,8 @@ class test_result(object):
 
 
         return db.execute(
-            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, status, start_time, end_time, location, attn, test_runner, has_okfile, test_hash ) values "
-            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13 %s )" % (ss, ss1), parm)
+            "INSERT INTO result_scalar ( %s test_run, host, project, test_name, context, custom, status, start_time, end_time, location, attn, test_runner, has_okfile, test_hash ) values "
+            " ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14 %s )" % (ss, ss1), parm)
 
     def insert(self, db) :
 
@@ -306,14 +307,14 @@ class test_result(object):
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
             c = db.execute("select status from result_scalar where "
-                "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
-                (self.test_run, self.host, self.context, self.project, self.test_name ) 
+                "test_run = :1 and host = :2 and context = :3 and custom = :4 and project = :5 and test_name = :6 and status = 'M'",
+                (self.test_run, self.host, self.context, self.custom, self.project, self.test_name ) 
             )
             x = c.fetchone()
             if x is not None :
                 db.execute("delete from result_scalar where "
-                    "test_run = :1 and host = :2 and context = :3 and project = :4 and test_name = :5 and status = 'M'",
-                    (self.test_run, self.host, self.context, self.project, self.test_name ) 
+                    "test_run = :1 and host = :2 and context = :3 and custom = :4 and project = :5 and test_name = :6 and status = 'M'",
+                    (self.test_run, self.host, self.context, self.custom, self.project, self.test_name ) 
                     )
                 res = self.try_insert(db, key_id)
                 insert_count += 1
@@ -406,6 +407,9 @@ def run(args, hack_callback = None) :
             if filename.startswith("-context=") :
                 default_context = value
                 continue
+            if filename.startswith("-custom=") :
+                default_custom = value
+                continue
             if filename.startswith("-project=") :
                 default_project = value
                 continue
@@ -436,6 +440,8 @@ def run(args, hack_callback = None) :
                     x["test_run"] = default_test_run
                 if not "context" in x :
                     x["context"] = default_context
+                if not "custom" in x :
+                    x["custom"] = default_custom
                 if not "host" in x :
                     x["host"] = default_host
                 if not "project" in x :
