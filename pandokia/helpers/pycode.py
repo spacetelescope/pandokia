@@ -37,6 +37,7 @@ class reporter(object):
             project=None,
             host=None,
             context=None,
+            custom=None,
             location=None,
             test_runner=None,
             test_prefix=None):
@@ -59,6 +60,7 @@ class reporter(object):
         project = None
         host = None
         context = None
+        custom = None
             Characteristics of this test run; if None, use related
             pandokia environment variable; if no environment variable,
             use "default"
@@ -171,6 +173,14 @@ class reporter(object):
                     context = os.environ['PDK_CONTEXT']
             if context is not None:
                 self.write_field('context', context)
+
+            # custom - currently optional
+            #   what the user provided, else PDK_CUSTOM, else nothing
+            if custom is None:
+                if 'PDK_CUSTOM' in os.environ:
+                    custom = os.environ['PDK_CUSTOM']
+            if custom is not None:
+                self.write_field('custom', custom)
 
             # this saves the default values
             self.report_file.write("SETDEFAULT\n")
