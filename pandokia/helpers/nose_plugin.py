@@ -97,6 +97,10 @@ class Pdk(nose.plugins.base.Plugin):
             "--pdkcontext", action="store", dest="pdkcontext",
             default=env.get("PDK_CONTEXT", "default"),
             help="Context name to write to PDK-compatible log file [PDK_CONTEXT]")
+        parser.add_option(
+            "--pdkcustom", action="store", dest="pdkcustom",
+            default=env.get("PDK_CUSTOM", ''),
+            help="Custom field to write to PDK-compatible log file [PDK_CUSTOM]")
 
     # nose calls configure() after it has parsed all the command line options
     def configure(self, options, conf):
@@ -117,6 +121,7 @@ class Pdk(nose.plugins.base.Plugin):
         self.pdktestrun = options.pdktestrun.replace(' ', '-')
         self.pdktestprefix = options.pdktestprefix
         self.pdkcontext = options.pdkcontext.replace(' ', '-')
+        self.pdkcustom = options.pdkcustom.replace(' ', '-')
 
     # nose calls begin() after it called configure() but before it starts to
     # run any tests
@@ -165,6 +170,7 @@ class Pdk(nose.plugins.base.Plugin):
                 project=self.pdkproject,
                 host=hostname,
                 context=self.pdkcontext,
+                custom=self.pdkcustom,
                 location=default_location,
                 test_runner='nose',
                 test_prefix='',
