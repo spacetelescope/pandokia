@@ -15,7 +15,7 @@ def load_key_id(key_id):
 
     # select every column of result_scalar
     c = pdk_db.execute(
-        "SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar WHERE key_id = :1",
+        "SELECT key_id, test_run, project, host, context, custom, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar WHERE key_id = :1",
         (key_id,
          ))
 
@@ -38,6 +38,7 @@ def load_part_2(result_scalar_tuple, ignore_log=False):
         out['project'],
         out['host'],
         out['context'],
+        out['custom'],
         out['test_name'],
         out['status'],
         out['test_runner'],
@@ -87,6 +88,7 @@ def load_part_2(result_scalar_tuple, ignore_log=False):
 default_test_run = 'daily_latest'
 default_project = '*'
 default_context = '*'
+default_custom = '*'
 default_host = '*'
 default_test_name = '*'
 
@@ -95,6 +97,7 @@ def load_identity(
         test_run=None,
         project=None,
         context=None,
+        custom=None,
         host=None,
         test_name=None,
         ignore_log=False):
@@ -106,6 +109,8 @@ def load_identity(
         project = default_project
     if context is None:
         context = default_context
+    if custom is None:
+        custom = default_custom
     if host is None:
         host = default_host
     if test_name is None:
@@ -119,6 +124,7 @@ def load_identity(
         ('test_run', test_run),
         ('project', project),
         ('context', context),
+        ('custom', custom),
         ('host', host),
         ('test_name', test_name),
     ]
@@ -127,7 +133,7 @@ def load_identity(
     hc_where, hc_where_dict = pdk_db.where_dict(select)
 
     c = pdk_db.execute(
-        "SELECT key_id, test_run, project, host, context, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " +
+        "SELECT key_id, test_run, project, host, context, custom, test_name, status, test_runner, start_time, end_time, location, attn FROM result_scalar " +
         hc_where,
         hc_where_dict)
 
@@ -164,6 +170,7 @@ def unique_fields(list_of_dict):
         'project',
         'host',
         'context',
+        'custom',
         'test_name',
         'status',
         'test_runner',
