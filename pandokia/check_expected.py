@@ -9,7 +9,7 @@
 ##80############################################################################
 '''
 pdk check_expected [ -p project ] [ -h host ] 
-    [ -c context ] test_run_type test_run_to_check
+    [ -c context ] [ -cm custom ] test_run_type test_run_to_check
 
     check that all expected tests from test_run_type are present 
     in test_run_to_check
@@ -25,6 +25,10 @@ pdk check_expected [ -p project ] [ -h host ]
     -c cname
     --context cname
         check only expectations for context cname
+
+    -cm cmname
+    --custom cname
+        check only expectations for custom cmname
 
     -v
     --verbose
@@ -57,16 +61,18 @@ import pandokia.helpers.easyargs as easyargs
 def run(args) :
 
     spec = {
-        '-v' : '', 
-        '-h' : '=+',
-        '-p' : '=+',
-        '-c' : '=+',
+        '-v'  : '', 
+        '-h'  : '=+',
+        '-p'  : '=+',
+        '-c'  : '=+',
+	'-cm' : '=+',
 
         '--help' : '',
 
         '--host'    : '-h',
         '--project' : '-p',
         '--context' : '-c',
+	'--custom'  : '-cm',
         '--verbose' : '-v',     # arg is an alias for some other arg
         '-help'     : '--help',
     }
@@ -106,6 +112,8 @@ def run(args) :
         select_args.append( ('project', opt['-p']) )
     if '-c' in opt :
         select_args.append( ('context', opt['-c']) )
+    if '-cm' in opt :
+        select_args.append( ('custom', opt['-cm']) )
 
     where_text, where_dict = pdk_db.where_dict( select_args )
 
@@ -126,14 +134,14 @@ def run(args) :
 
     detected = 0
 
-    for ( project, host, test_name, context ) in c :
+    for ( project, host, test_name, context, custom ) in c :
         if verbose > 2 :
             print "CHECK",project, host, test_name
 
         c1 = pdk_db.execute("""SELECT status FROM result_scalar 
                 WHERE test_run = :1 AND project = :2 AND host = :3 AND 
-                test_name = :4 AND context = :5 """, 
-                ( test_run, project, host, test_name, context ) 
+                test_name = :4 AND context = :5 AND custom = :6""", 
+                ( test_run, project, host, test_name, context, custom ) 
             )
 	a = c1.fetchone()
         if a is None:
@@ -142,9 +150,9 @@ def run(args) :
                 print "        MISSING:", project, host, test_name
 
             pdk_db.execute("""INSERT INTO result_scalar 
-                ( test_run, project, host, context, test_name, status, attn ) 
-                VALUES ( :1, :2, :3, :4, :5, :6, :7 )""",
-                 ( test_run, project, host, context, test_name, 'M', 'Y' ) 
+                ( test_run, project, host, context, custom, test_name, status, attn ) 
+                VALUES ( :1, :2, :3, :4, :5, :6, :7, :8 )""",
+                 ( test_run, project, host, context, custom, test_name, 'M', 'Y' ) 
                 )
             detected = detected + 1
 
