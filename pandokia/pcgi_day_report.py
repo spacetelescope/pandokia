@@ -498,7 +498,7 @@ def gen_daily_table(
         query['custom'] = custom
         link = common.selflink(query_dict=query, linkmode="treewalk")
         del query['custom']
-        table.set_value(row, 2, text=custom, link=link)
+        table.set_value(row, 3, text=custom, link=link)
         
         # delete entire project from the test run
         if show_delete:
