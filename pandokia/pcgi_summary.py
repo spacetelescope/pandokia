@@ -313,8 +313,13 @@ def run():
                          cgi.escape([tmp for tmp in all_context][0]) +
                          "</h3>")
         if len(all_custom) == 1:
-            result_table.suppress("custom")
-            output.write("<h3>custom: " +
+            first_custom = [tmp for tmp in all_custom][0]
+            if first_custom == '':
+                result_table.suppress("custom")
+                output.write("<h3>custom: None </h3>")
+            else:
+                result_table.suppress("custom")
+                output.write("<h3>custom: " +
                          cgi.escape([tmp for tmp in all_custom][0]) +
                          "</h3>")
         # suppressing the columns that are the same for every row
