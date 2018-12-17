@@ -552,11 +552,10 @@ def gen_daily_table(
 
         if chronic:
             c1 = pdk_db.execute(
-                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND context = :5 AND custom = :6 AND chronic = '1'",
+                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND context = :4 AND custom = :5 AND chronic = '1'",
                 (test_run,
                  project,
                  host,
-                 status,
                  context,
                  custom))
             (x,) = c1.fetchone()
