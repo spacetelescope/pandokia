@@ -488,14 +488,6 @@ def run(args, hack_callback = None) :
                 duplicate_count += 1
 
             pdk_db.commit() 
-        
-        if reimport_count != 0:
-            print("{:d} tests were re-imported during this run".format(reimport_count))
-            reimport_file = handle+"reimport_tests.txt"
-            print("See details in %s" % reimport_file)
-            with open(reimport_file, 'w') as f:
-                for key, value in reimport_parm.items():
-                    f.write(str(key)+" : "+str(value)+"\n")
 
         if f != sys.stdin :
             f.close()
