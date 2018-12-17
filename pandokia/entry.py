@@ -19,11 +19,11 @@ pdk clean [ max_records records_per_step sleep_between_steps ]
 pdk clean_queries
     delete old qids
 
-pdk delete -test_run xx -project xx -context xx -host xx -status xx
+pdk delete -test_run xx -project xx -context xx -custom xx -host xx -status xx
         -n -wild -count
     delete records from the database
 
-pdk export test_run_pattern [ -h host ] [ -p project ] [ -c context ]
+pdk export test_run_pattern [ -h host ] [ -p project ] [ -c context ] [ -cm custom ]
     export records from the database in pandokia import format
 
 pdk gen_expected test_run_type test_run
