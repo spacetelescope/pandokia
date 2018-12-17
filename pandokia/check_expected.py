@@ -117,7 +117,7 @@ def run(args) :
 
     where_text, where_dict = pdk_db.where_dict( select_args )
 
-    s = "SELECT project, host, test_name, context FROM expected %s " % where_text
+    s = "SELECT project, host, test_name, context, custom FROM expected %s " % where_text
 
     if verbose > 1 :
         print s
