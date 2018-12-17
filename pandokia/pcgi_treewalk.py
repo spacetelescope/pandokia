@@ -67,6 +67,7 @@ def treewalk():
 
     context = form.getvalue('context', '*')
     host = form.getvalue('host', '*')
+    custom = form.getvalue('custom', '*')
     test_run = form.getvalue('test_run', '*')
     project = form.getvalue('project', '*')
     status = form.getvalue('status', '*')
@@ -79,6 +80,7 @@ def treewalk():
     cmp_test_run = form.getvalue('cmp_test_run', None)
     cmp_context = form.getvalue('cmp_context', None)
     cmp_host = form.getvalue('cmp_host', None)
+    cmp_custom = form.getvalue('cmp_custom', None)
 
     test_run = common.find_test_run(test_run)
 
@@ -109,6 +111,10 @@ def treewalk():
             cmp_context = context
             context = t
 
+            t = cmp_custom
+            cmp_custom = custom
+            custom = t
+
             comparing = 1
 
     #
@@ -123,6 +129,7 @@ def treewalk():
         'status': status,
         'attn': attn,
         'context': context,
+        'custom': custom,
         'compare': comparing,
     }
 
@@ -135,6 +142,9 @@ def treewalk():
 
     if cmp_context is not None:
         query['cmp_context'] = cmp_context
+
+    if cmp_custom is not None:
+        query['cmp_custom'] = cmp_custom
 
     if cmp_host is not None:
         query['cmp_host'] = cmp_host
@@ -190,6 +200,7 @@ def treewalk():
         ('project', 'project'),
         ('host', 'host'),
         ('context', 'context'),
+        ('custom', 'custom'),
         ('status', 'status'),
     ]:
 
@@ -296,6 +307,7 @@ def treewalk():
         query_2['test_run'] = cmp_test_run
         query_2['host'] = cmp_host
         query_2['context'] = cmp_context
+        query_2['custom'] = cmp_custom
         t2 = collect_table(prefixes, query_2, 1)
 
         # This part is very delicate.  We know that both tables
@@ -373,7 +385,7 @@ def treewalk():
     # bug: This whole thing could happen early.  Then, when you find
     # exactly 1 item in the choices to narrow, you could automatically
     # include that in all the links.
-    for field in ('test_run', 'project', 'context', 'host'):
+    for field in ('test_run', 'project', 'context', 'custom', 'host'):
         if '*' not in query[field]:
             continue
         lquery = {}
@@ -391,6 +403,7 @@ def treewalk():
             ('project', project),
             ('host', host),
             ('context', context),
+            ('custom', custom),
             ('status', status),
             ('attn', attn),
         ], more_where)
@@ -455,6 +468,7 @@ def linkout():
 
     context = form.getvalue('context', '*')
     host = form.getvalue('host', '*')
+    custom = form.getvalue('custom', '*')
     test_run = form.getvalue('test_run', '*')
     project = form.getvalue('project', '*')
     status = form.getvalue('status', '*')
@@ -500,6 +514,7 @@ def linkout():
         ('project', project),
         ('host', host),
         ('context', context),
+        ('custom', custom),
         ('status', status),
         ('attn', attn),
     ], more_where=more_where)
@@ -578,7 +593,7 @@ def collect_prefixes(query):
         more_where = None
 
     where_text, where_dict = query_to_where_tuple(
-        query, ('test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn'), more_where)
+        query, ('test_name', 'test_run', 'project', 'host', 'context', 'custom', 'status', 'attn'), more_where)
 
     if not have_qid:
         c = pdk_db.execute(
@@ -689,7 +704,7 @@ def collect_table(prefixes, query, always_link):
             if (status == '*') or (x in status):
                 lquery['status'] = x
                 where_text, where_dict = query_to_where_tuple(
-                    lquery, ('test_name', 'test_run', 'project', 'host', 'context', 'status', 'attn'), more_where)
+                    lquery, ('test_name', 'test_run', 'project', 'host', 'context', 'custom', 'status', 'attn'), more_where)
                 if not have_qid:
                     ss = ''
                 else:
@@ -748,6 +763,7 @@ def cmp_form(query, comparing):
             None, lquery['test_run']))
     lquery['cmp_context'] = lquery.get('cmp_context', lquery['context'])
     lquery['cmp_host'] = lquery.get('cmp_host', lquery['host'])
+    lquery['cmp_custom'] = lquery.get('cmp_custom', lquery['custom'])
 
     lquery['query'] = 'treewalk'
 
@@ -759,7 +775,7 @@ def cmp_form(query, comparing):
         "<form action=%s method=GET>" %
         common.get_cgi_name(),
         "<table>"]
-    for x in ('cmp_test_run', 'cmp_context', 'cmp_host'):
+    for x in ('cmp_test_run', 'cmp_context', 'cmp_host', 'cmp_custom'):
         l.append(
             "<tr><td>%s</td><td> <input type=text name=%s value='%s'></td></tr>" %
             (x, x, lquery[x]))
