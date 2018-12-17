@@ -7,6 +7,7 @@ query = {
     'test_run': 'pdkrun_test',
     'project': 'default',
     'context': 'default',
+    'custom': '',
     'host': '*',
 }
 
