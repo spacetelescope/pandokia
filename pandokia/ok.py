@@ -70,6 +70,10 @@ def run(args):
         help='filter by context'
     )
     parser.add_option(
+        '--custom', dest='filter_by_custom', default=None,
+        help='filter by custom'
+    )
+    parser.add_option(
         '--commit', dest='commit', default=False, action='store_true',
         help='commit okified reference file(s) to svn'
     )
@@ -276,9 +280,9 @@ def process_database(opt):
 
                 # get ok item details
                 ccc = pdk_db.execute(
-                    "SELECT project, context, test_name, host FROM result_scalar WHERE key_id = :1",
+                    "SELECT project, context, custom, test_name, host FROM result_scalar WHERE key_id = :1",
                     [key_id])
-                project, context, test_name, host = ccc.fetchall()[0]
+                project, context, custom, test_name, host = ccc.fetchall()[0]
 
                 # get item's okfile
                 ccc = pdk_db.execute(
@@ -293,6 +297,9 @@ def process_database(opt):
                         do_ok = False
                 if do_ok and opt.filter_by_context:
                     if not opt.filter_by_context == context:
+                        do_ok = False
+                if do_ok and opt.filter_by_custom:
+                    if not opt.filter_by_custom == custom:
                         do_ok = False
                 if do_ok and opt.filter_by_host:
                     if not opt.filter_by_host == host:
