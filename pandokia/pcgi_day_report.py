@@ -402,7 +402,6 @@ def gen_daily_table(
     table.define_column("host")
     table.define_column("context")
     table.define_column("custom")
-    table.define_column("os")
     table.define_column("total")
     for x in status_types:
         table.define_column(x)
