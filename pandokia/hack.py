@@ -23,7 +23,7 @@ def cursor_to_table(c, t=None):
 
 def run(args):
     c = pdk_db.execute(
-        "  select distinct test_run_type, context, project, host, count(*) from expected group by test_run_type, project, host, context order by test_run_type, context, project, host ")
+        "  select distinct test_run_type, context, custom, project, host, count(*) from expected group by test_run_type, project, host, context order by test_run_type, context, project, host ")
 
     t = cursor_to_table(c)
 
