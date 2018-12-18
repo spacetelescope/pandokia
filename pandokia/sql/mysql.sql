@@ -55,7 +55,7 @@ CREATE TABLE result_scalar (
 		-- argue that this should be a TDA, but it seems
 		-- important enough to institutionalize
 	custom VARCHAR(64) DEFAULT '',
-		-- currently is for os version, but it can be repurposed
+		-- custom metadata field for optional use
 	status CHAR(1),
 		-- 'P' = pass
 		-- 'E' = error (could not complete test)
