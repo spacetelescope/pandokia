@@ -65,14 +65,14 @@ def run(args) :
         '-h'  : '=+',
         '-p'  : '=+',
         '-c'  : '=+',
-	'-cm' : '=+',
+        '-cm' : '=+',
 
         '--help' : '',
 
         '--host'    : '-h',
         '--project' : '-p',
         '--context' : '-c',
-	'--custom'  : '-cm',
+        '--custom'  : '-cm',
         '--verbose' : '-v',     # arg is an alias for some other arg
         '-help'     : '--help',
     }
