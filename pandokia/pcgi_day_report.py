@@ -491,16 +491,16 @@ def gen_daily_table(
             table.set_value(row, 0, text=host, link=link)
             prev_host = host
 
-        query['context'] = context
-        link = common.selflink(query_dict=query, linkmode="treewalk")
-        del query['context']
-        table.set_value(row, 1, text=context, link=link)
-        
         query['custom'] = custom
         link = common.selflink(query_dict=query, linkmode="treewalk")
         del query['custom']
         table.set_value(row, 3, text=custom, link=link)
         
+        query['context'] = context
+        link = common.selflink(query_dict=query, linkmode="treewalk")
+        del query['context']
+        table.set_value(row, 1, text=context, link=link)
+
         # delete entire project from the test run
         if show_delete:
             table.set_value(row,
