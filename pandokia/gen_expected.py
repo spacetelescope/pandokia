@@ -72,7 +72,7 @@ def run(args) :
     sql = "select distinct project, host, context, custom, test_name from result_scalar %s " % where_str
     c = pdk_db.execute( sql, where_dict )
 
-    for ( project, host, context, test_name, custom ) in c :
+    for ( project, host, context, custom, test_name ) in c :
         if test_name.endswith("nose.failure.Failure.runTest") :
             # Sometimes nose generates this test name.  I don't want it in the database at all, because 
             # the name is not unique, and the record does not contain any useful information about the problem.
@@ -80,7 +80,7 @@ def run(args) :
             continue
 
         if debug :
-            print "expect ",test_run_type, project, host, context, test_name, custom
+            print "expect ",test_run_type, project, host, context, custom, test_name
 	a = pdk_db.execute('select * from expected where test_run_type = :1 and project = :2 and host = :3 and context = :4 and custom = :5 and test_name = :6', (test_run_type, project, host, context, custom, test_name))
         y = a.fetchone()
         if y is None:
