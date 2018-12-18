@@ -486,9 +486,9 @@ def gen_daily_table(
 
         # a new host/contest line
         query["host"] = host
-        if query['custom'] is not None:
+        if query['custom'] in query:
             del query['custom']
-        if query['context'] is not None:
+        if query['context'] in query:
             del query['context']
         link = common.selflink(query_dict=query, linkmode="treewalk")
         if host != prev_host:
