@@ -1,5 +1,6 @@
 # This script is not modified or adjusted when JWST ETC team move the test
 # infrastructure to plglitch. Therefore, this is probably outdated.
+# If this is decided to be used again, please properly update the code.
 #
 # implements 'pdk email'
 #
