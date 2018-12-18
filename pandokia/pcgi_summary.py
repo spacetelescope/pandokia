@@ -320,7 +320,7 @@ def run():
             else:
                 result_table.suppress("custom")
                 output.write("<h3>custom: " +
-                         cgi.escape([tmp for tmp in all_custom][0]) +
+                         cgi.escape(first_custom) +
                          "</h3>")
         # suppressing the columns that are the same for every row
         same_table = suppress_attr_all_same(result_table, column_select_values)
