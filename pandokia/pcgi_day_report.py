@@ -497,6 +497,7 @@ def gen_daily_table(
         table.set_value(row, 3, text=custom, link=link)
         
         # link for context field
+        query['context'] = context
         link = common.selflink(query_dict=query, linkmode="treewalk")
         table.set_value(row, 1, text=context, link=link)
 
