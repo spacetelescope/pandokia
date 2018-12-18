@@ -209,7 +209,7 @@ def treewalk():
             lquery[var] = '*'
             header_table.set_value(row, 0, label)
             header_table.set_value(row, 1, '=')
-            header_table.set_value(row, 2, escape(lquery[var]))
+            header_table.set_value(row, 2, escape(query[var]))
             header_table.set_value(
                 row, 3, html=common.self_href(
                     lquery, "treewalk", remove_arrow))
