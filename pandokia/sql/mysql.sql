@@ -318,7 +318,7 @@ CREATE TABLE chronic (
 	host VARCHAR(64),
 	test_name VARCHAR(500),
 	context VARCHAR(200),
-	custom VARCHAR(64) DEFAULT '',
+	custom VARCHAR(200) DEFAULT '',
 		-- project, host, test_name, context, custom as in result_scalar
         xwhen VARCHAR(50)
                 -- indicator of when the test first went bad
