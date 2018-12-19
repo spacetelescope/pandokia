@@ -54,7 +54,7 @@ CREATE TABLE result_scalar (
 		-- what computer did this test run on.  You might
 		-- argue that this should be a TDA, but it seems
 		-- important enough to institutionalize
-	custom VARCHAR(64) DEFAULT '',
+	custom VARCHAR(200) DEFAULT '',
 		-- custom metadata field for optional use
 	status CHAR(1),
 		-- 'P' = pass
@@ -193,7 +193,7 @@ CREATE TABLE expected (
 	host VARCHAR(64),
 	test_name VARCHAR(500),
 	context VARCHAR(200),
-	custom VARCHAR(64) DEFAULT ''
+	custom VARCHAR(200) DEFAULT ''
 		-- project, host, test_name, context, custom as in result_scalar
 	);
 
