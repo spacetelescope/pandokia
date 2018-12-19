@@ -314,14 +314,13 @@ def run():
                          "</h3>")
         if len(all_custom) == 1:
             first_custom = [tmp for tmp in all_custom][0]
+            result_table.suppress("custom")
+            custom_title = ''
             if first_custom == '':
-                result_table.suppress("custom")
-                output.write("<h3>custom: None </h3>")
+                custom_title = "None"
             else:
-                result_table.suppress("custom")
-                output.write("<h3>custom: " +
-                         cgi.escape(first_custom) +
-                         "</h3>")
+                custom_title = cgi.escape(first_custom)
+            output.write("<h3>custom: " + custom_title + "</h3>")
         # suppressing the columns that are the same for every row
         same_table = suppress_attr_all_same(result_table, column_select_values)
 
