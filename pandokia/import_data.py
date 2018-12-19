@@ -391,6 +391,7 @@ def run(args, hack_callback = None) :
 
     default_test_runner = ''
     default_context = 'unk'
+    default_custom = ''
     for filename in args :
         if filename.startswith("-") :
             if '=' in filename :
