@@ -30,11 +30,11 @@ def run(args) :
         '-c'    : 'list',
         '-p'    : 'list',
         '-h'    : 'list',
-	'-cm'    : 'list',
+        '-m'    : 'list',
         '--context' : '-c',
         '--project' : '-p',
         '--host'    : '-h',
-	'--custom' : '-cm',
+	'--custom' : '-m',
          }, args )
 
     try :
@@ -57,8 +57,8 @@ def run(args) :
         l = l + [ ('project', x) for x in opts['-p'] ]
     if '-h' in opts :
         l = l + [ ('host', x) for x in opts['-h'] ]
-    if '-cm' in opts :
-        l = l + [ ('custom', x) for x in opts['-cm'] ]
+    if '-m' in opts :
+        l = l + [ ('custom', x) for x in opts['-m'] ]
 
 
     if debug :
