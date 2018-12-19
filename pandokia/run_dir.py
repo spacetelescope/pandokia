@@ -196,6 +196,7 @@ def write_disabled_list(env, name_list, dirname, basename, runner):
     f.write("\n\nSTART\n")
     f.write('test_run=%s\n' % env['PDK_TESTRUN'])
     f.write('context=%s\n' % env['PDK_CONTEXT'])
+    f.write('custom=%s\n' % env['PDK_CUSTOM'])
     f.write('project=%s\n' % env['PDK_PROJECT'])
     f.write('test_runner=%s\n' % runner)
     f.write('location=%s/%s\n' % (dirname, basename))

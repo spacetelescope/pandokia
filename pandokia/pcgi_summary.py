@@ -176,7 +176,7 @@ def run():
     # instead of just link text.
 
     # generate the table - used to be written inline here
-    result_table, all_test_run, all_project, all_host, all_context, rowcount, different = get_table(
+    result_table, all_test_run, all_project, all_host, all_context, all_custom, rowcount, different = get_table(
         qid, sort_link, cmp_run, cmptype, show_attr)
 
     # suppressing columns that the user did not ask for
@@ -312,7 +312,15 @@ def run():
             output.write("<h3>context: " +
                          cgi.escape([tmp for tmp in all_context][0]) +
                          "</h3>")
-
+        if len(all_custom) == 1:
+            first_custom = [tmp for tmp in all_custom][0]
+            result_table.suppress("custom")
+            custom_title = ''
+            if first_custom == '':
+                custom_title = "None"
+            else:
+                custom_title = cgi.escape(first_custom)
+            output.write("<h3>custom: " + custom_title + "</h3>")
         # suppressing the columns that are the same for every row
         same_table = suppress_attr_all_same(result_table, column_select_values)
 
@@ -529,6 +537,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
     result_table.define_column("project", link=sort_link + "Uproject")
     result_table.define_column("host", link=sort_link + "Uhost")
     result_table.define_column("context", link=sort_link + "Ucontext")
+    result_table.define_column("custom", link=sort_link + "Ucustom")
     result_table.define_column("test_name", link=sort_link + "Utest_name")
     result_table.define_column("contact", link=sort_link + "Ucontact")
     #result_table.define_column("start",     link=sort_link+"Ustart")
@@ -544,6 +553,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
     all_project = {}
     all_host = {}
     all_context = {}
+    all_custom = {}
 
     different = 0
     rowcount = 0
@@ -555,7 +565,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
         #
 
         c1 = pdk_db.execute(
-            "SELECT test_run, project, host, context, test_name, status, attn, test_runner, start_time, end_time FROM result_scalar WHERE key_id = :1 ",
+            "SELECT test_run, project, host, context, custom, test_name, status, attn, test_runner, start_time, end_time FROM result_scalar WHERE key_id = :1 ",
             (key_id,
              ))
 
@@ -566,19 +576,20 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
             # after we populate the qid
             continue
 
-        (test_run, project, host, context, test_name,
+        (test_run, project, host, context, custom, test_name,
          status, attn, runner, start_time, end_time) = y
 
         # if we are comparing to another run, find the other one;
         # suppress lines that are different - should be optional
         if cmp_run != "":
             c2 = pdk_db.execute(
-                "SELECT status, key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5",
+                "SELECT status, key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 AND custom = :6",
                 (cmp_run,
                  project,
                  host,
                  test_name,
-                 context))
+                 context,
+                 custom))
             other_status = c2.fetchone()   # unique index
             if other_status is None:
                 pass
@@ -615,6 +626,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
         all_project[project] = 1
         all_host[host] = 1
         all_context[context] = 1
+        all_custom[custom] = 1
 
         detail_query = {"key_id": key_id}
         result_table.set_value(rowcount, "runner", runner)
@@ -629,6 +641,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
         result_table.set_value(rowcount, "project", project)
         result_table.set_value(rowcount, "host", host)
         result_table.set_value(rowcount, "context", context)
+        result_table.set_value(rowcount, "custom", custom)
         this_link = common.selflink(detail_query, linkmode="detail")
         result_table.set_value(
             rowcount,
@@ -683,7 +696,7 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
         result_table.join(tda_table)
         result_table.join(tra_table)
 
-    return result_table, all_test_run, all_project, all_host, all_context, rowcount, different
+    return result_table, all_test_run, all_project, all_host, all_context, all_custom, rowcount, different
 
 
 def suppress_attr_all_same(result_table, column_select_values=set({})):
@@ -761,6 +774,7 @@ def column_selector(input_query):
         'project',
         'host',
         'context',
+        'custom',
         'test_name',
         'contact',
         'diff',

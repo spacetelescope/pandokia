@@ -29,6 +29,7 @@ def delete_are_you_sure():
     test_run = form.getfirst("test_run")
     project = form.getfirst('project', '*')
     context = form.getfirst('context', '*')
+    custom = form.getfirst('custom', '*')
     host = form.getfirst('host', '*')
 
     sys.stdout.write(common.cgi_header_html)
@@ -49,11 +50,13 @@ def delete_are_you_sure():
     tt.set_value(2, 1, host)
     tt.set_value(3, 0, 'context')
     tt.set_value(3, 1, context)
+    tt.set_value(4, 0, 'custom')
+    tt.set_value(4, 1, custom)
     print(tt.get_html())
     print("<br>")
 
     where_str, where_dict = pdk_db.where_dict(
-        [('test_run', test_run), ('project', project), ('context', context), ('host', host)])
+        [('test_run', test_run), ('project', project), ('context', context), ('custom', custom), ('host', host)])
 
     print("%s<br>" % where_str)
     print("%s<br>" % where_dict)
@@ -70,6 +73,7 @@ def delete_are_you_sure():
                 'test_run': test_run,
                 'project': project,
                 'context': context,
+                'custom': custom,
                 'host': host},
             'delete_run.conf'))
 
@@ -80,10 +84,11 @@ def delete_confirmed():
     test_run = form.getfirst("test_run")
     project = form.getfirst('project', '*')
     context = form.getfirst('context', '*')
+    custom = form.getfirst('custom', '*')
     host = form.getfirst('host', '*')
 
     where_str, where_dict = pdk_db.where_dict(
-        [('test_run', test_run), ('project', project), ('context', context), ('host', host)])
+        [('test_run', test_run), ('project', project), ('context', context), ('custom', custom), ('host', host)])
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())

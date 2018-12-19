@@ -121,16 +121,17 @@ def run():
         arg1 = form.getvalue('arg1')
         for key_id in valid_key_ids(form):
             c = pdk_db.execute(
-                "SELECT project, host, test_name, context FROM result_scalar WHERE key_id = :1 ",
+                "SELECT project, host, test_name, context, custom FROM result_scalar WHERE key_id = :1 ",
                 (key_id,
                  ))
-            for project, host, test_name, context in c:
+            for project, host, test_name, context, custom in c:
                 pdk_db.execute(
-                    "DELETE FROM expected WHERE test_run_type LIKE :5 AND project = :1 AND host = :2 AND test_name = :3 AND context = :4 ",
+                    "DELETE FROM expected WHERE test_run_type LIKE :6 AND project = :1 AND host = :2 AND test_name = :3 AND context = :4 AND custom = :5 ",
                     (project,
                      host,
                      test_name,
                      context,
+                     custom,
                      arg1))
         pdk_db.commit()
 

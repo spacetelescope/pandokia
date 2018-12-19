@@ -227,7 +227,7 @@ def block_last_record():
     pdk_db.execute(
         "DELETE FROM result_scalar where test_run IS NULL AND project IS NULL AND host IS NULL AND context IS NULL AND test_name IS NULL ")
     pdk_db.execute(
-        "INSERT INTO result_scalar ( test_run, project, host, context, test_name ) VALUES (NULL,NULL,NULL,NULL,NULL)")
+        "INSERT INTO result_scalar ( test_run, project, host, context, test_name, custom ) VALUES (NULL,NULL,NULL,NULL,NULL,'')")
 
 
 ##########
@@ -421,7 +421,7 @@ def delete(args):
     The count of records in a test run will be incorrect until
     you update it.
 
-    pdk delete -test_run foo -project bar -context baz -host xyzzy
+    pdk delete -test_run foo -project bar -context baz -host xyzzy -custom yzzyx
 
     also accepts:
 
@@ -441,6 +441,7 @@ def delete(args):
             '-test_run': '=+',
             '-project': '=+',
             '-context': '=+',
+            '-custom': '=+',
             '-host': '=+',
             '-status': '=+',
             '-wild': '',

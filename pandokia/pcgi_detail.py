@@ -45,6 +45,11 @@ def run():
     else:
         context = "*"
 
+    if "custom" in form:
+        custom = form.getvalue("custom")
+    else:
+        custom = "*"  
+
     if "host" in form:
         host = form.getvalue("host")
     else:
@@ -111,12 +116,13 @@ def run():
             n = n + do_result(key_id)
     else:
         c1 = pdk_db.execute(
-            "SELECT key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 ",
+            "SELECT key_id FROM result_scalar WHERE test_run = :1 AND project = :2 AND host = :3 AND test_name = :4 AND context = :5 AND custom = :6 ",
             (test_run,
              project,
              host,
              test_name,
-             context))
+             context,
+             custom))
         n = 0
         for x in c1:
             (key_id, ) = x
@@ -128,6 +134,7 @@ def run():
             'project': project,
             'host': host,
             'context': context,
+            'custom': custom,
             'test_run': test_run,
             'test_name': test_name}
         t = next_prev(d_in, test_run)
@@ -153,25 +160,27 @@ def next_prev(d_in, test_run):
 def do_result(key_id):
 
     c = pdk_db.execute(
-        "SELECT key_id, test_run, project, host, context, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = :1 ",
+        "SELECT key_id, test_run, project, host, context, custom, test_name, status, attn, start_time, end_time, location, test_runner FROM result_scalar WHERE key_id = :1 ",
         (key_id,
          ))
     result_count = 0
     for x in c:
         result_count = result_count + 1
-        (key_id, test_run, project, host, context, test_name, status,
+        (key_id, test_run, project, host, context, custom, test_name, status,
          attn, start_time, end_time, location, test_runner) = (x)
 
         linkback_dict = {
             'project': project,
             'host': host,
             'context': context,
+            'custom': custom,
             'test_run': test_run,
             'test_name': test_name}
         prevday_dict = {
             'project': project,
             'host': host,
             'context': context,
+            'custom': custom,
             'test_run': test_run,
             'test_name': test_name}
 
@@ -204,6 +213,10 @@ def do_result(key_id):
 
         tb.set_value(row, 0, "context")
         tb.set_value(row, 1, context)
+        row += 1
+
+        tb.set_value(row, 0, "custom")
+        tb.set_value(row, 1, custom)
         row += 1
 
         tb.set_value(row, 0, "test_name")
@@ -363,6 +376,7 @@ def test_history():
 
     test_name = form.getvalue("test_name")
     context = form.getvalue("context")
+    custom = form.getvalue("custom")
     host = form.getvalue("host")
     test_run = form.getvalue("test_run")
     project = form.getvalue("project")
@@ -384,6 +398,10 @@ def test_history():
     tb.set_value(row, 1, context)
     row += 1
 
+    tb.set_value(row, 0, "custom")
+    tb.set_value(row, 1, custom)
+    row += 1
+
     tb.set_value(row, 0, "test_name")
     tb.set_value(row, 1, test_name)
     row += 1
@@ -397,9 +415,10 @@ def test_history():
 
     c = pdk_db.execute(
         "SELECT test_run, status, key_id FROM result_scalar WHERE "
-        "test_name = :1 AND context = :2 AND host = :3 AND project = :4 ORDER BY test_run DESC",
+        "test_name = :1 AND context = :2 AND custom = :3 AND host = :4 AND project = :5 ORDER BY test_run DESC",
         (test_name,
          context,
+         custom,
          host,
          project))
 

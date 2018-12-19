@@ -94,7 +94,7 @@ def expected():
     tbl = text_table.text_table()
 
     q = {}
-    for x in ('test_run_type', 'project', 'host', 'context'):
+    for x in ('test_run_type', 'project', 'host', 'context', 'custom'):
         if x in input_query:
             q[x] = input_query[x]
 
@@ -118,8 +118,8 @@ def expected():
         where_str, where_dict = pdk_db.where_dict(q)
 
         c = pdk_db.execute(
-            "SELECT DISTINCT  project, host, context, count(*) FROM "
-            "expected %s GROUP BY project, host, context ORDER BY project, host, context " %
+            "SELECT DISTINCT  project, host, context, custom, count(*) FROM "
+            "expected %s GROUP BY project, host, context, custom ORDER BY project, host, context " %
             where_str, where_dict)
 
         for x in c:
@@ -127,7 +127,7 @@ def expected():
                 tbl.set_value(row, 'project', x[0])
                 prev_project = x[0]
 
-            for number, name in enumerate(('host', 'context', 'count')):
+            for number, name in enumerate(('host', 'context', 'custom', 'count')):
                 tbl.set_value(row, name, x[number + 1])
             row = row + 1
 

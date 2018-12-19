@@ -10,12 +10,14 @@ def set_chronic(
         test_run=None,
         project=None,
         context=None,
+        custom=None,
         host=None):
 
     where_str, where_dict = pdk_db.where_dict([
         ('test_run', test_run),
         ('project', project),
         ('context', context),
+        ('custom', custom),
         ('host', host)
     ],
         "( status != 'P' and status != 'D' )"
@@ -24,7 +26,7 @@ def set_chronic(
 
     print("%s %s" % (where_str, where_dict))
 
-    sql = "SELECT test_run, project, context, host, test_name, status FROM result_scalar %s ORDER BY test_run DESC " % where_str
+    sql = "SELECT test_run, project, context, custom, host, test_name, status FROM result_scalar %s ORDER BY test_run DESC " % where_str
 
     n = 0
     c = pdk_db.execute(sql, where_dict)
@@ -40,12 +42,13 @@ def set_chronic(
 
             print("WANT CHRONIC %s" % x)
             pdk_db.execute(
-                "INSERT INTO chronic ( test_run_type, project, context, host, test_name, xwhen ) values ( :1, :2, :3, :4, :5, :6 )",
+                "INSERT INTO chronic ( test_run_type, project, context, custom, host, test_name, xwhen ) values ( :1, :2, :3, :4, :5, :6, :7 )",
                 (test_run_type,
                  x[1],
                     x[2],
                     x[3],
                     x[4],
+                    x[5],
                     date))
             print("CHRONIC %s" % x)
         except pdk_db.IntegrityError as e:
@@ -60,6 +63,7 @@ def check_chronic(
         test_run=None,
         project=None,
         context=None,
+        custom=None,
         host=None):
 
     today_time = common.looks_like_a_date(test_run)
@@ -73,6 +77,7 @@ def check_chronic(
         ('test_run_type', test_run_type),
         ('project', project),
         ('context', context),
+        ('custom', custom),
         ('host', host)
     ],
 
@@ -80,18 +85,19 @@ def check_chronic(
 
     print("%s %s" % (where_str, where_dict))
 
-    sql = "SELECT project, context, host, test_name, xwhen FROM chronic %s" % where_str
+    sql = "SELECT project, context, custom, host, test_name, xwhen FROM chronic %s" % where_str
 
     c = pdk_db.execute(sql, where_dict)
     for x in c:
         print("%s %s" % (x, today_time))
-        project, context, host, test_name, xwhen = x
+        project, context, custom, host, test_name, xwhen = x
 
         c1 = pdk_db.execute(
-            "SELECT key_id, status FROM result_scalar WHERE test_run = :1 AND project = :2 AND context = :3 AND host = :4 AND test_name = :5 ",
+            "SELECT key_id, status FROM result_scalar WHERE test_run = :1 AND project = :2 AND context = :3 AND custom = :4 AND host = :5 AND test_name = :6 ",
             (test_run,
              project,
              context,
+             custom,
              host,
              test_name))
 
@@ -124,10 +130,11 @@ def check_chronic(
         elif res == 'F':
             print("fixed")
             pdk_db.execute(
-                "DELETE FROM chronic WHERE test_run_type = :1 AND project = :2 AND context = :3 AND host = :4 AND test_name = :5 ",
+                "DELETE FROM chronic WHERE test_run_type = :1 AND project = :2 AND context = :3 AND custom = :4 AND host = :5 AND test_name = :6 ",
                 (test_run_type,
                  project,
                  context,
+                 custom,
                  host,
                  test_name))
         elif res == 'N':

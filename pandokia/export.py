@@ -40,6 +40,7 @@ exportable_fields = [
     'project',
     'host',
     'context',
+    'custom',
     'test_name',
     'status',
     'test_runner',
@@ -134,6 +135,8 @@ def run(args):
             query_dict['context'] = y
         elif x == '-h':
             query_dict['host'] = y
+        elif x == '-m':
+            query_dict['custom'] = y
         elif x == '-o':
             output = open(y, "w")
         elif x == '-p':

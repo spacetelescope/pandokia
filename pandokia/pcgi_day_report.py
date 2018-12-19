@@ -221,6 +221,7 @@ def rpt2():
     projects = None
     host = None
     context = None
+    custom = None
     chronic = '0'
 
     if "project" in form:
@@ -231,6 +232,9 @@ def rpt2():
 
     if "context" in form:
         context = form.getlist("context")
+
+    if "custom" in form:
+        custom = form.getlist("custom")
 
     if "chronic" in form:
         chronic = form.getlist("chronic")[0]
@@ -253,7 +257,7 @@ def rpt2():
         test_run_valuable = int(test_run_valuable)
 
     # create the actual table
-    (table, projects) = gen_daily_table(test_run, projects, context,
+    (table, projects) = gen_daily_table(test_run, projects, context, custom,
                                         host, valuable=test_run_valuable, chronic=chronic == '1')
 
 # # # # # # # # # #
@@ -356,6 +360,7 @@ def gen_daily_table(
         test_run,
         projects,
         query_context,
+        query_custom,
         query_host,
         valuable=0,
         chronic=False):
@@ -396,6 +401,7 @@ def gen_daily_table(
     row = 0
     table.define_column("host")
     table.define_column("context")
+    table.define_column("custom")
     table.define_column("os")
     table.define_column("total")
     for x in status_types:
@@ -416,9 +422,9 @@ def gen_daily_table(
         all_sum[status] = 0
 
     hc_where, hc_where_dict = pdk_db.where_dict(
-        [('test_run', test_run), ('project', projects), ('context', query_context), ('host', query_host)])
+        [('test_run', test_run), ('project', projects), ('context', query_context), ('custom', query_custom), ('host', query_host)])
     c = pdk_db.execute(
-        "SELECT DISTINCT project, host, context FROM result_scalar %s ORDER BY project, host, context " %
+        "SELECT DISTINCT project, host, context, custom FROM result_scalar %s ORDER BY project, host, context " %
         hc_where, hc_where_dict)
 
     if chronic:
@@ -429,7 +435,7 @@ def gen_daily_table(
     # now we forget the list of projects that came in and construct a
     # list of projects that we actually saw.
     projects = []
-    for project, host, context in c:
+    for project, host, context, custom in c:
 
         # make a new project section of the table
         if project != prev_project:
@@ -480,17 +486,25 @@ def gen_daily_table(
 
         # a new host/contest line
         query["host"] = host
-
+        if 'custom' in query:
+            del query['custom']
+        if 'context' in query:
+            del query['context']
         link = common.selflink(query_dict=query, linkmode="treewalk")
-
         if host != prev_host:
             table.set_value(row, 0, text=host, link=link)
             prev_host = host
-
+        
+        # link for custom field
+        query['custom'] = custom
+        link = common.selflink(query_dict=query, linkmode="treewalk")
+        table.set_value(row, 3, text=custom, link=link)
+        
+        # link for context field
         query['context'] = context
         link = common.selflink(query_dict=query, linkmode="treewalk")
-        del query['context']
         table.set_value(row, 1, text=context, link=link)
+
 
         # delete entire project from the test run
         if show_delete:
@@ -500,7 +514,8 @@ def gen_daily_table(
                             link=delete_link({'test_run': test_run,
                                               'project': project,
                                               'host': host,
-                                              'context': context},
+                                              'context': context,
+                                              'custom': custom},
                                              show_delete))
 
         # show the host info
@@ -520,8 +535,8 @@ def gen_daily_table(
             # use "or chronic is null" until we update the database for the new
             # schema.
             c1 = pdk_db.execute(
-                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5 %s" %
-                (chronic_str, ), (test_run, project, host, status, context))
+                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND status = :4 AND context = :5 AND custom = :6 %s" %
+                (chronic_str, ), (test_run, project, host, status, context, custom))
             (x,) = c1.fetchone()
             total_results += x
             project_sum[status] += x
@@ -543,12 +558,12 @@ def gen_daily_table(
 
         if chronic:
             c1 = pdk_db.execute(
-                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND context = :5 AND chronic = '1'",
+                "SELECT COUNT(*) FROM result_scalar WHERE  test_run = :1 AND project = :2 AND host = :3 AND context = :4 AND custom = :5 AND chronic = '1'",
                 (test_run,
                  project,
                  host,
-                 status,
-                 context))
+                 context,
+                 custom))
             (x,) = c1.fetchone()
             total_results += x
             project_sum['chronic'] += x
@@ -611,6 +626,7 @@ def gen_daily_table(
     query['project'] = projects
     query['host'] = query_host
     query['context'] = query_context
+    query['custom'] = query_custom
 
     table.set_value(total_row, 'total', text=str(all_sum['total']),
                     link=common.selflink(query_dict=query, linkmode="treewalk")
