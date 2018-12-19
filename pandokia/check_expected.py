@@ -9,7 +9,7 @@
 ##80############################################################################
 '''
 pdk check_expected [ -p project ] [ -h host ] 
-    [ -c context ] [ -cm custom ] test_run_type test_run_to_check
+    [ -c context ] [ -m custom ] test_run_type test_run_to_check
 
     check that all expected tests from test_run_type are present 
     in test_run_to_check
@@ -26,7 +26,7 @@ pdk check_expected [ -p project ] [ -h host ]
     --context cname
         check only expectations for context cname
 
-    -cm cmname
+    -m cmname
     --custom cname
         check only expectations for custom cmname
 
@@ -65,14 +65,14 @@ def run(args) :
         '-h'  : '=+',
         '-p'  : '=+',
         '-c'  : '=+',
-        '-cm' : '=+',
+        '-m' : '=+',
 
         '--help' : '',
 
         '--host'    : '-h',
         '--project' : '-p',
         '--context' : '-c',
-        '--custom'  : '-cm',
+        '--custom'  : '-m',
         '--verbose' : '-v',     # arg is an alias for some other arg
         '-help'     : '--help',
     }
@@ -112,8 +112,8 @@ def run(args) :
         select_args.append( ('project', opt['-p']) )
     if '-c' in opt :
         select_args.append( ('context', opt['-c']) )
-    if '-cm' in opt :
-        select_args.append( ('custom', opt['-cm']) )
+    if '-m' in opt :
+        select_args.append( ('custom', opt['-m']) )
 
     where_text, where_dict = pdk_db.where_dict( select_args )
 
