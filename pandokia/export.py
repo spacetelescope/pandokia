@@ -135,7 +135,7 @@ def run(args):
             query_dict['context'] = y
         elif x == '-h':
             query_dict['host'] = y
-        elif x == '-cm':
+        elif x == '-m':
             query_dict['custom'] = y
         elif x == '-o':
             output = open(y, "w")
