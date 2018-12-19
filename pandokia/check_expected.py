@@ -26,9 +26,9 @@ pdk check_expected [ -p project ] [ -h host ]
     --context cname
         check only expectations for context cname
 
-    -m cmname
-    --custom cname
-        check only expectations for custom cmname
+    -m mname
+    --custom mname
+        check only expectations for custom mname
 
     -v
     --verbose
