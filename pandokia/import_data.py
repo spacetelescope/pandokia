@@ -225,7 +225,7 @@ class test_result(object):
 
     def try_insert(self, db, key_id) :
 
-    global reimport_count, reimport_parm
+        global reimport_count, reimport_parm
 
         if self.has_okfile :
             okf = 'T'
@@ -302,7 +302,7 @@ class test_result(object):
 
             assert key_id is not None, 'ERROR: key_id should not be None!'
 
-        except db.IntegrityError, e:
+        except db.IntegrityError as e:
             print('ERROR: we hit an integrity error in import_data.py! (key_id = %s)' %str(key_id))
             db.rollback()
             # if it is already there, look it up - if it is status 'M' then we are just now receiving
@@ -450,7 +450,7 @@ def run(args, hack_callback = None) :
                     x["project"] = default_project
                 if not "test_runner" in x :
                     x["test_runner"] = default_test_runner
-            except Exception, e:
+            except Exception as e:
                 print(e, line_count)
                 continue
 

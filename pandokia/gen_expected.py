@@ -87,7 +87,7 @@ def run(args) :
         if y is None:
             try :
                 pdk_db.execute('insert into expected ( test_run_type, project, host, context, custom, test_name ) values ( :1, :2, :3, :4, :5, :6 )', ( test_run_type, project, host, context, custom, test_name ))
-            except Exception, e:
+            except Exception as e:
                 if debug :
                     print("exception", e)
                 pass
