@@ -14,16 +14,9 @@ import os.path
 import re
 import types
 
-try:
-    import cStringIO
-except ImportError:
-    from io import StringIO as cStringIO
-
-try:
-    from urllib.parse import quote_plus, urlencode
-except ImportError:
-    from urllib import urlencode, quote_plus
-
+from six import StringIO
+from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import quote_plus
 
 import pandokia
 cfg = pandokia.cfg
@@ -347,7 +340,7 @@ var_pattern = re.compile("(%[^;]*);")
 
 
 def expand(text, dictlist=[], valid=None, format=''):
-    result = cStringIO.StringIO()
+    result = StringIO()
     textlist = re.split(var_pattern, text)
     for x in textlist:
         if x.startswith('%'):

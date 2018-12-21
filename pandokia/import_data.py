@@ -1,7 +1,8 @@
 #
 # pandokia - a test reporting and execution system
-# Copyright 2009, Association of Universities for Research in Astronomy (AURA) 
+# Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
+from __future__ import print_function
 
 import re
 import sys
@@ -9,7 +10,7 @@ import hashlib
 import pandokia.common as common
 import pandokia
 
-import cStringIO as StringIO
+from six import StringIO
 
 #Define some constants based on database schema.
 #TRAs and TDAs have the same lengths; use TXA as shorthand.
@@ -40,7 +41,7 @@ def read_record(f) :
             # EOF - invalid if we saw any data (no END)
             # unremarkable otherwise
             if found_any :
-                print "INVALID INPUT FILE - NO END",line_count
+                print("INVALID INPUT FILE - NO END %d" % line_count)
                 exit_status = 1
                 return ans
             else :
@@ -66,7 +67,7 @@ def read_record(f) :
         if l == "SETDEFAULT" :
             if "test_name" in ans :
                 s = "INVALID INPUT FILE - test_name in SETDEFAULT %s %d"%(name,line_count)
-                print s
+                print(s)
                 raise Exception(s)
             # save the new default
             # ans retains the same value, since it is now initialized to the default
@@ -107,21 +108,21 @@ def read_record(f) :
             name = name.lower()
             value = l[n+1:]
             if value != "" :
-                print "INVALID INPUT FILE - stuff after colon",name,line_count
+                print("INVALID INPUT FILE - stuff after colon %s %s " % (name,line_count))
                 exit_status = 1
-            stuff = StringIO.StringIO()
+            stuff = StringIO()
             while 1 :
                 l = f.readline()
                 line_count = line_count + 1
                 if l == "" :
-                    print "INVALID INPUT FILE - eof in multi-line",name,line_count
+                    print("INVALID INPUT FILE - eof in multi-line",name,line_count)
                     exit_status = 1
                     break
                 if l == "\n" or l == '\r\n':
                     # blank line marks end
                     break
                 if l[0] != '.' :
-                    print "INVALID INPUT FILE - missing prefix in multi-line",name,line_count
+                    print("INVALID INPUT FILE - missing prefix in multi-line",name,line_count)
                     exit_status = 1
                     break
                 stuff.write(l[1:])
@@ -130,7 +131,7 @@ def read_record(f) :
             del stuff
             continue
 
-        print "INVALID INPUT FILE - unrecognized line",l,line_count
+        print("INVALID INPUT FILE - unrecognized line",l,line_count)
         exit_status = 1
 
 
@@ -140,7 +141,7 @@ reimport_parm = { }
 
 # This dictionary contains an entry for every test run we have seen.
 # For now, we are only using it to detect whether we know this name or not.
-all_test_runs = { } 
+all_test_runs = { }
 
 
 # this is a hideous hack from the earliest days of pandokia.  this class shouldn't
@@ -158,7 +159,7 @@ class test_result(object):
     def __init__(self, dictt) :
         self.dict = dictt
         self.missing = [ ]
-	self.hash = ''
+        self.hash = ''
 
         self.test_run   = self._lookup("test_run")
         all_test_run[self.test_run] = 1
@@ -191,17 +192,17 @@ class test_result(object):
             if self.start_time != '' :
                 self.start_time = common.parse_time(self.start_time)
                 self.start_time = common.sql_time(self.start_time)
-        except ValueError :    
-            print ""
-            print "INVALID START TIME, line",line_count
+        except ValueError :
+            print("")
+            print("INVALID START TIME, line",line_count)
 
         try :
             if self.end_time != '' :
                 self.end_time = common.parse_time(self.end_time)
                 self.end_time = common.sql_time(self.end_time)
-        except ValueError :    
-            print ""
-            print "INVALID END TIME, line",line_count
+        except ValueError :
+            print("")
+            print("INVALID END TIME, line",line_count)
 
         self.tda = { }
         self.tra = { }
@@ -219,12 +220,12 @@ class test_result(object):
 
 
         if len(self.missing) > 0 :
-            print "FIELDS MISSING",self.missing,line_count
+            print("FIELDS MISSING",self.missing,line_count)
             exit_status = 1
 
     def try_insert(self, db, key_id) :
 
-	global reimport_count, reimport_parm
+    global reimport_count, reimport_parm
 
         if self.has_okfile :
             okf = 'T'
@@ -247,7 +248,7 @@ class test_result(object):
         h = hashlib.md5(hash_str.encode())
         self.hash = h.hexdigest()
         parm += [self.hash]
-	
+
         a = db.execute("select status from result_scalar where test_hash = :1", (self.hash,))
         y = a.fetchone()
         if y is not None:
@@ -267,13 +268,13 @@ class test_result(object):
         global insert_count
 
         if len(self.missing) > 0 :
-            print "NOT INSERTED DUE TO MISSING FIELDS", self.missing, self.test_name,line_count
+            print("NOT INSERTED DUE TO MISSING FIELDS", self.missing, self.test_name,line_count)
             exit_status = 1
             return
 
         if self.test_name.endswith("nose.failure.Failure.runTest"):
-            print "NOT INSERTING ",self.test_name," (not an error)"
-            print "Can we have the nose plugin stop reporting these?"
+            print("NOT INSERTING ",self.test_name," (not an error)")
+            print("Can we have the nose plugin stop reporting these?")
             return
 
         self.test_name = self.test_name.replace("//","/")
@@ -308,13 +309,13 @@ class test_result(object):
             # a record for a test marked missing.  delete the one that is 'M' and insert it.
             c = db.execute("select status from result_scalar where "
                 "test_run = :1 and host = :2 and context = :3 and custom = :4 and project = :5 and test_name = :6 and status = 'M'",
-                (self.test_run, self.host, self.context, self.custom, self.project, self.test_name ) 
+                (self.test_run, self.host, self.context, self.custom, self.project, self.test_name )
             )
             x = c.fetchone()
             if x is not None :
                 db.execute("delete from result_scalar where "
                     "test_run = :1 and host = :2 and context = :3 and custom = :4 and project = :5 and test_name = :6 and status = 'M'",
-                    (self.test_run, self.host, self.context, self.custom, self.project, self.test_name ) 
+                    (self.test_run, self.host, self.context, self.custom, self.project, self.test_name )
                     )
                 res = self.try_insert(db, key_id)
                 insert_count += 1
@@ -336,7 +337,7 @@ class test_result(object):
                 valsafe = tda_value[0:maxlen_txa_value-3] + "..."
             else:
                 valsafe = tda_value
-                 
+
             db.execute("INSERT INTO result_tda ( key_id, name, value ) values ( :1, :2, :3 )" ,
                     ( key_id, xsafe, valsafe ) )
 
@@ -365,7 +366,7 @@ class test_result(object):
             # /ssbwebv1/data2/pandokia/c38/lib/python/pandokia/db_mysqldb.py:115: Warning: Data truncated for column 'log' at row 1
             # but at least it doesn't crash the import...
             self.log = self.log[0:990000] + '\n\n\nLOG TRUNCATED BECAUSE MYSQL CANNOT HANDLE RECORDS > 1 MB\n'
-            print "LOG TRUNCATED: key_id=%d" % key_id
+            print("LOG TRUNCATED: key_id=%d" % key_id)
 
         db.execute("INSERT INTO result_log ( key_id, log ) values ( :1, :2 )",
                 ( key_id, self.log ) )
@@ -373,7 +374,7 @@ class test_result(object):
         db.commit()
 
         if not self.test_run in all_test_runs :
-            # if we don't know about this test run, 
+            # if we don't know about this test run,
             try :
                 # add it to the list of known test runs
                 db.execute("INSERT INTO distinct_test_run ( test_run, valuable ) VALUES ( :1, 0 )",(self.test_run,))
@@ -426,11 +427,11 @@ def run(args, hack_callback = None) :
             f = open(filename,"r")
 
         insert_count = 0
-	reimport_count = 0
-	reimport_parm = { }
+        reimport_count = 0
+        reimport_parm = { }
         line_count = 0
 
-        print "FILE:",filename
+        print("FILE:",filename)
 
         while 1 :
             x = read_record(f)
@@ -450,7 +451,7 @@ def run(args, hack_callback = None) :
                 if not "test_runner" in x :
                     x["test_runner"] = default_test_runner
             except Exception, e:
-                print e, line_count
+                print(e, line_count)
                 continue
 
             # bug: remove this when the old nose plugin is no longer running around
@@ -471,7 +472,7 @@ def run(args, hack_callback = None) :
 
             rx = test_result(x)
 
-            # the hack_callback allows us to insert something to modify the 
+            # the hack_callback allows us to insert something to modify the
             # record before we insert it; we also have the option of ignoring
             # the record.
             if hack_callback :
@@ -488,25 +489,25 @@ def run(args, hack_callback = None) :
                     print('Skipped: {}'.format(rx.test_name))
                 duplicate_count += 1
 
-            pdk_db.commit() 
+            pdk_db.commit()
 
         if f != sys.stdin :
             f.close()
 
-        print "%d records\n\n"%insert_count
+        print("%d records\n\n"%insert_count)
 
-	if reimport_count != 0:
+        if reimport_count != 0:
             print("%s tests were re-imported during this run" % reimport_count)
-	    
-	    # split file path from filename and store the reimport_tests txt file
-	    # in the same place where the log is from
-	    file_path = ""
-	    if "/" in filename:
-		file_path = filename.rsplit('/',1)[0]+"/"
-		filename = filename.rsplit('/',1)[1]
 
-	    reimport_file = file_path+"reimport_tests_"+filename+".txt"
-	    print("See details in %s" % reimport_file)
+        # split file path from filename and store the reimport_tests txt file
+        # in the same place where the log is from
+        file_path = ""
+        if "/" in filename:
+        file_path = filename.rsplit('/',1)[0]+"/"
+        filename = filename.rsplit('/',1)[1]
+
+        reimport_file = file_path+"reimport_tests_"+filename+".txt"
+        print("See details in %s" % reimport_file)
             with open(reimport_file, 'w') as f:
                 for key, value in reimport_parm.items():
                     f.write(str(key)+" : "+str(value)+"\n")
