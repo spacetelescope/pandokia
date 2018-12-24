@@ -499,15 +499,15 @@ def run(args, hack_callback = None) :
         if reimport_count != 0:
             print("%s tests were re-imported during this run" % reimport_count)
 
-        # split file path from filename and store the reimport_tests txt file
-        # in the same place where the log is from
-        file_path = ""
-        if "/" in filename:
-        file_path = filename.rsplit('/',1)[0]+"/"
-        filename = filename.rsplit('/',1)[1]
+            # split file path from filename and store the reimport_tests txt file
+            # in the same place where the log is from
+            file_path = ""
+            if "/" in filename:
+                file_path = filename.rsplit('/',1)[0]+"/"
+                filename = filename.rsplit('/',1)[1]
 
-        reimport_file = file_path+"reimport_tests_"+filename+".txt"
-        print("See details in %s" % reimport_file)
+            reimport_file = file_path+"reimport_tests_"+filename+".txt"
+            print("See details in %s" % reimport_file)
             with open(reimport_file, 'w') as f:
                 for key, value in reimport_parm.items():
                     f.write(str(key)+" : "+str(value)+"\n")
