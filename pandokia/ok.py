@@ -32,7 +32,7 @@ except AttributeError:
 
 old = '.%s.old' % datetime.date.today().isoformat()
 
-pdk_updates = '/eng/ssb/tests/pdk_updates/'
+pdk_updates = os.environ.get('PDK_UPDATES', '/eng/etc/test/pdk_updates')
 old_pdk_updates = os.path.join(pdk_updates, 'old')
 if not os.path.exists(old_pdk_updates):
     try:
