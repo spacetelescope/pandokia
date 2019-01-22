@@ -36,32 +36,18 @@ def check_auth():
     # Assume they are not authorized, then look for a reason to allow them in.
     auth_ok = 0
 
-    # If the web server checked them with BasicAuth, we will use that:
-
-    if ("AUTH_TYPE" in os.environ) and (os.environ["AUTH_TYPE"] == 'Basic'):
-        if cfg.user_list is None:
-            # If there is no user_list in the config, any authenticated user is
-            # accepted.
-            auth_ok = 1
-        else:
-            # If the config contains user_list, only those people are
-            # authorized.
-            if os.environ["REMOTE_USER"] in cfg.user_list:
-                auth_ok = 1
-
-        # One way or another, we have an answer now
-        return auth_ok
-
-    # The web server is not enforcing authentication.
-
     if cfg.user_list is None:
-        # we don't have a list to restrict to, so anybody is ok
+        # If there is no user_list in the config, any authenticated user is
+        # accepted.
         auth_ok = 1
-    else:
-        # we have a list of users, but we don't know who this one is
-        auth_ok = 0
+
+    user = current_user()
+    if user in cfg.user_list:
+        # If the config contains user_list, only those people are authorized.
+        auth_ok = 1
 
     return auth_ok
+
 
 #
 # function to create a URL for a link back to our own CGI
@@ -417,11 +403,12 @@ cgi_header_html = "content-type: text/html\n\n"
 
 current_user_name = None
 
-
 def current_user():
-    if 'REMOTE_USER' in os.environ:
-        return os.environ["REMOTE_USER"]
-    return 'Nobody'
+    eppn = os.getenv('HTTP_EPPN')
+    if eppn:
+        return eppn.replace('@stsci.edu', '')
+    else:
+        return 'Nobody'
 
 ######
 #--#--# GENERAL

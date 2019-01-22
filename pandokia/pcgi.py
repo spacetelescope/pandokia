@@ -114,6 +114,9 @@ def run():
         f = open(f, "r")
         x = f.read()
         f.close()
+
+	user = common.current_user()
+
         if common.current_user() in common.cfg.admin_user_list:
             x = re.sub(
                 "ADMINLINK",
@@ -121,8 +124,11 @@ def run():
                 x)
         else:
             x = re.sub("ADMINLINK", '', x)
+
+        x = re.sub("CURRENTUSER", user, x)
         x = re.sub("CGINAME", cginame, x)
         x = re.sub("PAGEHEADER", header, x)
+
         sys.stdout.write(x)
         sys.exit(0)
 
