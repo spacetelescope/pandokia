@@ -22,21 +22,12 @@ ADMINLINK
 <li> <a href="CGINAME?query=day_report.2&test_run=etc_hst_daily_latest">Latest HST pyetc</a>
 <li> <a href="CGINAME?query=day_report.2&test_run=etc_jwst_daily_latest">Latest Pandeia Report (Local)</a>
 <li> <a href="CGINAME?query=day_report.2&test_run=pandeia_master_latest">Latest Pandeia Report (AWS)</a>
-<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest">Latest Daily Report</a>
-	<ul>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=astrolib">astrolib</a>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=drizzlepac">drizzlepac</a>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=hstcal">hstcal</a>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=jwst">jwst</a>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsci_python">stsci_python</a>
-	<li> <a href="CGINAME?query=day_report.2&test_run=daily_latest&project=stsdas">stsdas</a>
-	<li>
-	<form action=CGINAME method=GET>
-		<input type=hidden name=query value='day_report.2'>
-		<input type=text name=test_run value='daily_latest'>
-	</form>
-	<li> <a href="CGINAME?query=treewalk&test_run=daily_latest">Latest Daily Report </a> (tree walker)
-	</ul>
+<li>
+    <form action=CGINAME method=GET>
+        <input type=hidden name=query value='day_report.2'>
+        <input type=text name=test_run value='daily_latest'>
+    </form>
+</li>
 
 <hr>
 
