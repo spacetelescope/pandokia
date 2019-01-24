@@ -1,24 +1,23 @@
 PAGEHEADER
 
-<p>
+<!--<p>
 Documentation is available on the group wiki: 
 <a href="https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia">
 https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
 </a>
+</p>-->
+
 
 <br/><br/>
 
-Logged in as: <b>CURRENTUSER</b>
-
-<br/>
-
-ADMINLINK
+<div>Logged in as: <b>CURRENTUSER</b> ADMINLINK</div>
 
 <p>
 <ul>
 
-<li> <a href="CGINAME?query=day_report.1&test_run=conda_%">CONDA</a>
-<li> <a href="CGINAME?query=day_report.2&test_run=jwst_latest">Latest JWST Report</a>
+<!--pretty sure we don't need this link, but I'm leaving it here for now -->
+<!--<li> <a href="CGINAME?query=day_report.2&test_run=jwst_latest">Latest JWST Report</a>-->
+
 <li> <a href="CGINAME?query=day_report.2&test_run=etc_hst_daily_latest">Latest HST pyetc</a>
 <li> <a href="CGINAME?query=day_report.2&test_run=etc_jwst_daily_latest">Latest Pandeia Report (Local)</a>
 <li> <a href="CGINAME?query=day_report.2&test_run=pandeia_master_latest">Latest Pandeia Report (AWS)</a>
@@ -30,7 +29,6 @@ ADMINLINK
 </li>
 
 <hr>
-
 <li> <a href="CGINAME?query=day_report.1&test_run=-me">Just your test runs</a>
 
 <hr>
@@ -49,21 +47,21 @@ ADMINLINK
 <li> Lists of Test Runs:
 	<ul>
 		<li> <a href="CGINAME?query=day_report.1&test_run=%">All</a>
-		<li> <a href="CGINAME?query=day_report.1&test_run=daily_%">Daily only</a>
 		<li> <a href="CGINAME?query=day_report.1&test_run=user_%">user_%</a>
-		<li> <a href="CGINAME?query=day_report.1&test_run=run_%">run_%</a>
-		<li> <a href="CGINAME?query=day_report.1&test_run=ops_%">ops_%</a>
-		<li> <a href="CGINAME?query=day_report.1&test_run=release_%">release_%</a>
-		<li>	<form action=CGINAME method=GET>
-			<input type=hidden name=query value='day_report.1'>
-			<input type=text name=test_run value='user_%'>
-			</form>
+		<li>
+                    <form action=CGINAME method=GET>
+                        <input type=hidden name=query value='day_report.1'>
+                        <input type=text name=test_run value='user_%'>
+                   </form>
 	</ul>
 
 <hr>
-<li> <a href=CGINAME?query=prefs>User Preferences</a>  (use to select what email you want)
-<hr>
 <li>
+
+<span style="color: red; font-weight: bold;">The treewalk functionality is currently broken</span>
+
+
+<br><br>
 Enter your own tree walk parameters:<br>
 (do not submit this form with all fields set to "%" - the query is too slow)
 	<form action=CGINAME method=GET>
@@ -75,10 +73,11 @@ Enter your own tree walk parameters:<br>
 	<input type=submit name="submit" value="treewalk">
 	</form>
 </ul>
-<hr>
 
 <hr>
-
-<a href="CGINAME?query=expected">expected tests summary</a>
+<li> <span style="text-decoration: line-through; color: lightgray; font-style: italic;">
+<a href=CGINAME?query=prefs>User Preferences</a>  (use to select what email you want)
+</span>
+<i>&nbsp;&nbsp;This functionality is no longer in use</i>
 
 </form>
