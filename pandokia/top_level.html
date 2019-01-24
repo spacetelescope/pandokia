@@ -11,6 +11,7 @@ https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
 <br/>
 
 <div>Logged in as: <b>CURRENTUSER</b> ADMINLINK</div>
+<br/>
 
 <p>
 <ul>
@@ -22,10 +23,16 @@ https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
 <li> <a href="CGINAME?query=day_report.2&test_run=etc_jwst_daily_latest">Latest Pandeia Report (Local)</a>
 <li> <a href="CGINAME?query=day_report.2&test_run=pandeia_master_latest">Latest Pandeia Report (AWS)</a>
 
+<br/>
 <hr>
+<br/>
+
 <li> <a href="CGINAME?query=day_report.1&test_run=-me">Just your test runs</a>
 
+<br/>
 <hr>
+<br/>
+
 <li> <a href="CGINAME?query=qid_list">List of interesting QID</a>
 <li> QID :
 	<form action=CGINAME method=GET>
@@ -37,7 +44,10 @@ https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
 	<input type=hidden name=query value=detail>
 	<input type=text name=key_id>
 	</form>
+
 <hr>
+<br/>
+
 <li> Lists of Test Runs:
 	<ul>
 		<li> <a href="CGINAME?query=day_report.1&test_run=%">All</a>
@@ -50,11 +60,12 @@ https://svn.stsci.edu/trac/ssb/development/wiki/Pandokia
 	</ul>
 
 <hr>
+<br/>
+
 <li>
-
 <span style="color: red; font-weight: bold;">The treewalk functionality is currently broken</span>
+<br/>
 
-<br><br>
 Enter your own tree walk parameters:<br>
 (do not submit this form with all fields set to "%" - the query is too slow)
 	<form action=CGINAME method=GET>
@@ -65,14 +76,14 @@ Enter your own tree walk parameters:<br>
 	<input type=hidden name=query value=treewalk>
 	<input type=submit name="submit" value="treewalk">
 	</form>
-</ul>
 
 <hr>
-<ul>
+<br/>
+
 <li> <span style="text-decoration: line-through; color: lightgray; font-style: italic;">
 <a href=CGINAME?query=prefs>User Preferences</a>  (use to select what email you want)
 </span>
-</ul>
 <i>&nbsp;&nbsp;This functionality is no longer in use</i>
+</ul>
 
 </form>
