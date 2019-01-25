@@ -120,7 +120,7 @@ def run():
         if common.current_user() in common.cfg.admin_user_list:
             x = re.sub(
                 "ADMINLINK",
-                '<br> <a href=CGINAME?query=admin>Admin</a> <br>',
+                '(<a href=CGINAME?query=admin>admin</a>)',
                 x)
         else:
             x = re.sub("ADMINLINK", '', x)

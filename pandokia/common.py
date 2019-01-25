@@ -406,7 +406,7 @@ current_user_name = None
 def current_user():
     eppn = os.getenv('HTTP_EPPN')
     if eppn:
-        return eppn.replace('@stsci.edu', '')
+        return eppn.replace(cfg.sso_user_postfix, '')
     else:
         return 'Nobody'
 
