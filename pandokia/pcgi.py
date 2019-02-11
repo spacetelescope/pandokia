@@ -115,7 +115,7 @@ def run():
         x = f.read()
         f.close()
 
-	user = common.current_user()
+        user = common.current_user()
 
         if common.current_user() in common.cfg.admin_user_list:
             x = re.sub(
