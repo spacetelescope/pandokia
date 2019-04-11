@@ -234,10 +234,23 @@ def get_exception_str():
 
 def locate_test_methods(ob, test_order):
     l = []
+    f_names_found = []
 
-    # look through the class for methods that are interesting to us.
+    # Look through the class for methods that are interesting to us.
+    methodish_things = inspect.getmembers(ob, inspect.ismethod)
+    # For some reason in py3 inspect isn't finding our class tests methods
+    # in the HST ETC versions test class. adding the isfunction filter grabs
+    # them correctly and will not hurt to add.
+    if sys.version_info[0] > 2:
+        methodish_things = methodish_things + inspect.getmembers(ob, inspect.isfunction)
 
-    for f_name, f_ob in inspect.getmembers(ob, inspect.ismethod):
+    for f_name, f_ob in methodish_things:
+
+        # prevent duplicates
+        if f_name in f_names_found:
+            continue
+        else:
+            f_names_found.append(f_name)
 
         # if the method has __test__, that value is a flag
         # about whether it is a test or not.  Note there are
@@ -369,6 +382,7 @@ def run_test_class_single(rpt, mod, name, ob, test_order):
         class_ob = ob()
     except:
         exception_str = get_exception_str()
+        debug_fd.write('bailing out early trying to instantiate class %s, named %s, for: %s\n' % (ob, name, exception_str))
         traceback.print_exc()
         # really nothing more we can do...
         gen_report(rpt, name, 'E', class_start_time, time.time(), {}, {
@@ -669,7 +683,6 @@ def process_file(filename, test_name=None, test_args=None):
                 module, inspect.isfunction) + inspect.getmembers(module, inspect.isclass):
             if debug:
                 debug_fd.write("process_file: inspect name %s\n" % name)
-
             try:
                 # if it has minipyt_test, that value is a flag
                 # about whether it is a test or not.
