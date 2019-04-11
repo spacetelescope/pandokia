@@ -242,7 +242,7 @@ def locate_test_methods(ob, test_order):
     # For some reason in py3 inspect isn't finding our class tests methods
     # in the HST ETC versions test class. Adding the isfunction filter grabs
     # them correctly and will not hurt to add, because: 1) duplicates are weeded
-    # out, and 2) each function found will be testing for the presence of
+    # out, and 2) each function found will be tested for the presence of
     # the __test__ attr. below.
     if sys.version_info[0] > 2:
         methodish_things = methodish_things + inspect.getmembers(ob, inspect.isfunction)
