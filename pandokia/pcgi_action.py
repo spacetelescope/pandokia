@@ -144,7 +144,7 @@ def run():
         pdk_db.commit()
 
     elif 'valuable_qid' in form:
-        v = int(form('valuable_qid'))
+        v = int(form.get_value('valuable_qid'))
         if v:
             expire = pandokia.never_expires
             if 0:
