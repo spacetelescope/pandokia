@@ -385,7 +385,8 @@ def run_test_class_single(rpt, mod, name, ob, test_order):
         class_ob = ob()
     except:
         exception_str = get_exception_str()
-        debug_fd.write('bailing out early trying to instantiate class %s, named %s, for: %s\n' % (ob, name, exception_str))
+        if debug:
+            debug_fd.write('bailing out early trying to instantiate class %s, named %s, for: %s\n' % (ob, name, exception_str))
         traceback.print_exc()
         # really nothing more we can do...
         gen_report(rpt, name, 'E', class_start_time, time.time(), {}, {
