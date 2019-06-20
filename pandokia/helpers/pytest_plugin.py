@@ -398,8 +398,8 @@ def find_txa(test):
 # make available a funcarg:  A function parameter named pdk_test_name
 # will contain the name that Pandokia knows this test by.
 
-
-def pytest_funcarg__pdk_test_name(request):
+@pytest.fixture
+def pdk_test_name(request):
     if not enabled:
         return None
     tty.write("FUNCARG TEST NAME ")
