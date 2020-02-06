@@ -310,7 +310,7 @@ class Regress:
                         repr(err), config["title"])
                     crash = 1
 
-            # end: if config.has_key("taskname") and config['taskname'].strip()
+            # end: if "taskname" in config and config['taskname'].strip()
             # != '' :
 
             # Run any post-execution commands in the configuration file
