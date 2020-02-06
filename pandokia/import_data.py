@@ -150,7 +150,7 @@ all_test_runs = { }
 class test_result(object):
 
     def _lookup(self,name,default=None) :
-        if self.dict.has_key(name) :
+        if name in self.dict:
             return self.dict[name]
         if default != None :
             return default
