@@ -179,7 +179,7 @@ class FitsComparison(ComparisonClass):
 
 
 class AsciiComparison(ComparisonClass):
-    """Override methods for Ascii Comparison. Ignore keywords include:
+    """ Override methods for Ascii Comparison. Ignore keywords include:
 
        <ignore_date> True </ignore_date>
        <ignore_wstart> nref, mtab </ignore_wstart>
