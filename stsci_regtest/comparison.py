@@ -184,7 +184,7 @@ class AsciiComparison(ComparisonClass):
        <ignore_date> True </ignore_date>
        <ignore_wstart> nref, mtab </ignore_wstart>
        <ignore_wend> .fits, .dat </ignore_wend>
-       <ignore_regexp> r'\sbla.*' </ignore_regexp>
+       <ignore_regexp> r'\\sbla.*' </ignore_regexp>
     """
 
     def __init__(self, testfile, reffile, **kwds):
