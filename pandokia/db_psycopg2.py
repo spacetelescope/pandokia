@@ -168,7 +168,7 @@ Ubuntu:
     su postgres
 
     psql postgres
-        \password postgres
+        /password postgres
         ...enter a password...
             sets password for postgres database user
 
@@ -203,7 +203,7 @@ Fedora:
     su postgres
 
     psql postgres
-        \password postgres
+        /password postgres
         ...enter a password...
             sets password for postgres database user
 
@@ -233,14 +233,12 @@ psql pandokia
 
 
 psql
-    \d
+    /d
         like show tables
-    \l
+    /l
         like show databases
-    \d tablename
+    /d tablename
         like describe tablename
-    \connect name
+    /connect name
         like "use name"
-
-
 """
