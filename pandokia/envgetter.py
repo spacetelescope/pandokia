@@ -53,7 +53,7 @@ ttop = 'pandokia_top'
 
 # Patterns pertinent to substitutions:
 
-pat = {'envpat': re.compile('\${?([\w]*?)}?(?:[\\/:]|$)'),
+pat = {'envpat': re.compile(r'\${?([\w]*?)}?(?:[\\/:]|$)'),
        # Matches an environment variable that
        # starts with a $
        # optionally followed by a {
@@ -63,11 +63,11 @@ pat = {'envpat': re.compile('\${?([\w]*?)}?(?:[\\/:]|$)'),
        #    or the end of the string
        # Only the name of the environment variable will be taken.
 
-       'pathkey': re.compile('[\w]*path$', re.I),
+       'pathkey': re.compile(r'[\w]*path$', re.I),
        # Anything that ends in path, case-insensitive. Used to match
        # something that was extracted as above.
 
-       'pathval': re.compile('(\$\{?[\w]*path\}?)(?:[/:]|$)', re.I)}
+       'pathval': re.compile(r'(\$\{?[\w]*path\}?)(?:[/:]|$)', re.I)}
 # Matches an environment variable that
 # starts with a $
 # optionally followed by a {
