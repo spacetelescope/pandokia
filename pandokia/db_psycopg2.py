@@ -153,7 +153,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
         return c.fetchone()[0]
 
 
-'''
+"""
 Ubuntu:
 
     sudo apt-get install postgresql-client
@@ -243,4 +243,4 @@ psql
         like "use name"
 
 
-'''
+"""
