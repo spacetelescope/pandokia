@@ -168,7 +168,7 @@ Ubuntu:
     su postgres
 
     psql postgres
-        /password postgres
+        \\password postgres
         ...enter a password...
             sets password for postgres database user
 
