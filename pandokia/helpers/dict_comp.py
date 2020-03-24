@@ -153,7 +153,7 @@ def read_reference(fn):
 ##########
 
 
-spaces = re.compile("[\s]")
+spaces = re.compile(r"[\s]")
 
 ##########
 #

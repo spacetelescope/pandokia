@@ -16,7 +16,7 @@ re_funky_chars = re.compile('[^ -~]')
 # Yes, it works on strings with \0 in them.
 # Should we do iso-8859 or just wait to support unicode?
 
-re_star_x_star = re.compile('^\*[^*]*\*$')
+re_star_x_star = re.compile(r'^\*[^*]*\*$')
 
 
 class name_sequence(object):

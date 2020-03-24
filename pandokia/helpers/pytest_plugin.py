@@ -69,7 +69,7 @@ def pdktimestamp(tt):
 def cleanname(name):
     """Removes any object id strings from the test name. These
     can occur in the case of a generated test."""
-    pat = re.compile(".at.0x\w*>")
+    pat = re.compile(r".at.0x\w*>")
     newname = re.sub(pat, '>', name)
     return newname
 

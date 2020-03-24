@@ -69,7 +69,7 @@ if __name__ == '__main__':
     # group 0 is the tag that comes before the command
     #   $ > >>>
     # group 1 is the actual tag
-    command_re = re.compile('[^ \t]{0,5}[ \t]*([>\$]+)[ \t]*(.*$)')
+    command_re = re.compile(r'[^ \t]{0,5}[ \t]*([>\$]+)[ \t]*(.*$)')
 
     #
     windows = platform.system() == 'Windows'
