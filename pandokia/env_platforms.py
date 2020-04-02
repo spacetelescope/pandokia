@@ -5,9 +5,14 @@ the appoprirate specific subsections of the pdk_environment files.
 
 By its nature, this information is expected to be site-specific.
 Users may need or wish to tailor it for their specific test situation."""
-
-import platform
-
+#############################################################
+# import platform
+# Platform package has been deprecated, and there is no clean
+# drop-in replacement.
+# Since we're not presently using platform sections in any
+# pdk_environment files, we're just going to break it with
+# a helpful exception. See additional comments inline.
+#############################################################
 # Hierarchy: this is an ordered list that specifies the order
 # in which the subsections will be applied
 hierarchy = ['os',
@@ -22,13 +27,22 @@ cpudict = dict(i386='x86',
                i686='x86')
 
 
-class PlatformType(object):
+class 
+
+
+
+
+Type(object):
     """Base class from which specific sub-classes that need special
     handling can be instantiated."""
 
     def __init__(self):
         """Constructor takes no arguments because it will call platform
         routines."""
+        
+        raise NotImplementedError("Platform-specific environment handling is not currently supported. Modify env_platforms.py to fix.")
+        
+   
         # Items we use directly
         self.os = platform.system().lower()
         self.osver = None
