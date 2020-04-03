@@ -358,7 +358,7 @@ class EnvGetter(object):
 def parsefile(fname, platform=''):
     """Helper function: Make a configparser, parse the file,
     return the dictionary."""
-    cfg = configparser.SafeConfigParser()
+    cfg = configparser.ConfigParser()
     cfg.optionxform = str  # retain case sensitivity!!
     cfg.read(fname)
     ans = {}
