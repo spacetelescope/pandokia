@@ -303,7 +303,7 @@ class EnvGetter(object):
         self.context = context  # contexts modify default environment
 
         # Platform info
-        self.platform = None
+        self.platform = PlatformType()
 
         # for testing purposes
         self.MOCK = mock
