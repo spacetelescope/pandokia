@@ -52,7 +52,6 @@ Type(object):
         # Items that will be used to construct the rest
         self.processor = platform.processor().lower()
         self.uname = [x.lower() for x in platform.uname()]
-        self.dist = [x.lower() for x in platform.dist()]
         self.arch = platform.architecture()[0].lower()
 
         # Construct the cpu
@@ -70,8 +69,8 @@ Type(object):
     def makeosver(self):
         if self.os in ['linux']:
             # Toss subrelease
-            ver = self.dist[1].split('.')[0]
-            self.osver = ''.join([self.dist[0], ver])
+            ver = platform.release().split('.')[0]
+            self.osver = ''.join([self.os, ver])
 
         if self.os in ['darwin']:
             # Toss subrelease
