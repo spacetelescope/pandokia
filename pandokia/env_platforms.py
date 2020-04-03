@@ -5,6 +5,9 @@ the appoprirate specific subsections of the pdk_environment files.
 
 By its nature, this information is expected to be site-specific.
 Users may need or wish to tailor it for their specific test situation."""
+
+import platform
+
 # Hierarchy: this is an ordered list that specifies the order
 # in which the subsections will be applied
 hierarchy = ['os',
