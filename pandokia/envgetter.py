@@ -39,14 +39,6 @@ try:
 except ImportError:
     import configparser
 
-#############################################
-# The platform module has been deprecated. Since we
-# don't currently use it in any of our pdk_environment files,
-# we are commenting out & will raise a helpful exception
-# if anyone tries to use it.
-#
-# from pandokia.env_platforms import PlatformType
-#############################################
 
 import pandokia.common as common
 
@@ -310,12 +302,7 @@ class EnvGetter(object):
         self.nodes = dict()  # dictionary of DirLevel objects
         self.context = context  # contexts modify default environment
 
-        #####################################################
-        # This functionality is not presently supported.
-        #
         # Platform info
-        # self.platform = PlatformType()
-        #####################################################
         self.platform = None
 
         # for testing purposes
