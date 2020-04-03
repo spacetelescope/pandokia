@@ -40,6 +40,7 @@ except ImportError:
     import configparser
 
 from pandokia.env_platforms import PlatformType
+
 import pandokia.common as common
 
 # Common variables used by both classes:
