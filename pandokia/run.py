@@ -253,7 +253,8 @@ def export_environment(args):
             "output=", "context=", "full", "csh", "sh"])
     for (opt, optarg) in opts:
         if opt == '-o' or opt == '-output':
-            out = open(optarg, "w")
+            with open(optarg, "w") as out:
+                out.write('')
         elif opt == '-c' or opt == '--context':
             context = optarg
         elif opt == '-f' or opt == '--full':
