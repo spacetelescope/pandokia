@@ -474,7 +474,8 @@ class _pycode_with(object):
                     self.location = x[1]
                     break
             if '__init__' in self.location:
-                open("/dev/tty", "w").write(str(l))
+                with open("/dev/tty", "w") as file:
+                    file.write(str(l))
 
     #
     def __enter__(self):
