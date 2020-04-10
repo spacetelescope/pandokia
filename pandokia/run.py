@@ -254,7 +254,7 @@ def export_environment(args):
     for (opt, optarg) in opts:
         if opt == '-o' or opt == '-output':
             with open(optarg, "w") as out:
-                out.write('')
+                out.write("\n")
         elif opt == '-c' or opt == '--context':
             context = optarg
         elif opt == '-f' or opt == '--full':
