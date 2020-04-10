@@ -9,7 +9,11 @@
 
 __all__ = ["text_table"]
 
-import html
+try:
+    import cgi as html
+except ImportError:
+    import html
+
 import csv
 import sys
 
