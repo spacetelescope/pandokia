@@ -258,7 +258,8 @@ class reporter(object):
         # You would think we don't need this, but in practice sometimes
         # python C extensions will core dump the whole python interpreter.
         # In that case, this gets as much of our output as possible.
-        self.report_file.flush()
+        if type(self.report_file) is not str:
+            self.report_file.flush()
 
     # see ticket #51
     def start(self, test_name, tda={}):
