@@ -81,15 +81,11 @@ class reporter(object):
 
         # in all cases, we need to open the output file
         if filename is not None:
-            self.filename = filename
-            with open(filename, "a") as reportfile:
-                self.report_file = reportfile
+            self.report_file = filename
         else:
             if 'PDK_LOG' in os.environ:
                 filename = os.environ['PDK_LOG']
-                self.filename = filename
-                with open(filename, "a") as reportfile:
-                    self.report_file = reportfile
+                self.report_file = filename
             else:
                 self.report_file = sys.stdout
                 self.report_view = True
@@ -122,7 +118,8 @@ class reporter(object):
 
             # if we have setdefault set, we are overriding any defaults
             # that may already be in the file.
-            self.report_file.write("\n\nSTART\n")
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write("\n\nSTART\n")
 
             # test_run - required
             #   what the user provided, else PDK_TESTRUN, else 'default'
@@ -185,7 +182,9 @@ class reporter(object):
                 self.write_field('custom', custom)
 
             # this saves the default values
-            self.report_file.write("SETDEFAULT\n")
+            
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write("SETDEFAULT\n")
 
         # end if setdefault
 
@@ -211,8 +210,9 @@ class reporter(object):
             if status == 'P':
                 if not self.report_view_verbose:
                     return
-            self.report_file.write(self.report_view_sep)
-            self.report_file.write('\n')
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write(self.report_view_sep)
+                reportfile.write('\n')
 
         if test_name is None:
             test_name = self.test_prefix
@@ -249,9 +249,11 @@ class reporter(object):
 
             if log is not None:
                 self.write_field('log', log)
-            self.report_file.write('END\n')
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write('END\n')
         else:
-            self.report_file.write(log)
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write(log)
 
         # You would think we don't need this, but in practice sometimes
         # python C extensions will core dump the whole python interpreter.
@@ -279,15 +281,18 @@ class reporter(object):
         if '\n' in value:
             if value.endswith('\n'):
                 value = value[:-1]
-            self.report_file.write('%s:\n' % name)
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write('%s:\n' % name)
             for x in value.split('\n'):
-                self.report_file.write('.%s\n' % x)
-            self.report_file.write('\n')
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write('.%s\n' % x)
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write('\n')
         else:
-            self.report_file.write('%s=%s\n' % (name, value))
+            with open(self.report_file, "a") as reportfile:
+                reportfile.write('%s=%s\n' % (name, value))
 
     def close(self):
-        self.report_file.close()
         self.report_file = None
 
 ###
