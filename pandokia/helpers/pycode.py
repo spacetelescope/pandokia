@@ -182,7 +182,6 @@ class reporter(object):
                 self.write_field('custom', custom)
 
             # this saves the default values
-            
             with open(self.report_file, "a") as reportfile:
                 reportfile.write("SETDEFAULT\n")
 
@@ -258,8 +257,13 @@ class reporter(object):
         # You would think we don't need this, but in practice sometimes
         # python C extensions will core dump the whole python interpreter.
         # In that case, this gets as much of our output as possible.
+        # Since now we close every opened file per operation
+        # self.report_file can be the file name or sys.stdout (see line 82-90)
         if type(self.report_file) is not str:
             self.report_file.flush()
+        else:
+            with open(self.report_file, "a") as reportfile:
+                reportfile.flush()
 
     # see ticket #51
     def start(self, test_name, tda={}):
