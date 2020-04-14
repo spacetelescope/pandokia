@@ -298,6 +298,10 @@ class reporter(object):
                 reportfile.write('%s=%s\n' % (name, value))
 
     def close(self):
+        # Since now we close every opened file per operation
+        # we only need to close the sys.stdout
+        if type(self.report_file) is not str:
+            self.report_file.close()
         self.report_file = None
 
 ###
