@@ -118,8 +118,11 @@ class reporter(object):
 
             # if we have setdefault set, we are overriding any defaults
             # that may already be in the file.
-            with open(self.report_file, "a") as reportfile:
-                reportfile.write("\n\nSTART\n")
+            if type(self.report_file) is str:
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write("\n\nSTART\n")
+            else:
+                self.report_file.write("\n\nSTART\n")
 
             # test_run - required
             #   what the user provided, else PDK_TESTRUN, else 'default'
@@ -182,8 +185,11 @@ class reporter(object):
                 self.write_field('custom', custom)
 
             # this saves the default values
-            with open(self.report_file, "a") as reportfile:
-                reportfile.write("SETDEFAULT\n")
+            if type(self.report_file) is str:
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write("SETDEFAULT\n")
+            else:
+                self.report_file.write("SETDEFAULT\n")
 
         # end if setdefault
 
@@ -209,9 +215,13 @@ class reporter(object):
             if status == 'P':
                 if not self.report_view_verbose:
                     return
-            with open(self.report_file, "a") as reportfile:
-                reportfile.write(self.report_view_sep)
-                reportfile.write('\n')
+            if type(self.report_file) is str:
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write(self.report_view_sep)
+                    reportfile.write('\n')
+            else:
+                self.report_file.write(self.report_view_sep)
+                self.report_file.write('\n')
 
         if test_name is None:
             test_name = self.test_prefix
@@ -248,11 +258,17 @@ class reporter(object):
 
             if log is not None:
                 self.write_field('log', log)
-            with open(self.report_file, "a") as reportfile:
-                reportfile.write('END\n')
+            if type(self.report_file) is str:
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write('END\n')
+            else:
+                self.report_file.write('END\n')
         else:
-            with open(self.report_file, "a") as reportfile:
-                reportfile.write(log)
+            if type(self.report_file) is str:
+                with open(self.report_file, "a") as reportfile:
+                    reportfile.write(log)
+            else:
+                self.report_file.write(log)
 
         # You would think we don't need this, but in practice sometimes
         # python C extensions will core dump the whole python interpreter.
