@@ -81,11 +81,13 @@ class reporter(object):
 
         # in all cases, we need to open the output file
         if filename is not None:
-            self.report_file = filename
+            self.filename = filename
+            self.report_file = self.filename
         else:
             if 'PDK_LOG' in os.environ:
                 filename = os.environ['PDK_LOG']
-                self.report_file = filename
+                self.filename = filename
+                self.report_file = self.filename
             else:
                 self.report_file = sys.stdout
                 self.report_view = True
