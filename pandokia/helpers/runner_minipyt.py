@@ -9,7 +9,11 @@ import os.path
 import time
 import gc
 import copy
-import collections
+
+try:
+    import collections.abc as collections
+except ImportError:
+    import collections
 
 # In python 2.6 and later, this prevents writing the .pyc files on import.
 # I normally don't want the .pyc files cluttering up the test directories.
