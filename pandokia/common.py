@@ -498,9 +498,8 @@ def parse_time(arg):
     except ValueError:
         pass
 
-    # didn't match anything?  ok, well the last exception is
-    # as good as anything else we might raise
-    raise ValueError("Could not parse date format")
+    # didn't match anything?
+    raise ValueError("Could not parse time format")
 
 
 def sql_time(d):
