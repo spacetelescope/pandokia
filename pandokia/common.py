@@ -462,7 +462,7 @@ def parse_time(arg):
         x = float(arg)
         d = datetime.datetime.fromtimestamp(x)
         return d
-    except ValueError:
+    except ValueError as err:
         pass
 
     # sql time:
@@ -479,7 +479,7 @@ def parse_time(arg):
             # not in 2.4:
             # d = datetime.datetime.strptime(arg,'%Y-%m-%d %H:%M:%S')
         return d
-    except ValueError:
+    except ValueError as err:
         pass
 
     # ctime
@@ -488,19 +488,19 @@ def parse_time(arg):
     try:
         d = datetime.datetime.strptime(arg, '%a %b %d %H:%M:%S %Y')
         return d
-    except ValueError:
+    except ValueError as err:
         pass
 
     # just a date
     try:
         d = datetime.datetime.strptime(arg, '%Y-%m-%d')
         return d
-    except ValueError:
+    except ValueError as err:
         pass
 
     # didn't match anything?  ok, well the last exception is
     # as good as anything else we might raise
-    raise
+    raise err
 
 
 def sql_time(d):
