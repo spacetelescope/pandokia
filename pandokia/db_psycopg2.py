@@ -82,7 +82,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
         self.db.rollback()
 
     def rollback_or_reconnect(self):
-        raise NotImplemented('rollback_or_reconnect not implemented')
+        raise NotImplementedError('rollback_or_reconnect not implemented')
 
     #
     # explain the query plan using the database-dependent syntax
