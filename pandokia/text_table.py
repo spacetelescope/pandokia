@@ -9,13 +9,9 @@
 
 __all__ = ["text_table"]
 
-try:
-    import cgi as html
-except ImportError:
-    import html
-
 import csv
 import sys
+from html import escape as html_escape
 
 try:
     import StringIO
@@ -521,7 +517,7 @@ class text_table:
                     s.write(self.title_html[colcount])
                 elif self.title_links[colcount]:
                     s.write("<a href='" + self.title_links[colcount] + "'>")
-                    s.write(html.escape(str(r)))
+                    s.write(html_escape(str(r)))
                     s.write("</a>")
                 else:
                     s.write(r)
@@ -569,7 +565,7 @@ class text_table:
                         if c.text is not None and c.code:
                             s.write("<pre>{}</pre>".format(c.text))
                         elif c.text is not None and not c.code:
-                            s.write(html.escape(str(c.text)))
+                            s.write(html_escape(str(c.text)))
                         else:
                             s.write("&nbsp;")
                     if c.link:

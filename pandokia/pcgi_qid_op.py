@@ -8,11 +8,11 @@
 #
 
 import sys
-import cgi
 import re
 import copy
 import time
 import os
+from html import escape as html_escape
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
@@ -191,13 +191,13 @@ def qid_list():
         t.set_value(row, 1, v)
 
         v = str(x[2])
-        t.set_value(row, 2, v, html=cgi.escape(v))
+        t.set_value(row, 2, v, html=html_escape(v))
 
         if x[3] is None:
             v = ''
         else:
             v = str(x[3])
-        t.set_value(row, 3, v, html='<pre>' + cgi.escape(v) + '</pre>')
+        t.set_value(row, 3, v, html='<pre>' + html_escape(v) + '</pre>')
 
         row = row + 1
 

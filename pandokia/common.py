@@ -13,6 +13,7 @@ import os
 import os.path
 import re
 import types
+from html import escape as html_escape
 
 from six import StringIO
 from six.moves.urllib.parse import urlencode
@@ -306,7 +307,7 @@ def get_contact(project, test_name, mode='str'):
 #       text    substitute the string exactly with no changes
 #       cgi     if value is a string, quote_plus(value)
 #               else urlencode(value)
-#       html    cgi.escape(string, quote=True)
+#       html    html_escape(string, quote=True)
 #       ''      default format
 #
 # To get a % sign, use "%;"
@@ -359,7 +360,7 @@ def expand(text, dictlist=[], valid=None, format=''):
                         val = urlencode(val)
                     result.write(val)
                 elif this_format == 'html':
-                    val = cgi.escape(str(val), quote=True)
+                    val = html_escape(str(val), quote=True)
                     result.write(val)
                 else:
                     result.write(str(val))

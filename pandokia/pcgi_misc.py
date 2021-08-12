@@ -4,7 +4,7 @@
 #
 
 import sys
-import cgi
+from html import escape as html_escape
 
 import pandokia
 import pandokia.pcgi
@@ -26,7 +26,7 @@ def hostinfo():
         if description is None:
             description = ''
 
-        print('<b>%s</b><br>' % cgi.escape(host))
+        print('<b>%s</b><br>' % html_escape(host))
 
         cols = len(os)
         if cols < 40:
@@ -36,7 +36,7 @@ def hostinfo():
             print("<input type=hidden name=query value=set_hostinfo>")
             print("<input type=hidden name=host value=%s>" % host)
         print('<input type=text cols=%d name=os value="%s">' %
-              (cols, cgi.escape(os, True)))
+              (cols, html_escape(os, True)))
 
         l = [len(s) for s in description.split('\n')]
         cols = max(l)
@@ -47,7 +47,7 @@ def hostinfo():
             rows = 4
         print(
             "<br><textarea name=description rows=%d cols=%d>%s</textarea>" %
-            (rows, cols, cgi.escape(description)))
+            (rows, cols, html_escape(description)))
         if admin:
             print("<br><input type=submit value='change'>")
             print("</form>")

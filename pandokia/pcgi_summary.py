@@ -4,12 +4,12 @@
 #
 
 import sys
-import cgi
 import re
 import copy
 import time
-import pandokia.lib as lib
+from html import escape as html_escape
 
+import pandokia.lib as lib
 import pandokia.text_table as text_table
 
 try:
@@ -103,7 +103,7 @@ def qid_block(qid):
             qdict,
             linkmode="action") +
         "'>")
-    output.write('Comment:</a><br><pre>%s</pre>\n' % cgi.escape(notes))
+    output.write('Comment:</a><br><pre>%s</pre>\n' % html_escape(notes))
 
 
 ##########
@@ -224,7 +224,7 @@ def run():
     <input type=submit name=x_submit value='same'>
     <input type=submit name=x_submit value='different'>
     </form>
-    """ % (pandokia.pcgi.cginame, qid, show_attr, cgi.escape(cmp_run)))
+    """ % (pandokia.pcgi.cginame, qid, show_attr, html_escape(cmp_run)))
 
         #
         output.write("""
@@ -235,7 +235,7 @@ def run():
     <input type=hidden name=cmp_run value='%s'>
     <input type=submit name=x_submit value='Add Attributes'>
     </form>
-    """ % (pandokia.pcgi.cginame, qid, cgi.escape(cmp_run)))
+    """ % (pandokia.pcgi.cginame, qid, html_escape(cmp_run)))
 
         qid_block(qid)
 
@@ -295,22 +295,22 @@ def run():
         if len(all_test_run) == 1:
             result_table.suppress("test_run")
             output.write("<h3>test_run: " +
-                         cgi.escape([tmp for tmp in all_test_run][0]) +
+                         html_escape([tmp for tmp in all_test_run][0]) +
                          "</h3>")
         if len(all_project) == 1:
             result_table.suppress("project")
             output.write("<h3>project: " +
-                         cgi.escape([tmp for tmp in all_project][0]) +
+                         html_escape([tmp for tmp in all_project][0]) +
                          "</h3>")
         if len(all_host) == 1:
             result_table.suppress("host")
             output.write("<h3>host: " +
-                         cgi.escape([tmp for tmp in all_host][0]) +
+                         html_escape([tmp for tmp in all_host][0]) +
                          "</h3>")
         if len(all_context) == 1:
             result_table.suppress("context")
             output.write("<h3>context: " +
-                         cgi.escape([tmp for tmp in all_context][0]) +
+                         html_escape([tmp for tmp in all_context][0]) +
                          "</h3>")
         if len(all_custom) == 1:
             first_custom = [tmp for tmp in all_custom][0]
@@ -319,7 +319,7 @@ def run():
             if first_custom == '':
                 custom_title = "None"
             else:
-                custom_title = cgi.escape(first_custom)
+                custom_title = html_escape(first_custom)
             output.write("<h3>custom: " + custom_title + "</h3>")
         # suppressing the columns that are the same for every row
         same_table = suppress_attr_all_same(result_table, column_select_values)
