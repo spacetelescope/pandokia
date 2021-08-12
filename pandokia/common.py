@@ -13,6 +13,7 @@ import os
 import os.path
 import re
 import types
+from html import escape as html_escape
 
 from six import StringIO
 from six.moves.urllib.parse import urlencode
