@@ -5,11 +5,11 @@
 #
 
 import sys
-import cgi
 import re
 import copy
 import time
 import os
+from html import escape as html_escape
 
 import pandokia
 import pandokia.text_table as text_table
@@ -212,7 +212,7 @@ def run():
         output.write('<input type=hidden name=save_comment value=1>')
         output.write(
             '<textarea cols="80" rows="10" name=comment>%s</textarea><br>' %
-            (cgi.escape(note)))
+            (html_escape(note)))
         output.write('<input type=submit value="save">')
         output.write('</form>')
 

@@ -5,7 +5,7 @@
 
 #
 import sys
-import cgi
+from html import escape as html_escape
 import re
 import copy
 import time
@@ -166,7 +166,7 @@ def rpt1():
     if pandokia.pcgi.output_format == 'html':
         sys.stdout.write(common.cgi_header_html)
         sys.stdout.write(common.page_header())
-        sys.stdout.write('<h2>%s</h2>' % cgi.escape(test_run))
+        sys.stdout.write('<h2>%s</h2>' % html_escape(test_run))
         sys.stdout.write(table.get_html(headings=1))
         sys.stdout.write(
             "<br>Click on the ! to mark a test run as too valuable to delete\n")
@@ -263,7 +263,7 @@ def rpt2():
 # # # # # # # # # #
     if pandokia.pcgi.output_format == 'html':
 
-        header = "<big><big><b>" + cgi.escape(test_run) + "</b></big></big>\n"
+        header = "<big><big><b>" + html_escape(test_run) + "</b></big></big>\n"
 
         if 1:
             # if it looks like there is a date in it, try to show the day of the week
@@ -322,10 +322,10 @@ def rpt2():
         if 1:
             if test_run_note.startswith('*'):
                 header = header + \
-                    '<p>\nNote: %s</p>' % (cgi.escape(test_run_note))
+                    '<p>\nNote: %s</p>' % (html_escape(test_run_note))
             else:
                 header = header + '<p><form action=%s>\nNote: <input type=text name=note value="%s" size=%d>\n<input type=hidden name=test_run value="%s">\n<input type=hidden name=query value=action></form></p>' % (
-                    common.get_cgi_name(), cgi.escape(test_run_note), len(test_run_note) + 20, test_run)
+                    common.get_cgi_name(), html_escape(test_run_note), len(test_run_note) + 20, test_run)
 
             if test_run_valuable:
                 header = header + '<p>valuable '
@@ -341,7 +341,7 @@ def rpt2():
         # write links to the top of each project
         sys.stdout.write('<p>\n')
         for p in projects:
-            p = cgi.escape(p)
+            p = html_escape(p)
             sys.stdout.write('<a href="#%s">%s</a>&nbsp;&nbsp; ' % (p, p))
         sys.stdout.write('</p>\n')
 
@@ -455,7 +455,7 @@ def gen_daily_table(
             link = common.selflink(query_dict=query, linkmode="treewalk")
 
             # the heading for a project subsection of the table
-            project_text = cgi.escape(project)
+            project_text = html_escape(project)
             project_text = '<hr><big><strong><b><a name="%s" href="%s">%s</a></b></strong></big>' % (
                 project_text, link, project_text)
             table.set_value(row, 0, text=project, html=project_text)

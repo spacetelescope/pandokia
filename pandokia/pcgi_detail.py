@@ -4,11 +4,11 @@
 #
 
 import sys
-import cgi
 import re
 import copy
 import time
 import datetime
+from html import escape as html_escape
 
 import pandokia.text_table as text_table
 import pandokia.pcgi
@@ -357,7 +357,7 @@ def do_result(key_id):
 
 
                 sys.stdout.write("Log:<br><pre>")
-                sys.stdout.write(cgi.escape(y))
+                sys.stdout.write(html_escape(y))
                 sys.stdout.write("</pre>\n")
 
         sys.stdout.write("<br>\n")

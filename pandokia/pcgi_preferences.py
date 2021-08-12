@@ -6,7 +6,7 @@
 #
 
 import sys
-import cgi
+from html import escape as html_escape
 
 try:
     from urllib.parse import quote
@@ -88,7 +88,7 @@ def show(user):
     form = pandokia.pcgi.form
 
     #
-    output.write('<h1>User Preferences: %s</h1>' % cgi.escape(user))
+    output.write('<h1>User Preferences: %s</h1>' % html_escape(user))
 
     # write the start of form, including hidden fields needed to dispatch
     # to the save() function after we submit the form.
@@ -229,7 +229,7 @@ def add_project(user):
             (user,
              project))
         cfg.pdk_db.commit()
-        output.write('added %s' % cgi.escape(project))
+        output.write('added %s' % html_escape(project))
 
     output.write('<br>')
     output.write(
@@ -325,7 +325,7 @@ def list_users():
         " SELECT DISTINCT username FROM user_email_pref WHERE "
         " username NOT IN ( SELECT username FROM user_prefs ) ")
     for x, in c:
-        print("user %s not in user_prefs table - adding<br>" % cgi.escape(x))
+        print("user %s not in user_prefs table - adding<br>" % html_escape(x))
         cfg.pdk_db.execute(
             "INSERT INTO user_prefs ( username ) VALUES ( :1 )", (x,))
     cfg.pdk_db.commit()
@@ -364,7 +364,7 @@ def list_users():
             # stuff that preference into the table.
             if m is not None:
                 f = '%s %s' % (f, m)
-            tb.set_value(row, 'p.' + p, cgi.escape(f))
+            tb.set_value(row, 'p.' + p, html_escape(f))
 
         row = row + 1
 
