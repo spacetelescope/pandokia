@@ -13,7 +13,7 @@ pdk_db = pandokia.cfg.pdk_db
 
 
 def noflag(name, err):
-    print('Flagok not possible for %s: %s<br>' % (html_escape(name), err))
+    print('Flagok not possible for %s: %s<br>' % (html_escape(str(name)), err))
 
 
 def ok_transaction(qid, client, key_ids, user, comment):
@@ -80,8 +80,8 @@ def flagok(key_id, trans_id):
     flagfile = pandokia.cfg.flagok_file % host
     print(
         "OK %s %s %s<br>" %
-        (html_escape(test_name),
-         html_escape(flagok_file),
+        (html_escape(str(test_name)),
+         html_escape(str(flagok_file)),
          flagfile))
 
     pdk_db.execute(
