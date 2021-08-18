@@ -43,6 +43,8 @@ def qid_block(qid):
         if claimant == '':
             claimant = None
         notes = x[2]
+        if type(notes) == bytes:
+            notes = notes.decode()
     else:
         expires = None
         claimant = None

@@ -344,6 +344,9 @@ def do_result(key_id):
 
             (y, ) = y
 
+            if type(y) == bytes:
+                y = y.decode()
+
             if y != "":
                 if getattr(cfg, 'enable_magic_html_log'):
                     if '<!DOCTYPE' in y or '<html' in y:
