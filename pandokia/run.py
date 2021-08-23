@@ -69,7 +69,7 @@ def run(args):
     test_run = os.environ.get("PDK_TESTRUN", None)
     test_prefix = os.environ.get("PDK_TESTPREFIX", None)
     context = os.environ.get("PDK_CONTEXT", 'default')
-    custom = os.environ.get("PDK_CUSTOM", None)
+    custom = os.environ.get("PDK_CUSTOM", "")
     parallel = os.environ.get("PDK_PARALLEL", None)
     tmpdir = os.environ.get("PDK_TMP", None)
     host = os.environ.get("PDK_HOST", None)
