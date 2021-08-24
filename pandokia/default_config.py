@@ -215,6 +215,15 @@ status_names = {
     'M': 'missing',
 }
 
+# statuses that always indicate failure
+status_failable = {
+    'P': False,
+    'F': True,
+    'E': True,
+    'D': False,
+    'M': True,
+}
+
 #####
 #
 # used if the user has nothing in their email preferences
