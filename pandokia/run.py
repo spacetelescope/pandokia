@@ -26,6 +26,12 @@ directoryname
 -r / --recursive
     search subdirectories
 
+-E / --stats-as-error
+    exit non-zero based on test run statistics
+    or set PDK_STATS_AS_ERROR to any value to enable
+
+    Default is False
+
 --log file
     write the PDK report log into this file
 
@@ -73,15 +79,17 @@ def run(args):
     parallel = os.environ.get("PDK_PARALLEL", None)
     tmpdir = os.environ.get("PDK_TMP", None)
     host = os.environ.get("PDK_HOST", None)
+    stats_as_error = os.environ.get("PDK_STATS_AS_ERROR", "")
     verbose = 0  # not implemented
     dry_run = 0  # not implemented
 
     if args == []:
         args = ['-r', '.']
-    opts, args = getopt.gnu_getopt(args, "rvpsw",
+    opts, args = getopt.gnu_getopt(args, "rvpswE",
                                    ["recursive", "environment_already_set", "dir", "log=",
                                     "project=", "test_run=", "test_prefix=",
                                     "show-command", "verbose", "parallel=", "help", "context=",
+                                    "stats_as_error",
                                     ])
     for (opt, optarg) in opts:
         if opt == '-r' or opt == '--recursive':
@@ -115,6 +123,8 @@ def run(args):
             host = optarg
         elif opt == '--custom':
             custom = optarg
+        elif opt == '--stats-as-error' or opt == '-E':
+            stats_as_error = "1"
 
     if project is None:
         project = default_project()
@@ -124,7 +134,6 @@ def run(args):
         log = "PDK_DEFAULT.LOG." + test_run
     if host is None:
         host = common.gethostname()
-
     if parallel is not None:
         os.environ['PDK_PARALLEL'] = parallel
 
@@ -136,6 +145,7 @@ def run(args):
     os.environ['PDK_CONTEXT'] = context
     os.environ['PDK_CUSTOM'] = custom
     os.environ['PDK_HOST'] = host
+    os.environ['PDK_STATS_AS_ERROR'] = stats_as_error
 
     initialized_status_file = 0
     if 'PDK_STATUSFILE' not in os.environ:
@@ -162,6 +172,7 @@ def run(args):
     # environment_already_set=environment_already_set )     bug: we need to
     # get this optimization in some how
 
+    was_error = 0
     if recursive:
         import pandokia.run_recursive
         (was_error, t_stat) = pandokia.run_recursive.run(args, envgetter)
@@ -170,7 +181,6 @@ def run(args):
         # of each file/dir that we ran, but if there are more than one file/dir, we will print
         # the total in t_stat.
         t_stat = {}
-        was_error = 0
         n_things_run = 0
         for x in args:
             try:
@@ -215,6 +225,16 @@ def run(args):
         for x in range(0, n_status_records):
             pandokia.run_status.pdkrun_status('', slot=x)
         os.unlink(os.environ['PDK_STATUSFILE'])
+
+    # Set error based on recorded test stats
+    if stats_as_error:
+        for key, value in t_stat.items():
+            if common.cfg.status_failable[key] and value:
+                # e.g. any of: error != 0
+                #              fail != 0
+                #              missing != 0
+                was_error = 1
+                break
 
     return (was_error, t_stat)
 
