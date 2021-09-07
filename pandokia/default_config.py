@@ -260,9 +260,10 @@ recurring_prefix = (
     'etc_daily',
     'etc_midday',
     'etc_hst_daily',
+    'etc_jwst_daily',
     'pandeia_nightly',
-    'pandeia_hst_master_latest',
-    'pandeia_jwst_master_latest'
+    'jwst',
+    'pandeia_master_latest'
 )
 
 #####
