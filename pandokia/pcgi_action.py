@@ -205,7 +205,7 @@ def run():
         if note is None:
             note = ''
         if type(note) == bytes:
-            note = note.decode()
+            note = common.flex_decode(note)
         output.write(
             '<form action=%s method=get name=edit_comment>' %
             pandokia.pcgi.cginame)

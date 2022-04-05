@@ -583,6 +583,23 @@ def sh_quote(s):
     return "'" + qt.join(s) + "'"
 
 
+def flex_decode(bbb):
+    """ Helper to make inutitive string decoding decisions when we have
+        absolutely  no idea what encoding was used to encode a given string """
+    if type(bbb) != bytes:
+        return bbb
+    try:
+        rv = bbb.decode() # default locale, should be utf-8
+        return rv
+    except UnicodeDecodeError:
+        try:
+            rv = bbb.decode('utf-16be') # we have seen utf-16be in client tests
+            if rv.startswith('\ufffe'):
+                rv = bbb.decode('utf-16')
+            return rv
+        except UnicodeDecodeError:
+            return str(bbb) # throw hands up at this point, this is just for pdk
+
 ######
 #--#--# GENERAL
 #
@@ -595,7 +612,6 @@ def sh_quote(s):
 #
 
 hostname = None
-
 
 def gethostname():
     global hostname

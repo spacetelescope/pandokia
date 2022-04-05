@@ -15,7 +15,6 @@ import pandokia.pcgi
 import pandokia.common as common
 
 import pandokia
-from . import PY3
 
 cfg = pandokia.cfg
 pdk_db = cfg.pdk_db
@@ -338,14 +337,10 @@ def do_result(key_id):
             "SELECT log FROM result_log WHERE key_id = :1 ", (key_id, ))
 
         for y in c1:
-            if not PY3:
-                if isinstance(y, tuple):
-                    y = tuple(x.decode() for x in y)
-
             (y, ) = y
 
             if type(y) == bytes:
-                y = y.decode()
+                y = common.flex_decode(y)
 
             if y != "":
                 if getattr(cfg, 'enable_magic_html_log'):
@@ -469,7 +464,7 @@ def magic_html_log():
     # fetch the log
     log, = c1.fetchone()
     if isinstance(log, bytes):
-        log = log.decode()
+        log = common.flex_decode(log)
 
     # split on the magic recognition string
     if '<!DOCTYPE' in log:
