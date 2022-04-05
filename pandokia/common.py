@@ -583,22 +583,33 @@ def sh_quote(s):
     return "'" + qt.join(s) + "'"
 
 
-def flex_decode(bbb):
-    """ Helper to make inutitive string decoding decisions when we have
-        absolutely  no idea what encoding was used to encode a given string """
+def flex_decode(bbb, debug=False):
     if type(bbb) != bytes:
-        return bbb
-    try:
-        rv = bbb.decode() # default locale, should be utf-8
-        return rv
-    except UnicodeDecodeError:
+        rv = bbb
+        dbg = 'not bytes'
+    else:
         try:
-            rv = bbb.decode('utf-16be') # we have seen utf-16be in client tests
-            if rv.startswith('\ufffe'):
-                rv = bbb.decode('utf-16')
-            return rv
+            rv = bbb.decode() # default locale, should be utf-8
+            dbg = 'default'
         except UnicodeDecodeError:
-            return str(bbb) # throw hands up at this point, this is just for pdk
+           try:
+               rv = bbb.decode('iso-8859-1')
+               dbg = 'iso-8859-1'
+           except UnicodeDecodeError:
+               try:
+                   rv = bbb.decode('utf-16be') # we have seen utf-16be in client tests
+                   dbg = 'utf-16be'
+                   if rv.startswith('\ufffe'):
+                       rv = bbb.decode('utf-16')
+                       dbg = 'utf-16'
+               except UnicodeDecodeError:
+                   rv = str(bbb) # throw hands up at this point, this is just for pdk
+                   dbg = 'unknown'
+    if debug:
+        return rv+f' (encoding: {dbg})'
+    else:
+        return rv
+
 
 ######
 #--#--# GENERAL
