@@ -340,7 +340,7 @@ def do_result(key_id):
             (y, ) = y
 
             if type(y) == bytes:
-                y = common.flex_decode(y)
+                y = y.decode() # y = common.flex_decode(y)
 
             if y != "":
                 if getattr(cfg, 'enable_magic_html_log'):
