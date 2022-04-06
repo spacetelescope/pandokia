@@ -44,7 +44,7 @@ def qid_block(qid):
             claimant = None
         notes = x[2]
         if type(notes) == bytes:
-            notes = notes.decode()
+            notes = common.flex_decode(notes)
     else:
         expires = None
         claimant = None
