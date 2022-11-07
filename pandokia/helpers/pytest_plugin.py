@@ -163,7 +163,7 @@ def pytest_configure(config):
         except IOError as e:
             sys.stderr.write(
                 "Error opening log file %s: %s\n" %
-                (fname, e.strerror))
+                (state['pdklogfile'], e.strerror))
             sys.stderr.write("***No Logging Performed***\n")
             return
     else:
@@ -411,12 +411,17 @@ def pdk_test_name(request):
 # called at various times in the execution of a single test
 #
 
-
-def pytest_runtest_makereport(__multicall__, item, call):
+# Bugfix: __multicall__ is deprecated, and removed in pytest 7.x
+# Solution courtesy of
+# https://mail.python.org/pipermail/pytest-dev/2015-September/003158.html
+# and https://docs.pytest.org/en/7.1.x/how-to/writing_hook_functions.html
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport( item, call):
     tty.write("runtest_makereport when=%s\n" % call.when)
 
-    # don't know what this is about, but it seems to be important.
-    report = __multicall__.execute()
+    # get the report output from the thing we're wrapping
+    outcome = yield
+    report = outcome.get_result()
 
     # if not --pdk, skip all the rest
     if not enabled:
