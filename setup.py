@@ -6,7 +6,7 @@ import sys
 from setuptools import setup, find_packages
 import subprocess
 
-RE_GIT_DESC = re.compile('v?(.+?)-(\d+)-g(\w+)-?(.+)?')
+RE_GIT_DESC = re.compile(r'v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
 # Versioning
 try:
