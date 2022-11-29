@@ -1,20 +1,26 @@
 #!/usr/bin/env python
 # basic imports
+import re
 import os
 import sys
 from setuptools import setup, find_packages
 import subprocess
 
+RE_GIT_DESC = re.compile('v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
 # Versioning
 try:
-    version = subprocess.check_output(["git", "describe", "--tags"])
-    with open('RELIC-INFO', 'wb') as versionfile:
+    version = str(subprocess.check_output(["git", "describe", "--tags", "--always", "--dirty"]), encoding="utf-8")
+    with open('RELIC-INFO', 'w') as versionfile:
         versionfile.write(version)
 except (subprocess.CalledProcessError, FileNotFoundError) as err:
     print(err)
     with open("RELIC-INFO") as versionfile:
         version = versionfile.read()
+
+shortver, num, commit, dirty_check = RE_GIT_DESC.match(version).groups()
+
+version = f"{shortver}.dev{num}+g{commit}"
 
 ##
 #
