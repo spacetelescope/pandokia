@@ -10,14 +10,14 @@ RE_GIT_DESC = re.compile(r'v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
 # Versioning
 try:
-    version = str(subprocess.check_output(["git", "describe", "--tags", "--always", "--dirty"]), encoding="utf-8").strip()
+    version = str(subprocess.check_output(["git", "describe", "--tags", "--always", "--abbrev=8", "--dirty"]), encoding="utf-8").strip()
     with open('RELIC-INFO', 'w') as versionfile:
-        outdict = {"raw": version}
+        outdict = {"long": version}
         json.dump(outdict, versionfile)
 except (subprocess.CalledProcessError, FileNotFoundError) as err:
     print(err)
     with open("RELIC-INFO") as versionfile:
-        version = json.load(versionfile)["raw"]
+        version = json.load(versionfile)["long"]
 
 shortver, num, commit, dirty_check = RE_GIT_DESC.match(version).groups()
 
