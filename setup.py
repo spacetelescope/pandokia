@@ -1,32 +1,31 @@
 #!/usr/bin/env python
 # basic imports
+import re
 import os
-import pkgutil
-import sys
+import json
 from setuptools import setup, find_packages
-from subprocess import check_call, CalledProcessError
+import subprocess
 
+RE_GIT_DESC = re.compile(r'v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
-if not pkgutil.find_loader('relic'):
-    relic_local = os.path.exists('relic')
-    relic_submodule = (relic_local and
-                       os.path.exists('.gitmodules') and
-                       not os.listdir('relic'))
-    try:
-        if relic_submodule:
-            check_call(['git', 'submodule', 'update', '--init', '--recursive'])
-        elif not relic_local:
-            check_call(['git', 'clone', 'https://github.com/spacetelescope/relic.git'])
+# Versioning 
+# Not actually using Relic (but reimplementing the important part of its functionality)
+# means that you cannot downgrade to older versions of Pandokia without manually deleting
+# RELIC-INFO
+try:
+    version = str(subprocess.check_output(["git", "describe", "--tags", "--always", "--abbrev=8", "--dirty"]), encoding="utf-8").strip()
+    with open('RELIC-INFO', 'w') as versionfile:
+        outdict = {"long": version}
+        json.dump(outdict, versionfile)
+except (subprocess.CalledProcessError, FileNotFoundError) as err:
+    print(err)
+    with open("RELIC-INFO") as versionfile:
+        version = json.load(versionfile)["long"]
 
-        sys.path.insert(1, 'relic')
-    except CalledProcessError as e:
-        print(e)
-        exit(1)
+shortver, num, commit, dirty_check = RE_GIT_DESC.match(version).groups()
 
-import relic.release
+version = f"{shortver}.dev{num}+g{commit}"
 
-version = relic.release.get_info()
-relic.release.write_template(version, 'pandokia')
 ##
 #
 
@@ -41,31 +40,14 @@ classifiers = [
     # 'Operating System :: Microsoft :: Windows',
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Unix',
-    'Programming Language :: Python :: 2.6',
-    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
     'Topic :: Software Development :: Quality Assurance',
     'Topic :: Software Development :: Testing',
 ]
-
-# detect our environment
-#
-# This setup.py was written to work with distutils.  I still use
-# it with distutils, so I'm preserving that capability.  If you
-# try to install with easy_install or pip, it will load setuptools
-# before setup.py; we detect that here and modify our behaviour
-# to work in the setuptools environment.
-#
-# if you use setuptools (including easy_install or pip) then
-# the CGI magic that was in earlier versions of pandokia will
-# not work.  Your web server must provide a proper PYTHONPATH.
-
-if 'setuptools' in sys.modules:
-    from setuptools import setup
-    have_setuptools = True
-
-else:
-    from distutils.core import setup
-    have_setuptools = False
 
 # detect our environment
 #
@@ -137,7 +119,7 @@ entry_points_dict = {
 
 args = {
     'name': 'pandokia',
-    'version': version.pep386,
+    'version': version,
     'description': 'Pandokia - a test management and reporting system',
     'author': 'Mark Sienkiewicz, Vicki Laidler',
     'author_email': 'help@stsci.edu',
@@ -164,13 +146,12 @@ args = {
 
 # setup args - known by setuptools only
 
-if have_setuptools:
-    args.update(
-        {
-            'entry_points': entry_points_dict,
-            'zip_safe': False,
-        }
-    )
+args.update(
+    {
+        'entry_points': entry_points_dict,
+        'zip_safe': False,
+    }
+)
 
 ##
 # Actually do the install
@@ -261,11 +242,6 @@ def dorque_egg_info(target):
 
 if 'install' in d.command_obj:
 
-    if not have_setuptools:
-        # Convert the egg-info to a dir that looks like what setuptools
-        # uses.  Set the entry points for use by nose and py.test
-        dorque_egg_info(d.command_obj['install_egg_info'].target)
-
     # find where the scripts went
     script_dir = d.command_obj['install'].install_scripts
     lib_dir = d.command_obj['install'].install_lib
@@ -287,14 +263,8 @@ if 'install' in d.command_obj:
     print('The CGI is:')
     print('')
     print('    %s' % os.path.join(script_dir, 'pdk'))
-    if not have_setuptools:
-        # hack the scripts for PDK_DIR_HERE
-        for x in python_commands:
-            fix_script(x)
-            pass
-    else:
-        print('    If you did not install pandokia in the default location, you must')
-        print('    ensure that PYTHONPATH is provided by your web server')
+    print('    If you did not install pandokia in the default location, you must')
+    print('    ensure that PYTHONPATH is provided by your web server')
     print('')
 
     import pandokia
@@ -311,4 +281,4 @@ if 'install' in d.command_obj:
 
 else:
     pass
-    # print "no install"
+    # print("no install")
