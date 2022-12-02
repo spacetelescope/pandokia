@@ -8,7 +8,10 @@ import subprocess
 
 RE_GIT_DESC = re.compile(r'v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
-# Versioning
+# Versioning 
+# Not actually using Relic (but reimplementing the important part of its functionality)
+# means that you cannot downgrade to older versions of Pandokia without manually deleting
+# RELIC-INFO
 try:
     version = str(subprocess.check_output(["git", "describe", "--tags", "--always", "--abbrev=8", "--dirty"]), encoding="utf-8").strip()
     with open('RELIC-INFO', 'w') as versionfile:
