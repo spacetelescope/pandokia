@@ -79,10 +79,11 @@ def flagok(key_id, trans_id):
 
     flagfile = pandokia.cfg.flagok_file % host
     print(
-        "OK %s %s %s<br>" %
+        "OK %s %s %s (%s)<br>" %
         (html_escape(str(test_name)),
          html_escape(str(flagok_file)),
-         flagfile))
+         flagfile,
+         "note the .ok file starts on AWS in /data/pdk_updates"))
 
     pdk_db.execute(
         "update result_scalar set attn = 'N' where key_id = :1 ", (key_id,))

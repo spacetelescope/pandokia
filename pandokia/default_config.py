@@ -289,4 +289,4 @@ enable_magic_html_log = False
 #
 # END OF CONFIGURATION
 #
-flagok_file = "/eng/ssb/tests/pdk_updates/%s.ok"
+flagok_file = "/eng/etc/test/pdk_updates/%s.ok"
