@@ -143,7 +143,11 @@ class PandokiaDB(pandokia.db.where_dict_base):
         # convert the parameters, as necessary
         if isinstance(parameters, dict):
             # dict does not need to be converted
-            pass
+            for param in parameters:
+                if isinstance(param, bytes):
+                    newkey = param.decode("utf-8")
+                    parameters[newkey] = parameters[param]
+                    del parameters[param]
         elif isinstance(parameters, list) or isinstance(parameters, tuple):
             # list/tuple turned into a dict with string indexes
             tmp = {}
@@ -184,7 +188,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
             c.execute("SHOW WARNINGS")
             print("\n\n\n")
 
-        # print parameters,"<br>"
+        #print(parameters,"<br>")
         c.execute(statement, parameters)
 
         # return the cursor
