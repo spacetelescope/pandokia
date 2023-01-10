@@ -20,7 +20,7 @@ thread_safe = db_module.threadsafety
 import pandokia.db
 
 # debugging
-debug = False
+debug = True
 
 try:
     import StringIO
