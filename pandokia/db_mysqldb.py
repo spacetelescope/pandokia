@@ -20,7 +20,7 @@ thread_safe = db_module.threadsafety
 import pandokia.db
 
 # debugging
-debug = True
+debug = False
 
 try:
     import StringIO
@@ -162,7 +162,6 @@ class PandokiaDB(pandokia.db.where_dict_base):
 
         # for mysql, convert :xxx to %(xxx)s
         statement = self._pat_from.sub(self._pat_to, statement)
-        statement = statement if isinstance(statement, str) else statement.decode("utf-8")
 
         # create a cursor, execute the statement
         c = self.db.cursor()
