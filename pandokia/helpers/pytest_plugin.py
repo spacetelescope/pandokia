@@ -1,5 +1,5 @@
 """
-a plugin for capturing test output from py.test
+a plugin for capturing test output from pytest
 """
 
 # debugging
@@ -25,17 +25,15 @@ import traceback
 import platform
 import signal
 
-import py.code
-import py.test
 import pytest
 # from _pytest import runner
 # from _pytest import unittest
 import _pytest
 
-# I know this plugin doesn't work in py.test 2.1
+# I know this plugin doesn't work in pytest 2.1
 if tuple(int(i) for i in pytest.__version__.split('.')) < (2, 2, 0):
     raise Exception(
-        "The py.test plugin for Pandokia requires at least py.test 2.2.0")
+        "The pytest plugin for Pandokia requires at least pytest 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
 import pandokia.helpers.pycode
@@ -122,7 +120,7 @@ def pytest_configure(config):
         # If capturemanager is not registered, we may be pretty messed up - is this a problem?
         # assert config.pluginmanager.isregistered( None, 'capturemanager' )
 
-        # Kick out py.test's capture manager.
+        # Kick out pytest's capture manager.
         config.pluginmanager.unregister(None, 'capturemanager')
 
         # Collect the regular set of pandokia parameters, complete with
@@ -339,7 +337,7 @@ def find_txa(test):
     """Find the TDA and TRA dictionaries, which will be in different
     places depending on what kind of a test this is.
     """
-    if isinstance(test, py.test.Function):
+    if isinstance(test, pytest.Function):
         if isinstance(test.obj, types.MethodType):
             # I wonder what this is about?
             try:
@@ -454,7 +452,7 @@ def pytest_runtest_makereport( item, call):
         elif report.outcome == 'skipped':
             item.pandokia.status = 'D'
         else:
-            if not isinstance(call.excinfo, py.code.ExceptionInfo):
+            if not isinstance(call.excinfo, pytest.ExceptionInfo):
                 item.pandokia.status = 'E'
             else:
                 if call.excinfo.errisinstance(AssertionError):
@@ -478,9 +476,9 @@ def pytest_runtest_makereport( item, call):
         if item.pandokia.status is None:
             item.pandokia.status = 'E'
 
-        # if py.test tells us an exception code for the teardown
+        # if pytest tells us an exception code for the teardown
         # and we do not already have one from earlier, save it up
-        if isinstance(call.excinfo, py.code.ExceptionInfo):
+        if isinstance(call.excinfo, pytest.ExceptionInfo):
             item.pandokia.status = 'E'
             if item.pandokia.exception is None:
                 item.pandokia.tra['exception'] = call.excinfo.exconly()
@@ -535,7 +533,7 @@ def pytest_runtest_makereport( item, call):
 
     else:
         # if there is some other time we are called, have an error --
-        # py.test is no longer implementing the interface that we expect,
+        # pytest is no longer implementing the interface that we expect,
         # so we have to fix this code.
         raise Exception(
             'pandokia plugin does not expect call.when = %s' % str(
@@ -545,7 +543,7 @@ def pytest_runtest_makereport( item, call):
     return report
 
 
-# py.test comes with a capture manager, but it does not reliably contain
+# pytest comes with a capture manager, but it does not reliably contain
 # the captured stdout.  (I think this is because it offers destructive
 # reads.)  Since I can't get the stdout/stderr that I want, I evict
 # the default capture manager completely and inject this one as my own.
