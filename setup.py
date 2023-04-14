@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # basic imports
-import re
 import os
 import json
 from setuptools import setup, find_packages
 import subprocess
-
-RE_GIT_DESC = re.compile(r'v?(.+?)-(\d+)-g(\w+)-?(.+)?')
 
 # Versioning 
 # Not actually using Relic (but reimplementing the important part of its functionality)
@@ -21,10 +18,17 @@ except (subprocess.CalledProcessError, FileNotFoundError) as err:
     print(err)
     with open("RELIC-INFO") as versionfile:
         version = json.load(versionfile)["long"]
+components = version.split("-")
+if len(components) <= 2:
+    # if there are 1 or 2, it's (tag) or (tag)-dirty
+    version = components[0]
+elif len(components) >= 3:
+    shortver, num, commit, *dirty_check = components
+    version = f"{shortver}.dev{num}+g{commit[1:]}"
+else:
+    raise ValueError("Could not parse version string")
 
-shortver, num, commit, dirty_check = RE_GIT_DESC.match(version).groups()
 
-version = f"{shortver}.dev{num}+g{commit}"
 
 ##
 #
