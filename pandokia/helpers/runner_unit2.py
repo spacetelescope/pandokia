@@ -1,7 +1,8 @@
 import sys
 import time
 import traceback
-import imp
+import importlib.util
+import importlib.machinery
 import os.path
 
 no_unittest2 = False
@@ -19,6 +20,17 @@ unittest2_versions = ('0.3.0', '0.4.0', '0.4.2', '0.5.1')
 
 
 from pandokia.helpers import pycode
+
+# replacement for imp.load_source() from https://docs.python.org/dev/whatsnew/3.12.html#imp
+def load_source(modname, filename):
+    loader = importlib.machinery.SourceFileLoader(modname, filename)
+    spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
+    module = importlib.util.module_from_spec(spec)
+    # The module is always executed and not cached in sys.modules.
+    # Uncomment the following line to cache the module.
+    # sys.modules[module.__name__] = module
+    loader.exec_module(module)
+    return module
 
 ###
 # This part of the file provides objects that are instantiated
@@ -217,7 +229,7 @@ def main(args):
 
         try:
 
-            module = imp.load_source(module_name, filename)
+            module = load_source(module_name, filename)
 
             # This is a trick to pass a value to the initializer
             # pdk_test_result.  It would be hard to go through channels

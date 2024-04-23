@@ -1,8 +1,20 @@
 '''import an arbitrary file with an arbitrary module name
 '''
 import sys
-import imp
 
+import importlib.util
+import importlib.machinery
+
+# replacement for imp.load_source() from https://docs.python.org/dev/whatsnew/3.12.html#imp
+def load_source(modname, filename):
+    loader = importlib.machinery.SourceFileLoader(modname, filename)
+    spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
+    module = importlib.util.module_from_spec(spec)
+    # The module is always executed and not cached in sys.modules.
+    # Uncomment the following line to cache the module.
+    # sys.modules[module.__name__] = module
+    loader.exec_module(module)
+    return module
 
 def importer(modulename, filename):
 
@@ -12,7 +24,7 @@ def importer(modulename, filename):
     save = sys.dont_write_bytecode
     try:
         sys.dont_write_bytecode = True
-        m = imp.load_source(modulename, filename, f)
+        m = load_source(modulename, filename, f)
     finally:
         f.close()
         sys.dont_write_bytecode = save

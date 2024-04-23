@@ -4,7 +4,8 @@
 import sys
 import inspect
 import traceback
-import imp
+import importlib.util
+import importlib.machinery
 import os.path
 import time
 import gc
@@ -572,6 +573,17 @@ def run_test_class(rpt, mod, name, ob, test_order):
     else:
         run_test_class_single(rpt, mod, name, ob, test_order)
 
+# replacement for imp.load_source() from https://docs.python.org/dev/whatsnew/3.12.html#imp
+def load_source(modname, filename):
+    loader = importlib.machinery.SourceFileLoader(modname, filename)
+    spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
+    module = importlib.util.module_from_spec(spec)
+    # The module is always executed and not cached in sys.modules.
+    # Uncomment the following line to cache the module.
+    # sys.modules[module.__name__] = module
+    loader.exec_module(module)
+    return module
+
 
 ####
 # run a whole file of tests
@@ -653,7 +665,7 @@ def process_file(filename, test_name=None, test_args=None):
                 (module_name, filename))
 
         # import the module
-        module = imp.load_source(module_name, filename)
+        module = load_source(module_name, filename)
 
         if debug:
             debug_fd.write("process_file: import succeeds\n")

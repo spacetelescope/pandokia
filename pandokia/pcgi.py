@@ -13,7 +13,6 @@ import cgi
 import os
 import os.path
 import sys
-import cgitb
 
 import pandokia
 import pandokia.common as common
@@ -38,8 +37,6 @@ def form_to_dict(f):
 
 def run():
 
-    if cfg.debug:
-        cgitb.enable()
 
     if cfg.server_maintenance:
         sys.stdout.write(

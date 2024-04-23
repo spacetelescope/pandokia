@@ -199,7 +199,7 @@ server_maintenance = False
 # is available, but if we are not running in the context of a web server,
 # we use this value.
 #
-cginame = "https://ssb.stsci.edu/pandokia/pdk.cgi"
+cginame = "https://plglitch.stsci.edu/pandokia/pdk.cgi"
 
 #
 # list of known status values, in order they appear on reports

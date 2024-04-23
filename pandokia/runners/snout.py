@@ -24,7 +24,7 @@ import os.path
 # is a.b.c?", so we have find_module_location() to provide that
 # service.
 
-import imp
+from importlib import util as importutil
 
 
 def find_module_location(name, path=None):
@@ -33,16 +33,14 @@ def find_module_location(name, path=None):
         # have to do it yourself if there is a . in the name.
         l = name.split('.', 1)
         # find the top level package
-        (file, pathname, description) = imp.find_module(l[0], path)
-        if file is not None:
-            file.close()
+        spec = importutil.find_spec(l[0], path)
+        pathname = spec.__file__
         # find the remaining packages in the directory that it was in
         return find_module_location(l[1], [pathname])
     else:
         # If no . in the name, we have it on the first try.
-        (file, pathname, description) = imp.find_module(name, path)
-        if file is not None:
-            file.close()
+        spec = importutil.find_spec(name, path)
+        pathname = spec.__file__
         return pathname
 
 
