@@ -15,9 +15,9 @@ import re
 import types
 from html import escape as html_escape
 
-from six import StringIO
-from six.moves.urllib.parse import urlencode
-from six.moves.urllib.parse import quote_plus
+from io import StringIO
+from urllib.parse import urlencode
+from urllib.parse import quote_plus
 
 import pandokia
 cfg = pandokia.cfg

@@ -2,15 +2,13 @@
 # pandokia - a test reporting and execution system
 # Copyright 2009, Association of Universities for Research in Astronomy (AURA)
 #
-from __future__ import print_function
-
 import re
 import sys
 import hashlib
 import pandokia.common as common
 import pandokia
 
-from six import StringIO
+from io import StringIO
 
 #Define some constants based on database schema.
 #TRAs and TDAs have the same lengths; use TXA as shorthand.
