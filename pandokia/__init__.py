@@ -12,9 +12,9 @@ describe pandokia a little
 
 import os
 import sys
-import pkg_resources
+from importlib.metadata import version
 
-__version__ = pkg_resources.get_distribution('pandokia').version
+__version__ = version('pandokia')
 
 
 # A simple boolean check for python 3.0.0.final or greater
