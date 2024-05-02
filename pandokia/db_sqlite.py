@@ -16,22 +16,15 @@ __all__ = [
 
 # system imports
 import os
-
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
+import io
 
 
 # need some common code
 import pandokia.db
 
 # The database engine is named "sqlite3" if it was installed with
-# python, or "pyqslite2" if it was installed separately.
-try:
-    import sqlite3 as db_module
-except ImportError:
-    import pysqlite2.dbapi2 as db_module
+# python, or "pysqlite2" if it was installed separately.
+import sqlite3 as db_module
 
 # from dbapi
 threadsafety = db_module.threadsafety
@@ -135,7 +128,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
     def explain_query(self, text, query_dict=None):
         print("TEXT %s" % text)
         print("DICT %s" % query_dict)
-        f = StringIO.StringIO()
+        f = io.StringIO()
         c = self.execute('EXPLAIN QUERY PLAN ' + text, query_dict)
         for x in c:
             f.write(str(x))

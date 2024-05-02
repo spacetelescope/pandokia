@@ -1,7 +1,9 @@
 '''import an arbitrary file with an arbitrary module name
 '''
 import sys
-import imp
+
+from ..common import load_source
+
 
 
 def importer(modulename, filename):
@@ -12,7 +14,7 @@ def importer(modulename, filename):
     save = sys.dont_write_bytecode
     try:
         sys.dont_write_bytecode = True
-        m = imp.load_source(modulename, filename, f)
+        m = load_source(modulename, filename, f)
     finally:
         f.close()
         sys.dont_write_bytecode = save

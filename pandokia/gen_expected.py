@@ -15,7 +15,6 @@
 #       fills in missing tests in test_run_to_check
 #
 #
-from __future__ import print_function
 
 debug = 0
 

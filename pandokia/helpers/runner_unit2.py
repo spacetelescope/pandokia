@@ -1,7 +1,7 @@
 import sys
 import time
 import traceback
-import imp
+from ..common import load_source
 import os.path
 
 no_unittest2 = False
@@ -217,7 +217,7 @@ def main(args):
 
         try:
 
-            module = imp.load_source(module_name, filename)
+            module = load_source(module_name, filename)
 
             # This is a trick to pass a value to the initializer
             # pdk_test_result.  It would be hard to go through channels

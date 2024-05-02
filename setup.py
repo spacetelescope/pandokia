@@ -25,6 +25,7 @@ except (subprocess.CalledProcessError, FileNotFoundError) as err:
 match = RE_GIT_DESC.match(version)
 if match is not None:
     shortver, num, commit, dirty_check = match.groups()
+    shortver = shortver.split("-")[0]
     version = f"{shortver}.dev{num}+g{commit}"
 else:
     version = version.split("-")[0] # just in case -dirty is in the version string

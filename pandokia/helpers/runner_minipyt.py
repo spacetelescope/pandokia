@@ -4,7 +4,7 @@
 import sys
 import inspect
 import traceback
-import imp
+from ..common import load_source
 import os.path
 import time
 import gc
@@ -653,7 +653,7 @@ def process_file(filename, test_name=None, test_args=None):
                 (module_name, filename))
 
         # import the module
-        module = imp.load_source(module_name, filename)
+        module = load_source(module_name, filename)
 
         if debug:
             debug_fd.write("process_file: import succeeds\n")
