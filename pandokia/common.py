@@ -25,6 +25,7 @@ import pandokia
 cfg = pandokia.cfg
 
 # replacement for imp.load_source() from https://docs.python.org/dev/whatsnew/3.12.html#imp
+# see similar usage in steuermann config.py
 def load_source(modname, filename):
     loader = importlib.machinery.SourceFileLoader(modname, filename)
     spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
