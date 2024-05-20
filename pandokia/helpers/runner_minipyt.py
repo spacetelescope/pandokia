@@ -4,7 +4,7 @@
 import sys
 import inspect
 import traceback
-from ..common import load_source
+from .importer import load_source
 import os.path
 import time
 import gc
