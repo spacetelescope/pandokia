@@ -271,17 +271,6 @@ if 'install' in d.command_obj:
     print('    ensure that PYTHONPATH is provided by your web server')
     print('')
 
-    import pandokia
-    f = pandokia.cfg.__file__
-    if f.endswith(".pyc") or f.endswith(".pyo"):
-        f = f[:-1]
-    print('The config file is:')
-    print('')
-    print('    %s' % f)
-    print('')
-    print('    you can find the config file at any time with the command "pdk config"')
-    print('')
-
 
 else:
     pass
