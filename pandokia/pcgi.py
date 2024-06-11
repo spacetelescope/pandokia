@@ -139,17 +139,23 @@ def run():
 
     query = form.getvalue("query")
 
+    errfile = open("/internal/data1/errfile_pcgi", "w")
+    errfile.write("To form\n")
+    errfile.write(query)
+
     if query == "treewalk":
         import pandokia.pcgi_treewalk as x
         x.treewalk()
         sys.exit(0)
 
     if query == "qid_op":
+        errfile.write("qid_op")
         import pandokia.pcgi_qid_op as x
         x.run()
         sys.exit(0)
 
     if query == 'qid_list':
+        errfile.write("qid_list")
         import pandokia.pcgi_qid_op as x
         x.qid_list()
         sys.exit(0)
@@ -160,6 +166,7 @@ def run():
         sys.exit(0)
 
     if query == "summary":
+        errfile.write("summary")
         import pandokia.pcgi_summary as x
         x.run()
         sys.exit(0)
@@ -263,7 +270,7 @@ def run():
                 print("%s %s<br>" % (x, form.getvalue(x)))
 
 #
-
+    errfile.close()
 
 def error_1201():
     sys.stdout.write(
