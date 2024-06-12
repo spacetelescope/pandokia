@@ -124,14 +124,15 @@ def run():
     #
 
     errfile = open("/internal/data1/errfile_summary", "w")
-    errfile.write("To form")
+    errfile.write("To form\n")
 
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
     # print "context-type: text/plain\n\n"
 
-    errfile.write("to input query")
+    errfile.write("to input query\n")
     errfile.write(input_query)
+    errfile.write("\n\n")
 
     qid = int(input_query["qid"][0])
     # print qid

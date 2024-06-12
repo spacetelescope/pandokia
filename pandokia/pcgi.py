@@ -17,6 +17,9 @@ import sys
 import pandokia
 import pandokia.common as common
 
+import cgitb
+cgitb.enable(display=0, logdir="/internal/data1/pandokia_errlog")
+
 cfg = pandokia.cfg
 
 
@@ -142,6 +145,7 @@ def run():
     errfile = open("/internal/data1/errfile_pcgi", "w")
     errfile.write("To form\n")
     errfile.write(query)
+    errfile.write("\n\n")
 
     if query == "treewalk":
         import pandokia.pcgi_treewalk as x
@@ -149,13 +153,13 @@ def run():
         sys.exit(0)
 
     if query == "qid_op":
-        errfile.write("qid_op")
+        errfile.write("qid_op\n")
         import pandokia.pcgi_qid_op as x
         x.run()
         sys.exit(0)
 
     if query == 'qid_list':
-        errfile.write("qid_list")
+        errfile.write("qid_list\n")
         import pandokia.pcgi_qid_op as x
         x.qid_list()
         sys.exit(0)
@@ -166,7 +170,7 @@ def run():
         sys.exit(0)
 
     if query == "summary":
-        errfile.write("summary")
+        errfile.write("summary\n")
         import pandokia.pcgi_summary as x
         x.run()
         sys.exit(0)
