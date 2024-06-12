@@ -123,16 +123,9 @@ def run():
     # gather up all the expected parameters
     #
 
-    errfile = open("/internal/data1/errfile_summary", "w")
-    errfile.write("To form\n")
-
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
 
     # print "context-type: text/plain\n\n"
-
-    errfile.write("to input query\n")
-    errfile.write(input_query)
-    errfile.write("\n\n")
 
     qid = int(input_query["qid"][0])
     # print qid
@@ -184,8 +177,6 @@ def run():
     # need for text_table to offer html text for the column heading
     # instead of just link text.
 
-    errfile.write("To table")
-
     # generate the table - used to be written inline here
     result_table, all_test_run, all_project, all_host, all_context, all_custom, rowcount, different = get_table(
         qid, sort_link, cmp_run, cmptype, show_attr)
@@ -203,8 +194,6 @@ def run():
         column_select_values = set([x for x in result_table.colmap])
 
     # select output format
-
-    errfile.write("To HTML")
 
     if pandokia.pcgi.output_format == 'html':
         # HTML OUTPUT
@@ -249,8 +238,6 @@ def run():
     <input type=submit name=x_submit value='Add Attributes'>
     </form>
     """ % (pandokia.pcgi.cginame, qid, html_escape(cmp_run)))
-
-        errfile.write("To QID_block")
 
         qid_block(qid)
 
@@ -306,8 +293,6 @@ def run():
         # makes a list of all the index values
         #   [tmp for tmp in d][0]
         # is the first (and only) value in that list
-
-        errfile.write("To printing")
 
         if len(all_test_run) == 1:
             result_table.suppress("test_run")
@@ -499,8 +484,6 @@ def run():
         print("content-type: text/plain\n\n")
         print(result_table.get_awk(headings=1))
 
-    errfile.close()
-
 ##########
 #
 # code to generate the table
@@ -522,8 +505,6 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
     #
     # this query finds all the test results that are an interesting part of this request
     #
-    errfile = open("/internal/data1/errfile_table", "w")
-    errfile.write("get_table")
 
     result_table = text_table.text_table()
     result_table.set_html_table_attributes("border=1")
@@ -534,13 +515,9 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
     tra_table = text_table.text_table()
     tra_table.set_html_table_attributes("border=1")
 
-    errfile.write("dbquery")
-
     # note when we last touched this qid
     now = time.time()
     pdk_db.execute("UPDATE query_id SET time = :1 WHERE qid = :2", (now, qid))
-
-    errfile.write("dbset")
 
     # bump the expiration maybe
     expires = now + (pandokia.cfg.default_qid_expire_days * 86400)
@@ -550,12 +527,8 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
          qid))
     pdk_db.commit()
 
-
-    errfile.write("db pull data")
     #
     c = pdk_db.execute("SELECT key_id FROM query WHERE qid = :1", (qid,))
-
-    errfile.write("make table")
 
     result_table.define_column("line #", showname='&nbsp;')
     result_table.define_column("runner")
@@ -576,7 +549,6 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
 
     result_table.define_column("stat", link=sort_link + "Ustat")
 
-    errfile.write("fill table")
 
     # these are used to suppress a column when all the results are the same
     all_test_run = {}
@@ -608,8 +580,6 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
 
         (test_run, project, host, context, custom, test_name,
          status, attn, runner, start_time, end_time) = y
-
-        errfile.write("compare (optional)")
 
         # if we are comparing to another run, find the other one;
         # suppress lines that are different - should be optional
@@ -727,8 +697,6 @@ def get_table(qid, sort_link, cmp_run, cmptype, show_attr):
     if show_attr:
         result_table.join(tda_table)
         result_table.join(tra_table)
-
-    errfile.close()
 
     return result_table, all_test_run, all_project, all_host, all_context, all_custom, rowcount, different
 
