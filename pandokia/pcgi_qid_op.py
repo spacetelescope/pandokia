@@ -34,14 +34,9 @@ def run():
 
     output.write(common.cgi_header_html)
 
-    errfile = open("/internal/data1/errfile_pcgi_qid_op", "w")
-    errfile.write("To form\n")
     form = pandokia.pcgi.form
 
-    errfile.write(form)
     qid = int(form.getvalue('qid'))
-
-    errfile.write(f"after form\n")
 
     output.write('<h2>QID = %d</h2>' % qid)
 
@@ -135,8 +130,6 @@ def run():
     output.write(
         '<input type=submit name=remove value="Remove tests that are also in other QID by key"> <br>\n')
     output.write('</form>')
-
-    errfile.close()
 
 def qid_list():
     import datetime
