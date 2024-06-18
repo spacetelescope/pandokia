@@ -483,7 +483,15 @@ def linkout():
     test_name = form.getvalue('test_name', '*')
 
     outfile.write("Form\n")
-    outfile.write(form)
+    outfile.write("context: {}\n".format(context))
+    outfile.write("host: {}\n".format(host))
+    outfile.write("custom: {}\n".format(custom))
+    outfile.write("test_run: {}\n".format(test_run))
+    outfile.write("project: {}\n".format(project))
+    outfile.write("status: {}\n".format(status))
+    outfile.write("attn: {}\n".format(attn))
+    outfile.write("oldqid: {}\n".format(oldqid))
+    outfile.write("test_name: {}\n".format(test_name))
     outfile.write("\n")
 
     # handle special names of test runs
