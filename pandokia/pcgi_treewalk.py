@@ -452,6 +452,8 @@ def linkout():
     output.write(common.cgi_header_html)
     output.write(common.page_header())
 
+    outfile = open("/internal/data1/err_linkout", "w")
+
     # don't issue the redirect for internet explorer
     if 'MSIE' in os.environ['HTTP_USER_AGENT']:
         output.write(
@@ -463,6 +465,8 @@ def linkout():
     #
     # gather up all the expected parameters
     #
+
+    outfile.write("Header\n")
 
     form = pandokia.pcgi.form
 
@@ -476,8 +480,14 @@ def linkout():
     oldqid = form.getvalue('qid', None)
     test_name = form.getvalue('test_name', '*')
 
+    outfile.write("Form\n")
+    outfile.write(form)
+    outfile.write("\n")
+
     # handle special names of test runs
     test_run = common.find_test_run(test_run)
+
+    outfile.write(f"Found test run {test_run}\n")
 
     # create a new qid - this is the identity of a list of test results
 
@@ -496,6 +506,8 @@ def linkout():
             "INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ", (now, expire))
         newqid = c.lastrowid
 
+    outfile.write(f"Created QID {newqid}\n")
+
     print("content-type: text/plain\n")
     print("QID %d" % newqid)
     pdk_db.commit()
@@ -506,6 +518,8 @@ def linkout():
             oldqid)
     else:
         more_where = None
+
+    print(f"old qid {oldqid}\n")
 
     # find a list of the tests
     where_text, where_dict = pdk_db.where_dict([
@@ -519,6 +533,8 @@ def linkout():
         ('attn', attn),
     ], more_where=more_where)
 
+    print(f"Got list\n")
+
     if oldqid is None:
         c1 = pdk_db.execute(
             "SELECT key_id FROM result_scalar " +
@@ -528,6 +544,8 @@ def linkout():
         c1 = pdk_db.execute(
             "SELECT result_scalar.key_id FROM result_scalar, query %s" %
             where_text, where_dict)
+
+    print("Queried DB")
 
     a = []
     for x in c1:
