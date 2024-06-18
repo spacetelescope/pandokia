@@ -504,6 +504,8 @@ def linkout():
     now = time.time()
     expire = now + common.cfg.default_qid_expire_days * 86400
 
+    outfile.write("Have expiration\n")
+
     if pdk_db.next:
         newqid = pdk_db.next('sequence_qid')
         c = pdk_db.execute(
