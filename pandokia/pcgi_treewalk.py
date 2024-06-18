@@ -504,7 +504,7 @@ def linkout():
     now = time.time()
     expire = now + common.cfg.default_qid_expire_days * 86400
 
-    outfile.write("Have expiration\n")
+    outfile.write(f"Have expiration {now} {expire}\n")
     outfile.write(f"PDK Next: {pdk_db.next}\n")
 
     if pdk_db.next:
