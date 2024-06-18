@@ -515,8 +515,10 @@ def linkout():
              now,
              expire))
     else:
+        outfile.write("Here\n")
         c = pdk_db.execute(
             "INSERT INTO query_id ( time, expires ) VALUES ( :1, :2 ) ", (now, expire))
+        outfile.write(str(c))
         newqid = c.lastrowid
 
     outfile.write(f"Created QID {newqid}\n")
