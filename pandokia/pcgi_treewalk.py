@@ -452,7 +452,9 @@ def linkout():
     output.write(common.cgi_header_html)
     output.write(common.page_header())
 
-    outfile = open("/internal/data1/err_linkout", "w")
+    outfile = open("/internal/data1/err_linkout", "a")
+
+    outfile.write("--------------------------------\n")
 
     # don't issue the redirect for internet explorer
     if 'MSIE' in os.environ['HTTP_USER_AGENT']:
@@ -519,7 +521,7 @@ def linkout():
     else:
         more_where = None
 
-    print(f"old qid {oldqid}\n")
+    outfile.write(f"old qid {oldqid}\n")
 
     # find a list of the tests
     where_text, where_dict = pdk_db.where_dict([
@@ -533,7 +535,7 @@ def linkout():
         ('attn', attn),
     ], more_where=more_where)
 
-    print(f"Got list\n")
+    outfile.write(f"Got list\n")
 
     if oldqid is None:
         c1 = pdk_db.execute(
