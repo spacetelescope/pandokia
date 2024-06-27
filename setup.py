@@ -145,6 +145,12 @@ args = {
             '*.jpg',
             'sql/*.sql',
             'runners/maker/*']},
+    "install_requres": [
+        "python-datetime",
+        "mysqlclient",
+        "pytest",
+        "setuptools"
+    ],
     'classifiers': classifiers,
 }
 
