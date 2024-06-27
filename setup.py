@@ -146,7 +146,6 @@ args = {
             'sql/*.sql',
             'runners/maker/*']},
     "install_requres": [
-        "python-datetime",
         "mysqlclient",
         "pytest",
         "setuptools"
