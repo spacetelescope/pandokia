@@ -148,8 +148,6 @@ args = {
             'sql/*.sql',
             'runners/maker/*']},
     "install_requires": [
-        "mysqlclient",
-        "pytest",
         "setuptools"
     ],
     'classifiers': classifiers,
