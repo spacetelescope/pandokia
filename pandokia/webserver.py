@@ -5,11 +5,7 @@
 
 import os
 
-try:
-    from http.server import CGIHTTPRequestHandler, HTTPServer
-except ImportError:
-    from CGIHTTPServer import CGIHTTPRequestHandler
-    from BaseHTTPServer import HTTPServer
+from http.server import CGIHTTPRequestHandler, HTTPServer
 
 
 class my_handler(CGIHTTPRequestHandler):

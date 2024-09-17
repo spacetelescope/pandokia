@@ -4,18 +4,13 @@
 #
 
 import sys
-import cgi
 import re
 import copy
 import time
 import os
 
-try:
-    from html import escape
-    from urllib.parse import urlencode
-except ImportError:
-    from cgi import escape
-    from urllib import urlencode
+from html import escape
+from urllib.parse import urlencode
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db

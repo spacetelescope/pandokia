@@ -5,7 +5,6 @@
 
 #
 import sys
-import cgi
 import re
 import copy
 import time

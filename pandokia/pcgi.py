@@ -9,7 +9,7 @@
 # includes functions that are used in various places in the CGI but nowhere else
 #
 
-import cgi
+from urllib import parse
 import os
 import os.path
 import sys
@@ -18,18 +18,6 @@ import pandokia
 import pandokia.common as common
 
 cfg = pandokia.cfg
-
-
-##########
-#
-
-def form_to_dict(f):
-    d = {}
-    for x in f:
-        l = f.getlist(x)
-        if len(l) > 0:
-            d[x] = l
-    return d
 
 
 ##########
@@ -80,7 +68,10 @@ def run():
 
     global form
 
-    form = cgi.FieldStorage(keep_blank_values=1)
+    # urllib.parse.parse_qs reads a string and breaks up the fields, returning a
+    # dictionary of names; each value is a list.
+    form = parse.parse_qs(os.getenv("QUERY_STRING"), keep_blank_values=True)
+    #form = cgi.FieldStorage(keep_blank_values=1)
 
     ######
     #
@@ -93,7 +84,7 @@ def run():
     global output_format
 
     if 'format' in form:
-        output_format = form.getvalue('format')
+        output_format = form["format"][0]
     else:
         output_format = "html"
 
@@ -137,7 +128,7 @@ def run():
 
     #--#--# CGI
 
-    query = form.getvalue("query")
+    query = form["query"][0]
 
     if query == "treewalk":
         import pandokia.pcgi_treewalk as x
@@ -210,8 +201,8 @@ def run():
     if query == 'killproc':
         print("content-type: text/html")
         print("")
-        pid = form.getvalue('pid')
-        sig = form.getvalue('sig')
+        pid = form['pid']
+        sig = form['sig']
         if common.current_user() in common.cfg.admin_user_list:
             os.kill(int(pid), int(sig))
         print("done")
@@ -260,7 +251,7 @@ def run():
                 for y in form[x]:
                     print("%s %s<br>" % (x, y))
             else:
-                print("%s %s<br>" % (x, form.getvalue(x)))
+                print("%s %s<br>" % (x, form[x][0]))
 
 #
 
