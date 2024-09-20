@@ -88,7 +88,8 @@ def run():
     else:
         output_format = "html"
     with open("/internal/data1/pandokia_output", "w") as out:
-        out.write(form)
+        for k in form:
+            out.write(k, form[k])
 
     ######
     #
