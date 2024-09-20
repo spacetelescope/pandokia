@@ -35,7 +35,7 @@ def rpt1():
     form = pandokia.pcgi.form
 
     if "test_run" in form:
-        test_run = form.getvalue("test_run")
+        test_run = form.get("test_run")[0]
     else:
         test_run = '*'
 
@@ -207,7 +207,7 @@ def rpt2():
     form = pandokia.pcgi.form
 
     if "test_run" in form:
-        test_run = form.getvalue("test_run")
+        test_run = form.get("test_run")[0]
     else:
         # no parameter?  I think somebody is messing with us...
         # no matter - just give them a the list of all the test_runs
@@ -225,19 +225,19 @@ def rpt2():
     chronic = '0'
 
     if "project" in form:
-        projects = form.getlist("project")
+        projects = form.get("project")
 
     if "host" in form:
-        host = form.getlist("host")
+        host = form.get("host")
 
     if "context" in form:
-        context = form.getlist("context")
+        context = form.get("context")
 
     if "custom" in form:
-        custom = form.getlist("custom")
+        custom = form.get("custom")
 
     if "chronic" in form:
-        chronic = form.getlist("chronic")[0]
+        chronic = form.get("chronic")[0]
 
     c = pdk_db.execute(
         "SELECT note, valuable FROM distinct_test_run WHERE test_run = :1", (test_run,))

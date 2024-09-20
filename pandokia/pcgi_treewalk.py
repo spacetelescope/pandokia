@@ -34,7 +34,7 @@ debug_cmp = 0
 
 def get_form(form, value, default):
     if value in form:
-        return form.getvalue(value)
+        return form.get(value)[0]
     else:
         return default
 
@@ -54,28 +54,28 @@ def treewalk():
     #
 
     if "test_name" in form:
-        test_name = form.getvalue("test_name")
+        test_name = form.get("test_name")[0]
         if test_name == '':
             test_name = '*'
     else:
         test_name = "*"
 
-    context = form.getvalue('context', '*')
-    host = form.getvalue('host', '*')
-    custom = form.getvalue('custom', '*')
-    test_run = form.getvalue('test_run', '*')
-    project = form.getvalue('project', '*')
-    status = form.getvalue('status', '*')
-    attn = form.getvalue('attn', '*')
-    qid = form.getvalue('qid', None)
+    context = form.get('context', default=['*'])[0]
+    host = form.get('host', default=['*'])[0]
+    custom = form.get('custom', default=['*'])[0]
+    test_run = form.get('test_run', default=['*'])[0]
+    project = form.get('project', default=['*'])[0]
+    status = form.get('status', default=['*'])[0]
+    attn = form.get('attn', default=['*'])[0]
+    qid = form.get('qid', default=[None])[0]
 
-    debug_cmp = form.getvalue('debug_cmp', 0)
+    debug_cmp = form.get('debug_cmp', default=[0])[0]
 
     # look for input from the compare form
-    cmp_test_run = form.getvalue('cmp_test_run', None)
-    cmp_context = form.getvalue('cmp_context', None)
-    cmp_host = form.getvalue('cmp_host', None)
-    cmp_custom = form.getvalue('cmp_custom', None)
+    cmp_test_run = form.get('cmp_test_run', default=[None])[0]
+    cmp_context = form.get('cmp_context', default=[None])[0]
+    cmp_host = form.get('cmp_host', default=[None])[0]
+    cmp_custom = form.get('cmp_custom', default=[None])[0]
 
     test_run = common.find_test_run(test_run)
 
@@ -87,7 +87,7 @@ def treewalk():
     if 'compare' in form:
         # ok, it explicitly says one of the 3 comparison values
         comparing = 1
-        x = form.getvalue('compare', '0')
+        x = form.get('compare', default=['0'])[0]
 
         if x == '' or x == '0' or x.startswith('Turn Off'):
             # if it is a special value that ends the compare,
@@ -461,15 +461,15 @@ def linkout():
 
     form = pandokia.pcgi.form
 
-    context = form.getvalue('context', '*')
-    host = form.getvalue('host', '*')
-    custom = form.getvalue('custom', '*')
-    test_run = form.getvalue('test_run', '*')
-    project = form.getvalue('project', '*')
-    status = form.getvalue('status', '*')
-    attn = form.getvalue('attn', '*')
-    oldqid = form.getvalue('qid', None)
-    test_name = form.getvalue('test_name', '*')
+    context = form.get('context', default=['*'])[0]
+    host = form.get('host', default=['*'])[0]
+    custom = form.get('custom', default=['*'])[0]
+    test_run = form.get('test_run', default=['*'])[0]
+    project = form.get('project', default=['*'])[0]
+    status = form.get('status', default=['*'])[0]
+    attn = form.get('attn', default=['*'])[0]
+    oldqid = form.get('qid', default=[None])[0]
+    test_name = form.get('test_name', default=['*'])[0]
 
     # handle special names of test runs
     test_run = common.find_test_run(test_run)
@@ -543,7 +543,7 @@ def linkout():
     url = pandokia.pcgi.cginame + ('?query=summary&qid=%s' % newqid)
 
     if 'add_attributes' in form:
-        x = int(form.getvalue('add_attributes'))
+        x = int(form.get('add_attributes')[0])
         if x:
             url += ('&show_attr=%d' % x)
 

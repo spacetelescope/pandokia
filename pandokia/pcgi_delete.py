@@ -25,11 +25,11 @@ import pandokia.pcgi
 def delete_are_you_sure():
 
     form = pandokia.pcgi.form
-    test_run = form.getfirst("test_run")
-    project = form.getfirst('project', '*')
-    context = form.getfirst('context', '*')
-    custom = form.getfirst('custom', '*')
-    host = form.getfirst('host', '*')
+    test_run = form.get("test_run")[0]
+    project = form.get('project', default=['*'])[0]
+    context = form.get('context', default=['*'])[0]
+    custom = form.get('custom', default=['*'])[0]
+    host = form.get('host', default=['*'])[0]
 
     sys.stdout.write(common.cgi_header_html)
     sys.stdout.write(common.page_header())
@@ -80,11 +80,11 @@ def delete_are_you_sure():
 def delete_confirmed():
 
     form = pandokia.pcgi.form
-    test_run = form.getfirst("test_run")
-    project = form.getfirst('project', '*')
-    context = form.getfirst('context', '*')
-    custom = form.getfirst('custom', '*')
-    host = form.getfirst('host', '*')
+    test_run = form.get("test_run")[0]
+    project = form.get('project', default=['*'])[0]
+    context = form.get('context', default=['*'])[0]
+    custom = form.get('custom', default=['*'])[0]
+    host = form.get('host', default=['*'])[0]
 
     where_str, where_dict = pdk_db.where_dict(
         [('test_run', test_run), ('project', project), ('context', context), ('custom', custom), ('host', host)])

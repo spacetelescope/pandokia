@@ -49,7 +49,7 @@ def run():
 
     # lots of cases use qid
     if 'qid' in form:
-        qid = int(form.getvalue('qid'))
+        qid = int(form.get('qid')[0])
     else:
         qid = None
 
@@ -98,7 +98,7 @@ def run():
             user = 'None'
 
         # OK comment
-        comment = form.getvalue("ok_comment")
+        comment = form.get("ok_comment")[0]
 
         text_present |= pandokia.flagok.ok_transaction(
             qid,
@@ -118,7 +118,7 @@ def run():
             pdk_db.commit()
 
     elif 'not_expected' in form:
-        arg1 = form.getvalue('arg1')
+        arg1 = form.get('arg1')[0]
         for key_id in valid_key_ids(form):
             c = pdk_db.execute(
                 "SELECT project, host, test_name, context, custom FROM result_scalar WHERE key_id = :1 ",
@@ -144,7 +144,7 @@ def run():
         pdk_db.commit()
 
     elif 'valuable_qid' in form:
-        v = int(form.get_value('valuable_qid'))
+        v = int(form.get('valuable_qid')[0])
         if v:
             expire = pandokia.never_expires
             if 0:
@@ -170,8 +170,8 @@ def run():
 
     elif 'valuable_run' in form:
         text_present = 1
-        v = int(form.getvalue('valuable_run'))
-        test_run = str(form.getvalue('test_run'))
+        v = int(form.get('valuable_run')[0])
+        test_run = str(form.get('test_run')[0])
         pdk_db.execute(
             "UPDATE distinct_test_run SET valuable = :1 WHERE test_run = :2", (v, test_run))
         pdk_db.commit()
@@ -183,8 +183,8 @@ def run():
 
     elif 'note' in form:
         text_present = 1
-        v = str(form.getvalue('note'))
-        test_run = str(form.getvalue('test_run'))
+        v = str(form.get('note')[0])
+        test_run = str(form.get('test_run')[0])
         pdk_db.execute(
             "UPDATE distinct_test_run SET note = :1 WHERE test_run = :2", (v, test_run))
         pdk_db.commit()
@@ -194,7 +194,7 @@ def run():
         text_present = 1
         import pandokia.cleaner as cleaner
         print("<pre>")
-        test_run = str(form.getvalue('count_run'))
+        test_run = str(form.get('count_run')[0])
         cleaner.recount([test_run])
         print("</pre>")
 
@@ -219,7 +219,7 @@ def run():
         output.write('</form>')
 
     elif 'save_comment' in form:
-        notes = form.getvalue('comment')
+        notes = form.get('comment')[0]
         pdk_db.execute(
             'UPDATE query_id SET notes = :1 WHERE qid = :2', (notes, qid))
         pdk_db.commit()

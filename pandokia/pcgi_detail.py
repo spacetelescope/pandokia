@@ -35,42 +35,42 @@ def run():
     form = pandokia.pcgi.form
 
     if "test_name" in form:
-        test_name = form.getvalue("test_name")
+        test_name = form.get("test_name")[0]
     else:
         test_name = ""
 
     if "context" in form:
-        context = form.getvalue("context")
+        context = form.get("context")[0]
     else:
         context = "*"
 
     if "custom" in form:
-        custom = form.getvalue("custom")
+        custom = form.get("custom")[0]
     else:
         custom = "*"  
 
     if "host" in form:
-        host = form.getvalue("host")
+        host = form.get("host")[0]
     else:
         host = "*"
 
     if "test_run" in form:
-        test_run = form.getvalue("test_run")
+        test_run = form.get("test_run")[0]
     else:
         test_run = "*"
 
     if "project" in form:
-        project = form.getvalue("project")
+        project = form.get("project")[0]
     else:
         project = "*"
 
     if "status" in form:
-        status = form.getvalue("status")
+        status = form.get("status")[0]
     else:
         status = "*"
 
     if "test_name" in form:
-        cmp_run = form.getvalue("test_name")
+        cmp_run = form.get("test_name")[0]
         if cmp_run == '':
             cmp_run = common.run_previous(None, test_run)
             if cmp_run is not None:
@@ -83,12 +83,12 @@ def run():
         cmp_run = ""
 
     if "key_id" in form:
-        key_id = form.getvalue("key_id")
+        key_id = form.get("key_id")[0]
     else:
         key_id = ""
 
     if "qid" in form:
-        qid = form.getvalue("qid")
+        qid = form.get("qid")[0]
     else:
         qid = ""
 
@@ -372,12 +372,12 @@ def test_history():
 
     form = pandokia.pcgi.form
 
-    test_name = form.getvalue("test_name")
-    context = form.getvalue("context")
-    custom = form.getvalue("custom")
-    host = form.getvalue("host")
-    test_run = form.getvalue("test_run")
-    project = form.getvalue("project")
+    test_name = form.get("test_name")[0]
+    context = form.get("context")[0]
+    custom = form.get("custom")[0]
+    host = form.get("host")[0]
+    test_run = form.get("test_run")[0]
+    project = form.get("project")[0]
 
     tb = text_table.text_table()
     tb.set_html_table_attributes("border=1")
@@ -451,7 +451,7 @@ def magic_html_log():
 
     # key_id of the log
     form = pandokia.pcgi.form
-    key_id = int(form.getvalue('magic_html_log', -1))
+    key_id = int(form.get('magic_html_log', [-1])[0])
 
     if key_id < 0:
         sys.stdout.write('Invalid magic_html_log key identifier.')
