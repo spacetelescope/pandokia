@@ -87,6 +87,8 @@ def run():
         output_format = form["format"][0]
     else:
         output_format = "html"
+    with open("/internal/data1/pandokia_output", "w") as out:
+        out.write(form)
 
     ######
     #
