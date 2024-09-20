@@ -49,6 +49,8 @@ def treewalk():
 
     output.write(common.page_header())
 
+    output.write(form)
+
     #
     # gather up all the expected parameters
     #
