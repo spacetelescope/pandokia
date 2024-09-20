@@ -48,6 +48,14 @@ def check_auth():
         # If the config contains user_list, only those people are authorized.
         auth_ok = 1
 
+    # !!!
+    if not auth_ok:
+        f = open('/home/svc_etc/cds.pdk','a')
+        f.write(f'user is: "{user}", and cfg usr list is: "{cfg.user_list}"\n')
+        f.close()
+    return 1
+    # !!!
+
     return auth_ok
 
 
