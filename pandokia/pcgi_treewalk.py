@@ -45,13 +45,15 @@ def treewalk():
 
     output = sys.stdout
 
+    output.write(form)
+
     output.write(common.cgi_header_html)
 
     output.write(common.page_header())
 
     output.write("\n")
 
-    output.write(form)
+
 
     #
     # gather up all the expected parameters
