@@ -65,8 +65,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
         # If we never had a connection, open one.  We're done.
         #
         if self.db is None:
-            self.db = db_module.connect(** (self.db_access_arg))
-            self.execute("SET autocommit=0")
+            self.connect_with_retry()
             return
 
         # if we already have a connection, presumably the user has called
@@ -80,10 +79,25 @@ class PandokiaDB(pandokia.db.where_dict_base):
         except db_module.DatabaseError:
             self.db.close()
             self.db = None
-            self.db = db_module.connect(** (self.db_access_arg))
-            self.execute("SET autocommit=0")
+            self.connect_with_retry()
             return
         # NOTREACHED
+
+    def connect_with_retry(self, retry = 2):
+        # connect to DB with retry on failure 
+        # MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...")
+        retries = 0
+        while retries < retry:
+            retries+=1
+            try:
+                self.db = db_module.connect(** (self.db_access_arg))
+                self.execute("SET autocommit=0")
+                break
+            except Exception as ex:
+                if retries >= retry:
+                    raise ex
+
+        return
 
     def start_transaction(self):
         if self.db is None:
