@@ -91,10 +91,13 @@ class PandokiaDB(pandokia.db.where_dict_base):
         while retries < retry:
             retries+=1
             try:
+                if retires == 0: # for testing raise MySQLdb.OperationalError
+                    raise db_module.OperationalError
                 self.db = db_module.connect(** (self.db_access_arg))
                 self.execute("SET autocommit=0")
                 break
             except Exception as ex:
+                print(str(ex))
                 if retries >= retry:
                     raise ex
             time.sleep(0.5)
