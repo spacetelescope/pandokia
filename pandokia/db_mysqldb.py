@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 import MySQLdb as db_module
+import time
 
 # from dbapi
 thread_safe = db_module.threadsafety
@@ -83,7 +84,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
             return
         # NOTREACHED
 
-    def connect_with_retry(self, retry = 2):
+    def connect_with_retry(self, retry = 3):
         # connect to DB with retry on failure 
         # MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...")
         retries = 0
@@ -96,7 +97,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
             except Exception as ex:
                 if retries >= retry:
                     raise ex
-
+            time.sleep(0.5)
         return
 
     def start_transaction(self):
