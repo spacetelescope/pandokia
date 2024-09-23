@@ -84,21 +84,21 @@ class PandokiaDB(pandokia.db.where_dict_base):
             return
         # NOTREACHED
 
-    def connect_with_retry(self, retry = 3):
+    def connect_with_retry(self, max_retries = 3):
         # connect to DB with retry on failure 
         # MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...")
         retries = 0
-        while retries < retry:
+        while retries < max_retries:
             retries+=1
             try:
-                if retries == 0: # for testing raise MySQLdb.OperationalError
+                if retries <= 2: # for testing raise MySQLdb.OperationalError
                     raise db_module.OperationalError
                 self.db = db_module.connect(** (self.db_access_arg))
                 self.execute("SET autocommit=0")
                 break
             except Exception as ex:
                 print(str(ex))
-                if retries >= retry:
+                if retries == max_retries:
                     raise ex
             time.sleep(0.5)
         return
