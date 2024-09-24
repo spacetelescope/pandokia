@@ -86,13 +86,12 @@ class PandokiaDB(pandokia.db.where_dict_base):
 
     def connect_with_retry(self, max_retries = 3):
         # connect to DB with retry on failure 
-        # MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...")
+        # for example, MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...") caused by
+        # RDS endpoint not resolved in due to some dropped packets in amazon route 53 (domain name system)
         retries = 0
         while retries < max_retries:
             retries+=1
             try:
-                if retries <= 2: # for testing raise MySQLdb.OperationalError
-                    raise db_module.OperationalError
                 self.db = db_module.connect(** (self.db_access_arg))
                 self.execute("SET autocommit=0")
                 break
