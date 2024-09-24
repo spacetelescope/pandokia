@@ -100,7 +100,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
                 print(str(ex))
                 if retries == max_retries:
                     raise ex
-            time.sleep(0.5)
+            time.sleep(0.05)
         return
 
     def start_transaction(self):
