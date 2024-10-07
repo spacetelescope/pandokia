@@ -17,8 +17,8 @@ setup(
               ],
     description='Database and helper utilities',
     long_description=description,
-    'author': 'Mark Sienkiewicz, Vicki Laidler',
-    'author_email': 'help@stsci.edu',
+    author='Mark Sienkiewicz, Vicki Laidler',
+    author_email='help@stsci.edu',
 
     classifiers = [
         'Development Status :: 5 - Production/Stable',
@@ -35,9 +35,9 @@ setup(
         'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Quality Assurance',
         'Topic :: Software Development :: Testing',
-    ]
+    ],
 
-    package_data: {
+    package_data={
         'pandokia.utils': ["*.sql", "*.html"]
         },
     install_requires=[
