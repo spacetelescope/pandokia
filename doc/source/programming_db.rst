@@ -119,16 +119,16 @@ Without pandokia
 
  - using MySQLdb: ::
 
-    import pandokia.db_mysql
+    import pandokia.utils.database.db_mysql
 
-    db = pandokia.db_mysql.PandokiaDB( access_arg )
+    db = pandokia.utils.database.db_mysql.PandokiaDB( access_arg )
         # access_arg is the same as you would use with MySQLdb
 
  - using sqlite3 or pysqlite2: ::
 
-    import pandokia.db_sqlite
+    import pandokia.utils.database.db_sqlite
 
-    db = pandokia.db_sqlite.PandokiaDB( filename )
+    db = pandokia.utils.database.db_sqlite.PandokiaDB( filename )
         # filename is the same as you would use with sqlite3
 
  - using psyscopg2 (postgresql): ::
@@ -155,7 +155,7 @@ Without pandokia, if you have a Django settings.py module
 ::
 
     # hook up to the database
-    import pandokia.db as dbm
+    import pandokia.utils.database.db as dbm
     import pyetc.etc_web.settings as settings
 
     db = dbm.db_from_django( settings )

@@ -22,7 +22,7 @@ def get_db_access(dbname):
 
 
 def mysql(clear):
-    import pandokia.db_mysqldb as dbx
+    import pandokia.utils.database.db_mysqldb as dbx
     d = get_db_access('mysqldb')
     dbx = dbx.PandokiaDB(d)
     if clear:
@@ -32,7 +32,7 @@ def mysql(clear):
 
 def sqlite(clear):
     d = get_db_access('sqlite')
-    import pandokia.db_sqlite as dbx
+    import pandokia.utils.database.db_sqlite as dbx
     if clear:
         try:
             os.unlink(d)

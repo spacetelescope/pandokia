@@ -134,7 +134,7 @@ def run(argv=sys.argv):
         return pandokia.cleaner.delete(args)
 
     if cmd == 'dump_table':
-        import pandokia.db
+        import pandokia.utils.database.db
         return pandokia.db.cmd_dump_table(args)
 
     if cmd == 'email':
@@ -187,7 +187,7 @@ def run(argv=sys.argv):
         return err
 
     if cmd == 'sql':
-        import pandokia.db
+        import pandokia.utils.database.db
         return pandokia.db.sql_files(args)
 
     if cmd == 'runstatus':

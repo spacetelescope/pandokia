@@ -1,6 +1,6 @@
 import os
 
-import pandokia.db_sqlite as dbx
+import pandokiautils.database..db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 

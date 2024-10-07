@@ -358,7 +358,7 @@ def db_from_django(settings):
     '''
 
     if settings.DATABASE_ENGINE == 'mysql':
-        import pandokia.db_mysqldb as dbmod
+        import pandokia.utils.database.db_mysqldb as dbmod
         access = {
             'host': settings.DATABASE_HOST,
             'db': settings.DATABASE_NAME,
@@ -371,7 +371,7 @@ def db_from_django(settings):
         return db
 
     if settings.DATABASE_ENGINE == 'sqlite3':
-        import pandokia.db_sqlite as dbmod
+        import pandokia.utils.database.db_sqlite as dbmod
         db = dbmod.PandokiaDB(
             {
                 'db': settings.DATABASE_NAME,

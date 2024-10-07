@@ -20,7 +20,7 @@ import io
 
 
 # need some common code
-import pandokia.db
+import pandokia.utils.database.db
 
 # The database engine is named "sqlite3" if it was installed with
 # python, or "pysqlite2" if it was installed separately.

@@ -51,7 +51,7 @@ db_driver = 'pymssql'
 # from dbapi
 thread_safe = db_module.threadsafety
 
-import pandokia.db
+import pandokia.utils.database.db
 
 # debugging
 _tty = None

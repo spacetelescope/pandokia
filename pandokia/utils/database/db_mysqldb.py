@@ -18,7 +18,7 @@ import time
 # from dbapi
 thread_safe = db_module.threadsafety
 
-import pandokia.db
+import pandokia.utils.database.db
 
 # debugging
 debug = False

@@ -22,7 +22,7 @@ import re
 threadsafety = db_module.threadsafety
 
 
-import pandokia.db
+import pandokia.utils.database.db
 
 # debugging
 _tty = None
