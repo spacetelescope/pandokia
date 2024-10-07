@@ -10,7 +10,7 @@ import time
 from html import escape as html_escape
 
 import pandokia.lib as lib
-import pandokia.text_table as text_table
+import pandokia.utils.text_table as text_table
 
 try:
     from urllib.parse import quote

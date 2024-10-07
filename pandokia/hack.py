@@ -2,7 +2,7 @@
 # a place for testing little hacks - this is whatever I wanted to try out today
 
 import pandokia
-import pandokia.text_table
+import pandokia.utils.text_table
 
 pdk_db = pandokia.cfg.pdk_db
 

@@ -9,7 +9,7 @@
 
 import sys
 import re
-import pandokia.text_table as text_table
+import pandokia.utils.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')
 # used to remove control characters. Not space (32) through tilde (127).

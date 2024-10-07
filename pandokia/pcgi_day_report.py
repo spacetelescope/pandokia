@@ -10,7 +10,7 @@ import re
 import copy
 import time
 
-import pandokia.text_table as text_table
+import pandokia.utils.text_table as text_table
 import pandokia.lib as lib
 
 import pandokia

@@ -197,7 +197,7 @@ def unique_fields(list_of_dict):
 #
 
 def make_table(list_of_dict, order_of_columns=[]):
-    import pandokia.text_table
+    import pandokia.utils.text_table
     t = pandokia.text_table.text_table()
 
     if len(order_of_columns) == 0:
