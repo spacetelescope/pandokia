@@ -9,7 +9,7 @@
 
 import sys
 import re
-import pandokia.text_table as text_table
+import utils.text_table as text_table
 
 re_funky_chars = re.compile('[^ -~]')
 # used to remove control characters. Not space (32) through tilde (127).
@@ -358,7 +358,7 @@ def db_from_django(settings):
     '''
 
     if settings.DATABASE_ENGINE == 'mysql':
-        import pandokia.db_mysqldb as dbmod
+        import utils.db_mysqldb as dbmod
         access = {
             'host': settings.DATABASE_HOST,
             'db': settings.DATABASE_NAME,
@@ -371,7 +371,7 @@ def db_from_django(settings):
         return db
 
     if settings.DATABASE_ENGINE == 'sqlite3':
-        import pandokia.db_sqlite as dbmod
+        import utils.db_sqlite as dbmod
         db = dbmod.PandokiaDB(
             {
                 'db': settings.DATABASE_NAME,

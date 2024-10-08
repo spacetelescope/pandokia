@@ -2,7 +2,7 @@ import os
 
 import d_open
 
-import pandokia.db_sqlite as dbx
+import utils.db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 

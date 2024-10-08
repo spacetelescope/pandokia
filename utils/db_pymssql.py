@@ -51,7 +51,7 @@ db_driver = 'pymssql'
 # from dbapi
 thread_safe = db_module.threadsafety
 
-import pandokia.db
+import utils.db
 
 # debugging
 _tty = None
@@ -62,7 +62,7 @@ import os
 import re
 
 
-class PandokiaDB(pandokia.db.where_dict_base):
+class PandokiaDB(utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError

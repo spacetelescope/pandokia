@@ -60,7 +60,7 @@ if 1:
     #           http://docs.python.org/library/sqlite3.html
     # pysqlite - same driver, developed separately from python distribution
     #           http://code.google.com/p/pysqlite/
-    import pandokia.db_sqlite as dbd
+    import utils.db_sqlite as dbd
     import os
 
     # Set the value of db_arg
@@ -89,7 +89,7 @@ if 0:
     # psycopg
     #           http://initd.org/psycopg/
     #
-    import pandokia.db_psycopg2 as dbd
+    import utils.db_psycopg2 as dbd
 
     db_arg = {'database': 'pandokia', }
 
@@ -101,7 +101,7 @@ if 0:
     #           http://www.mysql.com/
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
-    import pandokia.db_mysqldb as dbd
+    import utils.db_mysqldb as dbd
 
     # db_arg is a dict of the parameters to pass to connect()
     db_arg = {'host': 'whatever',
