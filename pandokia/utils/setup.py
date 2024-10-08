@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # setuptools is required
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 with open('README.md') as fp:
@@ -9,12 +9,21 @@ with open('README.md') as fp:
 
 setup(
     # The package
-    name="pandokia.utils",
+    name="utils",
     version="2025.2.dev0",
-    packages=["pandokia.utils",
-              "pandokia.utils.database",
-              "pandokia.utils.helpers",
+    packages=["utils",
+              "utils.database",
+              "utils.helpers",
               ],
+    package_dir={'utils': '',
+                 'utils.database': 'database',
+                 'utils.helpers': 'helpers'},
+    # packages=find_packages(
+    #     where='utils',
+    #     include = ["utils", 
+    #                 "utils.database",
+    #                 "utils.helpers"],
+    # ),
     description='Database and helper utilities',
     long_description=description,
     author='Mark Sienkiewicz, Vicki Laidler',
@@ -38,7 +47,7 @@ setup(
     ],
 
     package_data={
-        'pandokia.utils': ["*.sql", "*.html"]
+        'utils': ["*.sql", "*.html"]
         },
     install_requires=[
         "setuptools"
