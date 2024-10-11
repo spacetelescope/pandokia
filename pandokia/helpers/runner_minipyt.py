@@ -54,7 +54,7 @@ dots_mode = default_dots_mode
 dots_file = sys.stdout
 
 # the pycode helper contains an object that writes pandokia report files
-import pandokia.helpers.pycode as pycode
+import utils.helpers.pycode as pycode
 
 # there has to be a better way than this to get the type
 # of a function.

@@ -13,7 +13,7 @@ csv_t.dbx = dbx
 
 from csv_t import *
 
-import pandokia.helpers.minipyt as minipyt
+import utils.helpers.minipyt as minipyt
 
 
 @minipyt.test

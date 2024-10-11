@@ -1,4 +1,4 @@
-import pandokia.helpers.minipyt as minipyt
+import utils.helpers.minipyt as minipyt
 minipyt.noseguard()
 
 import pprint

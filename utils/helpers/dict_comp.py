@@ -1,6 +1,6 @@
 """
-import pandokia.helpers.dcomp as dict_comp
-import pandokia.helpers.pycode as pycode
+import utils.helpers.dict_comp as dict_comp
+import utils.helpers.pycode as pycode
 
 # minipyt
 

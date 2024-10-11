@@ -1,4 +1,4 @@
-from pandokia.helpers.minipyt import *
+from utils.helpers.minipyt import *
 
 print("minipyt disables test")
 

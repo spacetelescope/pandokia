@@ -1,6 +1,6 @@
 import os
 import time
-import pandokia.helpers.minipyt as mph
+import utils.helpers.minipyt as mph
 import utils.helpers.filecomp as fc
 
 now = time.time()

@@ -1,6 +1,6 @@
 import sys
 import os
-import pandokia.helpers.pycode as pycode
+import utils.helpers.pycode as pycode
 
 
 class CramReporter(object):

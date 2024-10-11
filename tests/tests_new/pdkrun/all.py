@@ -3,7 +3,7 @@ import sys
 import json
 
 import pandokia.helpers.test_in_db as test_in_db
-import pandokia.helpers.pycode as pycode
+import utils.helpers.pycode as pycode
 import utils.helpers.filecomp as filecomp
 
 

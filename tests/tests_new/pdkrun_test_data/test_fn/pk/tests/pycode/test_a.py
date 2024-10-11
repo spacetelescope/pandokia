@@ -1,4 +1,4 @@
-import pandokia.helpers.pycode as pycode
+import utils.helpers.pycode as pycode
 
 with pycode.test('test_p_with') as t:
     pass

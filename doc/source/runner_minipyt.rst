@@ -67,17 +67,17 @@ After the import (which may execute a test directly), these things
 in the namespace of the imported module are recognized as tests:
 
     - functions that have names beginning or ending with "test",
-      that are not decorated with ``pandokia.helpers.minipyt.nottest``
+      that are not decorated with ``utils.helpers.minipyt.nottest``
       or ``nose.tools.nottest``
 
     - classes that have names beginning or ending with "test"
-      that are not decorated with ``pandokia.helpers.minipyt.nottest``
+      that are not decorated with ``utils.helpers.minipyt.nottest``
       or ``nose.tools.nottest``
 
-    - functions decorated with ``pandokia.helpers.minipyt.test``
+    - functions decorated with ``utils.helpers.minipyt.test``
       or ``nose.tools.istest``
 
-    - classes decorated with ``pandokia.helpers.minipyt.test``
+    - classes decorated with ``utils.helpers.minipyt.test``
       or ``nose.tools.istest``
 
 By default, tests are executed in order by line number.  If you
@@ -114,7 +114,7 @@ Executing Test Classes
 A Test Class defines an object with tests defined as class methods.
 A method is a test if the name starts or ends with "test" and has
 not been decorated with nottest, or if it has been decorated with
-pandokia.helpers.minipyt.test or nose.tools.istest.
+utils.helpers.minipyt.test or nose.tools.istest.
 
 
 single object instance
@@ -339,7 +339,7 @@ prevent using nose by mistake
 nose should recognize and execute many minipyt tests, but you can explicitly
 prevent using a test file with nose by::
 
-    import pandokia.helpers.minipyt as mph
+    import utils.helpers.minipyt as mph
     mph.noseguard()
 
 ``noseguard()`` raises an exception if 'nose' is in sys.modules.
@@ -352,7 +352,7 @@ was mistakenly run using nose.
 Presumably, this may cause you problems if you are trying to import the
 test into an interactive python.  If so, disable this function with::
 
-        import pandokia.helpers.minipyt as mph
+        import utils.helpers.minipyt as mph
         mph.disable_noseguard = True
 
 
@@ -363,7 +363,7 @@ Decorators
 minipyt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These decorators are available in pandokia.helpers.minipyt:
+These decorators are available in utils.helpers.minipyt:
 
     - ``test``
 

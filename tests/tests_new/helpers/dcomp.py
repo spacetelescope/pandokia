@@ -1,5 +1,5 @@
-import pandokia.helpers.pycode as pycode
-import pandokia.helpers.dict_comp as dict_comp
+import utils.helpers.pycode as pycode
+import utils.helpers.dict_comp as dict_comp
 import utils.helpers.display as display
 
 dict_a = {

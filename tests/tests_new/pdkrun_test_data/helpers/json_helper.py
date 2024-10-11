@@ -1,7 +1,7 @@
 # tests of the examples doc/source/helper_json.rst
 
 
-import pandokia.helpers.minipyt as mph
+import utils.helpers.minipyt as mph
 
 
 @mph.nottest

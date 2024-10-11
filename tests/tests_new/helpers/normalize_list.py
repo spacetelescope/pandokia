@@ -2,9 +2,9 @@ import json
 import pprint
 import difflib
 
-import pandokia.helpers.pycode as pycode
+import utils.helpers.pycode as pycode
 import utils.helpers.filecomp as filecomp
-import pandokia.helpers.minipyt as minipyt
+import utils.helpers.minipyt as minipyt
 
 
 # See that filecomp._normalize_list() works when given a tuple

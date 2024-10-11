@@ -14,7 +14,7 @@ minipyt
 
 ::
 
-    import pandokia.helpers.pycode as pycode
+    import utils.helpers.pycode as pycode
 
     p_list = [ 
          ( 'nameA', 'v1', 'v2' ), 

@@ -3,7 +3,7 @@
 
 import datetime  # needed for this example, but not necessarily always
 
-import pandokia.helpers.pycode
+import utils.helpers.pycode
 
 # If you accidentally ask nose to run this file, this prevents it from
 # doing anything.
