@@ -24,7 +24,7 @@ result of file comparisons.
 
 Here is a basic template that works in py.test, nose, and minipyt: ::
 
-    import pandokia.helpers.filecomp as filecomp
+    import utils.helpers.filecomp as filecomp
 
     def test_foo():
 
@@ -289,7 +289,7 @@ You can provide your own comparison function before you call filecomp.compare_fi
         filecomp.compare_files( ... )
 
 
-See the docstring for pandokia.helpers.filecomp.cmp_example for a definition of the
+See the docstring for utils.helpers.filecomp.cmp_example for a definition of the
 interface to your comparator function.
 
 

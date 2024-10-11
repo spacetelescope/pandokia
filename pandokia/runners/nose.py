@@ -37,7 +37,7 @@ def lst(env):
 
     # If this function is called, it is only once per process.
     import pandokia.helpers.process as process
-    import pandokia.helpers.filecomp as filecomp
+    import utils.helpers.filecomp as filecomp
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.

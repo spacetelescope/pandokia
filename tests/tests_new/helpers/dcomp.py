@@ -1,6 +1,6 @@
 import pandokia.helpers.pycode as pycode
 import pandokia.helpers.dict_comp as dict_comp
-import pandokia.helpers.display as display
+import utils.helpers.display as display
 
 dict_a = {
     'a': 'a',

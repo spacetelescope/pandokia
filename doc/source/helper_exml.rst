@@ -45,7 +45,7 @@ Translate to python: ::
     # To reproduce the regtest functionality, use these imports:
 
     import pandokia.helpers.process as process
-    import pandokia.helpers.filecomp as filecomp
+    import utils.helpers.filecomp as filecomp
 
 
     #

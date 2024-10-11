@@ -21,7 +21,7 @@ debug = 0
 import sys
 import pandokia.common as common
 import pandokia
-import pandokia.helpers.easyargs as easyargs
+import utils.helpers.easyargs as easyargs
 
 pdk_db = pandokia.cfg.pdk_db
 

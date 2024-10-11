@@ -3,7 +3,7 @@ import pprint
 import difflib
 
 import pandokia.helpers.pycode as pycode
-import pandokia.helpers.filecomp as filecomp
+import utils.helpers.filecomp as filecomp
 import pandokia.helpers.minipyt as minipyt
 
 

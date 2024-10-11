@@ -6,7 +6,7 @@ import pandokia.helpers.minipyt as mph
 import pandokia.helpers.pycode as pycode
 
 # software under test:
-import pandokia.helpers.filecomp as filecomp
+import utils.helpers.filecomp as filecomp
 
 #
 

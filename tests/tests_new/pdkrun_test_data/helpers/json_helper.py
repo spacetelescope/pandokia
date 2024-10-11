@@ -12,7 +12,7 @@ def mkfile(name, age):
 @mph.test
 def json_string():
     import json
-    import pandokia.helpers.filecomp as filecomp
+    import utils.helpers.filecomp as filecomp
 
     l = [{'a': 1, 'b': 2}, [1, 2]]
     result = json.dumps(l, indent=4, sort_keys=True, default=str)
@@ -34,7 +34,7 @@ def json_string():
 
 import os.path
 import json
-import pandokia.helpers.filecomp as filecomp
+import utils.helpers.filecomp as filecomp
 
 
 @mph.test

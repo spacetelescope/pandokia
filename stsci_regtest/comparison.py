@@ -1,5 +1,5 @@
 #
-# bug: should change this to use pandokia.helpers.filecomp
+# bug: should change this to use utils.helpers.filecomp
 #
 
 """Refactored the Compare class (originally written by Bushouse) to make
