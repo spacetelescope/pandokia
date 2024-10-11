@@ -1,7 +1,7 @@
 import sys
 import time
 import traceback
-from .importer import load_source
+from utils.helper.importer import load_source
 import os.path
 
 no_unittest2 = False
