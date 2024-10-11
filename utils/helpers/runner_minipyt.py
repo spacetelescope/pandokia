@@ -24,7 +24,7 @@ sys.dont_write_bytecode = True
 debug = False
 
 # stack of currently running test names (because they nest)
-# pandokia.helpers.runner_minipyt.currently_running_test_name[-1] is the
+# utils.helpers.runner_minipyt.currently_running_test_name[-1] is the
 # test that is currently running.  minipyt does not run tests in multiple
 # threads, so use of this global is safe.
 

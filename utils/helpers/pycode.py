@@ -616,7 +616,7 @@ def package_test(
     if silent:
         verbose = False
 
-    import pandokia.helpers.runner_minipyt as runner_minipyt
+    import utils.helpers.runner_minipyt as runner_minipyt
     runner_minipyt.dots_mode = ''
 
     global cached_rpt
