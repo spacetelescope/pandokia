@@ -1,4 +1,4 @@
-import pandokia.helpers.filecomp as filecomp
+import utils.helpers.filecomp as filecomp
 
 
 def test_1():

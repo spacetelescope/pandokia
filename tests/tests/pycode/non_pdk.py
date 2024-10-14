@@ -6,7 +6,7 @@
 
 import datetime  # needed for this example, but not necessarily always
 
-import pandokia.helpers.pycode
+import utils.helpers.pycode
 
 if __name__ == '__main__':
     #

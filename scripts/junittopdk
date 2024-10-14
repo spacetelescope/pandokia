@@ -239,7 +239,7 @@ fd = sys.stdout
 #####
 
 if __name__ == '__main__':
-    import pandokia.helpers.easyargs as easyargs
+    import utils.helpers.easyargs as easyargs
 
     opt, args = easyargs.get({
         '-test_run': '=',

@@ -1,5 +1,5 @@
-import pandokia.helpers.pycode as pycode
-import pandokia.helpers.runner_minipyt as runner_minipyt
+import utils.helpers.pycode as pycode
+import utils.helpers.runner_minipyt as runner_minipyt
 
 
 def test_1():

@@ -1,4 +1,4 @@
-import pandokia.helpers.minipyt as mpt
+import utils.helpers.minipyt as mpt
 import nose.tools as nt
 import time
 

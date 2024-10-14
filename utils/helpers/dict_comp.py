@@ -1,6 +1,6 @@
 """
-import pandokia.helpers.dcomp as dict_comp
-import pandokia.helpers.pycode as pycode
+import utils.helpers.dict_comp as dict_comp
+import utils.helpers.pycode as pycode
 
 # minipyt
 
@@ -39,8 +39,8 @@ import re
 import errno
 import numbers
 
-from pandokia.helpers.filecomp import safe_rm
-import pandokia.helpers.display as display
+from utils.helpers.filecomp import safe_rm
+import utils.helpers.display as display
 
 # looking ahead to python 3
 string_type = str

@@ -119,30 +119,30 @@ Without pandokia
 
  - using MySQLdb: ::
 
-    import pandokia.db_mysql
+    import utils.db_mysql
 
-    db = pandokia.db_mysql.PandokiaDB( access_arg )
+    db = utils.db_mysql.PandokiaDB( access_arg )
         # access_arg is the same as you would use with MySQLdb
 
  - using sqlite3 or pysqlite2: ::
 
-    import pandokia.db_sqlite
+    import utils.db_sqlite
 
-    db = pandokia.db_sqlite.PandokiaDB( filename )
+    db = utils.db_sqlite.PandokiaDB( filename )
         # filename is the same as you would use with sqlite3
 
  - using psyscopg2 (postgresql): ::
 
-    import pandokia.db_psycopg2
+    import utils.db_psycopg2
 
-    db = pandokia.db_psycopg2.PandokiaDB( access_arg )
+    db = utils.db_psycopg2.PandokiaDB( access_arg )
         # access_arg is the same as you would use with psycopg2
 
  - using pymssql (Microsoft SQL Server): ::
 
-    import pandokia.db_pymssql
+    import utils.db_pymssql
 
-    db = pandokia.db_pymssql.PandokiaDB( access_arg )
+    db = utils.db_pymssql.PandokiaDB( access_arg )
         # access_arg is the same as you would use with pymssql
 
 The object does not connect to the database when you create it.
@@ -155,7 +155,7 @@ Without pandokia, if you have a Django settings.py module
 ::
 
     # hook up to the database
-    import pandokia.db as dbm
+    import utils.db as dbm
     import pyetc.etc_web.settings as settings
 
     db = dbm.db_from_django( settings )
