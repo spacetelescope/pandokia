@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # setuptools is required
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 with open('README.md') as fp:
@@ -20,7 +20,6 @@ setup(
     description='Database and helper utilities',
     long_description=description,
     author='Mark Sienkiewicz, Vicki Laidler',
-    author_email='help@stsci.edu',
 
     classifiers = [
         'Development Status :: 5 - Production/Stable',
