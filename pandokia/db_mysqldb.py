@@ -13,6 +13,7 @@ __all__ = [
 ]
 
 import MySQLdb as db_module
+import time
 
 # from dbapi
 thread_safe = db_module.threadsafety
@@ -65,8 +66,7 @@ class PandokiaDB(pandokia.db.where_dict_base):
         # If we never had a connection, open one.  We're done.
         #
         if self.db is None:
-            self.db = db_module.connect(** (self.db_access_arg))
-            self.execute("SET autocommit=0")
+            self.connect_with_retry()
             return
 
         # if we already have a connection, presumably the user has called
@@ -80,10 +80,27 @@ class PandokiaDB(pandokia.db.where_dict_base):
         except db_module.DatabaseError:
             self.db.close()
             self.db = None
-            self.db = db_module.connect(** (self.db_access_arg))
-            self.execute("SET autocommit=0")
+            self.connect_with_retry()
             return
         # NOTREACHED
+
+    def connect_with_retry(self, max_retries = 3):
+        # connect to DB with retry on failure 
+        # for example, MySQLdb.OperationalError: (2005, "Unknown MySQL server host ...") caused by
+        # RDS endpoint not resolved in due to some dropped packets in amazon route 53 (domain name system)
+        retries = 0
+        while retries < max_retries:
+            retries+=1
+            try:
+                self.db = db_module.connect(** (self.db_access_arg))
+                self.execute("SET autocommit=0")
+                break
+            except Exception as ex:
+                print(str(ex))
+                if retries == max_retries:
+                    raise ex
+            time.sleep(0.05)
+        return
 
     def start_transaction(self):
         if self.db is None:
