@@ -12,7 +12,7 @@ import os
 # if we could insert this into os.environ['PYTEST_PLUGINS'] but it is
 # already too late because envgetter has already cached the original
 # values from os.environ
-# plugin = 'pandokia.helpers.pytest_plugin'
+# plugin = 'utils.helpers.pytest_plugin'
 
 # return command string to run the test pdkpytest is our own command
 # to run pytest with the pdk plugin.  This command loads the plugin by
@@ -40,7 +40,7 @@ def lst(env):
     # us.
 
     # If this function is called, it is only once per process.
-    import pandokia.helpers.filecomp
+    import utils.helpers.filecomp
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.
@@ -55,7 +55,7 @@ def lst(env):
     s = 'pdkpytest --pdk --pdklog=' + tmpfile + \
         ' --collectonly %(PDK_FILE)s' % env
 
-    pandokia.helpers.filecomp.command(s, env)
+    utils.helpers.filecomp.command(s, env)
 
     # gather the names from pdk.log
     l = []

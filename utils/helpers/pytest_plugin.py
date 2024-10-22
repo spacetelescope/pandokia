@@ -36,7 +36,7 @@ if tuple(int(i) for i in pytest.__version__.split('.')) < (2, 2, 0):
         "The pytest plugin for Pandokia requires at least pytest 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
-import pandokia.helpers.pycode
+import utils.helpers.pycode
 
 # basically a C struct
 
@@ -143,7 +143,7 @@ def pytest_configure(config):
         # Open the log file.
         try:
             sd = 'PDK_FILE' not in os.environ
-            state['report'] = pandokia.helpers.pycode.reporter(
+            state['report'] = utils.helpers.pycode.reporter(
                 source_file=None,
                 setdefault=sd,
                 filename=state['pdklogfile'],

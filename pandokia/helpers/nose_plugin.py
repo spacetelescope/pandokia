@@ -20,7 +20,7 @@ import traceback
 import platform
 
 # pycode contains an object that writes properly formatted pdk log records
-import pandokia.helpers.pycode
+import utils.helpers.pycode
 
 p_StringO = None
 c_StringO = None

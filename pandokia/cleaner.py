@@ -434,7 +434,7 @@ def delete(args):
                 affected
 
 '''
-    import pandokia.helpers.easyargs as easyargs
+    import utils.helpers.easyargs as easyargs
     import pandokia.common as common
     opt, args = easyargs.get(
         {

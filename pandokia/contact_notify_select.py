@@ -14,10 +14,10 @@ TEST = False
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
-import pandokia.helpers.easyargs as easyargs
+import utils.helpers.easyargs as easyargs
 
 import pandokia.common
-from pandokia.text_table import text_table
+from utils.text_table import text_table
 from collections import defaultdict
 import subprocess
 

@@ -22,7 +22,7 @@ def get_db_access(dbname):
 
 
 def mysql(clear):
-    import pandokia.db_mysqldb as dbx
+    import utils.db_mysqldb as dbx
     d = get_db_access('mysqldb')
     dbx = dbx.PandokiaDB(d)
     if clear:
@@ -32,7 +32,7 @@ def mysql(clear):
 
 def sqlite(clear):
     d = get_db_access('sqlite')
-    import pandokia.db_sqlite as dbx
+    import utils.db_sqlite as dbx
     if clear:
         try:
             os.unlink(d)
@@ -44,7 +44,7 @@ def sqlite(clear):
 
 def postgres(clear):
     d = get_db_access('psycopg2')
-    import pandokia.db_psycopg2 as dbx
+    import utils.db_psycopg2 as dbx
     dbx = dbx.PandokiaDB(d)
     if clear:
         dbx.execute('drop table if exists test_table')
