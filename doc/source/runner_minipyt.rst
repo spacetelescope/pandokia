@@ -203,7 +203,7 @@ This file contains two tests named "foo" and "bar":
 
 ::
 
-    import pandokia.helpers.pycode as pycode
+    import utils.helpers.pycode as pycode
 
     with pycode.test( 'foo' ) as t:
         pass

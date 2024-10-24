@@ -291,7 +291,7 @@ def pytest_runtest_setup(item):
     item.pandokia.name = name
 
     # grab the stdout/stderr
-    pandokia.helpers.pycode.snarf_stdout()
+    utils.helpers.pycode.snarf_stdout()
     item.pandokia.start_time = time.time()
 
     # set up a timeout, if necessary )
@@ -507,7 +507,7 @@ def pytest_runtest_makereport( item, call):
         item.pandokia.end_time = time.time()
 
         # pick up the logged stdout
-        log = pandokia.helpers.pycode.end_snarf_stdout()
+        log = utils.helpers.pycode.end_snarf_stdout()
 
         # add any exception report to the stdout log
         if item.pandokia.exception:

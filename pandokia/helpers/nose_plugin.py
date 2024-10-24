@@ -156,7 +156,7 @@ class Pdk(nose.plugins.base.Plugin):
                 default_location = os.path.abspath(os.path.curdir)
 
             #
-            self.rpt = pandokia.helpers.pycode.reporter(
+            self.rpt = utils.helpers.pycode.reporter(
                 source_file=None,
                 setdefault=True,
                 # force it to write all the values, even if

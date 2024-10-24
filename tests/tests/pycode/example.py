@@ -18,7 +18,7 @@ def setup():
 # and then calling
 #   pycode(1)
 #
-# Use pandokia.helpers.pycode.report to report the result of each test.
+# Use utils.helpers.pycode.report to report the result of each test.
 
 def pycode(mode):
 
@@ -34,7 +34,7 @@ def pycode(mode):
     # initialize for reporting - if pandokia is running your tests
     # through the pycode test runner, you never need to pass any of the
     # other parameters to reporter()
-    rpt = pandokia.helpers.pycode.reporter(__file__)
+    rpt = utils.helpers.pycode.reporter(__file__)
 
     ####
     # a minimal report

@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #
     # You can also specify a few other optional fields.  see pycode.py for details.
     #
-    rpt = pandokia.helpers.pycode.reporter(__file__,
+    rpt = utils.helpers.pycode.reporter(__file__,
                                            filename='z.pdklog',
                                            # output file name
                                            setdefault=True,
