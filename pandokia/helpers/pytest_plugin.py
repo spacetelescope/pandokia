@@ -490,7 +490,7 @@ def pytest_runtest_makereport( item, call):
 
         tty.write("TEARDOWN BEFORE TIMEOUT\n")
 
-        if item.pandokia.timeout:
+        if hasattr(item.pandokia, 'timeout') and item.pandokia.timeout:
             tty.write("CLEAR ALARM FOR TIMEOUT\n")
             signal.alarm(0)
             signal_handler = signal.signal(signal.SIGALRM, signal.SIG_DFL)
