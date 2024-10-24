@@ -116,7 +116,7 @@ command_list = python_commands + shell_commands
 # format for defining them.
 
 entry_points_dict = {
-    'pytest11': ['pandokia = utils.helpers.pytest_plugin'],
+    'pytest11': ['pandokia = pandokia.helpers.pytest_plugin'],
     'nose.plugins.0.10': ['pandokia = pandokia.helpers.nose_plugin:Pdk']
 }
 

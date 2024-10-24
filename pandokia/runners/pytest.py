@@ -12,7 +12,7 @@ import os
 # if we could insert this into os.environ['PYTEST_PLUGINS'] but it is
 # already too late because envgetter has already cached the original
 # values from os.environ
-# plugin = 'utils.helpers.pytest_plugin'
+# plugin = 'pandokia.helpers.pytest_plugin'
 
 # return command string to run the test pdkpytest is our own command
 # to run pytest with the pdk plugin.  This command loads the plugin by
