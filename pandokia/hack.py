@@ -2,14 +2,14 @@
 # a place for testing little hacks - this is whatever I wanted to try out today
 
 import pandokia
-import pandokia.text_table
+import utils.text_table
 
 pdk_db = pandokia.cfg.pdk_db
 
 
 def cursor_to_table(c, t=None):
     if t is None:
-        t = pandokia.text_table.text_table()
+        t = utils.text_table.text_table()
     row = len(t.rows)
 
     for x in c:

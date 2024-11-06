@@ -10,7 +10,7 @@ import time
 import datetime
 from html import escape as html_escape
 
-import pandokia.text_table as text_table
+import utils.text_table as text_table
 import pandokia.pcgi
 import pandokia.common as common
 

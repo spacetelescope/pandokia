@@ -197,8 +197,8 @@ def unique_fields(list_of_dict):
 #
 
 def make_table(list_of_dict, order_of_columns=[]):
-    import pandokia.text_table
-    t = pandokia.text_table.text_table()
+    import utils.text_table
+    t = utils.text_table.text_table()
 
     if len(order_of_columns) == 0:
         order_of_columns = sorted([x for x in unique_fields(list_of_dict)])

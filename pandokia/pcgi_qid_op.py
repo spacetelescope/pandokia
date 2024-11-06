@@ -17,7 +17,7 @@ from html import escape as html_escape
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
-import pandokia.text_table as text_table
+import utils.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
 from . import common

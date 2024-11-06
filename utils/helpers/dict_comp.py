@@ -393,7 +393,7 @@ def dictionary_comp(
 
     # This is a pretty display for the interactive user.
     if print_info and (fail or (not fail_only)):
-        from pandokia.text_table import text_table
+        from utils.text_table import text_table
         tt = text_table()
 
         failed_set = set(failed)

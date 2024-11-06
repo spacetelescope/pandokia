@@ -12,7 +12,7 @@ import os
 from html import escape as html_escape
 
 import pandokia
-import pandokia.text_table as text_table
+import utils.text_table as text_table
 import pandokia.pcgi
 import pandokia.flagok
 from . import common

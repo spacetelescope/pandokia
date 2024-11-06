@@ -81,7 +81,7 @@ def set_hostinfo():
 
 
 def expected():
-    import pandokia.text_table as text_table
+    import utils.text_table as text_table
 
     pdk_db = pandokia.cfg.pdk_db
     input_query = pandokia.pcgi.form_to_dict(pandokia.pcgi.form)
@@ -143,7 +143,7 @@ def expected():
 
 
 def latest():
-    import pandokia.text_table as text_table
+    import utils.text_table as text_table
     pdk_db = pandokia.cfg.pdk_db
 
     if pandokia.pcgi.output_format == 'html':
