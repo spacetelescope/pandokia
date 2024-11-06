@@ -23,7 +23,7 @@ PY3 = bool(sys.hexversion >= 0x030000F)
 # this looks a little strange, but we are contemplating support for
 # multiple configurations; that would go here.
 if 'PDK_CONFIG' in os.environ:
-    import pandokia.helpers.importer as i
+    import utils.helpers.importer as i
     cfg = i.importer('pandokia.config', os.environ['PDK_CONFIG'])
 else:
     import pandokia.default_config as cfg
