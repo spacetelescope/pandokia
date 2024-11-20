@@ -11,11 +11,11 @@ setup(
     # The package
     name="utils",
     version="2025.2.dev0",
-    packages=["utils",
-              "utils.helpers",
+    packages=["etc_utils",
+              "etc_utils.helpers",
               ],
-    package_dir={'utils': '',
-                 'utils.helpers': 'helpers'},
+    package_dir={'etc_utils': '',
+                 'etc_utils.helpers': 'helpers'},
 
     description='Database and helper utilities',
     long_description=description,
@@ -39,7 +39,7 @@ setup(
     ],
 
     package_data={
-        'utils': ["*.sql", "*.html"]
+        'etc_utils': ["*.sql", "*.html"]
         },
     install_requires=[
         "setuptools"
