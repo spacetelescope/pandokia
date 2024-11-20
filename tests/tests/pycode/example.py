@@ -3,7 +3,7 @@
 
 import datetime  # needed for this example, but not necessarily always
 
-import utils.helpers.pycode
+import etc_utils.helpers.pycode
 
 # If you accidentally ask nose to run this file, this prevents it from
 # doing anything.
@@ -18,7 +18,7 @@ def setup():
 # and then calling
 #   pycode(1)
 #
-# Use utils.helpers.pycode.report to report the result of each test.
+# Use etc_utils.helpers.pycode.report to report the result of each test.
 
 def pycode(mode):
 
@@ -34,7 +34,7 @@ def pycode(mode):
     # initialize for reporting - if pandokia is running your tests
     # through the pycode test runner, you never need to pass any of the
     # other parameters to reporter()
-    rpt = utils.helpers.pycode.reporter(__file__)
+    rpt = etc_utils.helpers.pycode.reporter(__file__)
 
     ####
     # a minimal report

@@ -49,7 +49,7 @@ Once you have the object in a string or file, you can use various diff-like tool
 This example uses difflib and json.  The reference data is a string constant in the source code. ::
 
     import json
-    import utils.helpers.filecomp as filecomp
+    import etc_utils.helpers.filecomp as filecomp
 
     l = [ { 'a' : 1, 'b' : 2 }, [ 1, 2 ] ]
     result = json.dumps( l, indent=4, sort_keys=True, default=str )
@@ -74,7 +74,7 @@ in the gui. ::
 
     import os.path
     import json
-    import utils.helpers.filecomp as filecomp
+    import etc_utils.helpers.filecomp as filecomp
 
     def test_1() :
         global tda

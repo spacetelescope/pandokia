@@ -10,8 +10,8 @@ import re
 import copy
 import time
 
-import utils.text_table as text_table
-import utils.lib as lib
+import etc_utils.text_table as text_table
+import etc_utils.lib as lib
 
 import pandokia
 pdk_db = pandokia.cfg.pdk_db

@@ -85,7 +85,7 @@ IRAF tasks
 
 If you have Pyraf installed, you can run IRAF tasks: ::
 
-    import utils.helpers.filecomp as filecomp
+    import etc_utils.helpers.filecomp as filecomp
     import pandokia.helpers.process as process
 
     tda = { }

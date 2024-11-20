@@ -20,7 +20,7 @@ import traceback
 import platform
 
 # pycode contains an object that writes properly formatted pdk log records
-import utils.helpers.pycode
+import etc_utils.helpers.pycode
 
 p_StringO = None
 c_StringO = None
@@ -156,7 +156,7 @@ class Pdk(nose.plugins.base.Plugin):
                 default_location = os.path.abspath(os.path.curdir)
 
             #
-            self.rpt = utils.helpers.pycode.reporter(
+            self.rpt = etc_utils.helpers.pycode.reporter(
                 source_file=None,
                 setdefault=True,
                 # force it to write all the values, even if

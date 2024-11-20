@@ -1,6 +1,6 @@
 import os
 
-import utils.db_sqlite as dbx
+import etc_utils.db_sqlite as dbx
 
 minipyt_test_order = 'alpha'
 

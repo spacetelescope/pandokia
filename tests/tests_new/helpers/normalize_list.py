@@ -2,9 +2,9 @@ import json
 import pprint
 import difflib
 
-import utils.helpers.pycode as pycode
-import utils.helpers.filecomp as filecomp
-import utils.helpers.minipyt as minipyt
+import etc_utils.helpers.pycode as pycode
+import etc_utils.helpers.filecomp as filecomp
+import etc_utils.helpers.minipyt as minipyt
 
 
 # See that filecomp._normalize_list() works when given a tuple

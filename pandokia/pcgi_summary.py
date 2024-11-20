@@ -9,8 +9,8 @@ import copy
 import time
 from html import escape as html_escape
 
-import utils.lib as lib
-import utils.text_table as text_table
+import etc_utils.lib as lib
+import etc_utils.text_table as text_table
 
 try:
     from urllib.parse import quote

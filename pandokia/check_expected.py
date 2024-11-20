@@ -55,7 +55,7 @@ import pandokia.common as common
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
-import utils.helpers.easyargs as easyargs
+import etc_utils.helpers.easyargs as easyargs
 
 ##80############################################################################
 def run(args) :

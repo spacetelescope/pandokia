@@ -1,4 +1,4 @@
-import utils.helpers.filecomp as filecomp
+import etc_utils.helpers.filecomp as filecomp
 
 
 def test_1():

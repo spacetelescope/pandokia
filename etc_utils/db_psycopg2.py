@@ -22,7 +22,7 @@ import re
 threadsafety = db_module.threadsafety
 
 
-import utils.db
+import etc_utils.db
 
 # debugging
 _tty = None
@@ -42,7 +42,7 @@ db_driver = 'psycopg2'
 import re
 
 
-class PandokiaDB(utils.db.where_dict_base):
+class PandokiaDB(etc_utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError

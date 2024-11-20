@@ -36,7 +36,7 @@ if tuple(int(i) for i in pytest.__version__.split('.')) < (2, 2, 0):
         "The pytest plugin for Pandokia requires at least pytest 2.2.0")
 
 # pycode contains an object that writes properly formatted pdk log records
-import utils.helpers.pycode
+import etc_utils.helpers.pycode
 
 # basically a C struct
 
@@ -143,7 +143,7 @@ def pytest_configure(config):
         # Open the log file.
         try:
             sd = 'PDK_FILE' not in os.environ
-            state['report'] = utils.helpers.pycode.reporter(
+            state['report'] = etc_utils.helpers.pycode.reporter(
                 source_file=None,
                 setdefault=sd,
                 filename=state['pdklogfile'],
@@ -291,7 +291,7 @@ def pytest_runtest_setup(item):
     item.pandokia.name = name
 
     # grab the stdout/stderr
-    utils.helpers.pycode.snarf_stdout()
+    etc_utils.helpers.pycode.snarf_stdout()
     item.pandokia.start_time = time.time()
 
     # set up a timeout, if necessary )
@@ -507,7 +507,7 @@ def pytest_runtest_makereport( item, call):
         item.pandokia.end_time = time.time()
 
         # pick up the logged stdout
-        log = utils.helpers.pycode.end_snarf_stdout()
+        log = etc_utils.helpers.pycode.end_snarf_stdout()
 
         # add any exception report to the stdout log
         if item.pandokia.exception:

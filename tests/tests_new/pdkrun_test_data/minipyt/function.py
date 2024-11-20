@@ -1,4 +1,4 @@
-import utils.helpers.minipyt as mpt
+import etc_utils.helpers.minipyt as mpt
 import nose.tools as nt
 import time
 

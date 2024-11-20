@@ -1,5 +1,5 @@
-import utils.helpers.pycode as pycode
-import utils.helpers.runner_minipyt as runner_minipyt
+import etc_utils.helpers.pycode as pycode
+import etc_utils.helpers.runner_minipyt as runner_minipyt
 
 
 def test_1():

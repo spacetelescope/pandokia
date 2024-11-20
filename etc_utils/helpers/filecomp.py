@@ -1,5 +1,5 @@
 '''
-utils.helpers.filecomp - a general interface for intelligently
+etc_utils.helpers.filecomp - a general interface for intelligently
     comparing two files
 
 contents of this module:
@@ -91,7 +91,7 @@ def cmp_example(
 
     Define a function like this, then add it to the dictionary with a commmand
     like:
-        utils.helpers.filecomp.file_comparators['example'] = cmp_example
+        etc_utils.helpers.filecomp.file_comparators['example'] = cmp_example
 
     You can then use it by calling file_compare()
 

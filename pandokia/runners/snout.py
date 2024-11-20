@@ -109,7 +109,7 @@ def lst(env):
     # Note that the PDK_TESTPREFIX is applied by the nose plugin, not us.
 
     # If this function is called, it is only once per process.
-    import utils.helpers.filecomp
+    import etc_utils.helpers.filecomp
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.
@@ -125,7 +125,7 @@ def lst(env):
     for location in find_locations(env['PDK_FILE']):
         s = 'pdknose --pdk --exe --with-doctest --doctest-tests --pdklog=' + \
             tmpfile + ' --collect-only %s' % location
-        utils.helpers.filecomp.command(s)
+        etc_utils.helpers.filecomp.command(s)
 
     # gather the names from pdk.log
     l = []

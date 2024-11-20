@@ -14,7 +14,7 @@ minipyt
 
 ::
 
-    import utils.helpers.pycode as pycode
+    import etc_utils.helpers.pycode as pycode
 
     p_list = [ 
          ( 'nameA', 'v1', 'v2' ), 

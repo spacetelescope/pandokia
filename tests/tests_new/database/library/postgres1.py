@@ -15,7 +15,7 @@ csv_t.dbx = dbx
 
 from csv_t import *
 
-import utils.helpers.minipyt as minipyt
+import etc_utils.helpers.minipyt as minipyt
 
 
 @minipyt.test

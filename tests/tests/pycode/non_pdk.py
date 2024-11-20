@@ -6,7 +6,7 @@
 
 import datetime  # needed for this example, but not necessarily always
 
-import utils.helpers.pycode
+import etc_utils.helpers.pycode
 
 if __name__ == '__main__':
     #
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     #
     # You can also specify a few other optional fields.  see pycode.py for details.
     #
-    rpt = utils.helpers.pycode.reporter(__file__,
+    rpt = etc_utils.helpers.pycode.reporter(__file__,
                                            filename='z.pdklog',
                                            # output file name
                                            setdefault=True,

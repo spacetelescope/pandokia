@@ -1,5 +1,5 @@
 import os
-import utils.lib
+import etc_utils.lib
 import datetime
 import traceback
 
@@ -616,7 +616,7 @@ def package_test(
     if silent:
         verbose = False
 
-    import utils.helpers.runner_minipyt as runner_minipyt
+    import etc_utils.helpers.runner_minipyt as runner_minipyt
     runner_minipyt.dots_mode = ''
 
     global cached_rpt

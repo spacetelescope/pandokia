@@ -4,7 +4,7 @@
 import sys
 import inspect
 import traceback
-from utils.helpers.importer import load_source
+from etc_utils.helpers.importer import load_source
 import os.path
 import time
 import gc
@@ -24,7 +24,7 @@ sys.dont_write_bytecode = True
 debug = False
 
 # stack of currently running test names (because they nest)
-# utils.helpers.runner_minipyt.currently_running_test_name[-1] is the
+# etc_utils.helpers.runner_minipyt.currently_running_test_name[-1] is the
 # test that is currently running.  minipyt does not run tests in multiple
 # threads, so use of this global is safe.
 
@@ -54,7 +54,7 @@ dots_mode = default_dots_mode
 dots_file = sys.stdout
 
 # the pycode helper contains an object that writes pandokia report files
-import utils.helpers.pycode as pycode
+import etc_utils.helpers.pycode as pycode
 
 # there has to be a better way than this to get the type
 # of a function.

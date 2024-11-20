@@ -1,4 +1,4 @@
-import utils.helpers.minipyt as minipyt
+import etc_utils.helpers.minipyt as minipyt
 minipyt.noseguard()
 
 dbx = None  # will be assigned after we are imported

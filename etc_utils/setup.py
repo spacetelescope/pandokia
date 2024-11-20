@@ -12,10 +12,10 @@ setup(
     name="utils",
     version="2025.2.dev0",
     packages=["etc_utils",
-              "etc_utils.helpers",
+              "etc_etc_utils.helpers",
               ],
     package_dir={'etc_utils': '',
-                 'etc_utils.helpers': 'helpers'},
+                 'etc_etc_utils.helpers': 'helpers'},
 
     description='Database and helper utilities',
     long_description=description,

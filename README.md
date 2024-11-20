@@ -180,7 +180,7 @@ http://initd.org/psycopg/
 
 There are some minimal notes on setting up pandokia
 with postgres on Ubuntu at the end of the file
-utils/db_psycopg2.py
+etc_utils/db_psycopg2.py
 
 
 ## Run setup.py
