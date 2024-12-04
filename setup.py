@@ -70,10 +70,12 @@ windows = platform.system() == 'Windows'
 # This is a list of all the packages that we install.
 
 package_list = [
-    'pandokia',                 # core of pandokia system
-    'pandokia.runners',         # "plugin-like" things that run various kinds of tests
-    'pandokia.helpers',         # modules to use in running your tests
-    'stsci_regtest',            # legacy STScI test system for IRAF packages
+    'pandokia',                     # core of pandokia system
+    'pandokia.runners',             # "plugin-like" things that run various kinds of tests
+    'pandokia.helpers',             # modules to use in running your tests
+    'stsci_regtest',                # legacy STScI test system for IRAF packages
+    'pandokia.etc_utils'            # utils used by pyetc, pandeia and ssph
+    'pandokia.etc_utils.helpers'    # utils helpers used by pyetc, pandeia and ssph
 ]
 
 #
