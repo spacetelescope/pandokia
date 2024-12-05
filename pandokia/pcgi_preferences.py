@@ -14,7 +14,7 @@ except ImportError:
     from urllib import quote
 
 import pandokia
-import pandokia.text_table as text_table
+import etc_utils.text_table as text_table
 import pandokia.pcgi
 from . import common
 

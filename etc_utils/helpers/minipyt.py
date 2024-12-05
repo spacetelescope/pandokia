@@ -8,7 +8,7 @@ __all__ = ['test', 'istest', 'nottest', 'disable', 'noseguard']
 #
 # Note that you might expect the user to
 #
-#   from pandokia.helpers.minipyt import *
+#   from etc_utils.helpers.minipyt import *
 #
 # so we tag every function in this file as not a test by setting __test__
 # to false.
@@ -76,8 +76,8 @@ def noseguard():
     '''
     Prevent a test file from running in nose
 
-        import pandokia.helpers.minipyt
-        pandokia.helpers.minipyt.noseguard()
+        import etc_utils.helpers.minipyt
+        etc_utils.helpers.minipyt.noseguard()
 
     raises an exception if 'nose' in sys.modules
 
@@ -89,13 +89,13 @@ def noseguard():
     Presumably, this may cause you problems if you are trying to import the
     test into an interactive python.  If so, disable this function with
 
-        import pandokia.helpers.minipyt
-        pandokia.helpers.minipyt.disable_noseguard = True
+        import etc_utils.helpers.minipyt
+        etc_utils.helpers.minipyt.disable_noseguard = True
 
 '''
 
     if disable_noseguard:
-        print("pandokia.helpers.minipyt.noseguard() disabled!")
+        print("etc_utils.helpers.minipyt.noseguard() disabled!")
         return
 
     import sys

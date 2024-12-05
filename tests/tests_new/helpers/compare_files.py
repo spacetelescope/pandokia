@@ -2,11 +2,11 @@ import os.path
 import json
 import time
 
-import pandokia.helpers.minipyt as mph
-import pandokia.helpers.pycode as pycode
+import etc_utils.helpers.minipyt as mph
+import etc_utils.helpers.pycode as pycode
 
 # software under test:
-import pandokia.helpers.filecomp as filecomp
+import etc_utils.helpers.filecomp as filecomp
 
 #
 

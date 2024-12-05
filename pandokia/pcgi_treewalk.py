@@ -20,7 +20,7 @@ except ImportError:
 import pandokia
 pdk_db = pandokia.cfg.pdk_db
 
-import pandokia.text_table as text_table
+import etc_utils.text_table as text_table
 import pandokia.pcgi
 from . import common
 

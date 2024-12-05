@@ -5,7 +5,7 @@
 # Copyright 2010, Association of Universities for Research in Astronomy (AURA)
 #
 
-import pandokia.helpers.filecomp as f
+import etc_utils.helpers.filecomp as f
 
 import sys
 argv = sys.argv

@@ -28,8 +28,8 @@ if 'pdk_db' not in globals():
     # MySQLdb
     #           http://mysql-python.sourceforge.net/MySQLdb.html
     try:
-        import pandokia.db_mysqldb as pdk_db
-        import pandokia.db_mysqldb as dbd
+        import etc_utils.db_mysqldb as pdk_db
+        import etc_utils.db_mysqldb as dbd
 
         # db_arg is a dict of the parameters to pass to connect()
         db_arg = {'host': 'ssb.stsci.edu',

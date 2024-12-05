@@ -40,7 +40,7 @@ def lst(env):
     # us.
 
     # If this function is called, it is only once per process.
-    import pandokia.helpers.filecomp
+    import etc_utils.helpers.filecomp
 
     tmpfile = 'pdk.runner.tmp'
     # Do our best to make sure the file is not there already.
@@ -55,7 +55,7 @@ def lst(env):
     s = 'pdkpytest --pdk --pdklog=' + tmpfile + \
         ' --collectonly %(PDK_FILE)s' % env
 
-    pandokia.helpers.filecomp.command(s, env)
+    etc_utils.helpers.filecomp.command(s, env)
 
     # gather the names from pdk.log
     l = []

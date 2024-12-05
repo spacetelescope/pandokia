@@ -1,4 +1,4 @@
-import pandokia.helpers.minipyt as mpt
+import etc_utils.helpers.minipyt as mpt
 
 
 # notice that an object that does not set minipyt_shared will not get

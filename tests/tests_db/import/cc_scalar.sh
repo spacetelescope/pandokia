@@ -11,7 +11,7 @@ echo tda__okfile=`pwd`/okfile/$tname >> $PDK_LOG
 echo "../output/$tname ../ref/$tname" > okfile/$tname
 
 # THE TEST
-python -c "import pandokia.db as d; d.table_to_csv('result_scalar','output/$tname')"
+python -c "import etc_utils.db as d; d.table_to_csv('result_scalar','output/$tname')"
 
 # compare to what we expect
 diff -C 3 ref/$tname output/$tname

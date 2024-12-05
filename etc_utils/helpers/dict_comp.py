@@ -1,6 +1,6 @@
 """
-import pandokia.helpers.dcomp as dict_comp
-import pandokia.helpers.pycode as pycode
+import etc_utils.helpers.dict_comp as dict_comp
+import etc_utils.helpers.pycode as pycode
 
 # minipyt
 
@@ -39,8 +39,8 @@ import re
 import errno
 import numbers
 
-from pandokia.helpers.filecomp import safe_rm
-import pandokia.helpers.display as display
+from etc_utils.helpers.filecomp import safe_rm
+import etc_utils.helpers.display as display
 
 # looking ahead to python 3
 string_type = str
@@ -393,7 +393,7 @@ def dictionary_comp(
 
     # This is a pretty display for the interactive user.
     if print_info and (fail or (not fail_only)):
-        from pandokia.text_table import text_table
+        from etc_utils.text_table import text_table
         tt = text_table()
 
         failed_set = set(failed)

@@ -24,7 +24,7 @@ if 'QUERY_STRING' in os.environ or 'GATEWAY_INTERFACE' in os.environ:
     # configurations) but all of them just work if you invoke the cgi.
     #
     # This assignment to pdk_dir will be modified during the install,
-    # if you use distutils.
+    # if you use distetc_utils.
     #
     # It is not modified if you use pip or easy_install.  The way
     # setuptools handles scripts, you had to have pdk_dir on sys.path
