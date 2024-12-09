@@ -1,7 +1,7 @@
 import os
 import re
 import pandokia.helpers.dbaccess as dbaccess
-import pandokia.helpers.pycode as pycode
+import etc_utils.helpers.pycode as pycode
 
 query = {
     'test_run': 'pdkrun_test',

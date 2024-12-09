@@ -6,7 +6,7 @@ import pandokia.helpers.importer as i
 tc = i.importer('test_config', os.environ['PDK_TOP'] + '/config')
 config = tc.cfg
 
-exec('import pandokia.db_%s as dbd' % tc.cfg['test_database'])
+exec('import etc_utils.db_%s as dbd' % tc.cfg['test_database'])
 
 ##########
 

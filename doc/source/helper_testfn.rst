@@ -121,7 +121,7 @@ Here is a sample package has tests in packagename.tests.test_a and packagename.t
 Place this in __init__.py:  ::
 
     def test( verbose=False ) :
-        import pandokia.helpers.pycode as pycode
+        import etc_utils.helpers.pycode as pycode
 
         return pycode.package_test( 
             parent = __name__, 
@@ -133,7 +133,7 @@ Place this in __init__.py:  ::
 
 Write your tests in packagename/tests/test_a.py as: ::
 
-    import pandokia.helpers.pycode as pycode
+    import etc_utils.helpers.pycode as pycode
 
     with pycode.test('some_thing') as t :
         assert some_thing

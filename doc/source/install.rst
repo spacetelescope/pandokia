@@ -177,7 +177,7 @@ Pandokia uses "pragma synchronous = normal;" for speed.  Certain
 types of crashes can cause your database to be corrupted.  See
 http://sqlite.org/pragma.html#pragma_synchronous for more information.
 Pandokia does not have a configuration to change this, but you can
-change the setting in pandokia/db_sqlite.py
+change the setting in etc_utils/db_sqlite.py
 
 
 Initializing the database : MySQL
@@ -250,7 +250,7 @@ Postgres is available from http://www.postgresql.org/
 pyscopg2 is available from http://initd.org/psycopg/ or http://pypi.python.org/pypi/psycopg2
 
 TODO: describe using postgres - this is roughly the same as MySQL.
-See the comment at the bottom of pandokia/db_psycopg2.py for some
+See the comment at the bottom of etc_utils/db_psycopg2.py for some
 notes on using postgres .
 
 ::

@@ -44,7 +44,7 @@ def test_nose(verbose=False):
 
 
 def test_pycode(verbose=False):
-    import pandokia.helpers.pycode as pycode
+    import etc_utils.helpers.pycode as pycode
 
     return pycode.package_test(
         parent=__name__,

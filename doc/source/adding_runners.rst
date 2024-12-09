@@ -167,10 +167,10 @@ Using pycode.report in your python-base test runner
 ----------------------------------------------------------------------
 
 If you are writing in python, you can use the "reporter" object in
-pandokia.helpers.pycode to write properly formatted records to
+etc_utils.helpers.pycode to write properly formatted records to
 $PDK_LOG : ::
 
-    import pandokia.helpers.pycode as pycode
+    import etc_utils.helpers.pycode as pycode
 
     # initialize one instance of the pycode reporter; if you are
     # running in pandokia, you don't need any parameters except
@@ -208,7 +208,7 @@ You can also report the test all at once instead of splitting into
 start()/finish() : ::
 
 
-    import pandokia.helpers.pycode as pycode
+    import etc_utils.helpers.pycode as pycode
 
     # initialize one instance of the pycode reporter; if you are
     # running in pandokia, you don't need any parameters except

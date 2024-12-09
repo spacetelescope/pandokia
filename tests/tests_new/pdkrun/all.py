@@ -3,8 +3,8 @@ import sys
 import json
 
 import pandokia.helpers.test_in_db as test_in_db
-import pandokia.helpers.pycode as pycode
-import pandokia.helpers.filecomp as filecomp
+import etc_utils.helpers.pycode as pycode
+import etc_utils.helpers.filecomp as filecomp
 
 
 f = open('test_list', 'r')

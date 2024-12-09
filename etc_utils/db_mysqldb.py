@@ -18,7 +18,7 @@ import time
 # from dbapi
 thread_safe = db_module.threadsafety
 
-import pandokia.db
+import etc_utils.db
 
 # debugging
 debug = False
@@ -37,7 +37,7 @@ db_driver = 'mysqldb'
 import re
 
 
-class PandokiaDB(pandokia.db.where_dict_base):
+class PandokiaDB(etc_utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError

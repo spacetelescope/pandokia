@@ -20,7 +20,7 @@ import io
 
 
 # need some common code
-import pandokia.db
+import etc_utils.db
 
 # The database engine is named "sqlite3" if it was installed with
 # python, or "pysqlite2" if it was installed separately.
@@ -66,7 +66,7 @@ db_driver = 'sqlite'
 #
 
 
-class PandokiaDB(pandokia.db.where_dict_base):
+class PandokiaDB(etc_utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
     ProgrammingError = db_module.ProgrammingError
