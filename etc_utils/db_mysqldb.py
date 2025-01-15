@@ -13,7 +13,6 @@ __all__ = [
 ]
 
 import MySQLdb as db_module
-from mysql.connector import Error as mysql_connector_error
 from mysql.connector import pooling
 import time
 
