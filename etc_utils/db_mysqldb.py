@@ -13,6 +13,8 @@ __all__ = [
 ]
 
 import MySQLdb as db_module
+from mysql.connector import Error as mysql_connector_error
+from mysql.connector import pooling
 import time
 
 # from dbapi
@@ -92,9 +94,16 @@ class PandokiaDB(etc_utils.db.where_dict_base):
         while retries < max_retries:
             retries+=1
             try:
-                self.db = db_module.connect(** (self.db_access_arg))
-                self.execute("SET autocommit=0")
-                break
+                #self.db = db_module.connect(** (self.db_access_arg))
+                self.connection_pool = pooling.MySQLConnectionPool(** (self.db_access_arg))
+                print(f"MySQL Connection Pool Name - {connection_pool.pool_name}")
+                print(f"MySQL Connection Pool Size - {connection_pool.pool_size}")
+                self.db = connection_pool.get_connection()
+                if self.db.is_connected():
+                    self.db_Info = self.db.get_server_info()
+                    print(f"Connected to MySQL database using connection pool ... MySQL Server version on {db_Info}")
+                    self.execute("SET autocommit=0")
+                    break
             except Exception as ex:
                 print(str(ex))
                 if retries == max_retries:
