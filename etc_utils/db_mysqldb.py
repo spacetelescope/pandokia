@@ -51,7 +51,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
     def __init__(self, access_arg):
         self.db = None
         self.connection_pool = None
-        self.pool_size_num = -1
+        self.pool_size_num = 5 # it is the default
         # always set to True
         # https://dba.stackexchange.com/questions/290727/when-and-why-should-i-reset-session-in-a-connection-pool
         self.reset_session = True
