@@ -95,9 +95,12 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
                 self.connection_pool = pooling.MySQLConnectionPool(** (self.db_access_arg))
-                self.db = connection_pool.get_connection()
+                self.db = self.connection_pool.get_connection()
+                print(f"Pandokia - MySQL Connection Pool Name - {self.connection_pool.pool_name}")
+                print(f"Pandokia - MySQL Connection Pool Size - {self.connection_pool.pool_size}")
                 if self.db.is_connected():
                     self.db_Info = self.db.get_server_info()
+                    print(f"Pandeia - Connected to MySQL database using connection pool ... MySQL Server version on {self.db_Info}")
                     self.execute("SET autocommit=0")
                     break
             except Exception as ex:
