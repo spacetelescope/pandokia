@@ -48,9 +48,9 @@ class PandokiaDB(etc_utils.db.where_dict_base):
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
 
-    db = None
-
     def __init__(self, access_arg):
+        self.db = None
+        self.connection_pool = None
         self.db_access_arg = access_arg
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
