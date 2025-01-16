@@ -8,7 +8,7 @@
 # pdk_python_runner runner_name [ args ]
 
 # Here is where we keep them:
-prefix = 'pandokia.helpers.runner_'
+prefix = 'etc_utils.helpers.runner_'
 
 import sys
 import re
