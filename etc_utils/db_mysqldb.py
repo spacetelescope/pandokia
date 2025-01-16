@@ -37,7 +37,6 @@ db_driver = 'mysqldb'
 
 import re
 
-
 class PandokiaDB(etc_utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
@@ -47,19 +46,19 @@ class PandokiaDB(etc_utils.db.where_dict_base):
 
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
+
+    db = None
+    connection_pool = None
+    # temp variable to remove pool size config after setting is done
+    elements_to_remove = []
     
     def __init__(self, access_arg):
-        self.db = None
-        self.connection_pool = None
         self.pool_size_num = 5 # it is the default
         # always set to True
         # https://dba.stackexchange.com/questions/290727/when-and-why-should-i-reset-session-in-a-connection-pool
-        self.reset_session = True
+        self.reset_session = True 
         self.pool_name = ''
         self.db_access_arg = access_arg
-
-        # temp variable to remove pool size config after setting is done
-        self.elements_to_remove = []
         
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
@@ -116,7 +115,8 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             retries+=1
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
-                self.connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
+                if self.connection_pool is None:
+                    self.connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
                              pool_size=int(self.pool_size_num), 
                              pool_reset_session=self.reset_session,
                              ** (self.db_access_arg))
