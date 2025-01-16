@@ -51,6 +51,11 @@ class PandokiaDB(etc_utils.db.where_dict_base):
     def __init__(self, access_arg):
         self.db = None
         self.connection_pool = None
+        self.pool_size_num = 0
+        # always set to True
+        # https://dba.stackexchange.com/questions/290727/when-and-why-should-i-reset-session-in-a-connection-pool
+        self.reset_session = True
+        self.pool_name = ''
         self.db_access_arg = access_arg
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
@@ -59,6 +64,13 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                 self.db_access_arg[str(x)] = str(access_arg[x])
             else:
                 self.db_access_arg[str(x)] = access_arg[x]
+
+            # setting connection pool config
+            if str(x).startswith('pool_'):
+                if str(x).lower() == 'pool_size':
+                    self.pool_size_num = str(access_arg[x])
+                elif str(x).lower() == 'pool_name':
+                    self.pool_name = str(access_arg[x])
 
     def open(self):
         # If the user explicitly calls open(), then we know they want
@@ -94,7 +106,10 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             retries+=1
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
-                self.connection_pool = pooling.MySQLConnectionPool(** (self.db_access_arg))
+                self.connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
+                             pool_size=self.pool_size_num, 
+                             pool_reset_session=self.reset_session,
+                             ** (self.db_access_arg))
                 self.db = self.connection_pool.get_connection()
                 print(f"Pandokia - MySQL Connection Pool Name - {self.connection_pool.pool_name}")
                 print(f"Pandokia - MySQL Connection Pool Size - {self.connection_pool.pool_size}")
