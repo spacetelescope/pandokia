@@ -125,7 +125,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                 print(f"Pandokia - MySQL Connection Pool Size - {self.connection_pool.pool_size}")
                 if self.db.is_connected():
                     self.db_Info = self.db.get_server_info()
-                    print(f"Pandeia - Connected to MySQL database using connection pool ... MySQL Server version on {self.db_Info}")
+                    print(f"Pandokia - Connected to MySQL database using connection pool ... MySQL Server version on {self.db_Info}")
                     self.execute("SET autocommit=0")
                     break
             except Exception as ex:
