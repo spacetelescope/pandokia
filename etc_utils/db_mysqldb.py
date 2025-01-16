@@ -48,15 +48,18 @@ class PandokiaDB(etc_utils.db.where_dict_base):
     # name of this driver.  could be a constant.
     pandokia_driver_name = __module__.split('db_')[1]
 
+    elements_to_remove = []
+    
     def __init__(self, access_arg):
         self.db = None
         self.connection_pool = None
-        self.pool_size_num = 0
+        self.pool_size_num = -1
         # always set to True
         # https://dba.stackexchange.com/questions/290727/when-and-why-should-i-reset-session-in-a-connection-pool
         self.reset_session = True
         self.pool_name = ''
         self.db_access_arg = access_arg
+
         # the mysqldb package I have installed chokes if you give
         # it unicode strings.  So convert any unicode back to str.
         for x in access_arg:
@@ -71,6 +74,10 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                     self.pool_size_num = str(access_arg[x])
                 elif str(x).lower() == 'pool_name':
                     self.pool_name = str(access_arg[x])
+                elements_to_remove.append(str(x))
+
+        for x in elements_to_remove:
+            del db_access_arg[str(x)]
 
     def open(self):
         # If the user explicitly calls open(), then we know they want
@@ -107,7 +114,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
                 self.connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
-                             pool_size=self.pool_size_num, 
+                             pool_size=int(self.pool_size_num), 
                              pool_reset_session=self.reset_session,
                              ** (self.db_access_arg))
                 self.db = self.connection_pool.get_connection()
