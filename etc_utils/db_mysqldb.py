@@ -128,7 +128,6 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                     print(f"Pandokia - New MySQL Connection Pool Name is {connection_pool.pool_name} and Size is {connection_pool.pool_size}")
                 if self.db is None:
                     self.db = connection_pool.get_connection()
-                    print(f"Pandokia - self.db is {self.db}")
                 if self.db.is_connected():
                     self.execute("SET autocommit=0")
                     break
