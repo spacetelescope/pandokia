@@ -37,7 +37,7 @@ db_driver = 'mysqldb'
 
 import re
 
-global connection_pool
+connection_pool = None
 
 class PandokiaDB(etc_utils.db.where_dict_base):
 
@@ -119,6 +119,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             retries+=1
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
+                global connection_pool
                 if connection_pool is None:
                     connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
                              pool_size=int(self.pool_size_num), 
