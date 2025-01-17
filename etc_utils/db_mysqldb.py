@@ -37,6 +37,8 @@ db_driver = 'mysqldb'
 
 import re
 
+global connection_pool
+
 class PandokiaDB(etc_utils.db.where_dict_base):
 
     IntegrityError = db_module.IntegrityError
@@ -48,7 +50,6 @@ class PandokiaDB(etc_utils.db.where_dict_base):
     pandokia_driver_name = __module__.split('db_')[1]
 
     db = None
-    connection_pool = None
     # temp variable to remove pool size config after setting is done
     elements_to_remove = []
     
@@ -76,6 +77,8 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                     self.pool_name = str(access_arg[x])
                 self.elements_to_remove.append(str(x))
 
+        # need to take out the connection pool config
+        # because they need to be set separately
         for x in self.elements_to_remove:
             if x in self.db_access_arg:
                 del self.db_access_arg[str(x)]
@@ -116,14 +119,14 @@ class PandokiaDB(etc_utils.db.where_dict_base):
             retries+=1
             try:
                 #self.db = db_module.connect(** (self.db_access_arg))
-                if self.connection_pool is None:
-                    self.connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
+                if connection_pool is None:
+                    connection_pool = pooling.MySQLConnectionPool(pool_name=self.pool_name,
                              pool_size=int(self.pool_size_num), 
                              pool_reset_session=self.reset_session,
                              ** (self.db_access_arg))
-                    print(f"Pandokia - New MySQL Connection Pool Name is {self.connection_pool.pool_name} and Size is {self.connection_pool.pool_size}")
+                    print(f"Pandokia - New MySQL Connection Pool Name is {connection_pool.pool_name} and Size is {connection_pool.pool_size}")
                 if self.db is None:
-                    self.db = self.connection_pool.get_connection()
+                    self.db = connection_pool.get_connection()
                     print(f"Pandokia - self.db is {self.db}")
                 if self.db.is_connected():
                     self.db_Info = self.db.get_server_info()
