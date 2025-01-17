@@ -75,12 +75,12 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                 elif str(x).lower() == 'pool_name':
                     self.pool_name = str(access_arg[x])
                 self.elements_to_remove.append(str(x))
-        print(f"before - {self.elements_to_remove}")
+
         for x in self.elements_to_remove:
-            del self.db_access_arg[str(x)]
+            if x in db_access_arg:
+                del self.db_access_arg[str(x)]
         if self.elements_to_remove:
             self.elements_to_remove = []
-        print(f"after - {self.elements_to_remove}")
 
     def open(self):
         # If the user explicitly calls open(), then we know they want
