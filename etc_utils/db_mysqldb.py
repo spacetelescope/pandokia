@@ -124,6 +124,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                     print(f"Pandokia - New MySQL Connection Pool Name is {self.connection_pool.pool_name} and Size is {self.connection_pool.pool_size}")
                 if self.db is None:
                     self.db = self.connection_pool.get_connection()
+                    print(f"Pandokia - self.db is {self.db}")
                 if self.db.is_connected():
                     self.db_Info = self.db.get_server_info()
                     print(f"Pandokia - Connected to MySQL database using connection pool ... MySQL Server version on {self.db_Info}")
