@@ -77,7 +77,7 @@ class PandokiaDB(etc_utils.db.where_dict_base):
                 self.elements_to_remove.append(str(x))
 
         for x in self.elements_to_remove:
-            if x in db_access_arg:
+            if x in self.db_access_arg:
                 del self.db_access_arg[str(x)]
         if self.elements_to_remove:
             self.elements_to_remove = []
