@@ -127,7 +127,7 @@ entry_points_dict = {
 
 args = {
     'name': 'pandokia',
-    'version': '2025.2.dev0',
+    'version': '2025.7.dev0',
     'description': 'Pandokia - a test management and reporting system',
     'author': 'Mark Sienkiewicz, Vicki Laidler',
     'author_email': 'help@stsci.edu',
