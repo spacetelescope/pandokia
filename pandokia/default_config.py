@@ -263,7 +263,7 @@ recurring_prefix = (
     'etc_jwst_daily',
     'pandeia_nightly',
     'jwst',
-    'pandeia_master_latest'
+    'pandeia_main_latest'
 )
 
 #####
