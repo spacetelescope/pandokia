@@ -150,7 +150,8 @@ args = {
             'sql/*.sql',
             'runners/maker/*']},
     "install_requires": [
-        "setuptools"
+        "setuptools",
+        "cryptography"
     ],
     'classifiers': classifiers,
 }
