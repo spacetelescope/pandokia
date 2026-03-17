@@ -10,7 +10,7 @@ with open('README.md') as fp:
 setup(
     # The package
     name="etc_utils",
-    version="2026.1",
+    version="2026.1.0.1",
     packages=["etc_utils",
               "etc_utils.helpers",
               ],
