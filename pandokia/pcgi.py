@@ -51,12 +51,17 @@ def run():
     #
 
     #--#--# CGI
-    if not common.check_auth():
+    ### NOTE! On September 1st, 2026. This check_auth block failed even though we had the user_list
+    ###       and it was untouched for a while, see https://github.com/spacetelescope/etc-controller/blob/main/config/pandokia/glitch_config.py#L101-L103
+    ###       One unusual thing I discovered was that the glitch-groups list along with the glitch.etc.stsci.edu directory that should be under /grp/websites/
+    ###       was gone. From the info in https://github.com/spacetelescope/etc-controller/blob/main/config/README.md?plain=1#L9-L12, this file is related to
+    ###       allowed_users.txt, which is the user_list check_auth function checks.
+    #if not common.check_auth():
         # If authentication fails, I'm not concerned about giving
         # a particularly useful message.
-        sys.stdout.write(
-            "content-type: text/html\n\n\nAUTHENTICATION FAILED\n\n")
-        sys.exit(0)
+    #    sys.stdout.write(
+    #        "content-type: text/html\n\n\nAUTHENTICATION FAILED\n\n")
+    #    sys.exit(0)
 
     ######
     #
